@@ -1,0 +1,3 @@
+# Path to the private key file
+privateKeyPath: "./TestKey.asc"
+version: "0.1.0"

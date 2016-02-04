@@ -40,13 +40,13 @@ Takes the details from the device, formats the data and clear-signs it.
   ```json
   {
     "serial":"M12345/LN",
-    "brand": "System",
+    "brand-id": "System",
     "model":"Device 1000",
     "device-key":"ssh-rsa abcd1234",
     "revision": 2
   }
   ```
-- brand: the name of the manufacturer (string)
+- brand-id: the Account ID of the manufacturer (string)
 - model: the name of the device (string)
 - serial: serial number of the device (string)
 - device-key: the type and public key of the device (string)
@@ -58,7 +58,7 @@ Takes the details from the device, formats the data and clear-signs it.
 {
   "success":true,
   "message":"",
-  "signature":"-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\ntype: device\nbrand: Device 1000\nmodel: Device 1000\nserial: M12345/LN\ntimestamp: 2016-02-03 17:22:59.93489652 +0000 UTC\nrevision: 2\ndevice-key: ssh-rsa abcd1234\n-----BEGIN PGP SIGNATURE-----\n\nwsFcBAEBCA ... A5LT\n-----END PGP SIGNATURE-----"}
+  "signature":"-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\ntype: device\nbrand-id: System\nmodel: Device 1000\nserial: M12345/LN\ntimestamp: 2016-02-03 17:22:59.93489652 +0000 UTC\nrevision: 2\ndevice-key: ssh-rsa abcd1234\n-----BEGIN PGP SIGNATURE-----\n\nwsFcBAEBCA ... A5LT\n-----END PGP SIGNATURE-----"}
 ```
 - success: whether the submission was successful (bool)
 - message: error message from the submission (string)
@@ -66,5 +66,5 @@ Takes the details from the device, formats the data and clear-signs it.
 
 #### Example
 ```bash
-curl -X POST -d '{"serial":"M12345/LN","brand":"System",  "model":"Device 1000", "revision": 2, "device-key":"rsa-ssh abcd1234"}' http://localhost:8080/1.0/sign
+curl -X POST -d '{"serial":"M12345/LN", "brand-id":"System", "model":"Device 1000", "revision": 2, "device-key":"ssh-rsa abcd1234"}' http://localhost:8080/1.0/sign
 ```
