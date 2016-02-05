@@ -22,7 +22,14 @@ package service
 import "testing"
 
 func TestClearSignFile(t *testing.T) {
-	const assertions = "ABCD123456||聖誕快樂||A1234/L"
+	const assertions = `
+  {
+	  "brand-id": "System",
+    "model":"聖誕快樂",
+    "serial":"A1234/L",
+		"revision": 2,
+    "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+  }`
 
 	// Get the test private key
 	key, err := getPrivateKey(TestPrivateKeyPath)
@@ -36,5 +43,22 @@ func TestClearSignFile(t *testing.T) {
 	}
 	if len(response) == 0 {
 		t.Errorf("Empty signed data returned.")
+	}
+}
+
+func TestClearSignInvalidFile(t *testing.T) {
+	const assertions = `
+  {
+	  "brand-id": "System",
+    "model":"聖誕快樂",
+    "serial":"A1234/L",
+		"revision": 2,
+    "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+  }`
+
+	// Get an invalid private key file
+	_, err := getPrivateKey("../README.md")
+	if err != nil {
+		t.Error("Expected an error using an invalid private key file.")
 	}
 }

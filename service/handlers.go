@@ -22,6 +22,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -33,6 +34,15 @@ type Assertions struct {
 	Type         string `json:"type"`
 	Revision     int    `json:"revision"`
 	PublicKey    string `json:"device-key"`
+}
+
+// ModelDisplay is the JSON version of a model, excluding the signing-key
+type ModelDisplay struct {
+	ID       int    `json:"id"`
+	BrandID  string `json:"brand-id"`
+	Name     string `json:"model"`
+	Type     string `json:"type"`
+	Revision int    `json:"revision"`
 }
 
 // VersionResponse is the JSON response from the API Version method
@@ -47,16 +57,23 @@ type SignResponse struct {
 	Signature    string `json:"identity"`
 }
 
+// ModelsResponse is the JSON response from the API Models method
+type ModelsResponse struct {
+	Success      bool           `json:"success"`
+	ErrorMessage string         `json:"message"`
+	Models       []ModelDisplay `json:"models"`
+}
+
 // VersionHandler is the API method to return the version of the service
 func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	response := VersionResponse{Version: Config.Version}
+	response := VersionResponse{Version: Environ.Config.Version}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		panic(err)
+		log.Printf("Error encoding the version response: %v\n", err)
 	}
 }
 
@@ -81,10 +98,15 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Format the assertions string
-	dataToSign := formatAssertion(assertions)
+	dataToSign, err := formatAssertion(assertions)
+	if err != nil {
+		errorMessage := fmt.Sprintf("Error formatting the assertions: %v", err)
+		formatSignResponse(false, errorMessage, "", w)
+		return
+	}
 
 	// Read the private key into a string
-	privateKey, err := getPrivateKey(Config.PrivateKeyPath)
+	privateKey, err := getPrivateKey(Environ.Config.PrivateKeyPath)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Error reading the private key: %v", err)
 		formatSignResponse(false, errorMessage, "", w)
@@ -101,4 +123,28 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return successful JSON response with the signed text
 	formatSignResponse(true, "", string(signedText), w)
+}
+
+// ModelsHandler is the API method to list the models
+func ModelsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	var models []ModelDisplay
+
+	dbModels, err := Environ.DB.ListModels()
+	if err != nil {
+		errorMessage := fmt.Sprintf("Error fetching the models: %v", err)
+		formatModelsResponse(false, errorMessage, nil, w)
+		return
+	}
+
+	// Format the database records for output
+	for _, model := range dbModels {
+		mdl := ModelDisplay{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision}
+		models = append(models, mdl)
+	}
+
+	// Return successful JSON response with the list of models
+	formatModelsResponse(true, "", models, w)
 }

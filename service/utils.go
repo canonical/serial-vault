@@ -21,7 +21,9 @@ package service
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -32,6 +34,8 @@ import (
 type ConfigSettings struct {
 	PrivateKeyPath string `yaml:"privateKeyPath"`
 	Version        string `yaml:"version"`
+	Driver         string `yaml:"driver"`
+	DataSource     string `yaml:"datasource"`
 }
 
 // DeviceAssertion defines the device identity.
@@ -45,7 +49,41 @@ type DeviceAssertion struct {
 	PublicKey    string `yaml:"device-key"`
 }
 
-func formatAssertion(assertions *Assertions) string {
+// ModelType is the default type of a model
+const ModelType = "device"
+
+// Env Environment struct that holds the config and data store details.
+type Env struct {
+	Config ConfigSettings
+	//DB     *DB
+	DB Datastore
+}
+
+var settingsFile string
+
+// ParseArgs checks the command line arguments
+func ParseArgs() {
+	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
+	flag.Parse()
+}
+
+// ReadConfig parses the config file
+func ReadConfig(config *ConfigSettings) error {
+	source, err := ioutil.ReadFile(settingsFile)
+	if err != nil {
+		log.Println("Error opening the config file.")
+		return err
+	}
+
+	err = yaml.Unmarshal(source, &config)
+	if err != nil {
+		log.Println("Error parsing the config file.")
+		return err
+	}
+	return nil
+}
+
+func formatAssertion(assertions *Assertions) (string, error) {
 	timestamp := time.Now().UTC().String()
 	assertion := DeviceAssertion{
 		Type: "device", Brand: assertions.Brand, Model: assertions.Model,
@@ -54,9 +92,10 @@ func formatAssertion(assertions *Assertions) string {
 
 	dataToSign, err := yaml.Marshal(assertion)
 	if err != nil {
-		panic(err)
+		log.Println("Error formatting the assertions.")
+		return "", err
 	}
-	return string(dataToSign)
+	return string(dataToSign), nil
 }
 
 // Return the armored private key as a string
@@ -68,11 +107,24 @@ func getPrivateKey(privateKeyFilePath string) ([]byte, error) {
 	return privateKey, nil
 }
 
-func formatSignResponse(success bool, message, signature string, w http.ResponseWriter) {
+func formatSignResponse(success bool, message, signature string, w http.ResponseWriter) error {
 	response := SignResponse{Success: success, ErrorMessage: message, Signature: signature}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		panic(err)
+		log.Println("Error forming the signing response.")
+		return err
 	}
+	return nil
+}
+
+func formatModelsResponse(success bool, message string, models []ModelDisplay, w http.ResponseWriter) error {
+	response := ModelsResponse{Success: success, ErrorMessage: message, Models: models}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the models response.")
+		return err
+	}
+	return nil
 }
