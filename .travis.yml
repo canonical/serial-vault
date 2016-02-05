@@ -1,0 +1,13 @@
+sudo: required
+dist: trusty
+language: go
+go:
+  - 1.5
+env:
+  matrix:
+    - TEST_SUITE="--static"
+    - TEST_SUITE="--unit"
+
+install:
+  - echo "Skip. Install is done by the test script."
+script: sh -v ./run-checks $TEST_SUITE
