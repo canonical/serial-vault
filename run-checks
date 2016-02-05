@@ -102,12 +102,12 @@ if [ ! -z "$UNIT" ]; then
     echo "mode: set" > .coverage/coverage.out
 
     echo Building
-    go build -tags=excludeintegration -v github.com/ubuntu-core/identity-vault/...
+    go build -v ./...
 
     # tests
     echo Running tests from $(pwd)
     for pkg in $(go list ./...); do
-        go test -tags=excludeintegration -v -coverprofile=.coverage/profile.out $pkg
+        go test -v -coverprofile=.coverage/profile.out $pkg
         append_coverage .coverage/profile.out
     done
 
