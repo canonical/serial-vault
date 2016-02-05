@@ -1,0 +1,125 @@
+#!/bin/sh
+export LANG=C.UTF-8
+export LANGUAGE=en
+set -eu
+
+STATIC=""
+UNIT=""
+
+case "${1:-all}" in
+    all)
+        STATIC="yes"
+        UNIT="yes"
+        ;;
+    --static)
+        STATIC="yes"
+        ;;
+    --unit)
+        UNIT="yes"
+        ;;
+    *)
+        echo "Wrong flag ${1}. To run a single suite use --static or --unit"
+        exit 1
+esac
+
+CURRENTTRAP="true"
+EXIT_CODE=99
+store_exit_code() {
+    EXIT_CODE=$?
+}
+exit_with_exit_code() {
+    exit $EXIT_CODE
+}
+addtrap() {
+    CURRENTTRAP="$CURRENTTRAP ; $1"
+    trap "store_exit_code; $CURRENTTRAP ; exit_with_exit_code" EXIT
+}
+
+endmsg() {
+    if [ $EXIT_CODE -eq 0 ]; then
+        p="success.txt"
+        m="All good, what could possibly go wrong."
+    else
+        p="failure.txt"
+        m="Crushing failure and despair."
+    fi
+    echo "$m"
+}
+addtrap endmsg
+
+
+# Append the coverage profile of a package to the project coverage.
+append_coverage() {
+    local profile="$1"
+    if [ -f $profile ]; then
+        cat $profile | grep -v "mode: set" >> .coverage/coverage.out
+        rm $profile
+    fi
+}
+
+
+echo Installing godeps
+go get launchpad.net/godeps
+export PATH=$PATH:$GOPATH/bin
+
+echo Obtaining dependencies
+godeps -u dependencies.tsv
+
+if [ ! -z "$STATIC" ]; then
+
+    echo Checking formatting
+    fmt=$(gofmt -l .)
+
+    if [ -n "$fmt" ]; then
+        echo "Formatting wrong in following files"
+        echo "$fmt"
+        exit 1
+    fi
+
+    # go vet
+    echo Running vet
+    go vet ./...
+
+    # golint
+    echo Install golint
+    go get github.com/golang/lint/golint
+    export PATH=$PATH:$GOPATH/bin
+
+    echo Running lint
+    lint=$(golint ./...)
+    if [ -n "$lint" ]; then
+        echo "Lint complains:"
+        echo "$lint"
+        exit 1
+    fi
+
+fi
+
+if [ ! -z "$UNIT" ]; then
+    # Prepare the coverage output profile.
+    rm -rf .coverage
+    mkdir .coverage
+    echo "mode: set" > .coverage/coverage.out
+
+    echo Building
+    go build -v ./...
+
+    # tests
+    echo Running tests from $(pwd)
+    for pkg in $(go list ./...); do
+        go test -v -coverprofile=.coverage/profile.out $pkg
+        append_coverage .coverage/profile.out
+    done
+
+fi
+
+UNCLEAN="$(git status -s|grep ^??)" || true
+if [ -n "$UNCLEAN" ]; then
+    cat <<EOF
+
+There are files left in the git tree after the tests:
+
+$UNCLEAN
+EOF
+    exit 1
+fi
