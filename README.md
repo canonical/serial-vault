@@ -9,6 +9,15 @@ Go get it:
   $ go get github.com/ubuntu-core/identity-vault
   ```
 
+Configure it:
+- Install PostgreSQL and create a database.
+- Set up the config file, using ```settings.yaml``` as a guide.
+- Create the database tables:
+  ```bash
+  $ cd identity-vault
+  $ go run tools/createdb.go
+  ```
+
 Run it:
   ```bash
   $ cd identity-vault
