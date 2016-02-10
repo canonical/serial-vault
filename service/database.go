@@ -43,7 +43,13 @@ func OpenSysDatabase(driver, dataSource string) *DB {
 	// Open the database connection
 	db, err := sql.Open(driver, dataSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error opening the database: %v\n", err)
+	}
+
+	// Check that we have a valid database connection
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error accessing the database: %v\n", err)
 	} else {
 		log.Println("Database opened successfully.")
 	}

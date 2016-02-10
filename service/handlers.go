@@ -128,16 +128,18 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 // ModelsHandler is the API method to list the models
 func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
 
 	var models []ModelDisplay
 
 	dbModels, err := Environ.DB.ListModels()
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("Error fetching the models: %v", err)
 		formatModelsResponse(false, errorMessage, nil, w)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 
 	// Format the database records for output
 	for _, model := range dbModels {

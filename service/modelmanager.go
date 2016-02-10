@@ -53,7 +53,7 @@ func (db *DB) ListModels() ([]Model, error) {
 
 	rows, err := db.Query(listModelsSQL)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error retrieving database models: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
