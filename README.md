@@ -21,13 +21,46 @@ Run it:
 > Return the version of the identity vault service.
 
 #### Output message
-
 ```json
 {
   "version":"0.1.0",
 }
 ```
-  - version: the version of the identity vault service (string)
+- version: the version of the identity vault service (string)
+
+
+### /1.0/models (GET)
+> Return the available models from the identity vault.
+
+#### Output message
+```json
+{
+  "success": true,
+  "message": "",
+  "models": [
+  {
+    "brand-id": "System",
+    "model": "DroidBox 2400",
+    "type": "device",
+    "revision": 2
+  },
+  {
+    "brand-id": "System",
+    "model": "DroidBox 1200",
+    "type": "device",
+    "revision": 1
+  },
+  {
+    "brand-id": "System",
+    "model": "Drone 1000",
+    "type": "device",
+    "revision": 4
+  }]
+}
+```
+- success: whether the request was successful (bool)
+- message: error message from the request (string)
+- models: the list of available models (array)
 
 
 ### /1.0/sign (POST)
@@ -37,15 +70,15 @@ Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
 
-  ```json
-  {
-    "serial":"M12345/LN",
-    "brand-id": "System",
-    "model":"Device 1000",
-    "device-key":"ssh-rsa abcd1234",
-    "revision": 2
-  }
-  ```
+```json
+{
+  "serial":"M12345/LN",
+  "brand-id": "System",
+  "model":"Device 1000",
+  "device-key":"ssh-rsa abcd1234",
+  "revision": 2
+}
+```
 - brand-id: the Account ID of the manufacturer (string)
 - model: the name of the device (string)
 - serial: serial number of the device (string)
