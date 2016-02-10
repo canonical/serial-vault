@@ -1,3 +1,22 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
+
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package service
 
 import (
@@ -16,16 +35,16 @@ func Logger(start time.Time, r *http.Request) {
 	)
 }
 
-// Config contains the parsed config file settings.
-var Config *ConfigSettings
+// Environ contains the parsed config file settings.
+var Environ *Env
 
 // Middleware to pre-process web service requests
-func Middleware(inner http.Handler, config *ConfigSettings) http.Handler {
+func Middleware(inner http.Handler, env *Env) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		if Config == nil {
-			Config = config
+		if Environ == nil {
+			Environ = env
 		}
 
 		// Log the request

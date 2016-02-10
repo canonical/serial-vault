@@ -21,9 +21,7 @@ package main
 
 import (
 	"log"
-	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
@@ -31,19 +29,17 @@ func main() {
 	env := service.Env{}
 	// Parse the command line arguments
 	service.ParseArgs()
-	err := service.ReadConfig(&env.Config)
-	if err != nil {
-		log.Fatalf("Error parsing the config file: %v", err)
-	}
+	service.ReadConfig(&env.Config)
 
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
-	// Start the web service router
-	router := mux.NewRouter()
+	// Create the model table, if it does not exist
+	err := env.DB.CreateModelTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Created the 'model' table.")
+	}
 
-	router.Handle("/1.0/version", service.Middleware(http.HandlerFunc(service.VersionHandler), &env)).Methods("GET")
-	router.Handle("/1.0/models", service.Middleware(http.HandlerFunc(service.ModelsHandler), &env)).Methods("GET")
-	router.Handle("/1.0/sign", service.Middleware(http.HandlerFunc(service.SignHandler), &env)).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8080", router))
 }

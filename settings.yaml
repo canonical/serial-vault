@@ -1,3 +1,9 @@
 # Path to the private key file
 privateKeyPath: "./TestKey.asc"
+
+# Identity Vault version
 version: "0.1.0"
+
+# Backend database details
+driver: "postgres"
+datasource: "dbname=identity-vault"
