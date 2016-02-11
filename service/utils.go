@@ -34,6 +34,8 @@ import (
 type ConfigSettings struct {
 	PrivateKeyPath string `yaml:"privateKeyPath"`
 	Version        string `yaml:"version"`
+	Title          string `yaml:"title"`
+	Logo           string `yaml:"logo"`
 	Driver         string `yaml:"driver"`
 	DataSource     string `yaml:"datasource"`
 }

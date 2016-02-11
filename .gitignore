@@ -1,2 +1,4 @@
 *.swp
 .coverage
+*.log
+node_modules
