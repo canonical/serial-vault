@@ -38,6 +38,15 @@ func TestReadConfig(t *testing.T) {
 	}
 }
 
+func TestReadConfigInvalidPath(t *testing.T) {
+	settingsFile = "not a good path"
+	config := ConfigSettings{}
+	err := ReadConfig(&config)
+	if err == nil {
+		t.Error("Expected an error with an invalid config file.")
+	}
+}
+
 func TestReadConfigInvalidFile(t *testing.T) {
 	settingsFile = "../README.md"
 	config := ConfigSettings{}
