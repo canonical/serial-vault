@@ -27,26 +27,6 @@ import (
 	"testing"
 )
 
-type mockDB struct{}
-
-// CreateModelTable mock for the create model table method
-func (mdb *mockDB) CreateModelTable() error {
-	return nil
-}
-
-// ModelsList Mock the database response for a list of models
-func (mdb *mockDB) ListModels() ([]Model, error) {
-
-	var models []Model
-	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "Alder", SigningKey: "alder", Revision: 1})
-	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "Ash", SigningKey: "ash", Revision: 7})
-	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "Basswood", SigningKey: "basswood", Revision: 23})
-	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "Korina", SigningKey: "korina", Revision: 42})
-	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "Mahogany", SigningKey: "mahogany", Revision: 10})
-	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "Maple", SigningKey: "maple", Revision: 12})
-	return models, nil
-}
-
 func TestSignHandlerNoData(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/sign", nil)
@@ -64,6 +44,10 @@ func TestSignHandlerNoData(t *testing.T) {
 }
 
 func TestSignHandler(t *testing.T) {
+	// Mock the database
+	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc"}
+	Environ = &Env{DB: &mockDB{}, Config: config}
+
 	const assertions = `
   {
 	  "brand-id": "System",
@@ -72,9 +56,6 @@ func TestSignHandler(t *testing.T) {
 		"revision": 2,
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
-
-	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc"}
-	Environ = &Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
@@ -147,17 +128,18 @@ func TestSignHandlerBadAssertion(t *testing.T) {
 }
 
 func TestSignHandlerBadPrivateKeyPath(t *testing.T) {
+	// Mock the database using an incorrect signing-key (invalid path)
+	config := ConfigSettings{PrivateKeyPath: "Not a good path"}
+	Environ = &Env{DB: &errorMockDB{}, Config: config}
+
 	const assertions = `
   {
 	  "brand-id": "System",
-    "model":"聖誕快樂",
+    "model":"Bad Path",
     "serial":"A1234/L",
 		"revision": 2,
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
-
-	config := ConfigSettings{PrivateKeyPath: "Not a good path"}
-	Environ = &Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
@@ -175,6 +157,9 @@ func TestSignHandlerBadPrivateKeyPath(t *testing.T) {
 }
 
 func TestSignHandlerBadPrivateKeyFile(t *testing.T) {
+	// Mock the database using an incorrect signing-key (README.md)
+	Environ = &Env{DB: &errorMockDB{}}
+
 	const assertions = `
   {
 	  "brand-id": "System",
@@ -183,9 +168,6 @@ func TestSignHandlerBadPrivateKeyFile(t *testing.T) {
 		"revision": 2,
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
-
-	config := ConfigSettings{PrivateKeyPath: "../README.md"}
-	Environ = &Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
@@ -199,6 +181,34 @@ func TestSignHandlerBadPrivateKeyFile(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected failure with an invalid private key file, got success")
+	}
+}
+
+func TestSignHandlerNonExistentModel(t *testing.T) {
+	// Mock the database, ot finding the model
+	Environ = &Env{DB: &errorMockDB{}}
+
+	const assertions = `
+  {
+	  "brand-id": "System",
+    "model":"Cannot Find This",
+    "serial":"A1234/L",
+		"revision": 2,
+    "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+  }`
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SignResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signed response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected failure with an invalid model, got success")
 	}
 }
 
@@ -244,5 +254,24 @@ func TestModelsHandler(t *testing.T) {
 	if result.Models[0].Name != "Alder" {
 		t.Errorf("Expected model name 'Alder', got %s", result.Models[0].Name)
 	}
+}
 
+func TestModelsHandlerWithError(t *testing.T) {
+
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/1.0/models", nil)
+	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := ModelsResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the models response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got sucess")
+	}
 }
