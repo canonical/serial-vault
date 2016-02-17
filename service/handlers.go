@@ -81,9 +81,9 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 // SignHandler is the API method to sign assertions from the device
 func SignHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
 
 	if r.Body == nil {
+		w.WriteHeader(http.StatusBadRequest)
 		formatSignResponse(false, "Not initialized post data.", "", w)
 		return
 	}
@@ -96,10 +96,12 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	switch {
 	// Check we have some data
 	case err == io.EOF:
+		w.WriteHeader(http.StatusBadRequest)
 		formatSignResponse(false, "No data supplied for signing.", "", w)
 		return
 		// Check for parsing errors
 	case err != nil:
+		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("Error decoding JSON: %v", err)
 		formatSignResponse(false, errorMessage, "", w)
 		return
@@ -108,6 +110,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Format the assertions string
 	dataToSign, err := formatAssertion(assertions)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("Error formatting the assertions: %v", err)
 		formatSignResponse(false, errorMessage, "", w)
 		return
@@ -116,6 +119,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Read the private key into a string
 	privateKey, err := getPrivateKey(Environ.Config.PrivateKeyPath)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("Error reading the private key: %v", err)
 		formatSignResponse(false, errorMessage, "", w)
 		return
@@ -124,12 +128,14 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Sign the assertions
 	signedText, err := ClearSign(dataToSign, string(privateKey), "")
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("Error signing the assertions: %v\n", err)
 		formatSignResponse(false, errorMessage, "", w)
 		return
 	}
 
 	// Return successful JSON response with the signed text
+	w.WriteHeader(http.StatusOK)
 	formatSignResponse(true, "", string(signedText), w)
 }
 
