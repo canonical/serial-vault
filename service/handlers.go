@@ -22,6 +22,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 )
@@ -82,16 +83,23 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	// Check we have some data
 	if r.Body == nil {
-		formatSignResponse(false, "No data supplied for signing.", "", w)
+		formatSignResponse(false, "Not initialized post data.", "", w)
 		return
 	}
-	defer r.Body.Close()
 
 	assertions := new(Assertions)
 	err := json.NewDecoder(r.Body).Decode(&assertions)
-	if err != nil {
+
+	defer r.Body.Close()
+
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		formatSignResponse(false, "No data supplied for signing.", "", w)
+		return
+		// Check for parsing errors
+	case err != nil:
 		errorMessage := fmt.Sprintf("Error decoding JSON: %v", err)
 		formatSignResponse(false, errorMessage, "", w)
 		return
