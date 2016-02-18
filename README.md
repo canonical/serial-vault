@@ -1,3 +1,4 @@
+[![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 # Identity Vault
 
 A Go web service that digitally signs device assertion details.
