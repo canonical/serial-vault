@@ -27,9 +27,25 @@ import (
 	"testing"
 )
 
+func TestSignHandlerNilData(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/1.0/sign", nil)
+	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SignResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signed response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected an error, got success response")
+	}
+}
+
 func TestSignHandlerNoData(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/sign", nil)
+	r, _ := http.NewRequest("POST", "/1.0/sign", new(bytes.Buffer))
 	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
 
 	// Check the JSON response

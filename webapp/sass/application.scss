@@ -1,0 +1,20 @@
+// Import the theme
+@import "../../node_modules/ubuntu-vanilla-theme/scss/theme";
+// Run the theme
+@include ubuntu-vanilla-theme;
+
+
+// Customise theme
+div.alert {
+	color: $error;
+	border-color: $error;
+}
+
+footer div {
+	padding-left: 10px;
+}
+
+.button--primary.small, .button--secondary.small {
+	padding: 0px 5px !important;
+	width: auto;
+}

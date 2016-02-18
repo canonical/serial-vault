@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>{{.Title}}</title>
+
+	<link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/static/css/application.css" />
+</head>
+<body>
+  <header class="banner global" role="banner">
+	  <nav role="navigation" class="nav-primary nav-right">
+	    <span id="main-navigation-link"><a href="#main-navigation">Jump to site nav</a></span>
+	    <div class="logo">
+	      <a class="logo-ubuntu" href="/">
+	        <img width="106" height="25" src="{{.Logo}}" alt="" />
+	        <span>{{.Title}}</span>
+	      </a>
+	    </div>
+	  </nav>
+	</header>
+
+	<div class="wrapper">
+		<div id="main" class="inner-wrapper"></div>
+	</div>
+
+  <script type="text/javascript" src="/static/js/bundle.js"></script>
+</body>
+</html>

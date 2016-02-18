@@ -2,7 +2,9 @@
 privateKeyPath: "./TestKey.asc"
 
 # Identity Vault version
-version: "0.1.0"
+version: "0.2.0"
+title: "Identity Vault"
+logo: "/static/images/logo-ubuntu-white.svg"
 
 # Backend database details
 driver: "postgres"
