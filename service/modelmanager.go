@@ -19,7 +19,12 @@
 
 package service
 
-import "log"
+import (
+	"database/sql"
+	"errors"
+	"log"
+	"strings"
+)
 
 const createModelTableSQL = `
 	CREATE TABLE IF NOT EXISTS model (
@@ -31,7 +36,11 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = "select id, brand_id, name, signing_key, revision from model order by name"
-const findModelSQL = "select id, brand_id, name, signing_key, revision from model where brand_id=$1, name=$2, revision=$3"
+const findModelSQL = "select id, brand_id, name, signing_key, revision from model where brand_id=$1 and name=$2 and revision=$3"
+const getModelSQL = "select id, brand_id, name, signing_key, revision from model where id=$1"
+const updateModelSQL = "update model set brand_id=$2, name=$3, revision=$4 where id=$1"
+const createModelSQL = "insert into model (brand_id,name,revision) values ($1,$2,$3)"
+const updateKeyModelSQL = "update model set signing_key=$2 where id=$1"
 
 // Model holds the model details in the local database
 type Model struct {
@@ -73,13 +82,104 @@ func (db *DB) ListModels() ([]Model, error) {
 
 // FindModel retrieves the model from the database.
 func (db *DB) FindModel(brandID, modelName string, revision int) (*Model, error) {
-	var model *Model
+	model := Model{}
 
 	err := db.QueryRow(findModelSQL, brandID, modelName, revision).Scan(&model.ID, &model.BrandID, &model.Name, &model.SigningKey, &model.Revision)
-	if err != nil {
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, err
+	case err != nil:
 		log.Printf("Error retrieving database model: %v\n", err)
 		return nil, err
 	}
 
-	return model, nil
+	return &model, nil
+}
+
+// GetModel retrieves the model from the database by ID.
+func (db *DB) GetModel(modelID int) (*Model, error) {
+	model := Model{}
+
+	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.SigningKey, &model.Revision)
+	if err != nil {
+		log.Printf("Error retrieving database model by ID: %v\n", err)
+		return nil, err
+	}
+
+	return &model, nil
+}
+
+// UpdateModel updates the model.
+func (db *DB) UpdateModel(model Model) error {
+
+	// Validate the data
+	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.Revision <= 0 {
+		return errors.New("The Brand and Model must be supplied and Revision must be greater than zero.")
+	}
+
+	_, err := db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.Revision)
+	if err != nil {
+		log.Printf("Error updating the database model: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+// CreateModel updates the model.
+func (db *DB) CreateModel(model Model) (int, error) {
+
+	// Validate the data
+	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.Revision <= 0 || strings.TrimSpace(model.SigningKey) == "" {
+		return 0, errors.New("The Brand, Model and Signing Key must be supplied and Revision must be greater than zero.")
+	}
+
+	// Check that the model does not exist
+	_, err := db.FindModel(model.BrandID, model.Name, model.Revision)
+	if err == nil {
+		return 0, errors.New("A device with the same Brand, Model and Revision already exists.")
+	}
+
+	// Verify that the signing-key is valid
+	_, err = ClearSign("Text to Sign", model.SigningKey, "")
+	if err != nil {
+		return 0, errors.New("The Signing-key is invalid")
+	}
+
+	// Create the model in the database
+	_, err = db.Exec(createModelSQL, model.BrandID, model.Name, model.Revision)
+	if err != nil {
+		log.Printf("Error creating the database model: %v\n", err)
+		return 0, err
+	}
+
+	// Get the created model
+	mdl, err := db.FindModel(model.BrandID, model.Name, model.Revision)
+	if err != nil {
+		return 0, errors.New("Cannot find the created model.")
+	}
+
+	// Store the signing-key in the keystore
+	keystore := GetKeyStore()
+	keyLocation, err := keystore.Put([]byte(model.SigningKey), *mdl)
+	if err != nil {
+		return 0, err
+	}
+
+	// Update the reference to the stored signing-key in the model
+	err = db.updateModelKey(mdl.ID, keyLocation)
+	if err != nil {
+		return 0, err
+	}
+
+	return mdl.ID, nil
+}
+
+// updateModelKey updates the reference to the signing-key location
+func (db *DB) updateModelKey(modelID int, keyPath string) error {
+	_, err := db.Exec(updateKeyModelSQL, modelID, keyPath)
+	if err != nil {
+		log.Printf("Error retrieving database model: %v\n", err)
+	}
+	return err
 }

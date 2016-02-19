@@ -2,3 +2,5 @@
 .coverage
 *.log
 node_modules
+keystore/model*
+tags

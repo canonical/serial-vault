@@ -19,6 +19,8 @@
 
 package service
 
+import "errors"
+
 // Successful mocks for the database
 type mockDB struct{}
 
@@ -46,12 +48,49 @@ func (mdb *mockDB) FindModel(brandID, modelName string, revision int) (*Model, e
 	return &model, nil
 }
 
-type errorString struct {
-	message string
+// GetModel mocks the model from the database by ID.
+func (mdb *mockDB) GetModel(modelID int) (*Model, error) {
+
+	var model Model
+	found := false
+	models, _ := mdb.ListModels()
+
+	for _, mdl := range models {
+		if mdl.ID == modelID {
+			model = mdl
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return nil, errors.New("Cannot find the model.")
+	}
+
+	return &model, nil
 }
 
-func (e *errorString) Error() string {
-	return e.message
+// UpdateModel mocks the model update.
+func (mdb *mockDB) UpdateModel(model Model) error {
+	models, _ := mdb.ListModels()
+	found := false
+
+	for _, mdl := range models {
+		if mdl.ID == model.ID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return errors.New("Cannot find the model.")
+	}
+	return nil
+}
+
+// CreateModel mocks creating a new model.
+func (mdb *mockDB) CreateModel(model Model) (int, error) {
+	return 7, nil
 }
 
 // Unsuccessful mocks for the database
@@ -59,12 +98,12 @@ type errorMockDB struct{}
 
 // CreateModelTable mock for the create model table method
 func (mdb *errorMockDB) CreateModelTable() error {
-	return &errorString{"Error creating the model table."}
+	return errors.New("Error creating the model table.")
 }
 
 // ModelsList Mock the database response for a list of models
 func (mdb *errorMockDB) ListModels() ([]Model, error) {
-	return nil, &errorString{"Error getting the models."}
+	return nil, errors.New("Error getting the models.")
 }
 
 // FindModel mocks the database response for finding a model, returning an invalid signing-key
@@ -77,5 +116,20 @@ func (mdb *errorMockDB) FindModel(brandID, modelName string, revision int) (*Mod
 	} else if brandID == modelInvalidKeyFile.BrandID && modelName == modelInvalidKeyFile.Name && revision == modelInvalidKeyFile.Revision {
 		return &modelInvalidKeyFile, nil
 	}
-	return nil, &errorString{"Error finding the model."}
+	return nil, errors.New("Error finding the model.")
+}
+
+// GetModel mocks the model from the database by ID, returning an error.
+func (mdb *errorMockDB) GetModel(modelID int) (*Model, error) {
+	return nil, errors.New("Error retrieving the model.")
+}
+
+// UpdateModel mocks the model update, returning an error.
+func (mdb *errorMockDB) UpdateModel(model Model) error {
+	return errors.New("Error updating the model.")
+}
+
+// CreateModel mocks creating a new model, returning an error.
+func (mdb *errorMockDB) CreateModel(model Model) (int, error) {
+	return 0, errors.New("Error creating the model.")
 }

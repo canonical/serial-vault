@@ -31,6 +31,9 @@ import (
 type Datastore interface {
 	ListModels() ([]Model, error)
 	FindModel(brandID, modelName string, revision int) (*Model, error)
+	GetModel(modelID int) (*Model, error)
+	UpdateModel(model Model) error
+	CreateModel(model Model) (int, error)
 	CreateModelTable() error
 }
 
