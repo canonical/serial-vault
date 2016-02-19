@@ -31,6 +31,7 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = "select id, brand_id, name, signing_key, revision from model order by name"
+const findModelSQL = "select id, brand_id, name, signing_key, revision from model where brand_id=$1, name=$2, revision=$3"
 
 // Model holds the model details in the local database
 type Model struct {
@@ -68,4 +69,17 @@ func (db *DB) ListModels() ([]Model, error) {
 	}
 
 	return models, nil
+}
+
+// FindModel retrieves the model from the database.
+func (db *DB) FindModel(brandID, modelName string, revision int) (*Model, error) {
+	var model *Model
+
+	err := db.QueryRow(findModelSQL, brandID, modelName, revision).Scan(&model.ID, &model.BrandID, &model.Name, &model.SigningKey, &model.Revision)
+	if err != nil {
+		log.Printf("Error retrieving database model: %v\n", err)
+		return nil, err
+	}
+
+	return model, nil
 }

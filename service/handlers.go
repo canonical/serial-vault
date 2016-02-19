@@ -107,6 +107,15 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate the model by checking that it exists on the database
+	model, err := Environ.DB.FindModel(assertions.Brand, assertions.Model, assertions.Revision)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := "Cannot find model with the matching brand, model and revision."
+		formatSignResponse(false, errorMessage, "", w)
+		return
+	}
+
 	// Format the assertions string
 	dataToSign, err := formatAssertion(assertions)
 	if err != nil {
@@ -116,8 +125,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read the private key into a string
-	privateKey, err := getPrivateKey(Environ.Config.PrivateKeyPath)
+	// Read the private key into a string using the model's signing key
+	privateKey, err := getPrivateKey(model.SigningKey)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("Error reading the private key: %v", err)
