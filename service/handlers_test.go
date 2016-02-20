@@ -59,7 +59,7 @@ func TestSignHandlerNoData(t *testing.T) {
 	}
 }
 
-var sign_cases = []struct {
+var signCases = []struct {
 	assertions        string
 	mockDB            string
 	expectedSuccess   bool
@@ -114,7 +114,7 @@ func TestSignHandlerGeneric(t *testing.T) {
 	var r *http.Request
 	var err error
 
-	for _, tt := range sign_cases {
+	for _, tt := range signCases {
 
 		if tt.mockDB == "MockDB" {
 			Environ = &Env{DB: &mockDB{}}
@@ -170,7 +170,7 @@ func TestVersionHandler(t *testing.T) {
 
 }
 
-var models_cases = []struct {
+var modelsCases = []struct {
 	mockDB         string
 	success        bool
 	numberModels   int
@@ -188,7 +188,7 @@ func TestModelsHandlerGeneric(t *testing.T) {
 	var r *http.Request
 	var err error
 
-	for _, tt := range models_cases {
+	for _, tt := range modelsCases {
 		if tt.mockDB == "MockDB" {
 			Environ = &Env{DB: &mockDB{}}
 		}
@@ -213,7 +213,7 @@ func TestModelsHandlerGeneric(t *testing.T) {
 			t.Errorf("Expected number of models: %d; got: %d", tt.numberModels, len(result.Models))
 		}
 		if len(result.Models) > 0 && result.Models[0].Name != tt.firstModelName {
-			t.Errorf("Expected model name: %s; got: %s", result.Models[0].Name)
+			t.Errorf("Expected model name: %s; got: %s", tt.firstModelName, result.Models[0].Name)
 		}
 	}
 }
