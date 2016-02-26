@@ -27,6 +27,8 @@ import (
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
+const sshKeysPath = "/.ssh/authorized_keys"
+
 func main() {
 	env := service.Env{}
 	// Parse the command line arguments
@@ -36,16 +38,24 @@ func main() {
 		log.Fatalf("Error parsing the config file: %v", err)
 	}
 
+	// Initialize the authorized keys manager
+	env.AuthorizedKeys, err = service.InitializeAuthorizedKeys(sshKeysPath)
+
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
 	// Start the web service router
 	router := mux.NewRouter()
 
-	// API routes
+	// API routes: models
 	router.Handle("/1.0/version", service.Middleware(http.HandlerFunc(service.VersionHandler), &env)).Methods("GET")
 	router.Handle("/1.0/models", service.Middleware(http.HandlerFunc(service.ModelsHandler), &env)).Methods("GET")
 	router.Handle("/1.0/sign", service.Middleware(http.HandlerFunc(service.SignHandler), &env)).Methods("POST")
+
+	// API routes: ssh keys
+	router.Handle("/1.0/keys", service.Middleware(http.HandlerFunc(service.AuthorizedKeysHandler), &env)).Methods("GET")
+	router.Handle("/1.0/keys", service.Middleware(http.HandlerFunc(service.AuthorizedKeyAddHandler), &env)).Methods("POST")
+	router.Handle("/1.0/keys/delete", service.Middleware(http.HandlerFunc(service.AuthorizedKeyDeleteHandler), &env)).Methods("POST")
 
 	// Web application routes
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))

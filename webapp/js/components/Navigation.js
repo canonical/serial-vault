@@ -22,18 +22,23 @@ var Navigation = React.createClass({
     render: function() {
 			var activeHome = '';
 			var activeModels = '';
+			var activeKeys = '';
 			if (this.props.active === 'home') {
 				activeHome = 'active';
 			}
 			if (this.props.active === 'models') {
 				activeModels = 'active';
-			}			
+			}
+      if (this.props.active === 'keys') {
+				activeKeys = 'active';
+			}
 
       return (
         <nav role="navigation" className="nav-secondary clearfix open">
           <ul className="second-level-nav">
             <li><a className={activeHome} href="/">Home</a></li>
             <li><a className={activeModels} href="/models">Models</a></li>
+            <li><a className={activeKeys} href="/keys">Public Keys</a></li>
           </ul>
         </nav>
       );

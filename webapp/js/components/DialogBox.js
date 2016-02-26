@@ -15,36 +15,26 @@
  *
  */
 'use strict'
-var request =require('then-request');
-var API_VERSION = '/1.0/';
 
-var Ajax = {
-	get: function(url) {
-			return request('GET', API_VERSION + url, {
-					headers: {}
-			});
-	},
+var React = require('react');
 
-	post: function(url, data) {
-			return request('POST', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
-	},
-
-	put: function(url, data) {
-			return request('PUT', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
-	},
-
-	delete: function(url, data) {
-			return request('DELETE', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
+var DialogBox = React.createClass({
+	render: function() {
+		if (this.props.message) {
+			return (
+				<div className="box warning">
+					<p>{this.props.message}</p>
+					<div>
+						<a href="" onClick={this.props.handleYesClick} className="button--primary">Yes</a>
+						&nbsp;
+						<a href="" onClick={this.props.handleCancelClick} className="button--secondary">Cancel</a>
+					</div>
+				</div>
+			);
+		} else {
+			return <span />;
+		}
 	}
-}
+});
 
-module.exports = Ajax;
+module.exports = DialogBox;

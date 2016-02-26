@@ -24,6 +24,8 @@ var browserHistory = require('react-router').browserHistory;
 var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
+var KeyList = require('./components/KeyList');
+var KeyAdd = require('./components/KeyAdd');
 
 
 render((
@@ -32,6 +34,8 @@ render((
     <Route path="/models" component={ModelList} />
     <Route path="/models/new" component={ModelEdit} />
     <Route path="/models/:id/edit" component={ModelEdit} />
+    <Route path="/keys" component={KeyList} />
+    <Route path="/keys/new" component={KeyAdd} />
     <Route path="*" component={Index} />
   </Router>
 ), document.getElementById('main'))

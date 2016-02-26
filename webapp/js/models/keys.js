@@ -15,36 +15,22 @@
  *
  */
 'use strict'
-var request =require('then-request');
-var API_VERSION = '/1.0/';
+var Ajax = require('./Ajax');
 
-var Ajax = {
-	get: function(url) {
-			return request('GET', API_VERSION + url, {
-					headers: {}
-			});
+var Model = {
+	url: 'keys',
+
+	list: function () {
+			return Ajax.get(this.url);
 	},
 
-	post: function(url, data) {
-			return request('POST', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
+	add: function (key) {
+			return Ajax.post(this.url, {'device-key': key});
 	},
 
-	put: function(url, data) {
-			return request('PUT', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
+	delete: function (key) {
+			return Ajax.post(this.url + '/delete', {'device-key': key});
 	},
-
-	delete: function(url, data) {
-			return request('DELETE', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
-	}
 }
 
-module.exports = Ajax;
+module.exports = Model;
