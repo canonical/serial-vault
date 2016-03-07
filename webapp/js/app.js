@@ -25,13 +25,26 @@ var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
 
+// Imports for i18n
+import {IntlProvider, addLocaleData} from 'react-intl';
+import en from 'react-intl/lib/locale-data/en';
+import zh from 'react-intl/lib/locale-data/zh';
+
+// Translated messages
+var Messages = require('./components/messages');
+
+// Add the locales we need
+addLocaleData(en);
+addLocaleData(zh);
 
 render((
-  <Router history={browserHistory}>
-    <Route path="/" component={Index} />
-    <Route path="/models" component={ModelList} />
-    <Route path="/models/new" component={ModelEdit} />
-    <Route path="/models/:id/edit" component={ModelEdit} />
-    <Route path="*" component={Index} />
-  </Router>
+  <IntlProvider locale={'zh'} messages={Messages['zh']}>
+    <Router history={browserHistory}>
+      <Route path="/" component={Index} />
+      <Route path="/models" component={ModelList} />
+      <Route path="/models/new" component={ModelEdit} />
+      <Route path="/models/:id/edit" component={ModelEdit} />
+      <Route path="*" component={Index} />
+    </Router>
+  </IntlProvider>
 ), document.getElementById('main'))

@@ -1,4 +1,6 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+},{}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -63,12 +65,4394 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = require('react/lib/ReactDOM');
 
-},{"react/lib/ReactDOM":94}],3:[function(require,module,exports){
+},{"react/lib/ReactDOM":132}],4:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var FormattedDate = (function (_Component) {
+    _inherits(FormattedDate, _Component);
+
+    function FormattedDate(props, context) {
+        _classCallCheck(this, FormattedDate);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedDate).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+        return _this;
+    }
+
+    _createClass(FormattedDate, [{
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate() {
+            for (var _len = arguments.length, next = Array(_len), _key = 0; _key < _len; _key++) {
+                next[_key] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this].concat(next));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatDate = this.context.intl.formatDate;
+            var _props = this.props;
+            var value = _props.value;
+            var children = _props.children;
+
+            var formattedDate = formatDate(value, this.props);
+
+            if (typeof children === 'function') {
+                return children(formattedDate);
+            }
+
+            return _react2.default.createElement(
+                'span',
+                null,
+                formattedDate
+            );
+        }
+    }]);
+
+    return FormattedDate;
+})(_react.Component);
+
+exports.default = FormattedDate;
+
+FormattedDate.displayName = 'FormattedDate';
+
+FormattedDate.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedDate.propTypes = _extends({}, _types.dateTimeFormatPropTypes, {
+    value: _react.PropTypes.any.isRequired,
+    format: _react.PropTypes.string,
+    children: _react.PropTypes.func
+});
+},{"../types":20,"../utils":21,"react":"nakDgH"}],5:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var FormattedHTMLMessage = (function (_Component) {
+    _inherits(FormattedHTMLMessage, _Component);
+
+    function FormattedHTMLMessage(props, context) {
+        _classCallCheck(this, FormattedHTMLMessage);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedHTMLMessage).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+        return _this;
+    }
+
+    _createClass(FormattedHTMLMessage, [{
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate(nextProps) {
+            var values = this.props.values;
+            var nextValues = nextProps.values;
+
+            if (!(0, _utils.shallowEquals)(nextValues, values)) {
+                return true;
+            }
+
+            // Since `values` has already been checked, we know they're not
+            // different, so the current `values` are carried over so the shallow
+            // equals comparison on the other props isn't affected by the `values`.
+            var nextPropsToCheck = _extends({}, nextProps, {
+                values: values
+            });
+
+            for (var _len = arguments.length, next = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                next[_key - 1] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this, nextPropsToCheck].concat(next));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatHTMLMessage = this.context.intl.formatHTMLMessage;
+            var _props = this.props;
+            var id = _props.id;
+            var description = _props.description;
+            var defaultMessage = _props.defaultMessage;
+            var rawValues = _props.values;
+            var tagName = _props.tagName;
+            var children = _props.children;
+
+            var descriptor = { id: id, description: description, defaultMessage: defaultMessage };
+            var formattedHTMLMessage = formatHTMLMessage(descriptor, rawValues);
+
+            if (typeof children === 'function') {
+                return children(formattedHTMLMessage);
+            }
+
+            // Since the message presumably has HTML in it, we need to set
+            // `innerHTML` in order for it to be rendered and not escaped by React.
+            // To be safe, all string prop values were escaped when formatting the
+            // message. It is assumed that the message is not UGC, and came from the
+            // developer making it more like a template.
+            //
+            // Note: There's a perf impact of using this component since there's no
+            // way for React to do its virtual DOM diffing.
+            return (0, _react.createElement)(tagName, {
+                dangerouslySetInnerHTML: {
+                    __html: formattedHTMLMessage
+                }
+            });
+        }
+    }]);
+
+    return FormattedHTMLMessage;
+})(_react.Component);
+
+exports.default = FormattedHTMLMessage;
+
+FormattedHTMLMessage.displayName = 'FormattedHTMLMessage';
+
+FormattedHTMLMessage.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedHTMLMessage.propTypes = _extends({}, _types.messageDescriptorPropTypes, {
+    values: _react.PropTypes.object,
+    tagName: _react.PropTypes.string,
+    children: _react.PropTypes.func
+});
+
+FormattedHTMLMessage.defaultProps = {
+    values: {},
+    tagName: 'span'
+};
+},{"../types":20,"../utils":21,"react":"nakDgH"}],6:[function(require,module,exports){
+(function (process){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _intlMessageformat = require('intl-messageformat');
+
+var _intlMessageformat2 = _interopRequireDefault(_intlMessageformat);
+
+var _intlRelativeformat = require('intl-relativeformat');
+
+var _intlRelativeformat2 = _interopRequireDefault(_intlRelativeformat);
+
+var _plural = require('../plural');
+
+var _plural2 = _interopRequireDefault(_plural);
+
+var _intlFormatCache = require('intl-format-cache');
+
+var _intlFormatCache2 = _interopRequireDefault(_intlFormatCache);
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _utils = require('../utils');
+
+var _types = require('../types');
+
+var _format = require('../format');
+
+var format = _interopRequireWildcard(_format);
+
+var _localeDataRegistry = require('../locale-data-registry');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var intlConfigPropNames = Object.keys(_types.intlConfigPropTypes);
+var intlFormatPropNames = Object.keys(_types.intlFormatPropTypes);
+
+var IntlProvider = (function (_Component) {
+    _inherits(IntlProvider, _Component);
+
+    function IntlProvider(props, context) {
+        _classCallCheck(this, IntlProvider);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(IntlProvider).call(this, props, context));
+
+        (0, _invariant2.default)(Intl, '[React Intl] The `Intl` APIs must be available in the runtime, ' + 'and do not appear to be built-in. An `Intl` polyfill should be loaded.\n' + 'See: http://formatjs.io/guides/runtime-environments/');
+
+        // Used to stabilize time when performing an initial rendering so that
+        // all relative times use the same reference "now" time.
+        var initialNow = undefined;
+        if (isFinite(props.initialNow)) {
+            initialNow = Number(props.initialNow);
+        } else {
+            // When an `initialNow` isn't provided via `props`, look to see an
+            // <IntlProvider> exists in the ancestry and call its `now()`
+            // function to propagate its value for "now".
+            initialNow = context.intl ? context.intl.now() : Date.now();
+        }
+
+        _this.state = {
+            // Creating `Intl*` formatters is expensive so these format caches
+            // memoize the `Intl*` constructors and have the same lifecycle as
+            // this IntlProvider instance.
+            getDateTimeFormat: (0, _intlFormatCache2.default)(Intl.DateTimeFormat),
+            getNumberFormat: (0, _intlFormatCache2.default)(Intl.NumberFormat),
+            getMessageFormat: (0, _intlFormatCache2.default)(_intlMessageformat2.default),
+            getRelativeFormat: (0, _intlFormatCache2.default)(_intlRelativeformat2.default),
+            getPluralFormat: (0, _intlFormatCache2.default)(_plural2.default),
+
+            // Wrapper to provide stable "now" time for initial render.
+            now: function now() {
+                return _this._didDisplay ? Date.now() : initialNow;
+            }
+        };
+        return _this;
+    }
+
+    _createClass(IntlProvider, [{
+        key: 'getConfig',
+        value: function getConfig() {
+            var _this2 = this;
+
+            var _context$intl = this.context.intl;
+            var intlContext = _context$intl === undefined ? {} : _context$intl;
+
+            // Build a whitelisted config object from `props` and `context.intl`, if
+            // an <IntlProvider> exists in the ancestry.
+
+            var config = intlConfigPropNames.reduce(function (config, name) {
+                config[name] = _this2.props[name] || intlContext[name];
+                return config;
+            }, {});
+
+            if (!(0, _localeDataRegistry.hasLocaleData)(config.locale)) {
+                var _config = config;
+                var locale = _config.locale;
+                var defaultLocale = _config.defaultLocale;
+                var defaultFormats = _config.defaultFormats;
+
+                if (process.env.NODE_ENV !== 'production') {
+                    console.error('[React Intl] Missing locale data for locale: "' + locale + '". ' + ('Using default locale: "' + defaultLocale + '" as fallback.'));
+                }
+
+                // Since there's no registered locale data for `locale`, this will
+                // fallback to the `defaultLocale` to make sure things can render.
+                // The `messages` are overridden to the `defaultProps` empty object
+                // to maintain referential equality across re-renders. It's assumed
+                // each <FormattedMessage> contains a `defaultMessage` prop.
+                config = _extends({}, config, {
+                    locale: defaultLocale,
+                    formats: defaultFormats,
+                    messages: IntlProvider.defaultProps.messages
+                });
+            }
+
+            return config;
+        }
+    }, {
+        key: 'getBoundFormatFns',
+        value: function getBoundFormatFns(config, state) {
+            return intlFormatPropNames.reduce(function (boundFormatFns, name) {
+                boundFormatFns[name] = format[name].bind(null, config, state);
+                return boundFormatFns;
+            }, {});
+        }
+    }, {
+        key: 'getChildContext',
+        value: function getChildContext() {
+            var config = this.getConfig();
+
+            // Bind intl factories and current config to the format functions.
+            var boundFormatFns = this.getBoundFormatFns(config, this.state);
+
+            return {
+                intl: _extends({}, config, boundFormatFns, {
+                    now: this.state.now
+                })
+            };
+        }
+    }, {
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate() {
+            for (var _len = arguments.length, next = Array(_len), _key = 0; _key < _len; _key++) {
+                next[_key] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this].concat(next));
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this._didDisplay = true;
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            return _react.Children.only(this.props.children);
+        }
+    }]);
+
+    return IntlProvider;
+})(_react.Component);
+
+exports.default = IntlProvider;
+
+IntlProvider.displayName = 'IntlProvider';
+
+IntlProvider.contextTypes = {
+    intl: _types.intlShape
+};
+
+IntlProvider.childContextTypes = {
+    intl: _types.intlShape.isRequired
+};
+
+IntlProvider.propTypes = _extends({}, _types.intlConfigPropTypes, {
+    children: _react.PropTypes.element.isRequired,
+    initialNow: _react.PropTypes.any
+});
+
+IntlProvider.defaultProps = {
+    formats: {},
+    messages: {},
+
+    defaultLocale: 'en',
+    defaultFormats: {}
+};
+}).call(this,require("oMfpAn"))
+},{"../format":13,"../locale-data-registry":15,"../plural":18,"../types":20,"../utils":21,"intl-format-cache":22,"intl-messageformat":25,"intl-relativeformat":34,"invariant":40,"oMfpAn":2,"react":"nakDgH"}],7:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var FormattedMessage = (function (_Component) {
+    _inherits(FormattedMessage, _Component);
+
+    function FormattedMessage(props, context) {
+        _classCallCheck(this, FormattedMessage);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedMessage).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+        return _this;
+    }
+
+    _createClass(FormattedMessage, [{
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate(nextProps) {
+            var values = this.props.values;
+            var nextValues = nextProps.values;
+
+            if (!(0, _utils.shallowEquals)(nextValues, values)) {
+                return true;
+            }
+
+            // Since `values` has already been checked, we know they're not
+            // different, so the current `values` are carried over so the shallow
+            // equals comparison on the other props isn't affected by the `values`.
+            var nextPropsToCheck = _extends({}, nextProps, {
+                values: values
+            });
+
+            for (var _len = arguments.length, next = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                next[_key - 1] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this, nextPropsToCheck].concat(next));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatMessage = this.context.intl.formatMessage;
+            var _props = this.props;
+            var id = _props.id;
+            var description = _props.description;
+            var defaultMessage = _props.defaultMessage;
+            var values = _props.values;
+            var tagName = _props.tagName;
+            var children = _props.children;
+
+            // Creates a token with a random UID that should not be guessable or
+            // conflict with other parts of the `message` string.
+
+            var uid = Math.floor(Math.random() * 0x10000000000).toString(16);
+            var tokenRegexp = new RegExp('(@__ELEMENT-' + uid + '-\\d+__@)', 'g');
+
+            var generateToken = (function () {
+                var counter = 0;
+                return function () {
+                    return '@__ELEMENT-' + uid + '-' + (counter += 1) + '__@';
+                };
+            })();
+
+            var tokenizedValues = {};
+            var elements = {};
+
+            // Iterates over the `props` to keep track of any React Element values
+            // so they can be represented by the `token` as a placeholder when the
+            // `message` is formatted. This allows the formatted message to then be
+            // broken-up into parts with references to the React Elements inserted
+            // back in.
+            Object.keys(values).forEach(function (name) {
+                var value = values[name];
+
+                if ((0, _react.isValidElement)(value)) {
+                    var token = generateToken();
+                    tokenizedValues[name] = token;
+                    elements[token] = value;
+                } else {
+                    tokenizedValues[name] = value;
+                }
+            });
+
+            var descriptor = { id: id, description: description, defaultMessage: defaultMessage };
+            var formattedMessage = formatMessage(descriptor, tokenizedValues);
+
+            // Split the message into parts so the React Element values captured
+            // above can be inserted back into the rendered message. This approach
+            // allows messages to render with React Elements while keeping React's
+            // virtual diffing working properly.
+            var nodes = formattedMessage.split(tokenRegexp).filter(function (part) {
+                return !!part;
+            }).map(function (part) {
+                return elements[part] || part;
+            });
+
+            if (typeof children === 'function') {
+                return children.apply(undefined, _toConsumableArray(nodes));
+            }
+
+            return _react.createElement.apply(undefined, [tagName, null].concat(_toConsumableArray(nodes)));
+        }
+    }]);
+
+    return FormattedMessage;
+})(_react.Component);
+
+exports.default = FormattedMessage;
+
+FormattedMessage.displayName = 'FormattedMessage';
+
+FormattedMessage.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedMessage.propTypes = _extends({}, _types.messageDescriptorPropTypes, {
+    values: _react.PropTypes.object,
+    tagName: _react.PropTypes.string,
+    children: _react.PropTypes.func
+});
+
+FormattedMessage.defaultProps = {
+    values: {},
+    tagName: 'span'
+};
+},{"../types":20,"../utils":21,"react":"nakDgH"}],8:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var FormattedNumber = (function (_Component) {
+    _inherits(FormattedNumber, _Component);
+
+    function FormattedNumber(props, context) {
+        _classCallCheck(this, FormattedNumber);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedNumber).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+        return _this;
+    }
+
+    _createClass(FormattedNumber, [{
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate() {
+            for (var _len = arguments.length, next = Array(_len), _key = 0; _key < _len; _key++) {
+                next[_key] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this].concat(next));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatNumber = this.context.intl.formatNumber;
+            var _props = this.props;
+            var value = _props.value;
+            var children = _props.children;
+
+            var formattedNumber = formatNumber(value, this.props);
+
+            if (typeof children === 'function') {
+                return children(formattedNumber);
+            }
+
+            return _react2.default.createElement(
+                'span',
+                null,
+                formattedNumber
+            );
+        }
+    }]);
+
+    return FormattedNumber;
+})(_react.Component);
+
+exports.default = FormattedNumber;
+
+FormattedNumber.displayName = 'FormattedNumber';
+
+FormattedNumber.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedNumber.propTypes = _extends({}, _types.numberFormatPropTypes, {
+    value: _react.PropTypes.any.isRequired,
+    format: _react.PropTypes.string,
+    children: _react.PropTypes.func
+});
+},{"../types":20,"../utils":21,"react":"nakDgH"}],9:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var FormattedPlural = (function (_Component) {
+    _inherits(FormattedPlural, _Component);
+
+    function FormattedPlural(props, context) {
+        _classCallCheck(this, FormattedPlural);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedPlural).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+        return _this;
+    }
+
+    _createClass(FormattedPlural, [{
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate() {
+            for (var _len = arguments.length, next = Array(_len), _key = 0; _key < _len; _key++) {
+                next[_key] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this].concat(next));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatPlural = this.context.intl.formatPlural;
+            var _props = this.props;
+            var value = _props.value;
+            var other = _props.other;
+            var children = _props.children;
+
+            var pluralCategory = formatPlural(value, this.props);
+            var formattedPlural = this.props[pluralCategory] || other;
+
+            if (typeof children === 'function') {
+                return children(formattedPlural);
+            }
+
+            return _react2.default.createElement(
+                'span',
+                null,
+                formattedPlural
+            );
+        }
+    }]);
+
+    return FormattedPlural;
+})(_react.Component);
+
+exports.default = FormattedPlural;
+
+FormattedPlural.displayName = 'FormattedPlural';
+
+FormattedPlural.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedPlural.propTypes = _extends({}, _types.pluralFormatPropTypes, {
+    value: _react.PropTypes.any.isRequired,
+
+    other: _react.PropTypes.node.isRequired,
+    zero: _react.PropTypes.node,
+    one: _react.PropTypes.node,
+    two: _react.PropTypes.node,
+    few: _react.PropTypes.node,
+    many: _react.PropTypes.node,
+
+    children: _react.PropTypes.func
+});
+
+FormattedPlural.defaultProps = {
+    style: 'cardinal'
+};
+},{"../types":20,"../utils":21,"react":"nakDgH"}],10:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var SECOND = 1000;
+var MINUTE = 1000 * 60;
+var HOUR = 1000 * 60 * 60;
+var DAY = 1000 * 60 * 60 * 24;
+
+// The maximum timer delay value is a 32-bit signed integer.
+// See: https://mdn.io/setTimeout
+var MAX_TIMER_DELAY = 2147483647;
+
+function selectUnits(delta) {
+    var absDelta = Math.abs(delta);
+
+    if (absDelta < MINUTE) {
+        return 'second';
+    }
+
+    if (absDelta < HOUR) {
+        return 'minute';
+    }
+
+    if (absDelta < DAY) {
+        return 'hour';
+    }
+
+    // The maximum scheduled delay will be measured in days since the maximum
+    // timer delay is less than the number of milliseconds in 25 days.
+    return 'day';
+}
+
+function getUnitDelay(units) {
+    switch (units) {
+        case 'second':
+            return SECOND;
+        case 'minute':
+            return MINUTE;
+        case 'hour':
+            return HOUR;
+        case 'day':
+            return DAY;
+        default:
+            return MAX_TIMER_DELAY;
+    }
+}
+
+var FormattedRelative = (function (_Component) {
+    _inherits(FormattedRelative, _Component);
+
+    function FormattedRelative(props, context) {
+        _classCallCheck(this, FormattedRelative);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedRelative).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+
+        var now = isFinite(props.initialNow) ? Number(props.initialNow) : context.intl.now();
+
+        // `now` is stored as state so that `render()` remains a function of
+        // props + state, instead of accessing `Date.now()` inside `render()`.
+        _this.state = { now: now };
+        return _this;
+    }
+
+    _createClass(FormattedRelative, [{
+        key: 'scheduleNextUpdate',
+        value: function scheduleNextUpdate(props, state) {
+            var _this2 = this;
+
+            var updateInterval = props.updateInterval;
+
+            // If the `updateInterval` is falsy, including `0`, then auto updates
+            // have been turned off, so we bail and skip scheduling an update.
+
+            if (!updateInterval) {
+                return;
+            }
+
+            var delta = Number(props.value) - state.now;
+            var units = props.units || selectUnits(delta);
+
+            var unitDelay = getUnitDelay(units);
+            var unitRemainder = Math.abs(delta % unitDelay);
+
+            // We want the largest possible timer delay which will still display
+            // accurate information while reducing unnecessary re-renders. The delay
+            // should be until the next "interesting" moment, like a tick from
+            // "1 minute ago" to "2 minutes ago" when the delta is 120,000ms.
+            var delay = delta < 0 ? Math.max(updateInterval, unitDelay - unitRemainder) : Math.max(updateInterval, unitRemainder);
+
+            clearTimeout(this._timer);
+
+            this._timer = setTimeout(function () {
+                _this2.setState({ now: _this2.context.intl.now() });
+            }, delay);
+        }
+    }, {
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate() {
+            for (var _len = arguments.length, next = Array(_len), _key = 0; _key < _len; _key++) {
+                next[_key] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this].concat(next));
+        }
+    }, {
+        key: 'componentWillUpdate',
+        value: function componentWillUpdate(nextProps, nextState) {
+            this.scheduleNextUpdate(nextProps, nextState);
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.scheduleNextUpdate(this.props, this.state);
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            clearTimeout(this._timer);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatRelative = this.context.intl.formatRelative;
+            var _props = this.props;
+            var value = _props.value;
+            var children = _props.children;
+
+            var formattedRelative = formatRelative(value, _extends({}, this.props, this.state));
+
+            if (typeof children === 'function') {
+                return children(formattedRelative);
+            }
+
+            return _react2.default.createElement(
+                'span',
+                null,
+                formattedRelative
+            );
+        }
+    }]);
+
+    return FormattedRelative;
+})(_react.Component);
+
+exports.default = FormattedRelative;
+
+FormattedRelative.displayName = 'FormattedRelative';
+
+FormattedRelative.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedRelative.propTypes = _extends({}, _types.relativeFormatPropTypes, {
+    value: _react.PropTypes.any.isRequired,
+    format: _react.PropTypes.string,
+    updateInterval: _react.PropTypes.number,
+    initialNow: _react.PropTypes.any,
+    children: _react.PropTypes.func
+});
+
+FormattedRelative.defaultProps = {
+    updateInterval: 1000 * 10
+};
+},{"../types":20,"../utils":21,"react":"nakDgH"}],11:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _types = require('../types');
+
+var _utils = require('../utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+var FormattedTime = (function (_Component) {
+    _inherits(FormattedTime, _Component);
+
+    function FormattedTime(props, context) {
+        _classCallCheck(this, FormattedTime);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormattedTime).call(this, props, context));
+
+        (0, _utils.invariantIntlContext)(context);
+        return _this;
+    }
+
+    _createClass(FormattedTime, [{
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate() {
+            for (var _len = arguments.length, next = Array(_len), _key = 0; _key < _len; _key++) {
+                next[_key] = arguments[_key];
+            }
+
+            return _utils.shouldIntlComponentUpdate.apply(undefined, [this].concat(next));
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var formatTime = this.context.intl.formatTime;
+            var _props = this.props;
+            var value = _props.value;
+            var children = _props.children;
+
+            var formattedTime = formatTime(value, this.props);
+
+            if (typeof children === 'function') {
+                return children(formattedTime);
+            }
+
+            return _react2.default.createElement(
+                'span',
+                null,
+                formattedTime
+            );
+        }
+    }]);
+
+    return FormattedTime;
+})(_react.Component);
+
+exports.default = FormattedTime;
+
+FormattedTime.displayName = 'FormattedTime';
+
+FormattedTime.contextTypes = {
+    intl: _types.intlShape
+};
+
+FormattedTime.propTypes = _extends({}, _types.dateTimeFormatPropTypes, {
+    value: _react.PropTypes.any.isRequired,
+    format: _react.PropTypes.string,
+    children: _react.PropTypes.func
+});
+},{"../types":20,"../utils":21,"react":"nakDgH"}],12:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+// GENERATED FILE
+exports.default = { "locale": "en", "pluralRuleFunction": function pluralRuleFunction(n, ord) {
+    var s = String(n).split("."),
+        v0 = !s[1],
+        t0 = Number(s[0]) == n,
+        n10 = t0 && s[0].slice(-1),
+        n100 = t0 && s[0].slice(-2);if (ord) return n10 == 1 && n100 != 11 ? "one" : n10 == 2 && n100 != 12 ? "two" : n10 == 3 && n100 != 13 ? "few" : "other";return n == 1 && v0 ? "one" : "other";
+  }, "fields": { "year": { "displayName": "Year", "relative": { "0": "this year", "1": "next year", "-1": "last year" }, "relativeTime": { "future": { "one": "in {0} year", "other": "in {0} years" }, "past": { "one": "{0} year ago", "other": "{0} years ago" } } }, "month": { "displayName": "Month", "relative": { "0": "this month", "1": "next month", "-1": "last month" }, "relativeTime": { "future": { "one": "in {0} month", "other": "in {0} months" }, "past": { "one": "{0} month ago", "other": "{0} months ago" } } }, "day": { "displayName": "Day", "relative": { "0": "today", "1": "tomorrow", "-1": "yesterday" }, "relativeTime": { "future": { "one": "in {0} day", "other": "in {0} days" }, "past": { "one": "{0} day ago", "other": "{0} days ago" } } }, "hour": { "displayName": "Hour", "relativeTime": { "future": { "one": "in {0} hour", "other": "in {0} hours" }, "past": { "one": "{0} hour ago", "other": "{0} hours ago" } } }, "minute": { "displayName": "Minute", "relativeTime": { "future": { "one": "in {0} minute", "other": "in {0} minutes" }, "past": { "one": "{0} minute ago", "other": "{0} minutes ago" } } }, "second": { "displayName": "Second", "relative": { "0": "now" }, "relativeTime": { "future": { "one": "in {0} second", "other": "in {0} seconds" }, "past": { "one": "{0} second ago", "other": "{0} seconds ago" } } } } };
+},{}],13:[function(require,module,exports){
+(function (process){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.formatDate = formatDate;
+exports.formatTime = formatTime;
+exports.formatRelative = formatRelative;
+exports.formatNumber = formatNumber;
+exports.formatPlural = formatPlural;
+exports.formatMessage = formatMessage;
+exports.formatHTMLMessage = formatHTMLMessage;
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _types = require('./types');
+
+var _utils = require('./utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var DATE_TIME_FORMAT_OPTIONS = Object.keys(_types.dateTimeFormatPropTypes); /*
+                                                                             * Copyright 2015, Yahoo Inc.
+                                                                             * Copyrights licensed under the New BSD License.
+                                                                             * See the accompanying LICENSE file for terms.
+                                                                             */
+
+var NUMBER_FORMAT_OPTIONS = Object.keys(_types.numberFormatPropTypes);
+var RELATIVE_FORMAT_OPTIONS = Object.keys(_types.relativeFormatPropTypes);
+var PLURAL_FORMAT_OPTIONS = Object.keys(_types.pluralFormatPropTypes);
+
+function filterFormatOptions(whitelist, obj) {
+    var defaults = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    return whitelist.reduce(function (opts, name) {
+        if (obj.hasOwnProperty(name)) {
+            opts[name] = obj[name];
+        } else if (defaults.hasOwnProperty(name)) {
+            opts[name] = defaults[name];
+        }
+
+        return opts;
+    }, {});
+}
+
+function getNamedFormat(formats, type, name) {
+    var format = formats && formats[type] && formats[type][name];
+    if (format) {
+        return format;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+        console.error('[React Intl] No ' + type + ' format named: ' + name);
+    }
+}
+
+function formatDate(config, state, value) {
+    var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var locale = config.locale;
+    var formats = config.formats;
+    var format = options.format;
+
+    var date = new Date(value);
+    var defaults = format && getNamedFormat(formats, 'date', format);
+
+    var filteredOptions = filterFormatOptions(DATE_TIME_FORMAT_OPTIONS, options, defaults);
+
+    return state.getDateTimeFormat(locale, filteredOptions).format(date);
+}
+
+function formatTime(config, state, value) {
+    var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var locale = config.locale;
+    var formats = config.formats;
+    var format = options.format;
+
+    var date = new Date(value);
+    var defaults = format && getNamedFormat(formats, 'time', format);
+
+    var filteredOptions = filterFormatOptions(DATE_TIME_FORMAT_OPTIONS, options, defaults);
+
+    return state.getDateTimeFormat(locale, filteredOptions).format(date);
+}
+
+function formatRelative(config, state, value) {
+    var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var locale = config.locale;
+    var formats = config.formats;
+    var format = options.format;
+
+    var date = new Date(value);
+    var now = new Date(options.now);
+    var defaults = format && getNamedFormat(formats, 'relative', format);
+
+    var filteredOptions = filterFormatOptions(RELATIVE_FORMAT_OPTIONS, options, defaults);
+
+    return state.getRelativeFormat(locale, filteredOptions).format(date, {
+        now: isFinite(now) ? now : state.now()
+    });
+}
+
+function formatNumber(config, state, value) {
+    var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var locale = config.locale;
+    var formats = config.formats;
+    var format = options.format;
+
+    var defaults = format && getNamedFormat(formats, 'number', format);
+
+    var filteredOptions = filterFormatOptions(NUMBER_FORMAT_OPTIONS, options, defaults);
+
+    return state.getNumberFormat(locale, filteredOptions).format(value);
+}
+
+function formatPlural(config, state, value) {
+    var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var locale = config.locale;
+
+    var filteredOptions = filterFormatOptions(PLURAL_FORMAT_OPTIONS, options);
+
+    return state.getPluralFormat(locale, filteredOptions).format(value);
+}
+
+function formatMessage(config, state) {
+    var messageDescriptor = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+    var values = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var locale = config.locale;
+    var formats = config.formats;
+    var messages = config.messages;
+    var defaultLocale = config.defaultLocale;
+    var defaultFormats = config.defaultFormats;
+    var id = messageDescriptor.id;
+    var defaultMessage = messageDescriptor.defaultMessage;
+
+    // `id` is a required field of a Message Descriptor.
+
+    (0, _invariant2.default)(id, '[React Intl] An `id` must be provided to format a message.');
+
+    var message = messages && messages[id];
+    var hasValues = Object.keys(values).length > 0;
+
+    // Avoid expensive message formatting for simple messages without values. In
+    // development messages will always be formatted in case of missing values.
+    if (!hasValues && process.env.NODE_ENV === 'production') {
+        return message || defaultMessage || id;
+    }
+
+    var formattedMessage = undefined;
+
+    if (message) {
+        try {
+            var formatter = state.getMessageFormat(message, locale, formats);
+
+            formattedMessage = formatter.format(values);
+        } catch (e) {
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('[React Intl] Error formatting message: "' + id + '" for locale: "' + locale + '"' + (defaultMessage ? ', using default message as fallback.' : '') + ('\n' + e));
+            }
+        }
+    } else {
+        if (process.env.NODE_ENV !== 'production') {
+            console.error('[React Intl] Missing message: "' + id + '" for locale: "' + locale + '"' + (defaultMessage ? ', using default message as fallback.' : ''));
+        }
+    }
+
+    if (!formattedMessage && defaultMessage) {
+        try {
+            var formatter = state.getMessageFormat(defaultMessage, defaultLocale, defaultFormats);
+
+            formattedMessage = formatter.format(values);
+        } catch (e) {
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('[React Intl] Error formatting the default message for: "' + id + '"' + ('\n' + e));
+            }
+        }
+    }
+
+    if (!formattedMessage) {
+        if (process.env.NODE_ENV !== 'production') {
+            console.error('[React Intl] Cannot format message: "' + id + '", ' + ('using message ' + (message || defaultMessage ? 'source' : 'id') + ' as fallback.'));
+        }
+    }
+
+    return formattedMessage || message || defaultMessage || id;
+}
+
+function formatHTMLMessage(config, state, messageDescriptor) {
+    var rawValues = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+
+    // Process all the values before they are used when formatting the ICU
+    // Message string. Since the formatted message might be injected via
+    // `innerHTML`, all String-based values need to be HTML-escaped.
+    var escapedValues = Object.keys(rawValues).reduce(function (escaped, name) {
+        var value = rawValues[name];
+        escaped[name] = typeof value === 'string' ? (0, _utils.escape)(value) : value;
+        return escaped;
+    }, {});
+
+    return formatMessage(config, state, messageDescriptor, escapedValues);
+}
+}).call(this,require("oMfpAn"))
+},{"./types":20,"./utils":21,"invariant":40,"oMfpAn":2}],14:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = injectIntl;
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+var _types = require('./types');
+
+var _utils = require('./utils');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+// Inspired by react-redux's `connect()` HOC factory function implementation:
+// https://github.com/rackt/react-redux
+
+function getDisplayName(Component) {
+    return Component.displayName || Component.name || 'Component';
+}
+
+function injectIntl(WrappedComponent) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var _options$intlPropName = options.intlPropName;
+    var intlPropName = _options$intlPropName === undefined ? 'intl' : _options$intlPropName;
+    var _options$withRef = options.withRef;
+    var withRef = _options$withRef === undefined ? false : _options$withRef;
+
+    var InjectIntl = (function (_Component) {
+        _inherits(InjectIntl, _Component);
+
+        function InjectIntl(props, context) {
+            _classCallCheck(this, InjectIntl);
+
+            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(InjectIntl).call(this, props, context));
+
+            (0, _utils.invariantIntlContext)(context);
+            return _this;
+        }
+
+        _createClass(InjectIntl, [{
+            key: 'getWrappedInstance',
+            value: function getWrappedInstance() {
+                (0, _invariant2.default)(withRef, '[React Intl] To access the wrapped instance, ' + 'the `{withRef: true}` option must be set when calling: ' + '`injectIntl()`');
+
+                return this.refs.wrappedInstance;
+            }
+        }, {
+            key: 'render',
+            value: function render() {
+                return _react2.default.createElement(WrappedComponent, _extends({}, this.props, _defineProperty({}, intlPropName, this.context.intl), {
+                    ref: withRef ? 'wrappedInstance' : null
+                }));
+            }
+        }]);
+
+        return InjectIntl;
+    })(_react.Component);
+
+    InjectIntl.displayName = 'InjectIntl(' + getDisplayName(WrappedComponent) + ')';
+
+    InjectIntl.contextTypes = {
+        intl: _types.intlShape
+    };
+
+    InjectIntl.WrappedComponent = WrappedComponent;
+
+    return InjectIntl;
+}
+},{"./types":20,"./utils":21,"invariant":40,"react":"nakDgH"}],15:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.addLocaleData = addLocaleData;
+exports.hasLocaleData = hasLocaleData;
+
+var _intlMessageformat = require('intl-messageformat');
+
+var _intlMessageformat2 = _interopRequireDefault(_intlMessageformat);
+
+var _intlRelativeformat = require('intl-relativeformat');
+
+var _intlRelativeformat2 = _interopRequireDefault(_intlRelativeformat);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the New BSD License.
+ * See the accompanying LICENSE file for terms.
+ */
+
+function addLocaleData() {
+    var data = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+    var locales = Array.isArray(data) ? data : [data];
+
+    locales.forEach(function (localeData) {
+        _intlMessageformat2.default.__addLocaleData(localeData);
+        _intlRelativeformat2.default.__addLocaleData(localeData);
+    });
+}
+
+function hasLocaleData(locale) {
+    var normalizedLocale = locale && locale.toLowerCase();
+
+    return !!(_intlMessageformat2.default.__localeData__[normalizedLocale] && _intlRelativeformat2.default.__localeData__[normalizedLocale]);
+}
+},{"intl-messageformat":25,"intl-relativeformat":34}],16:[function(require,module,exports){
+// GENERATED FILE
+module.exports = [{"locale":"en","pluralRuleFunction":function (n,ord){var s=String(n).split("."),v0=!s[1],t0=Number(s[0])==n,n10=t0&&s[0].slice(-1),n100=t0&&s[0].slice(-2);if(ord)return n10==1&&n100!=11?"one":n10==2&&n100!=12?"two":n10==3&&n100!=13?"few":"other";return n==1&&v0?"one":"other"},"fields":{"year":{"displayName":"Year","relative":{"0":"this year","1":"next year","-1":"last year"},"relativeTime":{"future":{"one":"in {0} year","other":"in {0} years"},"past":{"one":"{0} year ago","other":"{0} years ago"}}},"month":{"displayName":"Month","relative":{"0":"this month","1":"next month","-1":"last month"},"relativeTime":{"future":{"one":"in {0} month","other":"in {0} months"},"past":{"one":"{0} month ago","other":"{0} months ago"}}},"day":{"displayName":"Day","relative":{"0":"today","1":"tomorrow","-1":"yesterday"},"relativeTime":{"future":{"one":"in {0} day","other":"in {0} days"},"past":{"one":"{0} day ago","other":"{0} days ago"}}},"hour":{"displayName":"Hour","relativeTime":{"future":{"one":"in {0} hour","other":"in {0} hours"},"past":{"one":"{0} hour ago","other":"{0} hours ago"}}},"minute":{"displayName":"Minute","relativeTime":{"future":{"one":"in {0} minute","other":"in {0} minutes"},"past":{"one":"{0} minute ago","other":"{0} minutes ago"}}},"second":{"displayName":"Second","relative":{"0":"now"},"relativeTime":{"future":{"one":"in {0} second","other":"in {0} seconds"},"past":{"one":"{0} second ago","other":"{0} seconds ago"}}}}},{"locale":"en-001","parentLocale":"en"},{"locale":"en-150","parentLocale":"en-GB"},{"locale":"en-GB","parentLocale":"en-001"},{"locale":"en-AG","parentLocale":"en-001"},{"locale":"en-AI","parentLocale":"en-001"},{"locale":"en-AS","parentLocale":"en"},{"locale":"en-AU","parentLocale":"en-GB","fields":{"year":{"displayName":"Year","relative":{"0":"This year","1":"Next year","-1":"Last year"},"relativeTime":{"future":{"one":"in {0} year","other":"in {0} years"},"past":{"one":"{0} year ago","other":"{0} years ago"}}},"month":{"displayName":"Month","relative":{"0":"This month","1":"Next month","-1":"Last month"},"relativeTime":{"future":{"one":"in {0} month","other":"in {0} months"},"past":{"one":"{0} month ago","other":"{0} months ago"}}},"day":{"displayName":"Day","relative":{"0":"today","1":"tomorrow","-1":"yesterday"},"relativeTime":{"future":{"one":"in {0} day","other":"in {0} days"},"past":{"one":"{0} day ago","other":"{0} days ago"}}},"hour":{"displayName":"Hour","relativeTime":{"future":{"one":"in {0} hour","other":"in {0} hours"},"past":{"one":"{0} hour ago","other":"{0} hours ago"}}},"minute":{"displayName":"Minute","relativeTime":{"future":{"one":"in {0} minute","other":"in {0} minutes"},"past":{"one":"{0} minute ago","other":"{0} minutes ago"}}},"second":{"displayName":"Second","relative":{"0":"now"},"relativeTime":{"future":{"one":"in {0} second","other":"in {0} seconds"},"past":{"one":"{0} second ago","other":"{0} seconds ago"}}}}},{"locale":"en-BB","parentLocale":"en-001"},{"locale":"en-BE","parentLocale":"en-GB"},{"locale":"en-BM","parentLocale":"en-001"},{"locale":"en-BS","parentLocale":"en-001"},{"locale":"en-BW","parentLocale":"en-001"},{"locale":"en-BZ","parentLocale":"en-001"},{"locale":"en-CA","parentLocale":"en"},{"locale":"en-CC","parentLocale":"en-001"},{"locale":"en-CK","parentLocale":"en-001"},{"locale":"en-CM","parentLocale":"en-001"},{"locale":"en-CX","parentLocale":"en-001"},{"locale":"en-DG","parentLocale":"en-GB"},{"locale":"en-DM","parentLocale":"en-001"},{"locale":"en-Dsrt","pluralRuleFunction":function (n,ord){if(ord)return"other";return"other"},"fields":{"year":{"displayName":"Year","relative":{"0":"this year","1":"next year","-1":"last year"},"relativeTime":{"future":{"other":"+{0} y"},"past":{"other":"-{0} y"}}},"month":{"displayName":"Month","relative":{"0":"this month","1":"next month","-1":"last month"},"relativeTime":{"future":{"other":"+{0} m"},"past":{"other":"-{0} m"}}},"day":{"displayName":"Day","relative":{"0":"today","1":"tomorrow","-1":"yesterday"},"relativeTime":{"future":{"other":"+{0} d"},"past":{"other":"-{0} d"}}},"hour":{"displayName":"Hour","relativeTime":{"future":{"other":"+{0} h"},"past":{"other":"-{0} h"}}},"minute":{"displayName":"Minute","relativeTime":{"future":{"other":"+{0} min"},"past":{"other":"-{0} min"}}},"second":{"displayName":"Second","relative":{"0":"now"},"relativeTime":{"future":{"other":"+{0} s"},"past":{"other":"-{0} s"}}}}},{"locale":"en-ER","parentLocale":"en-001"},{"locale":"en-FJ","parentLocale":"en-001"},{"locale":"en-FK","parentLocale":"en-GB"},{"locale":"en-FM","parentLocale":"en-001"},{"locale":"en-GD","parentLocale":"en-001"},{"locale":"en-GG","parentLocale":"en-GB"},{"locale":"en-GH","parentLocale":"en-001"},{"locale":"en-GI","parentLocale":"en-GB"},{"locale":"en-GM","parentLocale":"en-001"},{"locale":"en-GU","parentLocale":"en"},{"locale":"en-GY","parentLocale":"en-001"},{"locale":"en-HK","parentLocale":"en-GB"},{"locale":"en-IE","parentLocale":"en-GB"},{"locale":"en-IM","parentLocale":"en-GB"},{"locale":"en-IN","parentLocale":"en-GB"},{"locale":"en-IO","parentLocale":"en-GB"},{"locale":"en-JE","parentLocale":"en-GB"},{"locale":"en-JM","parentLocale":"en-001"},{"locale":"en-KE","parentLocale":"en-001"},{"locale":"en-KI","parentLocale":"en-001"},{"locale":"en-KN","parentLocale":"en-001"},{"locale":"en-KY","parentLocale":"en-001"},{"locale":"en-LC","parentLocale":"en-001"},{"locale":"en-LR","parentLocale":"en-001"},{"locale":"en-LS","parentLocale":"en-001"},{"locale":"en-MG","parentLocale":"en-001"},{"locale":"en-MH","parentLocale":"en"},{"locale":"en-MO","parentLocale":"en-GB"},{"locale":"en-MP","parentLocale":"en"},{"locale":"en-MS","parentLocale":"en-001"},{"locale":"en-MT","parentLocale":"en-GB"},{"locale":"en-MU","parentLocale":"en-001"},{"locale":"en-MW","parentLocale":"en-001"},{"locale":"en-MY","parentLocale":"en-001"},{"locale":"en-NA","parentLocale":"en-001"},{"locale":"en-NF","parentLocale":"en-001"},{"locale":"en-NG","parentLocale":"en-001"},{"locale":"en-NR","parentLocale":"en-001"},{"locale":"en-NU","parentLocale":"en-001"},{"locale":"en-NZ","parentLocale":"en-GB"},{"locale":"en-PG","parentLocale":"en-001"},{"locale":"en-PH","parentLocale":"en-001"},{"locale":"en-PK","parentLocale":"en-GB"},{"locale":"en-PN","parentLocale":"en-001"},{"locale":"en-PR","parentLocale":"en"},{"locale":"en-PW","parentLocale":"en-001"},{"locale":"en-RW","parentLocale":"en-001"},{"locale":"en-SB","parentLocale":"en-001"},{"locale":"en-SC","parentLocale":"en-001"},{"locale":"en-SD","parentLocale":"en-001"},{"locale":"en-SG","parentLocale":"en-GB"},{"locale":"en-SH","parentLocale":"en-GB"},{"locale":"en-SL","parentLocale":"en-001"},{"locale":"en-SS","parentLocale":"en-001"},{"locale":"en-SX","parentLocale":"en-001"},{"locale":"en-SZ","parentLocale":"en-001"},{"locale":"en-TC","parentLocale":"en-001"},{"locale":"en-TK","parentLocale":"en-001"},{"locale":"en-TO","parentLocale":"en-001"},{"locale":"en-TT","parentLocale":"en-001"},{"locale":"en-TV","parentLocale":"en-001"},{"locale":"en-TZ","parentLocale":"en-001"},{"locale":"en-UG","parentLocale":"en-001"},{"locale":"en-UM","parentLocale":"en"},{"locale":"en-US","parentLocale":"en"},{"locale":"en-US-POSIX","parentLocale":"en-US"},{"locale":"en-VC","parentLocale":"en-001"},{"locale":"en-VG","parentLocale":"en-GB"},{"locale":"en-VI","parentLocale":"en"},{"locale":"en-VU","parentLocale":"en-001"},{"locale":"en-WS","parentLocale":"en-001"},{"locale":"en-ZA","parentLocale":"en-001"},{"locale":"en-ZM","parentLocale":"en-001"},{"locale":"en-ZW","parentLocale":"en-001"}];
+
+},{}],17:[function(require,module,exports){
+// GENERATED FILE
+module.exports = [{"locale":"zh","pluralRuleFunction":function (n,ord){if(ord)return"other";return"other"},"fields":{"year":{"displayName":"年","relative":{"0":"今年","1":"明年","-1":"去年"},"relativeTime":{"future":{"other":"{0}年后"},"past":{"other":"{0}年前"}}},"month":{"displayName":"月","relative":{"0":"本月","1":"下个月","-1":"上个月"},"relativeTime":{"future":{"other":"{0}个月后"},"past":{"other":"{0}个月前"}}},"day":{"displayName":"日","relative":{"0":"今天","1":"明天","2":"后天","-1":"昨天","-2":"前天"},"relativeTime":{"future":{"other":"{0}天后"},"past":{"other":"{0}天前"}}},"hour":{"displayName":"小时","relativeTime":{"future":{"other":"{0}小时后"},"past":{"other":"{0}小时前"}}},"minute":{"displayName":"分钟","relativeTime":{"future":{"other":"{0}分钟后"},"past":{"other":"{0}分钟前"}}},"second":{"displayName":"秒钟","relative":{"0":"现在"},"relativeTime":{"future":{"other":"{0}秒钟后"},"past":{"other":"{0}秒钟前"}}}}},{"locale":"zh-Hans","parentLocale":"zh"},{"locale":"zh-Hans-CN","parentLocale":"zh-Hans"},{"locale":"zh-Hans-HK","parentLocale":"zh-Hans","fields":{"year":{"displayName":"年","relative":{"0":"今年","1":"明年","-1":"去年"},"relativeTime":{"future":{"other":"{0}年后"},"past":{"other":"{0}年前"}}},"month":{"displayName":"月","relative":{"0":"本月","1":"下个月","-1":"上个月"},"relativeTime":{"future":{"other":"{0}个月后"},"past":{"other":"{0}个月前"}}},"day":{"displayName":"日","relative":{"0":"今天","1":"明天","2":"后天","-1":"昨天","-2":"前天"},"relativeTime":{"future":{"other":"{0}天后"},"past":{"other":"{0}天前"}}},"hour":{"displayName":"小时","relativeTime":{"future":{"other":"{0}小时后"},"past":{"other":"{0}小时前"}}},"minute":{"displayName":"分钟","relativeTime":{"future":{"other":"{0}分钟后"},"past":{"other":"{0}分钟前"}}},"second":{"displayName":"秒钟","relative":{"0":"现在"},"relativeTime":{"future":{"other":"{0}秒后"},"past":{"other":"{0}秒前"}}}}},{"locale":"zh-Hans-MO","parentLocale":"zh-Hans","fields":{"year":{"displayName":"年","relative":{"0":"今年","1":"明年","-1":"去年"},"relativeTime":{"future":{"other":"{0}年后"},"past":{"other":"{0}年前"}}},"month":{"displayName":"月","relative":{"0":"本月","1":"下个月","-1":"上个月"},"relativeTime":{"future":{"other":"{0}个月后"},"past":{"other":"{0}个月前"}}},"day":{"displayName":"天","relative":{"0":"今天","1":"明天","2":"后天","-1":"昨天","-2":"前天"},"relativeTime":{"future":{"other":"{0}天后"},"past":{"other":"{0}天前"}}},"hour":{"displayName":"小时","relativeTime":{"future":{"other":"{0}小时后"},"past":{"other":"{0}小时前"}}},"minute":{"displayName":"分钟","relativeTime":{"future":{"other":"{0}分钟后"},"past":{"other":"{0}分钟前"}}},"second":{"displayName":"秒钟","relative":{"0":"现在"},"relativeTime":{"future":{"other":"{0}秒后"},"past":{"other":"{0}秒前"}}}}},{"locale":"zh-Hans-SG","parentLocale":"zh-Hans","fields":{"year":{"displayName":"年","relative":{"0":"今年","1":"明年","-1":"去年"},"relativeTime":{"future":{"other":"{0}年后"},"past":{"other":"{0}年前"}}},"month":{"displayName":"月","relative":{"0":"本月","1":"下个月","-1":"上个月"},"relativeTime":{"future":{"other":"{0}个月后"},"past":{"other":"{0}个月前"}}},"day":{"displayName":"日","relative":{"0":"今天","1":"明天","2":"后天","-1":"昨天","-2":"前天"},"relativeTime":{"future":{"other":"{0}天后"},"past":{"other":"{0}天前"}}},"hour":{"displayName":"小时","relativeTime":{"future":{"other":"{0}小时后"},"past":{"other":"{0}小时前"}}},"minute":{"displayName":"分钟","relativeTime":{"future":{"other":"{0}分钟后"},"past":{"other":"{0}分钟前"}}},"second":{"displayName":"秒钟","relative":{"0":"现在"},"relativeTime":{"future":{"other":"{0}秒后"},"past":{"other":"{0}秒前"}}}}},{"locale":"zh-Hant","pluralRuleFunction":function (n,ord){if(ord)return"other";return"other"},"fields":{"year":{"displayName":"年","relative":{"0":"今年","1":"明年","-1":"去年"},"relativeTime":{"future":{"other":"{0} 年後"},"past":{"other":"{0} 年前"}}},"month":{"displayName":"月","relative":{"0":"本月","1":"下個月","-1":"上個月"},"relativeTime":{"future":{"other":"{0} 個月後"},"past":{"other":"{0} 個月前"}}},"day":{"displayName":"日","relative":{"0":"今天","1":"明天","2":"後天","-1":"昨天","-2":"前天"},"relativeTime":{"future":{"other":"{0} 天後"},"past":{"other":"{0} 天前"}}},"hour":{"displayName":"小時","relativeTime":{"future":{"other":"{0} 小時後"},"past":{"other":"{0} 小時前"}}},"minute":{"displayName":"分鐘","relativeTime":{"future":{"other":"{0} 分鐘後"},"past":{"other":"{0} 分鐘前"}}},"second":{"displayName":"秒","relative":{"0":"現在"},"relativeTime":{"future":{"other":"{0} 秒後"},"past":{"other":"{0} 秒前"}}}}},{"locale":"zh-Hant-HK","parentLocale":"zh-Hant","fields":{"year":{"displayName":"年","relative":{"0":"今年","1":"明年","-1":"去年"},"relativeTime":{"future":{"other":"{0} 年後"},"past":{"other":"{0} 年前"}}},"month":{"displayName":"月","relative":{"0":"本月","1":"下個月","-1":"上個月"},"relativeTime":{"future":{"other":"{0} 個月後"},"past":{"other":"{0} 個月前"}}},"day":{"displayName":"日","relative":{"0":"今日","1":"明日","2":"後日","-1":"昨日","-2":"前日"},"relativeTime":{"future":{"other":"{0} 日後"},"past":{"other":"{0} 日前"}}},"hour":{"displayName":"小時","relativeTime":{"future":{"other":"{0} 小時後"},"past":{"other":"{0} 小時前"}}},"minute":{"displayName":"分鐘","relativeTime":{"future":{"other":"{0} 分鐘後"},"past":{"other":"{0} 分鐘前"}}},"second":{"displayName":"秒","relative":{"0":"現在"},"relativeTime":{"future":{"other":"{0} 秒後"},"past":{"other":"{0} 秒前"}}}}},{"locale":"zh-Hant-MO","parentLocale":"zh-Hant-HK"},{"locale":"zh-Hant-TW","parentLocale":"zh-Hant"}];
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _intlMessageformat = require('intl-messageformat');
+
+var _intlMessageformat2 = _interopRequireDefault(_intlMessageformat);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*
+                                                                                                                                                           * Copyright 2015, Yahoo Inc.
+                                                                                                                                                           * Copyrights licensed under the New BSD License.
+                                                                                                                                                           * See the accompanying LICENSE file for terms.
+                                                                                                                                                           */
+
+// This is a "hack" until a proper `intl-pluralformat` package is created.
+
+function resolveLocale(locales) {
+    // IntlMessageFormat#_resolveLocale() does not depend on `this`.
+    return _intlMessageformat2.default.prototype._resolveLocale(locales);
+}
+
+function findPluralFunction(locale) {
+    // IntlMessageFormat#_findPluralFunction() does not depend on `this`.
+    return _intlMessageformat2.default.prototype._findPluralRuleFunction(locale);
+}
+
+var IntlPluralFormat = function IntlPluralFormat(locales) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    _classCallCheck(this, IntlPluralFormat);
+
+    var useOrdinal = options.style === 'ordinal';
+    var pluralFn = findPluralFunction(resolveLocale(locales));
+
+    this.format = function (value) {
+        return pluralFn(value, useOrdinal);
+    };
+};
+
+exports.default = IntlPluralFormat;
+},{"intl-messageformat":25}],19:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.FormattedHTMLMessage = exports.FormattedMessage = exports.FormattedPlural = exports.FormattedNumber = exports.FormattedRelative = exports.FormattedTime = exports.FormattedDate = exports.IntlProvider = exports.injectIntl = exports.intlShape = exports.addLocaleData = undefined;
+
+var _types = require('./types');
+
+Object.defineProperty(exports, 'intlShape', {
+  enumerable: true,
+  get: function get() {
+    return _types.intlShape;
+  }
+});
+
+var _inject = require('./inject');
+
+Object.defineProperty(exports, 'injectIntl', {
+  enumerable: true,
+  get: function get() {
+    return _inject.default;
+  }
+});
+
+var _intl = require('./components/intl');
+
+Object.defineProperty(exports, 'IntlProvider', {
+  enumerable: true,
+  get: function get() {
+    return _intl.default;
+  }
+});
+
+var _date = require('./components/date');
+
+Object.defineProperty(exports, 'FormattedDate', {
+  enumerable: true,
+  get: function get() {
+    return _date.default;
+  }
+});
+
+var _time = require('./components/time');
+
+Object.defineProperty(exports, 'FormattedTime', {
+  enumerable: true,
+  get: function get() {
+    return _time.default;
+  }
+});
+
+var _relative = require('./components/relative');
+
+Object.defineProperty(exports, 'FormattedRelative', {
+  enumerable: true,
+  get: function get() {
+    return _relative.default;
+  }
+});
+
+var _number = require('./components/number');
+
+Object.defineProperty(exports, 'FormattedNumber', {
+  enumerable: true,
+  get: function get() {
+    return _number.default;
+  }
+});
+
+var _plural = require('./components/plural');
+
+Object.defineProperty(exports, 'FormattedPlural', {
+  enumerable: true,
+  get: function get() {
+    return _plural.default;
+  }
+});
+
+var _message = require('./components/message');
+
+Object.defineProperty(exports, 'FormattedMessage', {
+  enumerable: true,
+  get: function get() {
+    return _message.default;
+  }
+});
+
+var _htmlMessage = require('./components/html-message');
+
+Object.defineProperty(exports, 'FormattedHTMLMessage', {
+  enumerable: true,
+  get: function get() {
+    return _htmlMessage.default;
+  }
+});
+exports.defineMessages = defineMessages;
+
+var _en = require('./en');
+
+var _en2 = _interopRequireDefault(_en);
+
+var _localeDataRegistry = require('./locale-data-registry');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the New BSD License.
+ * See the accompanying LICENSE file for terms.
+ */
+
+(0, _localeDataRegistry.addLocaleData)(_en2.default);
+
+exports.addLocaleData = _localeDataRegistry.addLocaleData;
+function defineMessages(messageDescriptors) {
+  // This simply returns what's passed-in because it's meant to be a hook for
+  // babel-plugin-react-intl.
+  return messageDescriptors;
+}
+},{"./components/date":4,"./components/html-message":5,"./components/intl":6,"./components/message":7,"./components/number":8,"./components/plural":9,"./components/relative":10,"./components/time":11,"./en":12,"./inject":14,"./locale-data-registry":15,"./types":20}],20:[function(require,module,exports){
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /*
+                                                                                                                                                                                                                                                                   * Copyright 2015, Yahoo Inc.
+                                                                                                                                                                                                                                                                   * Copyrights licensed under the New BSD License.
+                                                                                                                                                                                                                                                                   * See the accompanying LICENSE file for terms.
+                                                                                                                                                                                                                                                                   */
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.pluralFormatPropTypes = exports.relativeFormatPropTypes = exports.numberFormatPropTypes = exports.dateTimeFormatPropTypes = exports.messageDescriptorPropTypes = exports.intlShape = exports.intlFormatPropTypes = exports.intlConfigPropTypes = undefined;
+
+var _react = require('react');
+
+var bool = _react.PropTypes.bool;
+var number = _react.PropTypes.number;
+var string = _react.PropTypes.string;
+var func = _react.PropTypes.func;
+var object = _react.PropTypes.object;
+var oneOf = _react.PropTypes.oneOf;
+var shape = _react.PropTypes.shape;
+var intlConfigPropTypes = exports.intlConfigPropTypes = {
+    locale: string,
+    formats: object,
+    messages: object,
+
+    defaultLocale: string,
+    defaultFormats: object
+};
+
+var intlFormatPropTypes = exports.intlFormatPropTypes = {
+    formatDate: func.isRequired,
+    formatTime: func.isRequired,
+    formatRelative: func.isRequired,
+    formatNumber: func.isRequired,
+    formatPlural: func.isRequired,
+    formatMessage: func.isRequired,
+    formatHTMLMessage: func.isRequired
+};
+
+var intlShape = exports.intlShape = shape(_extends({}, intlConfigPropTypes, intlFormatPropTypes, {
+    now: func.isRequired
+}));
+
+var messageDescriptorPropTypes = exports.messageDescriptorPropTypes = {
+    id: string.isRequired,
+    description: string,
+    defaultMessage: string
+};
+
+var dateTimeFormatPropTypes = exports.dateTimeFormatPropTypes = {
+    localeMatcher: oneOf(['best fit', 'lookup']),
+    formatMatcher: oneOf(['basic', 'best fit']),
+
+    timeZone: string,
+    hour12: bool,
+
+    weekday: oneOf(['narrow', 'short', 'long']),
+    era: oneOf(['narrow', 'short', 'long']),
+    year: oneOf(['numeric', '2-digit']),
+    month: oneOf(['numeric', '2-digit', 'narrow', 'short', 'long']),
+    day: oneOf(['numeric', '2-digit']),
+    hour: oneOf(['numeric', '2-digit']),
+    minute: oneOf(['numeric', '2-digit']),
+    second: oneOf(['numeric', '2-digit']),
+    timeZoneName: oneOf(['short', 'long'])
+};
+
+var numberFormatPropTypes = exports.numberFormatPropTypes = {
+    localeMatcher: oneOf(['best fit', 'lookup']),
+
+    style: oneOf(['decimal', 'currency', 'percent']),
+    currency: string,
+    currencyDisplay: oneOf(['symbol', 'code', 'name']),
+    useGrouping: bool,
+
+    minimumIntegerDigits: number,
+    minimumFractionDigits: number,
+    maximumFractionDigits: number,
+    minimumSignificantDigits: number,
+    maximumSignificantDigits: number
+};
+
+var relativeFormatPropTypes = exports.relativeFormatPropTypes = {
+    style: oneOf(['best fit', 'numeric']),
+    units: oneOf(['second', 'minute', 'hour', 'day', 'month', 'year'])
+};
+
+var pluralFormatPropTypes = exports.pluralFormatPropTypes = {
+    style: oneOf(['cardinal', 'ordinal'])
+};
+},{"react":"nakDgH"}],21:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.escape = escape;
+exports.invariantIntlContext = invariantIntlContext;
+exports.shallowEquals = shallowEquals;
+exports.shouldIntlComponentUpdate = shouldIntlComponentUpdate;
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+/*
+HTML escaping and shallow-equals implementations are the same as React's
+(on purpose.) Therefore, it has the following Copyright and Licensing:
+
+Copyright 2013-2014, Facebook, Inc.
+All rights reserved.
+
+This source code is licensed under the BSD-style license found in the LICENSE
+file in the root directory of React's source tree.
+*/
+
+var ESCAPED_CHARS = {
+    '&': '&amp;',
+    '>': '&gt;',
+    '<': '&lt;',
+    '"': '&quot;',
+    '\'': '&#x27;'
+};
+
+var UNSAFE_CHARS_REGEX = /[&><"']/g;
+
+function escape(str) {
+    return ('' + str).replace(UNSAFE_CHARS_REGEX, function (match) {
+        return ESCAPED_CHARS[match];
+    });
+}
+
+function invariantIntlContext() {
+    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    var intl = _ref.intl;
+
+    (0, _invariant2.default)(intl, '[React Intl] Could not find required `intl` object. ' + '<IntlProvider> needs to exist in the component ancestry.');
+}
+
+function shallowEquals(objA, objB) {
+    if (objA === objB) {
+        return true;
+    }
+
+    if ((typeof objA === 'undefined' ? 'undefined' : _typeof(objA)) !== 'object' || objA === null || (typeof objB === 'undefined' ? 'undefined' : _typeof(objB)) !== 'object' || objB === null) {
+        return false;
+    }
+
+    var keysA = Object.keys(objA);
+    var keysB = Object.keys(objB);
+
+    if (keysA.length !== keysB.length) {
+        return false;
+    }
+
+    // Test for A's keys different from B.
+    var bHasOwnProperty = Object.prototype.hasOwnProperty.bind(objB);
+    for (var i = 0; i < keysA.length; i++) {
+        if (!bHasOwnProperty(keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function shouldIntlComponentUpdate(_ref2, nextProps, nextState) {
+    var props = _ref2.props;
+    var state = _ref2.state;
+    var _ref2$context = _ref2.context;
+    var context = _ref2$context === undefined ? {} : _ref2$context;
+    var nextContext = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+    var _context$intl = context.intl;
+    var intl = _context$intl === undefined ? {} : _context$intl;
+    var _nextContext$intl = nextContext.intl;
+    var nextIntl = _nextContext$intl === undefined ? {} : _nextContext$intl;
+
+    return !shallowEquals(nextProps, props) || !shallowEquals(nextState, state) || !shallowEquals(nextIntl, intl);
+}
+},{"invariant":40}],22:[function(require,module,exports){
+'use strict';
+
+exports = module.exports = require('./lib/memoizer')['default'];
+exports['default'] = exports;
+
+},{"./lib/memoizer":24}],23:[function(require,module,exports){
+"use strict";
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+// Function.prototype.bind implementation from Mozilla Developer Network:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+
+var bind = Function.prototype.bind || function (oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    if (this.prototype) {
+      // native functions don't have a prototype
+      fNOP.prototype = this.prototype;
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+};
+
+// Purposely using the same implementation as the Intl.js `Intl` polyfill.
+// Copyright 2013 Andy Earnshaw, MIT License
+
+var hop = Object.prototype.hasOwnProperty;
+
+var realDefineProp = (function () {
+    try { return !!Object.defineProperty({}, 'a', {}); }
+    catch (e) { return false; }
+})();
+
+var es3 = !realDefineProp && !Object.prototype.__defineGetter__;
+
+var defineProperty = realDefineProp ? Object.defineProperty :
+        function (obj, name, desc) {
+
+    if ('get' in desc && obj.__defineGetter__) {
+        obj.__defineGetter__(name, desc.get);
+    } else if (!hop.call(obj, name) || 'value' in desc) {
+        obj[name] = desc.value;
+    }
+};
+
+var objCreate = Object.create || function (proto, props) {
+    var obj, k;
+
+    function F() {}
+    F.prototype = proto;
+    obj = new F();
+
+    for (k in props) {
+        if (hop.call(props, k)) {
+            defineProperty(obj, k, props[k]);
+        }
+    }
+
+    return obj;
+};
+
+exports.bind = bind, exports.defineProperty = defineProperty, exports.objCreate = objCreate;
+
+//# sourceMappingURL=es5.js.map
+},{}],24:[function(require,module,exports){
+"use strict";
+var src$es5$$ = require("./es5");
+exports["default"] = createFormatCache;
+
+// -----------------------------------------------------------------------------
+
+function createFormatCache(FormatConstructor) {
+    var cache = src$es5$$.objCreate(null);
+
+    return function () {
+        var args    = Array.prototype.slice.call(arguments);
+        var cacheId = getCacheId(args);
+        var format  = cacheId && cache[cacheId];
+
+        if (!format) {
+            format = new (src$es5$$.bind.apply(FormatConstructor, [null].concat(args)))();
+
+            if (cacheId) {
+                cache[cacheId] = format;
+            }
+        }
+
+        return format;
+    };
+}
+
+// -- Utilities ----------------------------------------------------------------
+
+function getCacheId(inputs) {
+    // When JSON is not available in the runtime, we will not create a cache id.
+    if (typeof JSON === 'undefined') { return; }
+
+    var cacheId = [];
+
+    var i, len, input;
+
+    for (i = 0, len = inputs.length; i < len; i += 1) {
+        input = inputs[i];
+
+        if (input && typeof input === 'object') {
+            cacheId.push(orderedProps(input));
+        } else {
+            cacheId.push(input);
+        }
+    }
+
+    return JSON.stringify(cacheId);
+}
+
+function orderedProps(obj) {
+    var props = [],
+        keys  = [];
+
+    var key, i, len, prop;
+
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            keys.push(key);
+        }
+    }
+
+    var orderedKeys = keys.sort();
+
+    for (i = 0, len = orderedKeys.length; i < len; i += 1) {
+        key  = orderedKeys[i];
+        prop = {};
+
+        prop[key] = obj[key];
+        props[i]  = prop;
+    }
+
+    return props;
+}
+
+//# sourceMappingURL=memoizer.js.map
+},{"./es5":23}],25:[function(require,module,exports){
+/* jshint node:true */
+
+'use strict';
+
+var IntlMessageFormat = require('./lib/main')['default'];
+
+// Add all locale data to `IntlMessageFormat`. This module will be ignored when
+// bundling for the browser with Browserify/Webpack.
+require('./lib/locales');
+
+// Re-export `IntlMessageFormat` as the CommonJS default exports with all the
+// locale data registered, and with English set as the default locale. Define
+// the `default` prop for use with other compiled ES6 Modules.
+exports = module.exports = IntlMessageFormat;
+exports['default'] = exports;
+
+},{"./lib/locales":1,"./lib/main":30}],26:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+exports["default"] = Compiler;
+
+function Compiler(locales, formats, pluralFn) {
+    this.locales  = locales;
+    this.formats  = formats;
+    this.pluralFn = pluralFn;
+}
+
+Compiler.prototype.compile = function (ast) {
+    this.pluralStack        = [];
+    this.currentPlural      = null;
+    this.pluralNumberFormat = null;
+
+    return this.compileMessage(ast);
+};
+
+Compiler.prototype.compileMessage = function (ast) {
+    if (!(ast && ast.type === 'messageFormatPattern')) {
+        throw new Error('Message AST is not of type: "messageFormatPattern"');
+    }
+
+    var elements = ast.elements,
+        pattern  = [];
+
+    var i, len, element;
+
+    for (i = 0, len = elements.length; i < len; i += 1) {
+        element = elements[i];
+
+        switch (element.type) {
+            case 'messageTextElement':
+                pattern.push(this.compileMessageText(element));
+                break;
+
+            case 'argumentElement':
+                pattern.push(this.compileArgument(element));
+                break;
+
+            default:
+                throw new Error('Message element does not have a valid type');
+        }
+    }
+
+    return pattern;
+};
+
+Compiler.prototype.compileMessageText = function (element) {
+    // When this `element` is part of plural sub-pattern and its value contains
+    // an unescaped '#', use a `PluralOffsetString` helper to properly output
+    // the number with the correct offset in the string.
+    if (this.currentPlural && /(^|[^\\])#/g.test(element.value)) {
+        // Create a cache a NumberFormat instance that can be reused for any
+        // PluralOffsetString instance in this message.
+        if (!this.pluralNumberFormat) {
+            this.pluralNumberFormat = new Intl.NumberFormat(this.locales);
+        }
+
+        return new PluralOffsetString(
+                this.currentPlural.id,
+                this.currentPlural.format.offset,
+                this.pluralNumberFormat,
+                element.value);
+    }
+
+    // Unescape the escaped '#'s in the message text.
+    return element.value.replace(/\\#/g, '#');
+};
+
+Compiler.prototype.compileArgument = function (element) {
+    var format = element.format;
+
+    if (!format) {
+        return new StringFormat(element.id);
+    }
+
+    var formats  = this.formats,
+        locales  = this.locales,
+        pluralFn = this.pluralFn,
+        options;
+
+    switch (format.type) {
+        case 'numberFormat':
+            options = formats.number[format.style];
+            return {
+                id    : element.id,
+                format: new Intl.NumberFormat(locales, options).format
+            };
+
+        case 'dateFormat':
+            options = formats.date[format.style];
+            return {
+                id    : element.id,
+                format: new Intl.DateTimeFormat(locales, options).format
+            };
+
+        case 'timeFormat':
+            options = formats.time[format.style];
+            return {
+                id    : element.id,
+                format: new Intl.DateTimeFormat(locales, options).format
+            };
+
+        case 'pluralFormat':
+            options = this.compileOptions(element);
+            return new PluralFormat(
+                element.id, format.ordinal, format.offset, options, pluralFn
+            );
+
+        case 'selectFormat':
+            options = this.compileOptions(element);
+            return new SelectFormat(element.id, options);
+
+        default:
+            throw new Error('Message element does not have a valid format type');
+    }
+};
+
+Compiler.prototype.compileOptions = function (element) {
+    var format      = element.format,
+        options     = format.options,
+        optionsHash = {};
+
+    // Save the current plural element, if any, then set it to a new value when
+    // compiling the options sub-patterns. This conforms the spec's algorithm
+    // for handling `"#"` syntax in message text.
+    this.pluralStack.push(this.currentPlural);
+    this.currentPlural = format.type === 'pluralFormat' ? element : null;
+
+    var i, len, option;
+
+    for (i = 0, len = options.length; i < len; i += 1) {
+        option = options[i];
+
+        // Compile the sub-pattern and save it under the options's selector.
+        optionsHash[option.selector] = this.compileMessage(option.value);
+    }
+
+    // Pop the plural stack to put back the original current plural value.
+    this.currentPlural = this.pluralStack.pop();
+
+    return optionsHash;
+};
+
+// -- Compiler Helper Classes --------------------------------------------------
+
+function StringFormat(id) {
+    this.id = id;
+}
+
+StringFormat.prototype.format = function (value) {
+    if (!value) {
+        return '';
+    }
+
+    return typeof value === 'string' ? value : String(value);
+};
+
+function PluralFormat(id, useOrdinal, offset, options, pluralFn) {
+    this.id         = id;
+    this.useOrdinal = useOrdinal;
+    this.offset     = offset;
+    this.options    = options;
+    this.pluralFn   = pluralFn;
+}
+
+PluralFormat.prototype.getOption = function (value) {
+    var options = this.options;
+
+    var option = options['=' + value] ||
+            options[this.pluralFn(value - this.offset, this.useOrdinal)];
+
+    return option || options.other;
+};
+
+function PluralOffsetString(id, offset, numberFormat, string) {
+    this.id           = id;
+    this.offset       = offset;
+    this.numberFormat = numberFormat;
+    this.string       = string;
+}
+
+PluralOffsetString.prototype.format = function (value) {
+    var number = this.numberFormat.format(value - this.offset);
+
+    return this.string
+            .replace(/(^|[^\\])#/g, '$1' + number)
+            .replace(/\\#/g, '#');
+};
+
+function SelectFormat(id, options) {
+    this.id      = id;
+    this.options = options;
+}
+
+SelectFormat.prototype.getOption = function (value) {
+    var options = this.options;
+    return options[value] || options.other;
+};
+
+//# sourceMappingURL=compiler.js.map
+},{}],27:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+var src$utils$$ = require("./utils"), src$es5$$ = require("./es5"), src$compiler$$ = require("./compiler"), intl$messageformat$parser$$ = require("intl-messageformat-parser");
+exports["default"] = MessageFormat;
+
+// -- MessageFormat --------------------------------------------------------
+
+function MessageFormat(message, locales, formats) {
+    // Parse string messages into an AST.
+    var ast = typeof message === 'string' ?
+            MessageFormat.__parse(message) : message;
+
+    if (!(ast && ast.type === 'messageFormatPattern')) {
+        throw new TypeError('A message must be provided as a String or AST.');
+    }
+
+    // Creates a new object with the specified `formats` merged with the default
+    // formats.
+    formats = this._mergeFormats(MessageFormat.formats, formats);
+
+    // Defined first because it's used to build the format pattern.
+    src$es5$$.defineProperty(this, '_locale',  {value: this._resolveLocale(locales)});
+
+    // Compile the `ast` to a pattern that is highly optimized for repeated
+    // `format()` invocations. **Note:** This passes the `locales` set provided
+    // to the constructor instead of just the resolved locale.
+    var pluralFn = this._findPluralRuleFunction(this._locale);
+    var pattern  = this._compilePattern(ast, locales, formats, pluralFn);
+
+    // "Bind" `format()` method to `this` so it can be passed by reference like
+    // the other `Intl` APIs.
+    var messageFormat = this;
+    this.format = function (values) {
+        return messageFormat._format(pattern, values);
+    };
+}
+
+// Default format options used as the prototype of the `formats` provided to the
+// constructor. These are used when constructing the internal Intl.NumberFormat
+// and Intl.DateTimeFormat instances.
+src$es5$$.defineProperty(MessageFormat, 'formats', {
+    enumerable: true,
+
+    value: {
+        number: {
+            'currency': {
+                style: 'currency'
+            },
+
+            'percent': {
+                style: 'percent'
+            }
+        },
+
+        date: {
+            'short': {
+                month: 'numeric',
+                day  : 'numeric',
+                year : '2-digit'
+            },
+
+            'medium': {
+                month: 'short',
+                day  : 'numeric',
+                year : 'numeric'
+            },
+
+            'long': {
+                month: 'long',
+                day  : 'numeric',
+                year : 'numeric'
+            },
+
+            'full': {
+                weekday: 'long',
+                month  : 'long',
+                day    : 'numeric',
+                year   : 'numeric'
+            }
+        },
+
+        time: {
+            'short': {
+                hour  : 'numeric',
+                minute: 'numeric'
+            },
+
+            'medium':  {
+                hour  : 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+            },
+
+            'long': {
+                hour        : 'numeric',
+                minute      : 'numeric',
+                second      : 'numeric',
+                timeZoneName: 'short'
+            },
+
+            'full': {
+                hour        : 'numeric',
+                minute      : 'numeric',
+                second      : 'numeric',
+                timeZoneName: 'short'
+            }
+        }
+    }
+});
+
+// Define internal private properties for dealing with locale data.
+src$es5$$.defineProperty(MessageFormat, '__localeData__', {value: src$es5$$.objCreate(null)});
+src$es5$$.defineProperty(MessageFormat, '__addLocaleData', {value: function (data) {
+    if (!(data && data.locale)) {
+        throw new Error(
+            'Locale data provided to IntlMessageFormat is missing a ' +
+            '`locale` property'
+        );
+    }
+
+    MessageFormat.__localeData__[data.locale.toLowerCase()] = data;
+}});
+
+// Defines `__parse()` static method as an exposed private.
+src$es5$$.defineProperty(MessageFormat, '__parse', {value: intl$messageformat$parser$$["default"].parse});
+
+// Define public `defaultLocale` property which defaults to English, but can be
+// set by the developer.
+src$es5$$.defineProperty(MessageFormat, 'defaultLocale', {
+    enumerable: true,
+    writable  : true,
+    value     : undefined
+});
+
+MessageFormat.prototype.resolvedOptions = function () {
+    // TODO: Provide anything else?
+    return {
+        locale: this._locale
+    };
+};
+
+MessageFormat.prototype._compilePattern = function (ast, locales, formats, pluralFn) {
+    var compiler = new src$compiler$$["default"](locales, formats, pluralFn);
+    return compiler.compile(ast);
+};
+
+MessageFormat.prototype._findPluralRuleFunction = function (locale) {
+    var localeData = MessageFormat.__localeData__;
+    var data       = localeData[locale.toLowerCase()];
+
+    // The locale data is de-duplicated, so we have to traverse the locale's
+    // hierarchy until we find a `pluralRuleFunction` to return.
+    while (data) {
+        if (data.pluralRuleFunction) {
+            return data.pluralRuleFunction;
+        }
+
+        data = data.parentLocale && localeData[data.parentLocale.toLowerCase()];
+    }
+
+    throw new Error(
+        'Locale data added to IntlMessageFormat is missing a ' +
+        '`pluralRuleFunction` for :' + locale
+    );
+};
+
+MessageFormat.prototype._format = function (pattern, values) {
+    var result = '',
+        i, len, part, id, value;
+
+    for (i = 0, len = pattern.length; i < len; i += 1) {
+        part = pattern[i];
+
+        // Exist early for string parts.
+        if (typeof part === 'string') {
+            result += part;
+            continue;
+        }
+
+        id = part.id;
+
+        // Enforce that all required values are provided by the caller.
+        if (!(values && src$utils$$.hop.call(values, id))) {
+            throw new Error('A value must be provided for: ' + id);
+        }
+
+        value = values[id];
+
+        // Recursively format plural and select parts' option — which can be a
+        // nested pattern structure. The choosing of the option to use is
+        // abstracted-by and delegated-to the part helper object.
+        if (part.options) {
+            result += this._format(part.getOption(value), values);
+        } else {
+            result += part.format(value);
+        }
+    }
+
+    return result;
+};
+
+MessageFormat.prototype._mergeFormats = function (defaults, formats) {
+    var mergedFormats = {},
+        type, mergedType;
+
+    for (type in defaults) {
+        if (!src$utils$$.hop.call(defaults, type)) { continue; }
+
+        mergedFormats[type] = mergedType = src$es5$$.objCreate(defaults[type]);
+
+        if (formats && src$utils$$.hop.call(formats, type)) {
+            src$utils$$.extend(mergedType, formats[type]);
+        }
+    }
+
+    return mergedFormats;
+};
+
+MessageFormat.prototype._resolveLocale = function (locales) {
+    if (typeof locales === 'string') {
+        locales = [locales];
+    }
+
+    // Create a copy of the array so we can push on the default locale.
+    locales = (locales || []).concat(MessageFormat.defaultLocale);
+
+    var localeData = MessageFormat.__localeData__;
+    var i, len, localeParts, data;
+
+    // Using the set of locales + the default locale, we look for the first one
+    // which that has been registered. When data does not exist for a locale, we
+    // traverse its ancestors to find something that's been registered within
+    // its hierarchy of locales. Since we lack the proper `parentLocale` data
+    // here, we must take a naive approach to traversal.
+    for (i = 0, len = locales.length; i < len; i += 1) {
+        localeParts = locales[i].toLowerCase().split('-');
+
+        while (localeParts.length) {
+            data = localeData[localeParts.join('-')];
+            if (data) {
+                // Return the normalized locale string; e.g., we return "en-US",
+                // instead of "en-us".
+                return data.locale;
+            }
+
+            localeParts.pop();
+        }
+    }
+
+    var defaultLocale = locales.pop();
+    throw new Error(
+        'No locale data has been added to IntlMessageFormat for: ' +
+        locales.join(', ') + ', or the default locale: ' + defaultLocale
+    );
+};
+
+//# sourceMappingURL=core.js.map
+},{"./compiler":26,"./es5":29,"./utils":31,"intl-messageformat-parser":32}],28:[function(require,module,exports){
+// GENERATED FILE
+"use strict";
+exports["default"] = {"locale":"en","pluralRuleFunction":function (n,ord){var s=String(n).split("."),v0=!s[1],t0=Number(s[0])==n,n10=t0&&s[0].slice(-1),n100=t0&&s[0].slice(-2);if(ord)return n10==1&&n100!=11?"one":n10==2&&n100!=12?"two":n10==3&&n100!=13?"few":"other";return n==1&&v0?"one":"other"}};
+
+//# sourceMappingURL=en.js.map
+},{}],29:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+var src$utils$$ = require("./utils");
+
+// Purposely using the same implementation as the Intl.js `Intl` polyfill.
+// Copyright 2013 Andy Earnshaw, MIT License
+
+var realDefineProp = (function () {
+    try { return !!Object.defineProperty({}, 'a', {}); }
+    catch (e) { return false; }
+})();
+
+var es3 = !realDefineProp && !Object.prototype.__defineGetter__;
+
+var defineProperty = realDefineProp ? Object.defineProperty :
+        function (obj, name, desc) {
+
+    if ('get' in desc && obj.__defineGetter__) {
+        obj.__defineGetter__(name, desc.get);
+    } else if (!src$utils$$.hop.call(obj, name) || 'value' in desc) {
+        obj[name] = desc.value;
+    }
+};
+
+var objCreate = Object.create || function (proto, props) {
+    var obj, k;
+
+    function F() {}
+    F.prototype = proto;
+    obj = new F();
+
+    for (k in props) {
+        if (src$utils$$.hop.call(props, k)) {
+            defineProperty(obj, k, props[k]);
+        }
+    }
+
+    return obj;
+};
+exports.defineProperty = defineProperty, exports.objCreate = objCreate;
+
+//# sourceMappingURL=es5.js.map
+},{"./utils":31}],30:[function(require,module,exports){
+/* jslint esnext: true */
+
+"use strict";
+var src$core$$ = require("./core"), src$en$$ = require("./en");
+
+src$core$$["default"].__addLocaleData(src$en$$["default"]);
+src$core$$["default"].defaultLocale = 'en';
+
+exports["default"] = src$core$$["default"];
+
+//# sourceMappingURL=main.js.map
+},{"./core":27,"./en":28}],31:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+exports.extend = extend;
+var hop = Object.prototype.hasOwnProperty;
+
+function extend(obj) {
+    var sources = Array.prototype.slice.call(arguments, 1),
+        i, len, source, key;
+
+    for (i = 0, len = sources.length; i < len; i += 1) {
+        source = sources[i];
+        if (!source) { continue; }
+
+        for (key in source) {
+            if (hop.call(source, key)) {
+                obj[key] = source[key];
+            }
+        }
+    }
+
+    return obj;
+}
+exports.hop = hop;
+
+//# sourceMappingURL=utils.js.map
+},{}],32:[function(require,module,exports){
+'use strict';
+
+exports = module.exports = require('./lib/parser')['default'];
+exports['default'] = exports;
+
+},{"./lib/parser":33}],33:[function(require,module,exports){
+"use strict";
+
+exports["default"] = (function() {
+  /*
+   * Generated by PEG.js 0.8.0.
+   *
+   * http://pegjs.majda.cz/
+   */
+
+  function peg$subclass(child, parent) {
+    function ctor() { this.constructor = child; }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor();
+  }
+
+  function SyntaxError(message, expected, found, offset, line, column) {
+    this.message  = message;
+    this.expected = expected;
+    this.found    = found;
+    this.offset   = offset;
+    this.line     = line;
+    this.column   = column;
+
+    this.name     = "SyntaxError";
+  }
+
+  peg$subclass(SyntaxError, Error);
+
+  function parse(input) {
+    var options = arguments.length > 1 ? arguments[1] : {},
+
+        peg$FAILED = {},
+
+        peg$startRuleFunctions = { start: peg$parsestart },
+        peg$startRuleFunction  = peg$parsestart,
+
+        peg$c0 = [],
+        peg$c1 = function(elements) {
+                return {
+                    type    : 'messageFormatPattern',
+                    elements: elements
+                };
+            },
+        peg$c2 = peg$FAILED,
+        peg$c3 = function(text) {
+                var string = '',
+                    i, j, outerLen, inner, innerLen;
+
+                for (i = 0, outerLen = text.length; i < outerLen; i += 1) {
+                    inner = text[i];
+
+                    for (j = 0, innerLen = inner.length; j < innerLen; j += 1) {
+                        string += inner[j];
+                    }
+                }
+
+                return string;
+            },
+        peg$c4 = function(messageText) {
+                return {
+                    type : 'messageTextElement',
+                    value: messageText
+                };
+            },
+        peg$c5 = /^[^ \t\n\r,.+={}#]/,
+        peg$c6 = { type: "class", value: "[^ \\t\\n\\r,.+={}#]", description: "[^ \\t\\n\\r,.+={}#]" },
+        peg$c7 = "{",
+        peg$c8 = { type: "literal", value: "{", description: "\"{\"" },
+        peg$c9 = null,
+        peg$c10 = ",",
+        peg$c11 = { type: "literal", value: ",", description: "\",\"" },
+        peg$c12 = "}",
+        peg$c13 = { type: "literal", value: "}", description: "\"}\"" },
+        peg$c14 = function(id, format) {
+                return {
+                    type  : 'argumentElement',
+                    id    : id,
+                    format: format && format[2]
+                };
+            },
+        peg$c15 = "number",
+        peg$c16 = { type: "literal", value: "number", description: "\"number\"" },
+        peg$c17 = "date",
+        peg$c18 = { type: "literal", value: "date", description: "\"date\"" },
+        peg$c19 = "time",
+        peg$c20 = { type: "literal", value: "time", description: "\"time\"" },
+        peg$c21 = function(type, style) {
+                return {
+                    type : type + 'Format',
+                    style: style && style[2]
+                };
+            },
+        peg$c22 = "plural",
+        peg$c23 = { type: "literal", value: "plural", description: "\"plural\"" },
+        peg$c24 = function(pluralStyle) {
+                return {
+                    type   : pluralStyle.type,
+                    ordinal: false,
+                    offset : pluralStyle.offset || 0,
+                    options: pluralStyle.options
+                };
+            },
+        peg$c25 = "selectordinal",
+        peg$c26 = { type: "literal", value: "selectordinal", description: "\"selectordinal\"" },
+        peg$c27 = function(pluralStyle) {
+                return {
+                    type   : pluralStyle.type,
+                    ordinal: true,
+                    offset : pluralStyle.offset || 0,
+                    options: pluralStyle.options
+                }
+            },
+        peg$c28 = "select",
+        peg$c29 = { type: "literal", value: "select", description: "\"select\"" },
+        peg$c30 = function(options) {
+                return {
+                    type   : 'selectFormat',
+                    options: options
+                };
+            },
+        peg$c31 = "=",
+        peg$c32 = { type: "literal", value: "=", description: "\"=\"" },
+        peg$c33 = function(selector, pattern) {
+                return {
+                    type    : 'optionalFormatPattern',
+                    selector: selector,
+                    value   : pattern
+                };
+            },
+        peg$c34 = "offset:",
+        peg$c35 = { type: "literal", value: "offset:", description: "\"offset:\"" },
+        peg$c36 = function(number) {
+                return number;
+            },
+        peg$c37 = function(offset, options) {
+                return {
+                    type   : 'pluralFormat',
+                    offset : offset,
+                    options: options
+                };
+            },
+        peg$c38 = { type: "other", description: "whitespace" },
+        peg$c39 = /^[ \t\n\r]/,
+        peg$c40 = { type: "class", value: "[ \\t\\n\\r]", description: "[ \\t\\n\\r]" },
+        peg$c41 = { type: "other", description: "optionalWhitespace" },
+        peg$c42 = /^[0-9]/,
+        peg$c43 = { type: "class", value: "[0-9]", description: "[0-9]" },
+        peg$c44 = /^[0-9a-f]/i,
+        peg$c45 = { type: "class", value: "[0-9a-f]i", description: "[0-9a-f]i" },
+        peg$c46 = "0",
+        peg$c47 = { type: "literal", value: "0", description: "\"0\"" },
+        peg$c48 = /^[1-9]/,
+        peg$c49 = { type: "class", value: "[1-9]", description: "[1-9]" },
+        peg$c50 = function(digits) {
+            return parseInt(digits, 10);
+        },
+        peg$c51 = /^[^{}\\\0-\x1F \t\n\r]/,
+        peg$c52 = { type: "class", value: "[^{}\\\\\\0-\\x1F \\t\\n\\r]", description: "[^{}\\\\\\0-\\x1F \\t\\n\\r]" },
+        peg$c53 = "\\\\",
+        peg$c54 = { type: "literal", value: "\\\\", description: "\"\\\\\\\\\"" },
+        peg$c55 = function() { return '\\'; },
+        peg$c56 = "\\#",
+        peg$c57 = { type: "literal", value: "\\#", description: "\"\\\\#\"" },
+        peg$c58 = function() { return '\\#'; },
+        peg$c59 = "\\{",
+        peg$c60 = { type: "literal", value: "\\{", description: "\"\\\\{\"" },
+        peg$c61 = function() { return '\u007B'; },
+        peg$c62 = "\\}",
+        peg$c63 = { type: "literal", value: "\\}", description: "\"\\\\}\"" },
+        peg$c64 = function() { return '\u007D'; },
+        peg$c65 = "\\u",
+        peg$c66 = { type: "literal", value: "\\u", description: "\"\\\\u\"" },
+        peg$c67 = function(digits) {
+                return String.fromCharCode(parseInt(digits, 16));
+            },
+        peg$c68 = function(chars) { return chars.join(''); },
+
+        peg$currPos          = 0,
+        peg$reportedPos      = 0,
+        peg$cachedPos        = 0,
+        peg$cachedPosDetails = { line: 1, column: 1, seenCR: false },
+        peg$maxFailPos       = 0,
+        peg$maxFailExpected  = [],
+        peg$silentFails      = 0,
+
+        peg$result;
+
+    if ("startRule" in options) {
+      if (!(options.startRule in peg$startRuleFunctions)) {
+        throw new Error("Can't start parsing from rule \"" + options.startRule + "\".");
+      }
+
+      peg$startRuleFunction = peg$startRuleFunctions[options.startRule];
+    }
+
+    function text() {
+      return input.substring(peg$reportedPos, peg$currPos);
+    }
+
+    function offset() {
+      return peg$reportedPos;
+    }
+
+    function line() {
+      return peg$computePosDetails(peg$reportedPos).line;
+    }
+
+    function column() {
+      return peg$computePosDetails(peg$reportedPos).column;
+    }
+
+    function expected(description) {
+      throw peg$buildException(
+        null,
+        [{ type: "other", description: description }],
+        peg$reportedPos
+      );
+    }
+
+    function error(message) {
+      throw peg$buildException(message, null, peg$reportedPos);
+    }
+
+    function peg$computePosDetails(pos) {
+      function advance(details, startPos, endPos) {
+        var p, ch;
+
+        for (p = startPos; p < endPos; p++) {
+          ch = input.charAt(p);
+          if (ch === "\n") {
+            if (!details.seenCR) { details.line++; }
+            details.column = 1;
+            details.seenCR = false;
+          } else if (ch === "\r" || ch === "\u2028" || ch === "\u2029") {
+            details.line++;
+            details.column = 1;
+            details.seenCR = true;
+          } else {
+            details.column++;
+            details.seenCR = false;
+          }
+        }
+      }
+
+      if (peg$cachedPos !== pos) {
+        if (peg$cachedPos > pos) {
+          peg$cachedPos = 0;
+          peg$cachedPosDetails = { line: 1, column: 1, seenCR: false };
+        }
+        advance(peg$cachedPosDetails, peg$cachedPos, pos);
+        peg$cachedPos = pos;
+      }
+
+      return peg$cachedPosDetails;
+    }
+
+    function peg$fail(expected) {
+      if (peg$currPos < peg$maxFailPos) { return; }
+
+      if (peg$currPos > peg$maxFailPos) {
+        peg$maxFailPos = peg$currPos;
+        peg$maxFailExpected = [];
+      }
+
+      peg$maxFailExpected.push(expected);
+    }
+
+    function peg$buildException(message, expected, pos) {
+      function cleanupExpected(expected) {
+        var i = 1;
+
+        expected.sort(function(a, b) {
+          if (a.description < b.description) {
+            return -1;
+          } else if (a.description > b.description) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+
+        while (i < expected.length) {
+          if (expected[i - 1] === expected[i]) {
+            expected.splice(i, 1);
+          } else {
+            i++;
+          }
+        }
+      }
+
+      function buildMessage(expected, found) {
+        function stringEscape(s) {
+          function hex(ch) { return ch.charCodeAt(0).toString(16).toUpperCase(); }
+
+          return s
+            .replace(/\\/g,   '\\\\')
+            .replace(/"/g,    '\\"')
+            .replace(/\x08/g, '\\b')
+            .replace(/\t/g,   '\\t')
+            .replace(/\n/g,   '\\n')
+            .replace(/\f/g,   '\\f')
+            .replace(/\r/g,   '\\r')
+            .replace(/[\x00-\x07\x0B\x0E\x0F]/g, function(ch) { return '\\x0' + hex(ch); })
+            .replace(/[\x10-\x1F\x80-\xFF]/g,    function(ch) { return '\\x'  + hex(ch); })
+            .replace(/[\u0180-\u0FFF]/g,         function(ch) { return '\\u0' + hex(ch); })
+            .replace(/[\u1080-\uFFFF]/g,         function(ch) { return '\\u'  + hex(ch); });
+        }
+
+        var expectedDescs = new Array(expected.length),
+            expectedDesc, foundDesc, i;
+
+        for (i = 0; i < expected.length; i++) {
+          expectedDescs[i] = expected[i].description;
+        }
+
+        expectedDesc = expected.length > 1
+          ? expectedDescs.slice(0, -1).join(", ")
+              + " or "
+              + expectedDescs[expected.length - 1]
+          : expectedDescs[0];
+
+        foundDesc = found ? "\"" + stringEscape(found) + "\"" : "end of input";
+
+        return "Expected " + expectedDesc + " but " + foundDesc + " found.";
+      }
+
+      var posDetails = peg$computePosDetails(pos),
+          found      = pos < input.length ? input.charAt(pos) : null;
+
+      if (expected !== null) {
+        cleanupExpected(expected);
+      }
+
+      return new SyntaxError(
+        message !== null ? message : buildMessage(expected, found),
+        expected,
+        found,
+        pos,
+        posDetails.line,
+        posDetails.column
+      );
+    }
+
+    function peg$parsestart() {
+      var s0;
+
+      s0 = peg$parsemessageFormatPattern();
+
+      return s0;
+    }
+
+    function peg$parsemessageFormatPattern() {
+      var s0, s1, s2;
+
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = peg$parsemessageFormatElement();
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        s2 = peg$parsemessageFormatElement();
+      }
+      if (s1 !== peg$FAILED) {
+        peg$reportedPos = s0;
+        s1 = peg$c1(s1);
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    function peg$parsemessageFormatElement() {
+      var s0;
+
+      s0 = peg$parsemessageTextElement();
+      if (s0 === peg$FAILED) {
+        s0 = peg$parseargumentElement();
+      }
+
+      return s0;
+    }
+
+    function peg$parsemessageText() {
+      var s0, s1, s2, s3, s4, s5;
+
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = peg$currPos;
+      s3 = peg$parse_();
+      if (s3 !== peg$FAILED) {
+        s4 = peg$parsechars();
+        if (s4 !== peg$FAILED) {
+          s5 = peg$parse_();
+          if (s5 !== peg$FAILED) {
+            s3 = [s3, s4, s5];
+            s2 = s3;
+          } else {
+            peg$currPos = s2;
+            s2 = peg$c2;
+          }
+        } else {
+          peg$currPos = s2;
+          s2 = peg$c2;
+        }
+      } else {
+        peg$currPos = s2;
+        s2 = peg$c2;
+      }
+      if (s2 !== peg$FAILED) {
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          s2 = peg$currPos;
+          s3 = peg$parse_();
+          if (s3 !== peg$FAILED) {
+            s4 = peg$parsechars();
+            if (s4 !== peg$FAILED) {
+              s5 = peg$parse_();
+              if (s5 !== peg$FAILED) {
+                s3 = [s3, s4, s5];
+                s2 = s3;
+              } else {
+                peg$currPos = s2;
+                s2 = peg$c2;
+              }
+            } else {
+              peg$currPos = s2;
+              s2 = peg$c2;
+            }
+          } else {
+            peg$currPos = s2;
+            s2 = peg$c2;
+          }
+        }
+      } else {
+        s1 = peg$c2;
+      }
+      if (s1 !== peg$FAILED) {
+        peg$reportedPos = s0;
+        s1 = peg$c3(s1);
+      }
+      s0 = s1;
+      if (s0 === peg$FAILED) {
+        s0 = peg$currPos;
+        s1 = peg$parsews();
+        if (s1 !== peg$FAILED) {
+          s1 = input.substring(s0, peg$currPos);
+        }
+        s0 = s1;
+      }
+
+      return s0;
+    }
+
+    function peg$parsemessageTextElement() {
+      var s0, s1;
+
+      s0 = peg$currPos;
+      s1 = peg$parsemessageText();
+      if (s1 !== peg$FAILED) {
+        peg$reportedPos = s0;
+        s1 = peg$c4(s1);
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    function peg$parseargument() {
+      var s0, s1, s2;
+
+      s0 = peg$parsenumber();
+      if (s0 === peg$FAILED) {
+        s0 = peg$currPos;
+        s1 = [];
+        if (peg$c5.test(input.charAt(peg$currPos))) {
+          s2 = input.charAt(peg$currPos);
+          peg$currPos++;
+        } else {
+          s2 = peg$FAILED;
+          if (peg$silentFails === 0) { peg$fail(peg$c6); }
+        }
+        if (s2 !== peg$FAILED) {
+          while (s2 !== peg$FAILED) {
+            s1.push(s2);
+            if (peg$c5.test(input.charAt(peg$currPos))) {
+              s2 = input.charAt(peg$currPos);
+              peg$currPos++;
+            } else {
+              s2 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c6); }
+            }
+          }
+        } else {
+          s1 = peg$c2;
+        }
+        if (s1 !== peg$FAILED) {
+          s1 = input.substring(s0, peg$currPos);
+        }
+        s0 = s1;
+      }
+
+      return s0;
+    }
+
+    function peg$parseargumentElement() {
+      var s0, s1, s2, s3, s4, s5, s6, s7, s8;
+
+      s0 = peg$currPos;
+      if (input.charCodeAt(peg$currPos) === 123) {
+        s1 = peg$c7;
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c8); }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          s3 = peg$parseargument();
+          if (s3 !== peg$FAILED) {
+            s4 = peg$parse_();
+            if (s4 !== peg$FAILED) {
+              s5 = peg$currPos;
+              if (input.charCodeAt(peg$currPos) === 44) {
+                s6 = peg$c10;
+                peg$currPos++;
+              } else {
+                s6 = peg$FAILED;
+                if (peg$silentFails === 0) { peg$fail(peg$c11); }
+              }
+              if (s6 !== peg$FAILED) {
+                s7 = peg$parse_();
+                if (s7 !== peg$FAILED) {
+                  s8 = peg$parseelementFormat();
+                  if (s8 !== peg$FAILED) {
+                    s6 = [s6, s7, s8];
+                    s5 = s6;
+                  } else {
+                    peg$currPos = s5;
+                    s5 = peg$c2;
+                  }
+                } else {
+                  peg$currPos = s5;
+                  s5 = peg$c2;
+                }
+              } else {
+                peg$currPos = s5;
+                s5 = peg$c2;
+              }
+              if (s5 === peg$FAILED) {
+                s5 = peg$c9;
+              }
+              if (s5 !== peg$FAILED) {
+                s6 = peg$parse_();
+                if (s6 !== peg$FAILED) {
+                  if (input.charCodeAt(peg$currPos) === 125) {
+                    s7 = peg$c12;
+                    peg$currPos++;
+                  } else {
+                    s7 = peg$FAILED;
+                    if (peg$silentFails === 0) { peg$fail(peg$c13); }
+                  }
+                  if (s7 !== peg$FAILED) {
+                    peg$reportedPos = s0;
+                    s1 = peg$c14(s3, s5);
+                    s0 = s1;
+                  } else {
+                    peg$currPos = s0;
+                    s0 = peg$c2;
+                  }
+                } else {
+                  peg$currPos = s0;
+                  s0 = peg$c2;
+                }
+              } else {
+                peg$currPos = s0;
+                s0 = peg$c2;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$c2;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parseelementFormat() {
+      var s0;
+
+      s0 = peg$parsesimpleFormat();
+      if (s0 === peg$FAILED) {
+        s0 = peg$parsepluralFormat();
+        if (s0 === peg$FAILED) {
+          s0 = peg$parseselectOrdinalFormat();
+          if (s0 === peg$FAILED) {
+            s0 = peg$parseselectFormat();
+          }
+        }
+      }
+
+      return s0;
+    }
+
+    function peg$parsesimpleFormat() {
+      var s0, s1, s2, s3, s4, s5, s6;
+
+      s0 = peg$currPos;
+      if (input.substr(peg$currPos, 6) === peg$c15) {
+        s1 = peg$c15;
+        peg$currPos += 6;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c16); }
+      }
+      if (s1 === peg$FAILED) {
+        if (input.substr(peg$currPos, 4) === peg$c17) {
+          s1 = peg$c17;
+          peg$currPos += 4;
+        } else {
+          s1 = peg$FAILED;
+          if (peg$silentFails === 0) { peg$fail(peg$c18); }
+        }
+        if (s1 === peg$FAILED) {
+          if (input.substr(peg$currPos, 4) === peg$c19) {
+            s1 = peg$c19;
+            peg$currPos += 4;
+          } else {
+            s1 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c20); }
+          }
+        }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          s3 = peg$currPos;
+          if (input.charCodeAt(peg$currPos) === 44) {
+            s4 = peg$c10;
+            peg$currPos++;
+          } else {
+            s4 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c11); }
+          }
+          if (s4 !== peg$FAILED) {
+            s5 = peg$parse_();
+            if (s5 !== peg$FAILED) {
+              s6 = peg$parsechars();
+              if (s6 !== peg$FAILED) {
+                s4 = [s4, s5, s6];
+                s3 = s4;
+              } else {
+                peg$currPos = s3;
+                s3 = peg$c2;
+              }
+            } else {
+              peg$currPos = s3;
+              s3 = peg$c2;
+            }
+          } else {
+            peg$currPos = s3;
+            s3 = peg$c2;
+          }
+          if (s3 === peg$FAILED) {
+            s3 = peg$c9;
+          }
+          if (s3 !== peg$FAILED) {
+            peg$reportedPos = s0;
+            s1 = peg$c21(s1, s3);
+            s0 = s1;
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parsepluralFormat() {
+      var s0, s1, s2, s3, s4, s5;
+
+      s0 = peg$currPos;
+      if (input.substr(peg$currPos, 6) === peg$c22) {
+        s1 = peg$c22;
+        peg$currPos += 6;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c23); }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          if (input.charCodeAt(peg$currPos) === 44) {
+            s3 = peg$c10;
+            peg$currPos++;
+          } else {
+            s3 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c11); }
+          }
+          if (s3 !== peg$FAILED) {
+            s4 = peg$parse_();
+            if (s4 !== peg$FAILED) {
+              s5 = peg$parsepluralStyle();
+              if (s5 !== peg$FAILED) {
+                peg$reportedPos = s0;
+                s1 = peg$c24(s5);
+                s0 = s1;
+              } else {
+                peg$currPos = s0;
+                s0 = peg$c2;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$c2;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parseselectOrdinalFormat() {
+      var s0, s1, s2, s3, s4, s5;
+
+      s0 = peg$currPos;
+      if (input.substr(peg$currPos, 13) === peg$c25) {
+        s1 = peg$c25;
+        peg$currPos += 13;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c26); }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          if (input.charCodeAt(peg$currPos) === 44) {
+            s3 = peg$c10;
+            peg$currPos++;
+          } else {
+            s3 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c11); }
+          }
+          if (s3 !== peg$FAILED) {
+            s4 = peg$parse_();
+            if (s4 !== peg$FAILED) {
+              s5 = peg$parsepluralStyle();
+              if (s5 !== peg$FAILED) {
+                peg$reportedPos = s0;
+                s1 = peg$c27(s5);
+                s0 = s1;
+              } else {
+                peg$currPos = s0;
+                s0 = peg$c2;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$c2;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parseselectFormat() {
+      var s0, s1, s2, s3, s4, s5, s6;
+
+      s0 = peg$currPos;
+      if (input.substr(peg$currPos, 6) === peg$c28) {
+        s1 = peg$c28;
+        peg$currPos += 6;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c29); }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          if (input.charCodeAt(peg$currPos) === 44) {
+            s3 = peg$c10;
+            peg$currPos++;
+          } else {
+            s3 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c11); }
+          }
+          if (s3 !== peg$FAILED) {
+            s4 = peg$parse_();
+            if (s4 !== peg$FAILED) {
+              s5 = [];
+              s6 = peg$parseoptionalFormatPattern();
+              if (s6 !== peg$FAILED) {
+                while (s6 !== peg$FAILED) {
+                  s5.push(s6);
+                  s6 = peg$parseoptionalFormatPattern();
+                }
+              } else {
+                s5 = peg$c2;
+              }
+              if (s5 !== peg$FAILED) {
+                peg$reportedPos = s0;
+                s1 = peg$c30(s5);
+                s0 = s1;
+              } else {
+                peg$currPos = s0;
+                s0 = peg$c2;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$c2;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parseselector() {
+      var s0, s1, s2, s3;
+
+      s0 = peg$currPos;
+      s1 = peg$currPos;
+      if (input.charCodeAt(peg$currPos) === 61) {
+        s2 = peg$c31;
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c32); }
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$parsenumber();
+        if (s3 !== peg$FAILED) {
+          s2 = [s2, s3];
+          s1 = s2;
+        } else {
+          peg$currPos = s1;
+          s1 = peg$c2;
+        }
+      } else {
+        peg$currPos = s1;
+        s1 = peg$c2;
+      }
+      if (s1 !== peg$FAILED) {
+        s1 = input.substring(s0, peg$currPos);
+      }
+      s0 = s1;
+      if (s0 === peg$FAILED) {
+        s0 = peg$parsechars();
+      }
+
+      return s0;
+    }
+
+    function peg$parseoptionalFormatPattern() {
+      var s0, s1, s2, s3, s4, s5, s6, s7, s8;
+
+      s0 = peg$currPos;
+      s1 = peg$parse_();
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parseselector();
+        if (s2 !== peg$FAILED) {
+          s3 = peg$parse_();
+          if (s3 !== peg$FAILED) {
+            if (input.charCodeAt(peg$currPos) === 123) {
+              s4 = peg$c7;
+              peg$currPos++;
+            } else {
+              s4 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c8); }
+            }
+            if (s4 !== peg$FAILED) {
+              s5 = peg$parse_();
+              if (s5 !== peg$FAILED) {
+                s6 = peg$parsemessageFormatPattern();
+                if (s6 !== peg$FAILED) {
+                  s7 = peg$parse_();
+                  if (s7 !== peg$FAILED) {
+                    if (input.charCodeAt(peg$currPos) === 125) {
+                      s8 = peg$c12;
+                      peg$currPos++;
+                    } else {
+                      s8 = peg$FAILED;
+                      if (peg$silentFails === 0) { peg$fail(peg$c13); }
+                    }
+                    if (s8 !== peg$FAILED) {
+                      peg$reportedPos = s0;
+                      s1 = peg$c33(s2, s6);
+                      s0 = s1;
+                    } else {
+                      peg$currPos = s0;
+                      s0 = peg$c2;
+                    }
+                  } else {
+                    peg$currPos = s0;
+                    s0 = peg$c2;
+                  }
+                } else {
+                  peg$currPos = s0;
+                  s0 = peg$c2;
+                }
+              } else {
+                peg$currPos = s0;
+                s0 = peg$c2;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$c2;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parseoffset() {
+      var s0, s1, s2, s3;
+
+      s0 = peg$currPos;
+      if (input.substr(peg$currPos, 7) === peg$c34) {
+        s1 = peg$c34;
+        peg$currPos += 7;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c35); }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          s3 = peg$parsenumber();
+          if (s3 !== peg$FAILED) {
+            peg$reportedPos = s0;
+            s1 = peg$c36(s3);
+            s0 = s1;
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parsepluralStyle() {
+      var s0, s1, s2, s3, s4;
+
+      s0 = peg$currPos;
+      s1 = peg$parseoffset();
+      if (s1 === peg$FAILED) {
+        s1 = peg$c9;
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$parse_();
+        if (s2 !== peg$FAILED) {
+          s3 = [];
+          s4 = peg$parseoptionalFormatPattern();
+          if (s4 !== peg$FAILED) {
+            while (s4 !== peg$FAILED) {
+              s3.push(s4);
+              s4 = peg$parseoptionalFormatPattern();
+            }
+          } else {
+            s3 = peg$c2;
+          }
+          if (s3 !== peg$FAILED) {
+            peg$reportedPos = s0;
+            s1 = peg$c37(s1, s3);
+            s0 = s1;
+          } else {
+            peg$currPos = s0;
+            s0 = peg$c2;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$c2;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$c2;
+      }
+
+      return s0;
+    }
+
+    function peg$parsews() {
+      var s0, s1;
+
+      peg$silentFails++;
+      s0 = [];
+      if (peg$c39.test(input.charAt(peg$currPos))) {
+        s1 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c40); }
+      }
+      if (s1 !== peg$FAILED) {
+        while (s1 !== peg$FAILED) {
+          s0.push(s1);
+          if (peg$c39.test(input.charAt(peg$currPos))) {
+            s1 = input.charAt(peg$currPos);
+            peg$currPos++;
+          } else {
+            s1 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c40); }
+          }
+        }
+      } else {
+        s0 = peg$c2;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c38); }
+      }
+
+      return s0;
+    }
+
+    function peg$parse_() {
+      var s0, s1, s2;
+
+      peg$silentFails++;
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = peg$parsews();
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        s2 = peg$parsews();
+      }
+      if (s1 !== peg$FAILED) {
+        s1 = input.substring(s0, peg$currPos);
+      }
+      s0 = s1;
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c41); }
+      }
+
+      return s0;
+    }
+
+    function peg$parsedigit() {
+      var s0;
+
+      if (peg$c42.test(input.charAt(peg$currPos))) {
+        s0 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s0 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c43); }
+      }
+
+      return s0;
+    }
+
+    function peg$parsehexDigit() {
+      var s0;
+
+      if (peg$c44.test(input.charAt(peg$currPos))) {
+        s0 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s0 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c45); }
+      }
+
+      return s0;
+    }
+
+    function peg$parsenumber() {
+      var s0, s1, s2, s3, s4, s5;
+
+      s0 = peg$currPos;
+      if (input.charCodeAt(peg$currPos) === 48) {
+        s1 = peg$c46;
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c47); }
+      }
+      if (s1 === peg$FAILED) {
+        s1 = peg$currPos;
+        s2 = peg$currPos;
+        if (peg$c48.test(input.charAt(peg$currPos))) {
+          s3 = input.charAt(peg$currPos);
+          peg$currPos++;
+        } else {
+          s3 = peg$FAILED;
+          if (peg$silentFails === 0) { peg$fail(peg$c49); }
+        }
+        if (s3 !== peg$FAILED) {
+          s4 = [];
+          s5 = peg$parsedigit();
+          while (s5 !== peg$FAILED) {
+            s4.push(s5);
+            s5 = peg$parsedigit();
+          }
+          if (s4 !== peg$FAILED) {
+            s3 = [s3, s4];
+            s2 = s3;
+          } else {
+            peg$currPos = s2;
+            s2 = peg$c2;
+          }
+        } else {
+          peg$currPos = s2;
+          s2 = peg$c2;
+        }
+        if (s2 !== peg$FAILED) {
+          s2 = input.substring(s1, peg$currPos);
+        }
+        s1 = s2;
+      }
+      if (s1 !== peg$FAILED) {
+        peg$reportedPos = s0;
+        s1 = peg$c50(s1);
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    function peg$parsechar() {
+      var s0, s1, s2, s3, s4, s5, s6, s7;
+
+      if (peg$c51.test(input.charAt(peg$currPos))) {
+        s0 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s0 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c52); }
+      }
+      if (s0 === peg$FAILED) {
+        s0 = peg$currPos;
+        if (input.substr(peg$currPos, 2) === peg$c53) {
+          s1 = peg$c53;
+          peg$currPos += 2;
+        } else {
+          s1 = peg$FAILED;
+          if (peg$silentFails === 0) { peg$fail(peg$c54); }
+        }
+        if (s1 !== peg$FAILED) {
+          peg$reportedPos = s0;
+          s1 = peg$c55();
+        }
+        s0 = s1;
+        if (s0 === peg$FAILED) {
+          s0 = peg$currPos;
+          if (input.substr(peg$currPos, 2) === peg$c56) {
+            s1 = peg$c56;
+            peg$currPos += 2;
+          } else {
+            s1 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c57); }
+          }
+          if (s1 !== peg$FAILED) {
+            peg$reportedPos = s0;
+            s1 = peg$c58();
+          }
+          s0 = s1;
+          if (s0 === peg$FAILED) {
+            s0 = peg$currPos;
+            if (input.substr(peg$currPos, 2) === peg$c59) {
+              s1 = peg$c59;
+              peg$currPos += 2;
+            } else {
+              s1 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c60); }
+            }
+            if (s1 !== peg$FAILED) {
+              peg$reportedPos = s0;
+              s1 = peg$c61();
+            }
+            s0 = s1;
+            if (s0 === peg$FAILED) {
+              s0 = peg$currPos;
+              if (input.substr(peg$currPos, 2) === peg$c62) {
+                s1 = peg$c62;
+                peg$currPos += 2;
+              } else {
+                s1 = peg$FAILED;
+                if (peg$silentFails === 0) { peg$fail(peg$c63); }
+              }
+              if (s1 !== peg$FAILED) {
+                peg$reportedPos = s0;
+                s1 = peg$c64();
+              }
+              s0 = s1;
+              if (s0 === peg$FAILED) {
+                s0 = peg$currPos;
+                if (input.substr(peg$currPos, 2) === peg$c65) {
+                  s1 = peg$c65;
+                  peg$currPos += 2;
+                } else {
+                  s1 = peg$FAILED;
+                  if (peg$silentFails === 0) { peg$fail(peg$c66); }
+                }
+                if (s1 !== peg$FAILED) {
+                  s2 = peg$currPos;
+                  s3 = peg$currPos;
+                  s4 = peg$parsehexDigit();
+                  if (s4 !== peg$FAILED) {
+                    s5 = peg$parsehexDigit();
+                    if (s5 !== peg$FAILED) {
+                      s6 = peg$parsehexDigit();
+                      if (s6 !== peg$FAILED) {
+                        s7 = peg$parsehexDigit();
+                        if (s7 !== peg$FAILED) {
+                          s4 = [s4, s5, s6, s7];
+                          s3 = s4;
+                        } else {
+                          peg$currPos = s3;
+                          s3 = peg$c2;
+                        }
+                      } else {
+                        peg$currPos = s3;
+                        s3 = peg$c2;
+                      }
+                    } else {
+                      peg$currPos = s3;
+                      s3 = peg$c2;
+                    }
+                  } else {
+                    peg$currPos = s3;
+                    s3 = peg$c2;
+                  }
+                  if (s3 !== peg$FAILED) {
+                    s3 = input.substring(s2, peg$currPos);
+                  }
+                  s2 = s3;
+                  if (s2 !== peg$FAILED) {
+                    peg$reportedPos = s0;
+                    s1 = peg$c67(s2);
+                    s0 = s1;
+                  } else {
+                    peg$currPos = s0;
+                    s0 = peg$c2;
+                  }
+                } else {
+                  peg$currPos = s0;
+                  s0 = peg$c2;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return s0;
+    }
+
+    function peg$parsechars() {
+      var s0, s1, s2;
+
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = peg$parsechar();
+      if (s2 !== peg$FAILED) {
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          s2 = peg$parsechar();
+        }
+      } else {
+        s1 = peg$c2;
+      }
+      if (s1 !== peg$FAILED) {
+        peg$reportedPos = s0;
+        s1 = peg$c68(s1);
+      }
+      s0 = s1;
+
+      return s0;
+    }
+
+    peg$result = peg$startRuleFunction();
+
+    if (peg$result !== peg$FAILED && peg$currPos === input.length) {
+      return peg$result;
+    } else {
+      if (peg$result !== peg$FAILED && peg$currPos < input.length) {
+        peg$fail({ type: "end", description: "end of input" });
+      }
+
+      throw peg$buildException(null, peg$maxFailExpected, peg$maxFailPos);
+    }
+  }
+
+  return {
+    SyntaxError: SyntaxError,
+    parse:       parse
+  };
+})();
+
+//# sourceMappingURL=parser.js.map
+},{}],34:[function(require,module,exports){
+/* jshint node:true */
+
+'use strict';
+
+var IntlRelativeFormat = require('./lib/main')['default'];
+
+// Add all locale data to `IntlRelativeFormat`. This module will be ignored when
+// bundling for the browser with Browserify/Webpack.
+require('./lib/locales');
+
+// Re-export `IntlRelativeFormat` as the CommonJS default exports with all the
+// locale data registered, and with English set as the default locale. Define
+// the `default` prop for use with other compiled ES6 Modules.
+exports = module.exports = IntlRelativeFormat;
+exports['default'] = exports;
+
+},{"./lib/locales":1,"./lib/main":39}],35:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+var intl$messageformat$$ = require("intl-messageformat"), src$diff$$ = require("./diff"), src$es5$$ = require("./es5");
+exports["default"] = RelativeFormat;
+
+// -----------------------------------------------------------------------------
+
+var FIELDS = ['second', 'minute', 'hour', 'day', 'month', 'year'];
+var STYLES = ['best fit', 'numeric'];
+
+// -- RelativeFormat -----------------------------------------------------------
+
+function RelativeFormat(locales, options) {
+    options = options || {};
+
+    // Make a copy of `locales` if it's an array, so that it doesn't change
+    // since it's used lazily.
+    if (src$es5$$.isArray(locales)) {
+        locales = locales.concat();
+    }
+
+    src$es5$$.defineProperty(this, '_locale', {value: this._resolveLocale(locales)});
+    src$es5$$.defineProperty(this, '_options', {value: {
+        style: this._resolveStyle(options.style),
+        units: this._isValidUnits(options.units) && options.units
+    }});
+
+    src$es5$$.defineProperty(this, '_locales', {value: locales});
+    src$es5$$.defineProperty(this, '_fields', {value: this._findFields(this._locale)});
+    src$es5$$.defineProperty(this, '_messages', {value: src$es5$$.objCreate(null)});
+
+    // "Bind" `format()` method to `this` so it can be passed by reference like
+    // the other `Intl` APIs.
+    var relativeFormat = this;
+    this.format = function format(date, options) {
+        return relativeFormat._format(date, options);
+    };
+}
+
+// Define internal private properties for dealing with locale data.
+src$es5$$.defineProperty(RelativeFormat, '__localeData__', {value: src$es5$$.objCreate(null)});
+src$es5$$.defineProperty(RelativeFormat, '__addLocaleData', {value: function (data) {
+    if (!(data && data.locale)) {
+        throw new Error(
+            'Locale data provided to IntlRelativeFormat is missing a ' +
+            '`locale` property value'
+        );
+    }
+
+    RelativeFormat.__localeData__[data.locale.toLowerCase()] = data;
+
+    // Add data to IntlMessageFormat.
+    intl$messageformat$$["default"].__addLocaleData(data);
+}});
+
+// Define public `defaultLocale` property which can be set by the developer, or
+// it will be set when the first RelativeFormat instance is created by
+// leveraging the resolved locale from `Intl`.
+src$es5$$.defineProperty(RelativeFormat, 'defaultLocale', {
+    enumerable: true,
+    writable  : true,
+    value     : undefined
+});
+
+// Define public `thresholds` property which can be set by the developer, and
+// defaults to relative time thresholds from moment.js.
+src$es5$$.defineProperty(RelativeFormat, 'thresholds', {
+    enumerable: true,
+
+    value: {
+        second: 45,  // seconds to minute
+        minute: 45,  // minutes to hour
+        hour  : 22,  // hours to day
+        day   : 26,  // days to month
+        month : 11   // months to year
+    }
+});
+
+RelativeFormat.prototype.resolvedOptions = function () {
+    return {
+        locale: this._locale,
+        style : this._options.style,
+        units : this._options.units
+    };
+};
+
+RelativeFormat.prototype._compileMessage = function (units) {
+    // `this._locales` is the original set of locales the user specified to the
+    // constructor, while `this._locale` is the resolved root locale.
+    var locales        = this._locales;
+    var resolvedLocale = this._locale;
+
+    var field        = this._fields[units];
+    var relativeTime = field.relativeTime;
+    var future       = '';
+    var past         = '';
+    var i;
+
+    for (i in relativeTime.future) {
+        if (relativeTime.future.hasOwnProperty(i)) {
+            future += ' ' + i + ' {' +
+                relativeTime.future[i].replace('{0}', '#') + '}';
+        }
+    }
+
+    for (i in relativeTime.past) {
+        if (relativeTime.past.hasOwnProperty(i)) {
+            past += ' ' + i + ' {' +
+                relativeTime.past[i].replace('{0}', '#') + '}';
+        }
+    }
+
+    var message = '{when, select, future {{0, plural, ' + future + '}}' +
+                                 'past {{0, plural, ' + past + '}}}';
+
+    // Create the synthetic IntlMessageFormat instance using the original
+    // locales value specified by the user when constructing the the parent
+    // IntlRelativeFormat instance.
+    return new intl$messageformat$$["default"](message, locales);
+};
+
+RelativeFormat.prototype._getMessage = function (units) {
+    var messages = this._messages;
+
+    // Create a new synthetic message based on the locale data from CLDR.
+    if (!messages[units]) {
+        messages[units] = this._compileMessage(units);
+    }
+
+    return messages[units];
+};
+
+RelativeFormat.prototype._getRelativeUnits = function (diff, units) {
+    var field = this._fields[units];
+
+    if (field.relative) {
+        return field.relative[diff];
+    }
+};
+
+RelativeFormat.prototype._findFields = function (locale) {
+    var localeData = RelativeFormat.__localeData__;
+    var data       = localeData[locale.toLowerCase()];
+
+    // The locale data is de-duplicated, so we have to traverse the locale's
+    // hierarchy until we find `fields` to return.
+    while (data) {
+        if (data.fields) {
+            return data.fields;
+        }
+
+        data = data.parentLocale && localeData[data.parentLocale.toLowerCase()];
+    }
+
+    throw new Error(
+        'Locale data added to IntlRelativeFormat is missing `fields` for :' +
+        locale
+    );
+};
+
+RelativeFormat.prototype._format = function (date, options) {
+    var now = options && options.now !== undefined ? options.now : src$es5$$.dateNow();
+
+    if (date === undefined) {
+        date = now;
+    }
+
+    // Determine if the `date` and optional `now` values are valid, and throw a
+    // similar error to what `Intl.DateTimeFormat#format()` would throw.
+    if (!isFinite(now)) {
+        throw new RangeError(
+            'The `now` option provided to IntlRelativeFormat#format() is not ' +
+            'in valid range.'
+        );
+    }
+
+    if (!isFinite(date)) {
+        throw new RangeError(
+            'The date value provided to IntlRelativeFormat#format() is not ' +
+            'in valid range.'
+        );
+    }
+
+    var diffReport  = src$diff$$["default"](now, date);
+    var units       = this._options.units || this._selectUnits(diffReport);
+    var diffInUnits = diffReport[units];
+
+    if (this._options.style !== 'numeric') {
+        var relativeUnits = this._getRelativeUnits(diffInUnits, units);
+        if (relativeUnits) {
+            return relativeUnits;
+        }
+    }
+
+    return this._getMessage(units).format({
+        '0' : Math.abs(diffInUnits),
+        when: diffInUnits < 0 ? 'past' : 'future'
+    });
+};
+
+RelativeFormat.prototype._isValidUnits = function (units) {
+    if (!units || src$es5$$.arrIndexOf.call(FIELDS, units) >= 0) {
+        return true;
+    }
+
+    if (typeof units === 'string') {
+        var suggestion = /s$/.test(units) && units.substr(0, units.length - 1);
+        if (suggestion && src$es5$$.arrIndexOf.call(FIELDS, suggestion) >= 0) {
+            throw new Error(
+                '"' + units + '" is not a valid IntlRelativeFormat `units` ' +
+                'value, did you mean: ' + suggestion
+            );
+        }
+    }
+
+    throw new Error(
+        '"' + units + '" is not a valid IntlRelativeFormat `units` value, it ' +
+        'must be one of: "' + FIELDS.join('", "') + '"'
+    );
+};
+
+RelativeFormat.prototype._resolveLocale = function (locales) {
+    if (typeof locales === 'string') {
+        locales = [locales];
+    }
+
+    // Create a copy of the array so we can push on the default locale.
+    locales = (locales || []).concat(RelativeFormat.defaultLocale);
+
+    var localeData = RelativeFormat.__localeData__;
+    var i, len, localeParts, data;
+
+    // Using the set of locales + the default locale, we look for the first one
+    // which that has been registered. When data does not exist for a locale, we
+    // traverse its ancestors to find something that's been registered within
+    // its hierarchy of locales. Since we lack the proper `parentLocale` data
+    // here, we must take a naive approach to traversal.
+    for (i = 0, len = locales.length; i < len; i += 1) {
+        localeParts = locales[i].toLowerCase().split('-');
+
+        while (localeParts.length) {
+            data = localeData[localeParts.join('-')];
+            if (data) {
+                // Return the normalized locale string; e.g., we return "en-US",
+                // instead of "en-us".
+                return data.locale;
+            }
+
+            localeParts.pop();
+        }
+    }
+
+    var defaultLocale = locales.pop();
+    throw new Error(
+        'No locale data has been added to IntlRelativeFormat for: ' +
+        locales.join(', ') + ', or the default locale: ' + defaultLocale
+    );
+};
+
+RelativeFormat.prototype._resolveStyle = function (style) {
+    // Default to "best fit" style.
+    if (!style) {
+        return STYLES[0];
+    }
+
+    if (src$es5$$.arrIndexOf.call(STYLES, style) >= 0) {
+        return style;
+    }
+
+    throw new Error(
+        '"' + style + '" is not a valid IntlRelativeFormat `style` value, it ' +
+        'must be one of: "' + STYLES.join('", "') + '"'
+    );
+};
+
+RelativeFormat.prototype._selectUnits = function (diffReport) {
+    var i, l, units;
+
+    for (i = 0, l = FIELDS.length; i < l; i += 1) {
+        units = FIELDS[i];
+
+        if (Math.abs(diffReport[units]) < RelativeFormat.thresholds[units]) {
+            break;
+        }
+    }
+
+    return units;
+};
+
+//# sourceMappingURL=core.js.map
+},{"./diff":36,"./es5":38,"intl-messageformat":25}],36:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+
+var round = Math.round;
+
+function daysToYears(days) {
+    // 400 years have 146097 days (taking into account leap year rules)
+    return days * 400 / 146097;
+}
+
+exports["default"] = function (from, to) {
+    // Convert to ms timestamps.
+    from = +from;
+    to   = +to;
+
+    var millisecond = round(to - from),
+        second      = round(millisecond / 1000),
+        minute      = round(second / 60),
+        hour        = round(minute / 60),
+        day         = round(hour / 24),
+        week        = round(day / 7);
+
+    var rawYears = daysToYears(day),
+        month    = round(rawYears * 12),
+        year     = round(rawYears);
+
+    return {
+        millisecond: millisecond,
+        second     : second,
+        minute     : minute,
+        hour       : hour,
+        day        : day,
+        week       : week,
+        month      : month,
+        year       : year
+    };
+};
+
+//# sourceMappingURL=diff.js.map
+},{}],37:[function(require,module,exports){
+// GENERATED FILE
+"use strict";
+exports["default"] = {"locale":"en","pluralRuleFunction":function (n,ord){var s=String(n).split("."),v0=!s[1],t0=Number(s[0])==n,n10=t0&&s[0].slice(-1),n100=t0&&s[0].slice(-2);if(ord)return n10==1&&n100!=11?"one":n10==2&&n100!=12?"two":n10==3&&n100!=13?"few":"other";return n==1&&v0?"one":"other"},"fields":{"year":{"displayName":"Year","relative":{"0":"this year","1":"next year","-1":"last year"},"relativeTime":{"future":{"one":"in {0} year","other":"in {0} years"},"past":{"one":"{0} year ago","other":"{0} years ago"}}},"month":{"displayName":"Month","relative":{"0":"this month","1":"next month","-1":"last month"},"relativeTime":{"future":{"one":"in {0} month","other":"in {0} months"},"past":{"one":"{0} month ago","other":"{0} months ago"}}},"day":{"displayName":"Day","relative":{"0":"today","1":"tomorrow","-1":"yesterday"},"relativeTime":{"future":{"one":"in {0} day","other":"in {0} days"},"past":{"one":"{0} day ago","other":"{0} days ago"}}},"hour":{"displayName":"Hour","relativeTime":{"future":{"one":"in {0} hour","other":"in {0} hours"},"past":{"one":"{0} hour ago","other":"{0} hours ago"}}},"minute":{"displayName":"Minute","relativeTime":{"future":{"one":"in {0} minute","other":"in {0} minutes"},"past":{"one":"{0} minute ago","other":"{0} minutes ago"}}},"second":{"displayName":"Second","relative":{"0":"now"},"relativeTime":{"future":{"one":"in {0} second","other":"in {0} seconds"},"past":{"one":"{0} second ago","other":"{0} seconds ago"}}}}};
+
+//# sourceMappingURL=en.js.map
+},{}],38:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+/* jslint esnext: true */
+
+"use strict";
+
+// Purposely using the same implementation as the Intl.js `Intl` polyfill.
+// Copyright 2013 Andy Earnshaw, MIT License
+
+var hop = Object.prototype.hasOwnProperty;
+var toString = Object.prototype.toString;
+
+var realDefineProp = (function () {
+    try { return !!Object.defineProperty({}, 'a', {}); }
+    catch (e) { return false; }
+})();
+
+var es3 = !realDefineProp && !Object.prototype.__defineGetter__;
+
+var defineProperty = realDefineProp ? Object.defineProperty :
+        function (obj, name, desc) {
+
+    if ('get' in desc && obj.__defineGetter__) {
+        obj.__defineGetter__(name, desc.get);
+    } else if (!hop.call(obj, name) || 'value' in desc) {
+        obj[name] = desc.value;
+    }
+};
+
+var objCreate = Object.create || function (proto, props) {
+    var obj, k;
+
+    function F() {}
+    F.prototype = proto;
+    obj = new F();
+
+    for (k in props) {
+        if (hop.call(props, k)) {
+            defineProperty(obj, k, props[k]);
+        }
+    }
+
+    return obj;
+};
+
+var arrIndexOf = Array.prototype.indexOf || function (search, fromIndex) {
+    /*jshint validthis:true */
+    var arr = this;
+    if (!arr.length) {
+        return -1;
+    }
+
+    for (var i = fromIndex || 0, max = arr.length; i < max; i++) {
+        if (arr[i] === search) {
+            return i;
+        }
+    }
+
+    return -1;
+};
+
+var isArray = Array.isArray || function (obj) {
+    return toString.call(obj) === '[object Array]';
+};
+
+var dateNow = Date.now || function () {
+    return new Date().getTime();
+};
+exports.defineProperty = defineProperty, exports.objCreate = objCreate, exports.arrIndexOf = arrIndexOf, exports.isArray = isArray, exports.dateNow = dateNow;
+
+//# sourceMappingURL=es5.js.map
+},{}],39:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"./core":35,"./en":37}],40:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+'use strict';
+
+/**
+ * Use invariant() to assert state which your program assumes to be true.
+ *
+ * Provide sprintf-style format (only %s is supported) and arguments
+ * to provide information about what broke and what you were
+ * expecting.
+ *
+ * The invariant message will be stripped in production, but the invariant
+ * will remain to ensure logic does not differ in production.
+ */
+
+var invariant = function(condition, format, a, b, c, d, e, f) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (format === undefined) {
+      throw new Error('invariant requires an error message argument');
+    }
+  }
+
+  if (!condition) {
+    var error;
+    if (format === undefined) {
+      error = new Error(
+        'Minified exception occurred; use the non-minified dev environment ' +
+        'for the full error message and additional helpful warnings.'
+      );
+    } else {
+      var args = [a, b, c, d, e, f];
+      var argIndex = 0;
+      error = new Error(
+        format.replace(/%s/g, function() { return args[argIndex++]; })
+      );
+      error.name = 'Invariant Violation';
+    }
+
+    error.framesToPop = 1; // we don't care about invariant's own frame
+    throw error;
+  }
+};
+
+module.exports = invariant;
+
+}).call(this,require("oMfpAn"))
+},{"oMfpAn":2}],41:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -159,7 +4543,7 @@ function mapAsync(array, work, callback) {
     });
   });
 }
-},{}],4:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -192,7 +4576,7 @@ var History = {
 exports['default'] = History;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PropTypes":11,"./routerWarning":34,"oMfpAn":1}],5:[function(require,module,exports){
+},{"./PropTypes":49,"./routerWarning":72,"oMfpAn":2}],43:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -223,7 +4607,7 @@ var IndexLink = _react2['default'].createClass({
 
 exports['default'] = IndexLink;
 module.exports = exports['default'];
-},{"./Link":9,"react":"nakDgH"}],6:[function(require,module,exports){
+},{"./Link":47,"react":"nakDgH"}],44:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -290,7 +4674,7 @@ var IndexRedirect = _react2['default'].createClass({
 exports['default'] = IndexRedirect;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PropTypes":11,"./Redirect":12,"./routerWarning":34,"invariant":58,"oMfpAn":1,"react":"nakDgH"}],7:[function(require,module,exports){
+},{"./PropTypes":49,"./Redirect":50,"./routerWarning":72,"invariant":96,"oMfpAn":2,"react":"nakDgH"}],45:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -354,7 +4738,7 @@ var IndexRoute = _react2['default'].createClass({
 exports['default'] = IndexRoute;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PropTypes":11,"./RouteUtils":15,"./routerWarning":34,"invariant":58,"oMfpAn":1,"react":"nakDgH"}],8:[function(require,module,exports){
+},{"./PropTypes":49,"./RouteUtils":53,"./routerWarning":72,"invariant":96,"oMfpAn":2,"react":"nakDgH"}],46:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -426,7 +4810,7 @@ var Lifecycle = {
 exports['default'] = Lifecycle;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./routerWarning":34,"invariant":58,"oMfpAn":1,"react":"nakDgH"}],9:[function(require,module,exports){
+},{"./routerWarning":72,"invariant":96,"oMfpAn":2,"react":"nakDgH"}],47:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -593,7 +4977,7 @@ var Link = _react2['default'].createClass({
 exports['default'] = Link;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./routerWarning":34,"oMfpAn":1,"react":"nakDgH"}],10:[function(require,module,exports){
+},{"./routerWarning":72,"oMfpAn":2,"react":"nakDgH"}],48:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -823,7 +5207,7 @@ function formatPattern(pattern, params) {
   return pathname.replace(/\/+/g, '/');
 }
 }).call(this,require("oMfpAn"))
-},{"invariant":58,"oMfpAn":1}],11:[function(require,module,exports){
+},{"invariant":96,"oMfpAn":2}],49:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -877,7 +5261,7 @@ exports['default'] = {
   components: components,
   route: route
 };
-},{"react":"nakDgH"}],12:[function(require,module,exports){
+},{"react":"nakDgH"}],50:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -983,7 +5367,7 @@ var Redirect = _react2['default'].createClass({
 exports['default'] = Redirect;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PatternUtils":10,"./PropTypes":11,"./RouteUtils":15,"invariant":58,"oMfpAn":1,"react":"nakDgH"}],13:[function(require,module,exports){
+},{"./PatternUtils":48,"./PropTypes":49,"./RouteUtils":53,"invariant":96,"oMfpAn":2,"react":"nakDgH"}],51:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1042,7 +5426,7 @@ var Route = _react2['default'].createClass({
 exports['default'] = Route;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PropTypes":11,"./RouteUtils":15,"invariant":58,"oMfpAn":1,"react":"nakDgH"}],14:[function(require,module,exports){
+},{"./PropTypes":49,"./RouteUtils":53,"invariant":96,"oMfpAn":2,"react":"nakDgH"}],52:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1091,7 +5475,7 @@ var RouteContext = {
 exports['default'] = RouteContext;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./routerWarning":34,"oMfpAn":1,"react":"nakDgH"}],15:[function(require,module,exports){
+},{"./routerWarning":72,"oMfpAn":2,"react":"nakDgH"}],53:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1208,7 +5592,7 @@ function createRoutes(routes) {
   return routes;
 }
 }).call(this,require("oMfpAn"))
-},{"./routerWarning":34,"oMfpAn":1,"react":"nakDgH"}],16:[function(require,module,exports){
+},{"./routerWarning":72,"oMfpAn":2,"react":"nakDgH"}],54:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1421,7 +5805,7 @@ var Router = _react2['default'].createClass({
 exports['default'] = Router;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PropTypes":11,"./RouteUtils":15,"./RouterContext":17,"./RouterUtils":18,"./createTransitionManager":25,"./routerWarning":34,"history/lib/createHashHistory":45,"history/lib/useQueries":52,"oMfpAn":1,"react":"nakDgH"}],17:[function(require,module,exports){
+},{"./PropTypes":49,"./RouteUtils":53,"./RouterContext":55,"./RouterUtils":56,"./createTransitionManager":63,"./routerWarning":72,"history/lib/createHashHistory":83,"history/lib/useQueries":90,"oMfpAn":2,"react":"nakDgH"}],55:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1578,7 +5962,7 @@ var RouterContext = _react2['default'].createClass({
 exports['default'] = RouterContext;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./RouteUtils":15,"./deprecateObjectProperties":26,"./getRouteParams":28,"./routerWarning":34,"invariant":58,"oMfpAn":1,"react":"nakDgH"}],18:[function(require,module,exports){
+},{"./RouteUtils":53,"./deprecateObjectProperties":64,"./getRouteParams":66,"./routerWarning":72,"invariant":96,"oMfpAn":2,"react":"nakDgH"}],56:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1614,7 +5998,7 @@ function createRoutingHistory(history, transitionManager) {
   return history;
 }
 }).call(this,require("oMfpAn"))
-},{"./deprecateObjectProperties":26,"oMfpAn":1}],19:[function(require,module,exports){
+},{"./deprecateObjectProperties":64,"oMfpAn":2}],57:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1649,7 +6033,7 @@ var RoutingContext = _react2['default'].createClass({
 exports['default'] = RoutingContext;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./RouterContext":17,"./routerWarning":34,"oMfpAn":1,"react":"nakDgH"}],20:[function(require,module,exports){
+},{"./RouterContext":55,"./routerWarning":72,"oMfpAn":2,"react":"nakDgH"}],58:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -1741,7 +6125,7 @@ function runLeaveHooks(routes) {
   }
 }
 }).call(this,require("oMfpAn"))
-},{"./AsyncUtils":3,"./routerWarning":34,"oMfpAn":1}],21:[function(require,module,exports){
+},{"./AsyncUtils":41,"./routerWarning":72,"oMfpAn":2}],59:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1758,7 +6142,7 @@ var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
 
 exports['default'] = _createRouterHistory2['default'](_historyLibCreateBrowserHistory2['default']);
 module.exports = exports['default'];
-},{"./createRouterHistory":24,"history/lib/createBrowserHistory":43}],22:[function(require,module,exports){
+},{"./createRouterHistory":62,"history/lib/createBrowserHistory":81}],60:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1815,7 +6199,7 @@ function computeChangedRoutes(prevState, nextState) {
 
 exports['default'] = computeChangedRoutes;
 module.exports = exports['default'];
-},{"./PatternUtils":10}],23:[function(require,module,exports){
+},{"./PatternUtils":48}],61:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1849,7 +6233,7 @@ function createMemoryHistory(options) {
 }
 
 module.exports = exports['default'];
-},{"history/lib/createMemoryHistory":48,"history/lib/useBasename":51,"history/lib/useQueries":52}],24:[function(require,module,exports){
+},{"history/lib/createMemoryHistory":86,"history/lib/useBasename":89,"history/lib/useQueries":90}],62:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1869,7 +6253,7 @@ exports['default'] = function (createHistory) {
 };
 
 module.exports = exports['default'];
-},{"./useRouterHistory":35}],25:[function(require,module,exports){
+},{"./useRouterHistory":73}],63:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2168,7 +6552,7 @@ function createTransitionManager(history, routes) {
 //export default useRoutes
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./TransitionUtils":20,"./computeChangedRoutes":22,"./getComponents":27,"./isActive":31,"./matchRoutes":33,"./routerWarning":34,"history/lib/Actions":37,"oMfpAn":1}],26:[function(require,module,exports){
+},{"./TransitionUtils":58,"./computeChangedRoutes":60,"./getComponents":65,"./isActive":69,"./matchRoutes":71,"./routerWarning":72,"history/lib/Actions":75,"oMfpAn":2}],64:[function(require,module,exports){
 (function (process){
 /*eslint no-empty: 0*/
 'use strict';
@@ -2228,7 +6612,7 @@ function deprecateObjectProperties(object, message) {
 
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./routerWarning":34,"oMfpAn":1}],27:[function(require,module,exports){
+},{"./routerWarning":72,"oMfpAn":2}],65:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2262,7 +6646,7 @@ function getComponents(nextState, callback) {
 
 exports['default'] = getComponents;
 module.exports = exports['default'];
-},{"./AsyncUtils":3}],28:[function(require,module,exports){
+},{"./AsyncUtils":41}],66:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2287,7 +6671,7 @@ function getRouteParams(route, params) {
 
 exports['default'] = getRouteParams;
 module.exports = exports['default'];
-},{"./PatternUtils":10}],29:[function(require,module,exports){
+},{"./PatternUtils":48}],67:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2304,7 +6688,7 @@ var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
 
 exports['default'] = _createRouterHistory2['default'](_historyLibCreateHashHistory2['default']);
 module.exports = exports['default'];
-},{"./createRouterHistory":24,"history/lib/createHashHistory":45}],30:[function(require,module,exports){
+},{"./createRouterHistory":62,"history/lib/createHashHistory":83}],68:[function(require,module,exports){
 /* components */
 'use strict';
 
@@ -2441,7 +6825,7 @@ var _createMemoryHistory2 = require('./createMemoryHistory');
 var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
 
 exports.createMemoryHistory = _createMemoryHistory3['default'];
-},{"./History":4,"./IndexLink":5,"./IndexRedirect":6,"./IndexRoute":7,"./Lifecycle":8,"./Link":9,"./PatternUtils":10,"./PropTypes":11,"./Redirect":12,"./Route":13,"./RouteContext":14,"./RouteUtils":15,"./Router":16,"./RouterContext":17,"./RoutingContext":19,"./browserHistory":21,"./createMemoryHistory":23,"./hashHistory":29,"./match":32,"./useRouterHistory":35,"./useRoutes":36}],31:[function(require,module,exports){
+},{"./History":42,"./IndexLink":43,"./IndexRedirect":44,"./IndexRoute":45,"./Lifecycle":46,"./Link":47,"./PatternUtils":48,"./PropTypes":49,"./Redirect":50,"./Route":51,"./RouteContext":52,"./RouteUtils":53,"./Router":54,"./RouterContext":55,"./RoutingContext":57,"./browserHistory":59,"./createMemoryHistory":61,"./hashHistory":67,"./match":70,"./useRouterHistory":73,"./useRoutes":74}],69:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2569,7 +6953,7 @@ function isActive(_ref, indexOnly, currentLocation, routes, params) {
 }
 
 module.exports = exports['default'];
-},{"./PatternUtils":10}],32:[function(require,module,exports){
+},{"./PatternUtils":48}],70:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2653,7 +7037,7 @@ function match(_ref, callback) {
 exports['default'] = match;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./RouteUtils":15,"./RouterUtils":18,"./createMemoryHistory":23,"./createTransitionManager":25,"invariant":58,"oMfpAn":1}],33:[function(require,module,exports){
+},{"./RouteUtils":53,"./RouterUtils":56,"./createMemoryHistory":61,"./createTransitionManager":63,"invariant":96,"oMfpAn":2}],71:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2862,7 +7246,7 @@ function matchRoutes(routes, location, callback) {
 exports['default'] = matchRoutes;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./AsyncUtils":3,"./PatternUtils":10,"./RouteUtils":15,"./routerWarning":34,"oMfpAn":1}],34:[function(require,module,exports){
+},{"./AsyncUtils":41,"./PatternUtils":48,"./RouteUtils":53,"./routerWarning":72,"oMfpAn":2}],72:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2887,7 +7271,7 @@ function routerWarning(falseToWarn, message) {
 
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1,"warning":59}],35:[function(require,module,exports){
+},{"oMfpAn":2,"warning":97}],73:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2912,7 +7296,7 @@ function useRouterHistory(createHistory) {
 }
 
 module.exports = exports['default'];
-},{"history/lib/useBasename":51,"history/lib/useQueries":52}],36:[function(require,module,exports){
+},{"history/lib/useBasename":89,"history/lib/useQueries":90}],74:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2966,7 +7350,7 @@ function useRoutes(createHistory) {
 exports['default'] = useRoutes;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./createTransitionManager":25,"./routerWarning":34,"history/lib/useQueries":52,"oMfpAn":1}],37:[function(require,module,exports){
+},{"./createTransitionManager":63,"./routerWarning":72,"history/lib/useQueries":90,"oMfpAn":2}],75:[function(require,module,exports){
 /**
  * Indicates that navigation was caused by a call to history.push.
  */
@@ -2998,7 +7382,7 @@ exports['default'] = {
   REPLACE: REPLACE,
   POP: POP
 };
-},{}],38:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -3025,7 +7409,7 @@ function loopAsync(turns, work, callback) {
 
   next();
 }
-},{}],39:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 (function (process){
 /*eslint-disable no-empty */
 'use strict';
@@ -3101,7 +7485,7 @@ function readState(key) {
   return null;
 }
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1,"warning":59}],40:[function(require,module,exports){
+},{"oMfpAn":2,"warning":97}],78:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3177,13 +7561,13 @@ function supportsGoWithoutReloadUsingHash() {
   var ua = navigator.userAgent;
   return ua.indexOf('Firefox') === -1;
 }
-},{}],41:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
 var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
 exports.canUseDOM = canUseDOM;
-},{}],42:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -3233,7 +7617,7 @@ function parsePath(path) {
   };
 }
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1,"warning":59}],43:[function(require,module,exports){
+},{"oMfpAn":2,"warning":97}],81:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -3412,7 +7796,7 @@ function createBrowserHistory() {
 exports['default'] = createBrowserHistory;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./Actions":37,"./DOMStateStorage":39,"./DOMUtils":40,"./ExecutionEnvironment":41,"./PathUtils":42,"./createDOMHistory":44,"invariant":58,"oMfpAn":1}],44:[function(require,module,exports){
+},{"./Actions":75,"./DOMStateStorage":77,"./DOMUtils":78,"./ExecutionEnvironment":79,"./PathUtils":80,"./createDOMHistory":82,"invariant":96,"oMfpAn":2}],82:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -3455,7 +7839,7 @@ function createDOMHistory(options) {
 exports['default'] = createDOMHistory;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./DOMUtils":40,"./ExecutionEnvironment":41,"./createHistory":46,"invariant":58,"oMfpAn":1}],45:[function(require,module,exports){
+},{"./DOMUtils":78,"./ExecutionEnvironment":79,"./createHistory":84,"invariant":96,"oMfpAn":2}],83:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -3704,7 +8088,7 @@ function createHashHistory() {
 exports['default'] = createHashHistory;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./Actions":37,"./DOMStateStorage":39,"./DOMUtils":40,"./ExecutionEnvironment":41,"./PathUtils":42,"./createDOMHistory":44,"invariant":58,"oMfpAn":1,"warning":59}],46:[function(require,module,exports){
+},{"./Actions":75,"./DOMStateStorage":77,"./DOMUtils":78,"./ExecutionEnvironment":79,"./PathUtils":80,"./createDOMHistory":82,"invariant":96,"oMfpAn":2,"warning":97}],84:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -3995,7 +8379,7 @@ function createHistory() {
 exports['default'] = createHistory;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./Actions":37,"./AsyncUtils":38,"./PathUtils":42,"./createLocation":47,"./deprecate":49,"./runTransitionHook":50,"deep-equal":53,"oMfpAn":1,"warning":59}],47:[function(require,module,exports){
+},{"./Actions":75,"./AsyncUtils":76,"./PathUtils":80,"./createLocation":85,"./deprecate":87,"./runTransitionHook":88,"deep-equal":91,"oMfpAn":2,"warning":97}],85:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4049,7 +8433,7 @@ function createLocation() {
 exports['default'] = createLocation;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./Actions":37,"./PathUtils":42,"oMfpAn":1,"warning":59}],48:[function(require,module,exports){
+},{"./Actions":75,"./PathUtils":80,"oMfpAn":2,"warning":97}],86:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4205,7 +8589,7 @@ function createMemoryHistory() {
 exports['default'] = createMemoryHistory;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./Actions":37,"./PathUtils":42,"./createHistory":46,"invariant":58,"oMfpAn":1,"warning":59}],49:[function(require,module,exports){
+},{"./Actions":75,"./PathUtils":80,"./createHistory":84,"invariant":96,"oMfpAn":2,"warning":97}],87:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4227,7 +8611,7 @@ function deprecate(fn, message) {
 exports['default'] = deprecate;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1,"warning":59}],50:[function(require,module,exports){
+},{"oMfpAn":2,"warning":97}],88:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4254,7 +8638,7 @@ function runTransitionHook(hook, location, callback) {
 exports['default'] = runTransitionHook;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1,"warning":59}],51:[function(require,module,exports){
+},{"oMfpAn":2,"warning":97}],89:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4393,7 +8777,7 @@ function useBasename(createHistory) {
 
 exports['default'] = useBasename;
 module.exports = exports['default'];
-},{"./ExecutionEnvironment":41,"./PathUtils":42,"./deprecate":49,"./runTransitionHook":50}],52:[function(require,module,exports){
+},{"./ExecutionEnvironment":79,"./PathUtils":80,"./deprecate":87,"./runTransitionHook":88}],90:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4575,7 +8959,7 @@ function useQueries(createHistory) {
 exports['default'] = useQueries;
 module.exports = exports['default'];
 }).call(this,require("oMfpAn"))
-},{"./PathUtils":42,"./deprecate":49,"./runTransitionHook":50,"oMfpAn":1,"query-string":56,"warning":59}],53:[function(require,module,exports){
+},{"./PathUtils":80,"./deprecate":87,"./runTransitionHook":88,"oMfpAn":2,"query-string":94,"warning":97}],91:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -4671,7 +9055,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":54,"./lib/keys.js":55}],54:[function(require,module,exports){
+},{"./lib/is_arguments.js":92,"./lib/keys.js":93}],92:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -4693,7 +9077,7 @@ function unsupported(object){
     false;
 };
 
-},{}],55:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -4704,7 +9088,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],56:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 'use strict';
 var strictUriEncode = require('strict-uri-encode');
 
@@ -4772,7 +9156,7 @@ exports.stringify = function (obj) {
 	}).join('&') : '';
 };
 
-},{"strict-uri-encode":57}],57:[function(require,module,exports){
+},{"strict-uri-encode":95}],95:[function(require,module,exports){
 'use strict';
 module.exports = function (str) {
 	return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
@@ -4780,62 +9164,9 @@ module.exports = function (str) {
 	});
 };
 
-},{}],58:[function(require,module,exports){
-(function (process){
-/**
- * Copyright 2013-2015, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
-
-'use strict';
-
-/**
- * Use invariant() to assert state which your program assumes to be true.
- *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
- *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
- */
-
-var invariant = function(condition, format, a, b, c, d, e, f) {
-  if (process.env.NODE_ENV !== 'production') {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  }
-
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error(
-        'Minified exception occurred; use the non-minified dev environment ' +
-        'for the full error message and additional helpful warnings.'
-      );
-    } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(
-        format.replace(/%s/g, function() { return args[argIndex++]; })
-      );
-      error.name = 'Invariant Violation';
-    }
-
-    error.framesToPop = 1; // we don't care about invariant's own frame
-    throw error;
-  }
-};
-
-module.exports = invariant;
-
-}).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],59:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
+module.exports=require(40)
+},{"oMfpAn":2}],97:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -4899,7 +9230,7 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports = warning;
 
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],60:[function(require,module,exports){
+},{"oMfpAn":2}],98:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -4936,7 +9267,7 @@ var AutoFocusUtils = {
 };
 
 module.exports = AutoFocusUtils;
-},{"./ReactMount":124,"./findDOMNode":167,"fbjs/lib/focusNode":197}],61:[function(require,module,exports){
+},{"./ReactMount":162,"./findDOMNode":205,"fbjs/lib/focusNode":235}],99:[function(require,module,exports){
 /**
  * Copyright 2013-2015 Facebook, Inc.
  * All rights reserved.
@@ -5342,7 +9673,7 @@ var BeforeInputEventPlugin = {
 };
 
 module.exports = BeforeInputEventPlugin;
-},{"./EventConstants":73,"./EventPropagators":77,"./FallbackCompositionState":78,"./SyntheticCompositionEvent":149,"./SyntheticInputEvent":153,"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/keyOf":207}],62:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPropagators":115,"./FallbackCompositionState":116,"./SyntheticCompositionEvent":187,"./SyntheticInputEvent":191,"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/keyOf":245}],100:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -5482,7 +9813,7 @@ var CSSProperty = {
 };
 
 module.exports = CSSProperty;
-},{}],63:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -5660,7 +9991,7 @@ ReactPerf.measureMethods(CSSPropertyOperations, 'CSSPropertyOperations', {
 
 module.exports = CSSPropertyOperations;
 }).call(this,require("oMfpAn"))
-},{"./CSSProperty":62,"./ReactPerf":130,"./dangerousStyleValue":164,"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/camelizeStyleName":191,"fbjs/lib/hyphenateStyleName":202,"fbjs/lib/memoizeStringOnly":209,"fbjs/lib/warning":214,"oMfpAn":1}],64:[function(require,module,exports){
+},{"./CSSProperty":100,"./ReactPerf":168,"./dangerousStyleValue":202,"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/camelizeStyleName":229,"fbjs/lib/hyphenateStyleName":240,"fbjs/lib/memoizeStringOnly":247,"fbjs/lib/warning":252,"oMfpAn":2}],102:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -5756,7 +10087,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 
 module.exports = CallbackQueue;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./PooledClass":82,"fbjs/lib/invariant":203,"oMfpAn":1}],65:[function(require,module,exports){
+},{"./Object.assign":119,"./PooledClass":120,"fbjs/lib/invariant":241,"oMfpAn":2}],103:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6078,7 +10409,7 @@ var ChangeEventPlugin = {
 };
 
 module.exports = ChangeEventPlugin;
-},{"./EventConstants":73,"./EventPluginHub":74,"./EventPropagators":77,"./ReactUpdates":142,"./SyntheticEvent":151,"./getEventTarget":173,"./isEventSupported":178,"./isTextInputElement":179,"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/keyOf":207}],66:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPluginHub":112,"./EventPropagators":115,"./ReactUpdates":180,"./SyntheticEvent":189,"./getEventTarget":211,"./isEventSupported":216,"./isTextInputElement":217,"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/keyOf":245}],104:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6102,7 +10433,7 @@ var ClientReactRootIndex = {
 };
 
 module.exports = ClientReactRootIndex;
-},{}],67:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6234,7 +10565,7 @@ ReactPerf.measureMethods(DOMChildrenOperations, 'DOMChildrenOperations', {
 
 module.exports = DOMChildrenOperations;
 }).call(this,require("oMfpAn"))
-},{"./Danger":70,"./ReactMultiChildUpdateTypes":126,"./ReactPerf":130,"./setInnerHTML":183,"./setTextContent":184,"fbjs/lib/invariant":203,"oMfpAn":1}],68:[function(require,module,exports){
+},{"./Danger":108,"./ReactMultiChildUpdateTypes":164,"./ReactPerf":168,"./setInnerHTML":221,"./setTextContent":222,"fbjs/lib/invariant":241,"oMfpAn":2}],106:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6471,7 +10802,7 @@ var DOMProperty = {
 
 module.exports = DOMProperty;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],69:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],107:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6699,7 +11030,7 @@ ReactPerf.measureMethods(DOMPropertyOperations, 'DOMPropertyOperations', {
 
 module.exports = DOMPropertyOperations;
 }).call(this,require("oMfpAn"))
-},{"./DOMProperty":68,"./ReactPerf":130,"./quoteAttributeValueForBrowser":181,"fbjs/lib/warning":214,"oMfpAn":1}],70:[function(require,module,exports){
+},{"./DOMProperty":106,"./ReactPerf":168,"./quoteAttributeValueForBrowser":219,"fbjs/lib/warning":252,"oMfpAn":2}],108:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6847,7 +11178,7 @@ var Danger = {
 
 module.exports = Danger;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/createNodesFromMarkup":194,"fbjs/lib/emptyFunction":195,"fbjs/lib/getMarkupWrap":199,"fbjs/lib/invariant":203,"oMfpAn":1}],71:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/createNodesFromMarkup":232,"fbjs/lib/emptyFunction":233,"fbjs/lib/getMarkupWrap":237,"fbjs/lib/invariant":241,"oMfpAn":2}],109:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6875,7 +11206,7 @@ var keyOf = require('fbjs/lib/keyOf');
 var DefaultEventPluginOrder = [keyOf({ ResponderEventPlugin: null }), keyOf({ SimpleEventPlugin: null }), keyOf({ TapEventPlugin: null }), keyOf({ EnterLeaveEventPlugin: null }), keyOf({ ChangeEventPlugin: null }), keyOf({ SelectEventPlugin: null }), keyOf({ BeforeInputEventPlugin: null })];
 
 module.exports = DefaultEventPluginOrder;
-},{"fbjs/lib/keyOf":207}],72:[function(require,module,exports){
+},{"fbjs/lib/keyOf":245}],110:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -7000,7 +11331,7 @@ var EnterLeaveEventPlugin = {
 };
 
 module.exports = EnterLeaveEventPlugin;
-},{"./EventConstants":73,"./EventPropagators":77,"./ReactMount":124,"./SyntheticMouseEvent":155,"fbjs/lib/keyOf":207}],73:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPropagators":115,"./ReactMount":162,"./SyntheticMouseEvent":193,"fbjs/lib/keyOf":245}],111:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -7093,7 +11424,7 @@ var EventConstants = {
 };
 
 module.exports = EventConstants;
-},{"fbjs/lib/keyMirror":206}],74:[function(require,module,exports){
+},{"fbjs/lib/keyMirror":244}],112:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7375,7 +11706,7 @@ var EventPluginHub = {
 
 module.exports = EventPluginHub;
 }).call(this,require("oMfpAn"))
-},{"./EventPluginRegistry":75,"./EventPluginUtils":76,"./ReactErrorUtils":115,"./accumulateInto":161,"./forEachAccumulated":169,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],75:[function(require,module,exports){
+},{"./EventPluginRegistry":113,"./EventPluginUtils":114,"./ReactErrorUtils":153,"./accumulateInto":199,"./forEachAccumulated":207,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],113:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7598,7 +11929,7 @@ var EventPluginRegistry = {
 
 module.exports = EventPluginRegistry;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],76:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],114:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7803,7 +12134,7 @@ var EventPluginUtils = {
 
 module.exports = EventPluginUtils;
 }).call(this,require("oMfpAn"))
-},{"./EventConstants":73,"./ReactErrorUtils":115,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],77:[function(require,module,exports){
+},{"./EventConstants":111,"./ReactErrorUtils":153,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],115:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7941,7 +12272,7 @@ var EventPropagators = {
 
 module.exports = EventPropagators;
 }).call(this,require("oMfpAn"))
-},{"./EventConstants":73,"./EventPluginHub":74,"./accumulateInto":161,"./forEachAccumulated":169,"fbjs/lib/warning":214,"oMfpAn":1}],78:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPluginHub":112,"./accumulateInto":199,"./forEachAccumulated":207,"fbjs/lib/warning":252,"oMfpAn":2}],116:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8037,7 +12368,7 @@ assign(FallbackCompositionState.prototype, {
 PooledClass.addPoolingTo(FallbackCompositionState);
 
 module.exports = FallbackCompositionState;
-},{"./Object.assign":81,"./PooledClass":82,"./getTextContentAccessor":176}],79:[function(require,module,exports){
+},{"./Object.assign":119,"./PooledClass":120,"./getTextContentAccessor":214}],117:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8268,7 +12599,7 @@ var HTMLDOMPropertyConfig = {
 };
 
 module.exports = HTMLDOMPropertyConfig;
-},{"./DOMProperty":68,"fbjs/lib/ExecutionEnvironment":189}],80:[function(require,module,exports){
+},{"./DOMProperty":106,"fbjs/lib/ExecutionEnvironment":227}],118:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8405,7 +12736,7 @@ var LinkedValueUtils = {
 
 module.exports = LinkedValueUtils;
 }).call(this,require("oMfpAn"))
-},{"./ReactPropTypeLocations":132,"./ReactPropTypes":133,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],81:[function(require,module,exports){
+},{"./ReactPropTypeLocations":170,"./ReactPropTypes":171,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],119:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -8453,7 +12784,7 @@ function assign(target, sources) {
 }
 
 module.exports = assign;
-},{}],82:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8575,7 +12906,7 @@ var PooledClass = {
 
 module.exports = PooledClass;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],83:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],121:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8616,7 +12947,7 @@ React.__SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactDOM;
 React.__SECRET_DOM_SERVER_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactDOMServer;
 
 module.exports = React;
-},{"./Object.assign":81,"./ReactDOM":94,"./ReactDOMServer":104,"./ReactIsomorphic":122,"./deprecated":165}],84:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactDOM":132,"./ReactDOMServer":142,"./ReactIsomorphic":160,"./deprecated":203}],122:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8655,7 +12986,7 @@ var ReactBrowserComponentMixin = {
 
 module.exports = ReactBrowserComponentMixin;
 }).call(this,require("oMfpAn"))
-},{"./ReactInstanceMap":121,"./findDOMNode":167,"fbjs/lib/warning":214,"oMfpAn":1}],85:[function(require,module,exports){
+},{"./ReactInstanceMap":159,"./findDOMNode":205,"fbjs/lib/warning":252,"oMfpAn":2}],123:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8980,7 +13311,7 @@ ReactPerf.measureMethods(ReactBrowserEventEmitter, 'ReactBrowserEventEmitter', {
 });
 
 module.exports = ReactBrowserEventEmitter;
-},{"./EventConstants":73,"./EventPluginHub":74,"./EventPluginRegistry":75,"./Object.assign":81,"./ReactEventEmitterMixin":116,"./ReactPerf":130,"./ViewportMetrics":160,"./isEventSupported":178}],86:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPluginHub":112,"./EventPluginRegistry":113,"./Object.assign":119,"./ReactEventEmitterMixin":154,"./ReactPerf":168,"./ViewportMetrics":198,"./isEventSupported":216}],124:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -9105,7 +13436,7 @@ var ReactChildReconciler = {
 
 module.exports = ReactChildReconciler;
 }).call(this,require("oMfpAn"))
-},{"./ReactReconciler":135,"./instantiateReactComponent":177,"./shouldUpdateReactComponent":185,"./traverseAllChildren":186,"fbjs/lib/warning":214,"oMfpAn":1}],87:[function(require,module,exports){
+},{"./ReactReconciler":173,"./instantiateReactComponent":215,"./shouldUpdateReactComponent":223,"./traverseAllChildren":224,"fbjs/lib/warning":252,"oMfpAn":2}],125:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9288,7 +13619,7 @@ var ReactChildren = {
 };
 
 module.exports = ReactChildren;
-},{"./PooledClass":82,"./ReactElement":111,"./traverseAllChildren":186,"fbjs/lib/emptyFunction":195}],88:[function(require,module,exports){
+},{"./PooledClass":120,"./ReactElement":149,"./traverseAllChildren":224,"fbjs/lib/emptyFunction":233}],126:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10062,7 +14393,7 @@ var ReactClass = {
 
 module.exports = ReactClass;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactComponent":89,"./ReactElement":111,"./ReactNoopUpdateQueue":128,"./ReactPropTypeLocationNames":131,"./ReactPropTypeLocations":132,"fbjs/lib/emptyObject":196,"fbjs/lib/invariant":203,"fbjs/lib/keyMirror":206,"fbjs/lib/keyOf":207,"fbjs/lib/warning":214,"oMfpAn":1}],89:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactComponent":127,"./ReactElement":149,"./ReactNoopUpdateQueue":166,"./ReactPropTypeLocationNames":169,"./ReactPropTypeLocations":170,"fbjs/lib/emptyObject":234,"fbjs/lib/invariant":241,"fbjs/lib/keyMirror":244,"fbjs/lib/keyOf":245,"fbjs/lib/warning":252,"oMfpAn":2}],127:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10187,7 +14518,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactComponent;
 }).call(this,require("oMfpAn"))
-},{"./ReactNoopUpdateQueue":128,"./canDefineProperty":163,"fbjs/lib/emptyObject":196,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],90:[function(require,module,exports){
+},{"./ReactNoopUpdateQueue":166,"./canDefineProperty":201,"fbjs/lib/emptyObject":234,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],128:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -10229,7 +14560,7 @@ var ReactComponentBrowserEnvironment = {
 };
 
 module.exports = ReactComponentBrowserEnvironment;
-},{"./ReactDOMIDOperations":99,"./ReactMount":124}],91:[function(require,module,exports){
+},{"./ReactDOMIDOperations":137,"./ReactMount":162}],129:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -10283,7 +14614,7 @@ var ReactComponentEnvironment = {
 
 module.exports = ReactComponentEnvironment;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],92:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],130:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10980,7 +15311,7 @@ var ReactCompositeComponent = {
 
 module.exports = ReactCompositeComponent;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactComponentEnvironment":91,"./ReactCurrentOwner":93,"./ReactElement":111,"./ReactInstanceMap":121,"./ReactPerf":130,"./ReactPropTypeLocationNames":131,"./ReactPropTypeLocations":132,"./ReactReconciler":135,"./ReactUpdateQueue":141,"./shouldUpdateReactComponent":185,"fbjs/lib/emptyObject":196,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],93:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactComponentEnvironment":129,"./ReactCurrentOwner":131,"./ReactElement":149,"./ReactInstanceMap":159,"./ReactPerf":168,"./ReactPropTypeLocationNames":169,"./ReactPropTypeLocations":170,"./ReactReconciler":173,"./ReactUpdateQueue":179,"./shouldUpdateReactComponent":223,"fbjs/lib/emptyObject":234,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],131:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11011,7 +15342,7 @@ var ReactCurrentOwner = {
 };
 
 module.exports = ReactCurrentOwner;
-},{}],94:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11106,7 +15437,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = React;
 }).call(this,require("oMfpAn"))
-},{"./ReactCurrentOwner":93,"./ReactDOMTextComponent":105,"./ReactDefaultInjection":108,"./ReactInstanceHandles":120,"./ReactMount":124,"./ReactPerf":130,"./ReactReconciler":135,"./ReactUpdates":142,"./ReactVersion":143,"./findDOMNode":167,"./renderSubtreeIntoContainer":182,"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/warning":214,"oMfpAn":1}],95:[function(require,module,exports){
+},{"./ReactCurrentOwner":131,"./ReactDOMTextComponent":143,"./ReactDefaultInjection":146,"./ReactInstanceHandles":158,"./ReactMount":162,"./ReactPerf":168,"./ReactReconciler":173,"./ReactUpdates":180,"./ReactVersion":181,"./findDOMNode":205,"./renderSubtreeIntoContainer":220,"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/warning":252,"oMfpAn":2}],133:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11157,7 +15488,7 @@ var ReactDOMButton = {
 };
 
 module.exports = ReactDOMButton;
-},{}],96:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12122,7 +16453,7 @@ assign(ReactDOMComponent.prototype, ReactDOMComponent.Mixin, ReactMultiChild.Mix
 
 module.exports = ReactDOMComponent;
 }).call(this,require("oMfpAn"))
-},{"./AutoFocusUtils":60,"./CSSPropertyOperations":63,"./DOMProperty":68,"./DOMPropertyOperations":69,"./EventConstants":73,"./Object.assign":81,"./ReactBrowserEventEmitter":85,"./ReactComponentBrowserEnvironment":90,"./ReactDOMButton":95,"./ReactDOMInput":100,"./ReactDOMOption":101,"./ReactDOMSelect":102,"./ReactDOMTextarea":106,"./ReactMount":124,"./ReactMultiChild":125,"./ReactPerf":130,"./ReactUpdateQueue":141,"./canDefineProperty":163,"./escapeTextContentForBrowser":166,"./isEventSupported":178,"./setInnerHTML":183,"./setTextContent":184,"./validateDOMNesting":187,"fbjs/lib/invariant":203,"fbjs/lib/keyOf":207,"fbjs/lib/shallowEqual":212,"fbjs/lib/warning":214,"oMfpAn":1}],97:[function(require,module,exports){
+},{"./AutoFocusUtils":98,"./CSSPropertyOperations":101,"./DOMProperty":106,"./DOMPropertyOperations":107,"./EventConstants":111,"./Object.assign":119,"./ReactBrowserEventEmitter":123,"./ReactComponentBrowserEnvironment":128,"./ReactDOMButton":133,"./ReactDOMInput":138,"./ReactDOMOption":139,"./ReactDOMSelect":140,"./ReactDOMTextarea":144,"./ReactMount":162,"./ReactMultiChild":163,"./ReactPerf":168,"./ReactUpdateQueue":179,"./canDefineProperty":201,"./escapeTextContentForBrowser":204,"./isEventSupported":216,"./setInnerHTML":221,"./setTextContent":222,"./validateDOMNesting":225,"fbjs/lib/invariant":241,"fbjs/lib/keyOf":245,"fbjs/lib/shallowEqual":250,"fbjs/lib/warning":252,"oMfpAn":2}],135:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12302,7 +16633,7 @@ var ReactDOMFactories = mapObject({
 
 module.exports = ReactDOMFactories;
 }).call(this,require("oMfpAn"))
-},{"./ReactElement":111,"./ReactElementValidator":112,"fbjs/lib/mapObject":208,"oMfpAn":1}],98:[function(require,module,exports){
+},{"./ReactElement":149,"./ReactElementValidator":150,"fbjs/lib/mapObject":246,"oMfpAn":2}],136:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12321,7 +16652,7 @@ var ReactDOMFeatureFlags = {
 };
 
 module.exports = ReactDOMFeatureFlags;
-},{}],99:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12418,7 +16749,7 @@ ReactPerf.measureMethods(ReactDOMIDOperations, 'ReactDOMIDOperations', {
 
 module.exports = ReactDOMIDOperations;
 }).call(this,require("oMfpAn"))
-},{"./DOMChildrenOperations":67,"./DOMPropertyOperations":69,"./ReactMount":124,"./ReactPerf":130,"fbjs/lib/invariant":203,"oMfpAn":1}],100:[function(require,module,exports){
+},{"./DOMChildrenOperations":105,"./DOMPropertyOperations":107,"./ReactMount":162,"./ReactPerf":168,"fbjs/lib/invariant":241,"oMfpAn":2}],138:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12574,7 +16905,7 @@ function _handleChange(event) {
 
 module.exports = ReactDOMInput;
 }).call(this,require("oMfpAn"))
-},{"./LinkedValueUtils":80,"./Object.assign":81,"./ReactDOMIDOperations":99,"./ReactMount":124,"./ReactUpdates":142,"fbjs/lib/invariant":203,"oMfpAn":1}],101:[function(require,module,exports){
+},{"./LinkedValueUtils":118,"./Object.assign":119,"./ReactDOMIDOperations":137,"./ReactMount":162,"./ReactUpdates":180,"fbjs/lib/invariant":241,"oMfpAn":2}],139:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12666,7 +16997,7 @@ var ReactDOMOption = {
 
 module.exports = ReactDOMOption;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactChildren":87,"./ReactDOMSelect":102,"fbjs/lib/warning":214,"oMfpAn":1}],102:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactChildren":125,"./ReactDOMSelect":140,"fbjs/lib/warning":252,"oMfpAn":2}],140:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12857,7 +17188,7 @@ function _handleChange(event) {
 
 module.exports = ReactDOMSelect;
 }).call(this,require("oMfpAn"))
-},{"./LinkedValueUtils":80,"./Object.assign":81,"./ReactMount":124,"./ReactUpdates":142,"fbjs/lib/warning":214,"oMfpAn":1}],103:[function(require,module,exports){
+},{"./LinkedValueUtils":118,"./Object.assign":119,"./ReactMount":162,"./ReactUpdates":180,"fbjs/lib/warning":252,"oMfpAn":2}],141:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13070,7 +17401,7 @@ var ReactDOMSelection = {
 };
 
 module.exports = ReactDOMSelection;
-},{"./getNodeForCharacterOffset":175,"./getTextContentAccessor":176,"fbjs/lib/ExecutionEnvironment":189}],104:[function(require,module,exports){
+},{"./getNodeForCharacterOffset":213,"./getTextContentAccessor":214,"fbjs/lib/ExecutionEnvironment":227}],142:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13097,7 +17428,7 @@ var ReactDOMServer = {
 };
 
 module.exports = ReactDOMServer;
-},{"./ReactDefaultInjection":108,"./ReactServerRendering":139,"./ReactVersion":143}],105:[function(require,module,exports){
+},{"./ReactDefaultInjection":146,"./ReactServerRendering":177,"./ReactVersion":181}],143:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13227,7 +17558,7 @@ assign(ReactDOMTextComponent.prototype, {
 
 module.exports = ReactDOMTextComponent;
 }).call(this,require("oMfpAn"))
-},{"./DOMChildrenOperations":67,"./DOMPropertyOperations":69,"./Object.assign":81,"./ReactComponentBrowserEnvironment":90,"./ReactMount":124,"./escapeTextContentForBrowser":166,"./setTextContent":184,"./validateDOMNesting":187,"oMfpAn":1}],106:[function(require,module,exports){
+},{"./DOMChildrenOperations":105,"./DOMPropertyOperations":107,"./Object.assign":119,"./ReactComponentBrowserEnvironment":128,"./ReactMount":162,"./escapeTextContentForBrowser":204,"./setTextContent":222,"./validateDOMNesting":225,"oMfpAn":2}],144:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13343,7 +17674,7 @@ function _handleChange(event) {
 
 module.exports = ReactDOMTextarea;
 }).call(this,require("oMfpAn"))
-},{"./LinkedValueUtils":80,"./Object.assign":81,"./ReactDOMIDOperations":99,"./ReactUpdates":142,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],107:[function(require,module,exports){
+},{"./LinkedValueUtils":118,"./Object.assign":119,"./ReactDOMIDOperations":137,"./ReactUpdates":180,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],145:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13411,7 +17742,7 @@ var ReactDefaultBatchingStrategy = {
 };
 
 module.exports = ReactDefaultBatchingStrategy;
-},{"./Object.assign":81,"./ReactUpdates":142,"./Transaction":159,"fbjs/lib/emptyFunction":195}],108:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactUpdates":180,"./Transaction":197,"fbjs/lib/emptyFunction":233}],146:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13511,7 +17842,7 @@ module.exports = {
   inject: inject
 };
 }).call(this,require("oMfpAn"))
-},{"./BeforeInputEventPlugin":61,"./ChangeEventPlugin":65,"./ClientReactRootIndex":66,"./DefaultEventPluginOrder":71,"./EnterLeaveEventPlugin":72,"./HTMLDOMPropertyConfig":79,"./ReactBrowserComponentMixin":84,"./ReactComponentBrowserEnvironment":90,"./ReactDOMComponent":96,"./ReactDOMTextComponent":105,"./ReactDefaultBatchingStrategy":107,"./ReactDefaultPerf":109,"./ReactEventListener":117,"./ReactInjection":118,"./ReactInstanceHandles":120,"./ReactMount":124,"./ReactReconcileTransaction":134,"./SVGDOMPropertyConfig":144,"./SelectEventPlugin":145,"./ServerReactRootIndex":146,"./SimpleEventPlugin":147,"fbjs/lib/ExecutionEnvironment":189,"oMfpAn":1}],109:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":99,"./ChangeEventPlugin":103,"./ClientReactRootIndex":104,"./DefaultEventPluginOrder":109,"./EnterLeaveEventPlugin":110,"./HTMLDOMPropertyConfig":117,"./ReactBrowserComponentMixin":122,"./ReactComponentBrowserEnvironment":128,"./ReactDOMComponent":134,"./ReactDOMTextComponent":143,"./ReactDefaultBatchingStrategy":145,"./ReactDefaultPerf":147,"./ReactEventListener":155,"./ReactInjection":156,"./ReactInstanceHandles":158,"./ReactMount":162,"./ReactReconcileTransaction":172,"./SVGDOMPropertyConfig":182,"./SelectEventPlugin":183,"./ServerReactRootIndex":184,"./SimpleEventPlugin":185,"fbjs/lib/ExecutionEnvironment":227,"oMfpAn":2}],147:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13749,7 +18080,7 @@ var ReactDefaultPerf = {
 };
 
 module.exports = ReactDefaultPerf;
-},{"./DOMProperty":68,"./ReactDefaultPerfAnalysis":110,"./ReactMount":124,"./ReactPerf":130,"fbjs/lib/performanceNow":211}],110:[function(require,module,exports){
+},{"./DOMProperty":106,"./ReactDefaultPerfAnalysis":148,"./ReactMount":162,"./ReactPerf":168,"fbjs/lib/performanceNow":249}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13951,7 +18282,7 @@ var ReactDefaultPerfAnalysis = {
 };
 
 module.exports = ReactDefaultPerfAnalysis;
-},{"./Object.assign":81}],111:[function(require,module,exports){
+},{"./Object.assign":119}],149:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -14201,7 +18532,7 @@ ReactElement.isValidElement = function (object) {
 
 module.exports = ReactElement;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactCurrentOwner":93,"./canDefineProperty":163,"oMfpAn":1}],112:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactCurrentOwner":131,"./canDefineProperty":201,"oMfpAn":2}],150:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -14485,7 +18816,7 @@ var ReactElementValidator = {
 
 module.exports = ReactElementValidator;
 }).call(this,require("oMfpAn"))
-},{"./ReactCurrentOwner":93,"./ReactElement":111,"./ReactPropTypeLocationNames":131,"./ReactPropTypeLocations":132,"./canDefineProperty":163,"./getIteratorFn":174,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],113:[function(require,module,exports){
+},{"./ReactCurrentOwner":131,"./ReactElement":149,"./ReactPropTypeLocationNames":169,"./ReactPropTypeLocations":170,"./canDefineProperty":201,"./getIteratorFn":212,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],151:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -14537,7 +18868,7 @@ assign(ReactEmptyComponent.prototype, {
 ReactEmptyComponent.injection = ReactEmptyComponentInjection;
 
 module.exports = ReactEmptyComponent;
-},{"./Object.assign":81,"./ReactElement":111,"./ReactEmptyComponentRegistry":114,"./ReactReconciler":135}],114:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactElement":149,"./ReactEmptyComponentRegistry":152,"./ReactReconciler":173}],152:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -14586,7 +18917,7 @@ var ReactEmptyComponentRegistry = {
 };
 
 module.exports = ReactEmptyComponentRegistry;
-},{}],115:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -14666,7 +18997,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactErrorUtils;
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],116:[function(require,module,exports){
+},{"oMfpAn":2}],154:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14705,7 +19036,7 @@ var ReactEventEmitterMixin = {
 };
 
 module.exports = ReactEventEmitterMixin;
-},{"./EventPluginHub":74}],117:[function(require,module,exports){
+},{"./EventPluginHub":112}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14917,7 +19248,7 @@ var ReactEventListener = {
 };
 
 module.exports = ReactEventListener;
-},{"./Object.assign":81,"./PooledClass":82,"./ReactInstanceHandles":120,"./ReactMount":124,"./ReactUpdates":142,"./getEventTarget":173,"fbjs/lib/EventListener":188,"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/getUnboundedScrollPosition":200}],118:[function(require,module,exports){
+},{"./Object.assign":119,"./PooledClass":120,"./ReactInstanceHandles":158,"./ReactMount":162,"./ReactUpdates":180,"./getEventTarget":211,"fbjs/lib/EventListener":226,"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/getUnboundedScrollPosition":238}],156:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14956,7 +19287,7 @@ var ReactInjection = {
 };
 
 module.exports = ReactInjection;
-},{"./DOMProperty":68,"./EventPluginHub":74,"./ReactBrowserEventEmitter":85,"./ReactClass":88,"./ReactComponentEnvironment":91,"./ReactEmptyComponent":113,"./ReactNativeComponent":127,"./ReactPerf":130,"./ReactRootIndex":137,"./ReactUpdates":142}],119:[function(require,module,exports){
+},{"./DOMProperty":106,"./EventPluginHub":112,"./ReactBrowserEventEmitter":123,"./ReactClass":126,"./ReactComponentEnvironment":129,"./ReactEmptyComponent":151,"./ReactNativeComponent":165,"./ReactPerf":168,"./ReactRootIndex":175,"./ReactUpdates":180}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15081,7 +19412,7 @@ var ReactInputSelection = {
 };
 
 module.exports = ReactInputSelection;
-},{"./ReactDOMSelection":103,"fbjs/lib/containsNode":192,"fbjs/lib/focusNode":197,"fbjs/lib/getActiveElement":198}],120:[function(require,module,exports){
+},{"./ReactDOMSelection":141,"fbjs/lib/containsNode":230,"fbjs/lib/focusNode":235,"fbjs/lib/getActiveElement":236}],158:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -15386,7 +19717,7 @@ var ReactInstanceHandles = {
 
 module.exports = ReactInstanceHandles;
 }).call(this,require("oMfpAn"))
-},{"./ReactRootIndex":137,"fbjs/lib/invariant":203,"oMfpAn":1}],121:[function(require,module,exports){
+},{"./ReactRootIndex":175,"fbjs/lib/invariant":241,"oMfpAn":2}],159:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15434,7 +19765,7 @@ var ReactInstanceMap = {
 };
 
 module.exports = ReactInstanceMap;
-},{}],122:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -15511,7 +19842,7 @@ var React = {
 
 module.exports = React;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactChildren":87,"./ReactClass":88,"./ReactComponent":89,"./ReactDOMFactories":97,"./ReactElement":111,"./ReactElementValidator":112,"./ReactPropTypes":133,"./ReactVersion":143,"./onlyChild":180,"oMfpAn":1}],123:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactChildren":125,"./ReactClass":126,"./ReactComponent":127,"./ReactDOMFactories":135,"./ReactElement":149,"./ReactElementValidator":150,"./ReactPropTypes":171,"./ReactVersion":181,"./onlyChild":218,"oMfpAn":2}],161:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15557,7 +19888,7 @@ var ReactMarkupChecksum = {
 };
 
 module.exports = ReactMarkupChecksum;
-},{"./adler32":162}],124:[function(require,module,exports){
+},{"./adler32":200}],162:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -16410,7 +20741,7 @@ ReactPerf.measureMethods(ReactMount, 'ReactMount', {
 
 module.exports = ReactMount;
 }).call(this,require("oMfpAn"))
-},{"./DOMProperty":68,"./Object.assign":81,"./ReactBrowserEventEmitter":85,"./ReactCurrentOwner":93,"./ReactDOMFeatureFlags":98,"./ReactElement":111,"./ReactEmptyComponentRegistry":114,"./ReactInstanceHandles":120,"./ReactInstanceMap":121,"./ReactMarkupChecksum":123,"./ReactPerf":130,"./ReactReconciler":135,"./ReactUpdateQueue":141,"./ReactUpdates":142,"./instantiateReactComponent":177,"./setInnerHTML":183,"./shouldUpdateReactComponent":185,"./validateDOMNesting":187,"fbjs/lib/containsNode":192,"fbjs/lib/emptyObject":196,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],125:[function(require,module,exports){
+},{"./DOMProperty":106,"./Object.assign":119,"./ReactBrowserEventEmitter":123,"./ReactCurrentOwner":131,"./ReactDOMFeatureFlags":136,"./ReactElement":149,"./ReactEmptyComponentRegistry":152,"./ReactInstanceHandles":158,"./ReactInstanceMap":159,"./ReactMarkupChecksum":161,"./ReactPerf":168,"./ReactReconciler":173,"./ReactUpdateQueue":179,"./ReactUpdates":180,"./instantiateReactComponent":215,"./setInnerHTML":221,"./shouldUpdateReactComponent":223,"./validateDOMNesting":225,"fbjs/lib/containsNode":230,"fbjs/lib/emptyObject":234,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],163:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -16909,7 +21240,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 }).call(this,require("oMfpAn"))
-},{"./ReactChildReconciler":86,"./ReactComponentEnvironment":91,"./ReactCurrentOwner":93,"./ReactMultiChildUpdateTypes":126,"./ReactReconciler":135,"./flattenChildren":168,"oMfpAn":1}],126:[function(require,module,exports){
+},{"./ReactChildReconciler":124,"./ReactComponentEnvironment":129,"./ReactCurrentOwner":131,"./ReactMultiChildUpdateTypes":164,"./ReactReconciler":173,"./flattenChildren":206,"oMfpAn":2}],164:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16942,7 +21273,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 });
 
 module.exports = ReactMultiChildUpdateTypes;
-},{"fbjs/lib/keyMirror":206}],127:[function(require,module,exports){
+},{"fbjs/lib/keyMirror":244}],165:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -17039,7 +21370,7 @@ var ReactNativeComponent = {
 
 module.exports = ReactNativeComponent;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"fbjs/lib/invariant":203,"oMfpAn":1}],128:[function(require,module,exports){
+},{"./Object.assign":119,"fbjs/lib/invariant":241,"oMfpAn":2}],166:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -17160,7 +21491,7 @@ var ReactNoopUpdateQueue = {
 
 module.exports = ReactNoopUpdateQueue;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/warning":214,"oMfpAn":1}],129:[function(require,module,exports){
+},{"fbjs/lib/warning":252,"oMfpAn":2}],167:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17254,7 +21585,7 @@ var ReactOwner = {
 
 module.exports = ReactOwner;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],130:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],168:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17353,7 +21684,7 @@ function _noMeasure(objName, fnName, func) {
 
 module.exports = ReactPerf;
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],131:[function(require,module,exports){
+},{"oMfpAn":2}],169:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17380,7 +21711,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = ReactPropTypeLocationNames;
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],132:[function(require,module,exports){
+},{"oMfpAn":2}],170:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17403,7 +21734,7 @@ var ReactPropTypeLocations = keyMirror({
 });
 
 module.exports = ReactPropTypeLocations;
-},{"fbjs/lib/keyMirror":206}],133:[function(require,module,exports){
+},{"fbjs/lib/keyMirror":244}],171:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17760,7 +22091,7 @@ function getClassName(propValue) {
 }
 
 module.exports = ReactPropTypes;
-},{"./ReactElement":111,"./ReactPropTypeLocationNames":131,"./getIteratorFn":174,"fbjs/lib/emptyFunction":195}],134:[function(require,module,exports){
+},{"./ReactElement":149,"./ReactPropTypeLocationNames":169,"./getIteratorFn":212,"fbjs/lib/emptyFunction":233}],172:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17912,7 +22243,7 @@ assign(ReactReconcileTransaction.prototype, Transaction.Mixin, Mixin);
 PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
-},{"./CallbackQueue":64,"./Object.assign":81,"./PooledClass":82,"./ReactBrowserEventEmitter":85,"./ReactDOMFeatureFlags":98,"./ReactInputSelection":119,"./Transaction":159}],135:[function(require,module,exports){
+},{"./CallbackQueue":102,"./Object.assign":119,"./PooledClass":120,"./ReactBrowserEventEmitter":123,"./ReactDOMFeatureFlags":136,"./ReactInputSelection":157,"./Transaction":197}],173:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18020,7 +22351,7 @@ var ReactReconciler = {
 };
 
 module.exports = ReactReconciler;
-},{"./ReactRef":136}],136:[function(require,module,exports){
+},{"./ReactRef":174}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18099,7 +22430,7 @@ ReactRef.detachRefs = function (instance, element) {
 };
 
 module.exports = ReactRef;
-},{"./ReactOwner":129}],137:[function(require,module,exports){
+},{"./ReactOwner":167}],175:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18129,7 +22460,7 @@ var ReactRootIndex = {
 };
 
 module.exports = ReactRootIndex;
-},{}],138:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -18153,7 +22484,7 @@ var ReactServerBatchingStrategy = {
 };
 
 module.exports = ReactServerBatchingStrategy;
-},{}],139:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18239,7 +22570,7 @@ module.exports = {
   renderToStaticMarkup: renderToStaticMarkup
 };
 }).call(this,require("oMfpAn"))
-},{"./ReactDefaultBatchingStrategy":107,"./ReactElement":111,"./ReactInstanceHandles":120,"./ReactMarkupChecksum":123,"./ReactServerBatchingStrategy":138,"./ReactServerRenderingTransaction":140,"./ReactUpdates":142,"./instantiateReactComponent":177,"fbjs/lib/emptyObject":196,"fbjs/lib/invariant":203,"oMfpAn":1}],140:[function(require,module,exports){
+},{"./ReactDefaultBatchingStrategy":145,"./ReactElement":149,"./ReactInstanceHandles":158,"./ReactMarkupChecksum":161,"./ReactServerBatchingStrategy":176,"./ReactServerRenderingTransaction":178,"./ReactUpdates":180,"./instantiateReactComponent":215,"fbjs/lib/emptyObject":234,"fbjs/lib/invariant":241,"oMfpAn":2}],178:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -18327,7 +22658,7 @@ assign(ReactServerRenderingTransaction.prototype, Transaction.Mixin, Mixin);
 PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
-},{"./CallbackQueue":64,"./Object.assign":81,"./PooledClass":82,"./Transaction":159,"fbjs/lib/emptyFunction":195}],141:[function(require,module,exports){
+},{"./CallbackQueue":102,"./Object.assign":119,"./PooledClass":120,"./Transaction":197,"fbjs/lib/emptyFunction":233}],179:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -18587,7 +22918,7 @@ var ReactUpdateQueue = {
 
 module.exports = ReactUpdateQueue;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactCurrentOwner":93,"./ReactElement":111,"./ReactInstanceMap":121,"./ReactUpdates":142,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],142:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactCurrentOwner":131,"./ReactElement":149,"./ReactInstanceMap":159,"./ReactUpdates":180,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],180:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18813,7 +23144,7 @@ var ReactUpdates = {
 
 module.exports = ReactUpdates;
 }).call(this,require("oMfpAn"))
-},{"./CallbackQueue":64,"./Object.assign":81,"./PooledClass":82,"./ReactPerf":130,"./ReactReconciler":135,"./Transaction":159,"fbjs/lib/invariant":203,"oMfpAn":1}],143:[function(require,module,exports){
+},{"./CallbackQueue":102,"./Object.assign":119,"./PooledClass":120,"./ReactPerf":168,"./ReactReconciler":173,"./Transaction":197,"fbjs/lib/invariant":241,"oMfpAn":2}],181:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18828,7 +23159,7 @@ module.exports = ReactUpdates;
 'use strict';
 
 module.exports = '0.14.7';
-},{}],144:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18956,7 +23287,7 @@ var SVGDOMPropertyConfig = {
 };
 
 module.exports = SVGDOMPropertyConfig;
-},{"./DOMProperty":68}],145:[function(require,module,exports){
+},{"./DOMProperty":106}],183:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19158,7 +23489,7 @@ var SelectEventPlugin = {
 };
 
 module.exports = SelectEventPlugin;
-},{"./EventConstants":73,"./EventPropagators":77,"./ReactInputSelection":119,"./SyntheticEvent":151,"./isTextInputElement":179,"fbjs/lib/ExecutionEnvironment":189,"fbjs/lib/getActiveElement":198,"fbjs/lib/keyOf":207,"fbjs/lib/shallowEqual":212}],146:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPropagators":115,"./ReactInputSelection":157,"./SyntheticEvent":189,"./isTextInputElement":217,"fbjs/lib/ExecutionEnvironment":227,"fbjs/lib/getActiveElement":236,"fbjs/lib/keyOf":245,"fbjs/lib/shallowEqual":250}],184:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19188,7 +23519,7 @@ var ServerReactRootIndex = {
 };
 
 module.exports = ServerReactRootIndex;
-},{}],147:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -19778,7 +24109,7 @@ var SimpleEventPlugin = {
 
 module.exports = SimpleEventPlugin;
 }).call(this,require("oMfpAn"))
-},{"./EventConstants":73,"./EventPropagators":77,"./ReactMount":124,"./SyntheticClipboardEvent":148,"./SyntheticDragEvent":150,"./SyntheticEvent":151,"./SyntheticFocusEvent":152,"./SyntheticKeyboardEvent":154,"./SyntheticMouseEvent":155,"./SyntheticTouchEvent":156,"./SyntheticUIEvent":157,"./SyntheticWheelEvent":158,"./getEventCharCode":170,"fbjs/lib/EventListener":188,"fbjs/lib/emptyFunction":195,"fbjs/lib/invariant":203,"fbjs/lib/keyOf":207,"oMfpAn":1}],148:[function(require,module,exports){
+},{"./EventConstants":111,"./EventPropagators":115,"./ReactMount":162,"./SyntheticClipboardEvent":186,"./SyntheticDragEvent":188,"./SyntheticEvent":189,"./SyntheticFocusEvent":190,"./SyntheticKeyboardEvent":192,"./SyntheticMouseEvent":193,"./SyntheticTouchEvent":194,"./SyntheticUIEvent":195,"./SyntheticWheelEvent":196,"./getEventCharCode":208,"fbjs/lib/EventListener":226,"fbjs/lib/emptyFunction":233,"fbjs/lib/invariant":241,"fbjs/lib/keyOf":245,"oMfpAn":2}],186:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19818,7 +24149,7 @@ function SyntheticClipboardEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 
 module.exports = SyntheticClipboardEvent;
-},{"./SyntheticEvent":151}],149:[function(require,module,exports){
+},{"./SyntheticEvent":189}],187:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19856,7 +24187,7 @@ function SyntheticCompositionEvent(dispatchConfig, dispatchMarker, nativeEvent, 
 SyntheticEvent.augmentClass(SyntheticCompositionEvent, CompositionEventInterface);
 
 module.exports = SyntheticCompositionEvent;
-},{"./SyntheticEvent":151}],150:[function(require,module,exports){
+},{"./SyntheticEvent":189}],188:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19894,7 +24225,7 @@ function SyntheticDragEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeE
 SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
-},{"./SyntheticMouseEvent":155}],151:[function(require,module,exports){
+},{"./SyntheticMouseEvent":193}],189:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -20077,7 +24408,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.fourArgumentPooler);
 
 module.exports = SyntheticEvent;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./PooledClass":82,"fbjs/lib/emptyFunction":195,"fbjs/lib/warning":214,"oMfpAn":1}],152:[function(require,module,exports){
+},{"./Object.assign":119,"./PooledClass":120,"fbjs/lib/emptyFunction":233,"fbjs/lib/warning":252,"oMfpAn":2}],190:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20115,7 +24446,7 @@ function SyntheticFocusEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
-},{"./SyntheticUIEvent":157}],153:[function(require,module,exports){
+},{"./SyntheticUIEvent":195}],191:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20154,7 +24485,7 @@ function SyntheticInputEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticEvent.augmentClass(SyntheticInputEvent, InputEventInterface);
 
 module.exports = SyntheticInputEvent;
-},{"./SyntheticEvent":151}],154:[function(require,module,exports){
+},{"./SyntheticEvent":189}],192:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20240,7 +24571,7 @@ function SyntheticKeyboardEvent(dispatchConfig, dispatchMarker, nativeEvent, nat
 SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
-},{"./SyntheticUIEvent":157,"./getEventCharCode":170,"./getEventKey":171,"./getEventModifierState":172}],155:[function(require,module,exports){
+},{"./SyntheticUIEvent":195,"./getEventCharCode":208,"./getEventKey":209,"./getEventModifierState":210}],193:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20314,7 +24645,7 @@ function SyntheticMouseEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
-},{"./SyntheticUIEvent":157,"./ViewportMetrics":160,"./getEventModifierState":172}],156:[function(require,module,exports){
+},{"./SyntheticUIEvent":195,"./ViewportMetrics":198,"./getEventModifierState":210}],194:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20361,7 +24692,7 @@ function SyntheticTouchEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
-},{"./SyntheticUIEvent":157,"./getEventModifierState":172}],157:[function(require,module,exports){
+},{"./SyntheticUIEvent":195,"./getEventModifierState":210}],195:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20422,7 +24753,7 @@ function SyntheticUIEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEve
 SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
-},{"./SyntheticEvent":151,"./getEventTarget":173}],158:[function(require,module,exports){
+},{"./SyntheticEvent":189,"./getEventTarget":211}],196:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20478,7 +24809,7 @@ function SyntheticWheelEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
-},{"./SyntheticMouseEvent":155}],159:[function(require,module,exports){
+},{"./SyntheticMouseEvent":193}],197:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -20712,7 +25043,7 @@ var Transaction = {
 
 module.exports = Transaction;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],160:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],198:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20740,7 +25071,7 @@ var ViewportMetrics = {
 };
 
 module.exports = ViewportMetrics;
-},{}],161:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -20802,7 +25133,7 @@ function accumulateInto(current, next) {
 
 module.exports = accumulateInto;
 }).call(this,require("oMfpAn"))
-},{"fbjs/lib/invariant":203,"oMfpAn":1}],162:[function(require,module,exports){
+},{"fbjs/lib/invariant":241,"oMfpAn":2}],200:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20845,7 +25176,7 @@ function adler32(data) {
 }
 
 module.exports = adler32;
-},{}],163:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -20872,7 +25203,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = canDefineProperty;
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],164:[function(require,module,exports){
+},{"oMfpAn":2}],202:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20928,7 +25259,7 @@ function dangerousStyleValue(name, value) {
 }
 
 module.exports = dangerousStyleValue;
-},{"./CSSProperty":62}],165:[function(require,module,exports){
+},{"./CSSProperty":100}],203:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -20979,7 +25310,7 @@ function deprecated(fnName, newModule, newPackage, ctx, fn) {
 
 module.exports = deprecated;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"fbjs/lib/warning":214,"oMfpAn":1}],166:[function(require,module,exports){
+},{"./Object.assign":119,"fbjs/lib/warning":252,"oMfpAn":2}],204:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21018,7 +25349,7 @@ function escapeTextContentForBrowser(text) {
 }
 
 module.exports = escapeTextContentForBrowser;
-},{}],167:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21070,7 +25401,7 @@ function findDOMNode(componentOrElement) {
 
 module.exports = findDOMNode;
 }).call(this,require("oMfpAn"))
-},{"./ReactCurrentOwner":93,"./ReactInstanceMap":121,"./ReactMount":124,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],168:[function(require,module,exports){
+},{"./ReactCurrentOwner":131,"./ReactInstanceMap":159,"./ReactMount":162,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],206:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21121,7 +25452,7 @@ function flattenChildren(children) {
 
 module.exports = flattenChildren;
 }).call(this,require("oMfpAn"))
-},{"./traverseAllChildren":186,"fbjs/lib/warning":214,"oMfpAn":1}],169:[function(require,module,exports){
+},{"./traverseAllChildren":224,"fbjs/lib/warning":252,"oMfpAn":2}],207:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21151,7 +25482,7 @@ var forEachAccumulated = function (arr, cb, scope) {
 };
 
 module.exports = forEachAccumulated;
-},{}],170:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21202,7 +25533,7 @@ function getEventCharCode(nativeEvent) {
 }
 
 module.exports = getEventCharCode;
-},{}],171:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21306,7 +25637,7 @@ function getEventKey(nativeEvent) {
 }
 
 module.exports = getEventKey;
-},{"./getEventCharCode":170}],172:[function(require,module,exports){
+},{"./getEventCharCode":208}],210:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21351,7 +25682,7 @@ function getEventModifierState(nativeEvent) {
 }
 
 module.exports = getEventModifierState;
-},{}],173:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21381,7 +25712,7 @@ function getEventTarget(nativeEvent) {
 }
 
 module.exports = getEventTarget;
-},{}],174:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21422,7 +25753,7 @@ function getIteratorFn(maybeIterable) {
 }
 
 module.exports = getIteratorFn;
-},{}],175:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21496,7 +25827,7 @@ function getNodeForCharacterOffset(root, offset) {
 }
 
 module.exports = getNodeForCharacterOffset;
-},{}],176:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21530,7 +25861,7 @@ function getTextContentAccessor() {
 }
 
 module.exports = getTextContentAccessor;
-},{"fbjs/lib/ExecutionEnvironment":189}],177:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":227}],215:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21645,7 +25976,7 @@ function instantiateReactComponent(node) {
 
 module.exports = instantiateReactComponent;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"./ReactCompositeComponent":92,"./ReactEmptyComponent":113,"./ReactNativeComponent":127,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],178:[function(require,module,exports){
+},{"./Object.assign":119,"./ReactCompositeComponent":130,"./ReactEmptyComponent":151,"./ReactNativeComponent":165,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],216:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21706,7 +26037,7 @@ function isEventSupported(eventNameSuffix, capture) {
 }
 
 module.exports = isEventSupported;
-},{"fbjs/lib/ExecutionEnvironment":189}],179:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":227}],217:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21747,7 +26078,7 @@ function isTextInputElement(elem) {
 }
 
 module.exports = isTextInputElement;
-},{}],180:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21783,7 +26114,7 @@ function onlyChild(children) {
 
 module.exports = onlyChild;
 }).call(this,require("oMfpAn"))
-},{"./ReactElement":111,"fbjs/lib/invariant":203,"oMfpAn":1}],181:[function(require,module,exports){
+},{"./ReactElement":149,"fbjs/lib/invariant":241,"oMfpAn":2}],219:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21810,7 +26141,7 @@ function quoteAttributeValueForBrowser(value) {
 }
 
 module.exports = quoteAttributeValueForBrowser;
-},{"./escapeTextContentForBrowser":166}],182:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":204}],220:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21827,7 +26158,7 @@ module.exports = quoteAttributeValueForBrowser;
 var ReactMount = require('./ReactMount');
 
 module.exports = ReactMount.renderSubtreeIntoContainer;
-},{"./ReactMount":124}],183:[function(require,module,exports){
+},{"./ReactMount":162}],221:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21918,7 +26249,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setInnerHTML;
-},{"fbjs/lib/ExecutionEnvironment":189}],184:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":227}],222:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21959,7 +26290,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setTextContent;
-},{"./escapeTextContentForBrowser":166,"./setInnerHTML":183,"fbjs/lib/ExecutionEnvironment":189}],185:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":204,"./setInnerHTML":221,"fbjs/lib/ExecutionEnvironment":227}],223:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22003,7 +26334,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 }
 
 module.exports = shouldUpdateReactComponent;
-},{}],186:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -22195,7 +26526,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 }).call(this,require("oMfpAn"))
-},{"./ReactCurrentOwner":93,"./ReactElement":111,"./ReactInstanceHandles":120,"./getIteratorFn":174,"fbjs/lib/invariant":203,"fbjs/lib/warning":214,"oMfpAn":1}],187:[function(require,module,exports){
+},{"./ReactCurrentOwner":131,"./ReactElement":149,"./ReactInstanceHandles":158,"./getIteratorFn":212,"fbjs/lib/invariant":241,"fbjs/lib/warning":252,"oMfpAn":2}],225:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -22561,7 +26892,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = validateDOMNesting;
 }).call(this,require("oMfpAn"))
-},{"./Object.assign":81,"fbjs/lib/emptyFunction":195,"fbjs/lib/warning":214,"oMfpAn":1}],188:[function(require,module,exports){
+},{"./Object.assign":119,"fbjs/lib/emptyFunction":233,"fbjs/lib/warning":252,"oMfpAn":2}],226:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -22648,7 +26979,7 @@ var EventListener = {
 
 module.exports = EventListener;
 }).call(this,require("oMfpAn"))
-},{"./emptyFunction":195,"oMfpAn":1}],189:[function(require,module,exports){
+},{"./emptyFunction":233,"oMfpAn":2}],227:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22685,7 +27016,7 @@ var ExecutionEnvironment = {
 };
 
 module.exports = ExecutionEnvironment;
-},{}],190:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22718,7 +27049,7 @@ function camelize(string) {
 }
 
 module.exports = camelize;
-},{}],191:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22759,7 +27090,7 @@ function camelizeStyleName(string) {
 }
 
 module.exports = camelizeStyleName;
-},{"./camelize":190}],192:[function(require,module,exports){
+},{"./camelize":228}],230:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22815,7 +27146,7 @@ function containsNode(_x, _x2) {
 }
 
 module.exports = containsNode;
-},{"./isTextNode":205}],193:[function(require,module,exports){
+},{"./isTextNode":243}],231:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22901,7 +27232,7 @@ function createArrayFromMixed(obj) {
 }
 
 module.exports = createArrayFromMixed;
-},{"./toArray":213}],194:[function(require,module,exports){
+},{"./toArray":251}],232:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -22988,7 +27319,7 @@ function createNodesFromMarkup(markup, handleScript) {
 
 module.exports = createNodesFromMarkup;
 }).call(this,require("oMfpAn"))
-},{"./ExecutionEnvironment":189,"./createArrayFromMixed":193,"./getMarkupWrap":199,"./invariant":203,"oMfpAn":1}],195:[function(require,module,exports){
+},{"./ExecutionEnvironment":227,"./createArrayFromMixed":231,"./getMarkupWrap":237,"./invariant":241,"oMfpAn":2}],233:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23027,7 +27358,7 @@ emptyFunction.thatReturnsArgument = function (arg) {
 };
 
 module.exports = emptyFunction;
-},{}],196:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23050,7 +27381,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = emptyObject;
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],197:[function(require,module,exports){
+},{"oMfpAn":2}],235:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23077,7 +27408,7 @@ function focusNode(node) {
 }
 
 module.exports = focusNode;
-},{}],198:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23113,7 +27444,7 @@ function getActiveElement() /*?DOMElement*/{
 }
 
 module.exports = getActiveElement;
-},{}],199:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23211,7 +27542,7 @@ function getMarkupWrap(nodeName) {
 
 module.exports = getMarkupWrap;
 }).call(this,require("oMfpAn"))
-},{"./ExecutionEnvironment":189,"./invariant":203,"oMfpAn":1}],200:[function(require,module,exports){
+},{"./ExecutionEnvironment":227,"./invariant":241,"oMfpAn":2}],238:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23250,7 +27581,7 @@ function getUnboundedScrollPosition(scrollable) {
 }
 
 module.exports = getUnboundedScrollPosition;
-},{}],201:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23284,7 +27615,7 @@ function hyphenate(string) {
 }
 
 module.exports = hyphenate;
-},{}],202:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23324,7 +27655,7 @@ function hyphenateStyleName(string) {
 }
 
 module.exports = hyphenateStyleName;
-},{"./hyphenate":201}],203:[function(require,module,exports){
+},{"./hyphenate":239}],241:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23377,7 +27708,7 @@ function invariant(condition, format, a, b, c, d, e, f) {
 
 module.exports = invariant;
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],204:[function(require,module,exports){
+},{"oMfpAn":2}],242:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23401,7 +27732,7 @@ function isNode(object) {
 }
 
 module.exports = isNode;
-},{}],205:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23427,7 +27758,7 @@ function isTextNode(object) {
 }
 
 module.exports = isTextNode;
-},{"./isNode":204}],206:[function(require,module,exports){
+},{"./isNode":242}],244:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23478,7 +27809,7 @@ var keyMirror = function (obj) {
 
 module.exports = keyMirror;
 }).call(this,require("oMfpAn"))
-},{"./invariant":203,"oMfpAn":1}],207:[function(require,module,exports){
+},{"./invariant":241,"oMfpAn":2}],245:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23514,7 +27845,7 @@ var keyOf = function (oneKeyObj) {
 };
 
 module.exports = keyOf;
-},{}],208:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23566,7 +27897,7 @@ function mapObject(object, callback, context) {
 }
 
 module.exports = mapObject;
-},{}],209:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23598,7 +27929,7 @@ function memoizeStringOnly(callback) {
 }
 
 module.exports = memoizeStringOnly;
-},{}],210:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23622,7 +27953,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = performance || {};
-},{"./ExecutionEnvironment":189}],211:[function(require,module,exports){
+},{"./ExecutionEnvironment":227}],249:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23657,7 +27988,7 @@ if (performance.now) {
 }
 
 module.exports = performanceNow;
-},{"./performance":210}],212:[function(require,module,exports){
+},{"./performance":248}],250:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23708,7 +28039,7 @@ function shallowEqual(objA, objB) {
 }
 
 module.exports = shallowEqual;
-},{}],213:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23768,7 +28099,7 @@ function toArray(obj) {
 
 module.exports = toArray;
 }).call(this,require("oMfpAn"))
-},{"./invariant":203,"oMfpAn":1}],214:[function(require,module,exports){
+},{"./invariant":241,"oMfpAn":2}],252:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -23828,14 +28159,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 module.exports = warning;
 }).call(this,require("oMfpAn"))
-},{"./emptyFunction":195,"oMfpAn":1}],"nakDgH":[function(require,module,exports){
+},{"./emptyFunction":233,"oMfpAn":2}],"nakDgH":[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/React');
 
-},{"./lib/React":83}],"react":[function(require,module,exports){
+},{"./lib/React":121}],"react":[function(require,module,exports){
 module.exports=require('nakDgH');
-},{}],217:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 'use strict';
 
 var Promise = require('promise');
@@ -23964,7 +28295,7 @@ function doRequest(method, url, options, callback) {
   return result.nodeify(callback);
 }
 
-},{"./lib/handle-qs.js":218,"http-response-object":219,"promise":220}],218:[function(require,module,exports){
+},{"./lib/handle-qs.js":256,"http-response-object":257,"promise":258}],256:[function(require,module,exports){
 'use strict';
 
 var parse = require('qs').parse;
@@ -23988,7 +28319,7 @@ function handleQs(url, query) {
   return start + qs + end;
 }
 
-},{"qs":226}],219:[function(require,module,exports){
+},{"qs":264}],257:[function(require,module,exports){
 'use strict';
 
 module.exports = Response;
@@ -24033,14 +28364,14 @@ Response.prototype.getBody = function (encoding) {
   return encoding ? this.body.toString(encoding) : this.body;
 };
 
-},{}],220:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/core.js')
 require('./lib/done.js')
 require('./lib/es6-extensions.js')
 require('./lib/node-extensions.js')
-},{"./lib/core.js":221,"./lib/done.js":222,"./lib/es6-extensions.js":223,"./lib/node-extensions.js":224}],221:[function(require,module,exports){
+},{"./lib/core.js":259,"./lib/done.js":260,"./lib/es6-extensions.js":261,"./lib/node-extensions.js":262}],259:[function(require,module,exports){
 'use strict';
 
 var asap = require('asap')
@@ -24147,7 +28478,7 @@ function doResolve(fn, onFulfilled, onRejected) {
   }
 }
 
-},{"asap":225}],222:[function(require,module,exports){
+},{"asap":263}],260:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js')
@@ -24162,7 +28493,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
     })
   })
 }
-},{"./core.js":221,"asap":225}],223:[function(require,module,exports){
+},{"./core.js":259,"asap":263}],261:[function(require,module,exports){
 'use strict';
 
 //This file contains the ES6 extensions to the core Promises/A+ API
@@ -24272,7 +28603,7 @@ Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
 }
 
-},{"./core.js":221,"asap":225}],224:[function(require,module,exports){
+},{"./core.js":259,"asap":263}],262:[function(require,module,exports){
 'use strict';
 
 //This file contains then/promise specific extensions that are only useful for node.js interop
@@ -24337,7 +28668,7 @@ Promise.prototype.nodeify = function (callback, ctx) {
   })
 }
 
-},{"./core.js":221,"asap":225}],225:[function(require,module,exports){
+},{"./core.js":259,"asap":263}],263:[function(require,module,exports){
 (function (process){
 
 // Use the fastest possible means to execute a task in a future turn
@@ -24454,10 +28785,10 @@ module.exports = asap;
 
 
 }).call(this,require("oMfpAn"))
-},{"oMfpAn":1}],226:[function(require,module,exports){
+},{"oMfpAn":2}],264:[function(require,module,exports){
 module.exports = require('./lib/');
 
-},{"./lib/":227}],227:[function(require,module,exports){
+},{"./lib/":265}],265:[function(require,module,exports){
 // Load modules
 
 var Stringify = require('./stringify');
@@ -24474,7 +28805,7 @@ module.exports = {
     parse: Parse
 };
 
-},{"./parse":228,"./stringify":229}],228:[function(require,module,exports){
+},{"./parse":266,"./stringify":267}],266:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -24633,7 +28964,7 @@ module.exports = function (str, options) {
     return Utils.compact(obj);
 };
 
-},{"./utils":230}],229:[function(require,module,exports){
+},{"./utils":268}],267:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -24732,7 +29063,7 @@ module.exports = function (obj, options) {
     return keys.join(delimiter);
 };
 
-},{"./utils":230}],230:[function(require,module,exports){
+},{"./utils":268}],268:[function(require,module,exports){
 // Load modules
 
 
@@ -24866,7 +29197,7 @@ exports.isBuffer = function (obj) {
         obj.constructor.isBuffer(obj));
 };
 
-},{}],231:[function(require,module,exports){
+},{}],269:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -24908,7 +29239,7 @@ var AlertBox = React.createClass({
 });
 
 module.exports = AlertBox;
-},{"react":"nakDgH"}],232:[function(require,module,exports){
+},{"react":"nakDgH"}],270:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -24968,7 +29299,7 @@ var Footer = React.createClass({
 });
 
 module.exports = Footer;
-},{"../models/vault":241,"react":"nakDgH"}],233:[function(require,module,exports){
+},{"../models/vault":280,"react":"nakDgH"}],271:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25024,7 +29355,7 @@ var App = React.createClass({
 });
 
 module.exports = App;
-},{"./Footer":232,"./Navigation":237,"react":"nakDgH"}],234:[function(require,module,exports){
+},{"./Footer":270,"./Navigation":275,"react":"nakDgH"}],272:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25129,10 +29460,8 @@ var ModelEdit = React.createClass({
 			});
 		} else {
 			// Create a new model
-			console.log(this.state.model);
 			Models.create(this.state.model).then(function (response) {
 				var data = JSON.parse(response.body);
-				console.log(data);
 				if (response.statusCode >= 300) {
 					self.setState({ error: data.message });
 				} else {
@@ -25246,7 +29575,7 @@ var ModelEdit = React.createClass({
 });
 
 module.exports = ModelEdit;
-},{"../models/models":240,"./AlertBox":231,"./Footer":232,"./Navigation":237,"react":"nakDgH"}],235:[function(require,module,exports){
+},{"../models/models":279,"./AlertBox":269,"./Footer":270,"./Navigation":275,"react":"nakDgH"}],273:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25265,15 +29594,20 @@ module.exports = ModelEdit;
  */
 'use strict';
 
+var _reactIntl = require('react-intl');
+
 var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var ReactIntl = require('react-intl');
+
 
 var ModelList = React.createClass({
   displayName: 'ModelList',
+
 
   getInitialState: function getInitialState() {
     return { models: [] };
@@ -25295,7 +29629,7 @@ var ModelList = React.createClass({
     });
   },
 
-  renderTable: function renderTable() {
+  renderTable: function renderTable(M) {
     var self = this;
 
     if (this.state.models.length > 0) {
@@ -25312,17 +29646,17 @@ var ModelList = React.createClass({
             React.createElement(
               'th',
               null,
-              'Brand'
+              M({ id: 'brand' })
             ),
             React.createElement(
               'th',
               null,
-              'Model'
+              M({ id: 'model' })
             ),
             React.createElement(
               'th',
               null,
-              'Revision'
+              M({ id: 'revision' })
             )
           )
         ),
@@ -25344,6 +29678,8 @@ var ModelList = React.createClass({
   },
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
+
     return React.createElement(
       'div',
       null,
@@ -25354,7 +29690,8 @@ var ModelList = React.createClass({
         React.createElement(
           'h2',
           null,
-          'Models ',
+          M({ id: 'models' }),
+          ' ',
           React.createElement(
             'a',
             { href: '/models/new', className: 'button--primary small', title: 'Add a new model' },
@@ -25367,7 +29704,8 @@ var ModelList = React.createClass({
           React.createElement(
             'p',
             null,
-            'The following models are available:'
+            M({ id: 'models_available' }),
+            ':'
           )
         ),
         React.createElement(
@@ -25378,7 +29716,7 @@ var ModelList = React.createClass({
         React.createElement(
           'div',
           { className: 'twelve-col' },
-          this.renderTable()
+          this.renderTable(M)
         )
       ),
       React.createElement(Footer, null)
@@ -25386,8 +29724,8 @@ var ModelList = React.createClass({
   }
 });
 
-module.exports = ModelList;
-},{"../models/models":240,"./AlertBox":231,"./Footer":232,"./ModelRow":236,"./Navigation":237,"react":"nakDgH"}],236:[function(require,module,exports){
+module.exports = (0, _reactIntl.injectIntl)(ModelList);
+},{"../models/models":279,"./AlertBox":269,"./Footer":270,"./ModelRow":274,"./Navigation":275,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25444,7 +29782,7 @@ var ModelRow = React.createClass({
 });
 
 module.exports = ModelRow;
-},{"react":"nakDgH"}],237:[function(require,module,exports){
+},{"react":"nakDgH"}],275:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25508,7 +29846,7 @@ var Navigation = React.createClass({
 });
 
 module.exports = Navigation;
-},{"react":"nakDgH"}],238:[function(require,module,exports){
+},{"react":"nakDgH"}],276:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25527,6 +29865,56 @@ module.exports = Navigation;
  */
 'use strict';
 
+var intlData = {
+    zh: {
+        "brand": "牌",
+        "model": "机型",
+        "revision": "版本",
+        "models": "楷模",
+        "models_available": "以下型号可供选择"
+    },
+
+    en: {
+        "brand": "Brand",
+        "model": "Model",
+        "revision": "Revision",
+        "models": "Models",
+        "models_available": "The following models are available"
+    }
+};
+
+module.exports = intlData;
+},{}],277:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var _reactIntl = require('react-intl');
+
+var _en = require('react-intl/lib/locale-data/en');
+
+var _en2 = _interopRequireDefault(_en);
+
+var _zh = require('react-intl/lib/locale-data/zh');
+
+var _zh2 = _interopRequireDefault(_zh);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var React = require('react');
 var Router = require('react-router').Router;
 var render = require('react-dom').render;
@@ -25537,16 +29925,30 @@ var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
 
+// Imports for i18n
+
+
+// Translated messages
+var Messages = require('./components/messages');
+
+// Add the locales we need
+(0, _reactIntl.addLocaleData)(_en2.default);
+(0, _reactIntl.addLocaleData)(_zh2.default);
+
 render(React.createElement(
-  Router,
-  { history: browserHistory },
-  React.createElement(Route, { path: '/', component: Index }),
-  React.createElement(Route, { path: '/models', component: ModelList }),
-  React.createElement(Route, { path: '/models/new', component: ModelEdit }),
-  React.createElement(Route, { path: '/models/:id/edit', component: ModelEdit }),
-  React.createElement(Route, { path: '*', component: Index })
+  _reactIntl.IntlProvider,
+  { locale: 'zh', messages: Messages['zh'] },
+  React.createElement(
+    Router,
+    { history: browserHistory },
+    React.createElement(Route, { path: '/', component: Index }),
+    React.createElement(Route, { path: '/models', component: ModelList }),
+    React.createElement(Route, { path: '/models/new', component: ModelEdit }),
+    React.createElement(Route, { path: '/models/:id/edit', component: ModelEdit }),
+    React.createElement(Route, { path: '*', component: Index })
+  )
 ), document.getElementById('main'));
-},{"./components/Index":233,"./components/ModelEdit":234,"./components/ModelList":235,"react":"nakDgH","react-dom":2,"react-router":30}],239:[function(require,module,exports){
+},{"./components/Index":271,"./components/ModelEdit":272,"./components/ModelList":273,"./components/messages":276,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],278:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25598,7 +30000,7 @@ var Ajax = {
 };
 
 module.exports = Ajax;
-},{"then-request":217}],240:[function(require,module,exports){
+},{"then-request":255}],279:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25641,7 +30043,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":239}],241:[function(require,module,exports){
+},{"./Ajax":278}],280:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25670,4 +30072,4 @@ var Vault = {
 };
 
 module.exports = Vault;
-},{"./Ajax":239}]},{},[238])
+},{"./Ajax":278}]},{},[277])
