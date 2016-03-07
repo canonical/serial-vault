@@ -26,21 +26,21 @@ var Ajax = {
 	},
 
 	post: function(url, data) {
-			return request('POST', '/' + API_VERSION + url, {
+			return request('POST', API_VERSION + url, {
 					headers: {},
 					json: data
 			});
 	},
 
 	put: function(url, data) {
-			return request('PUT', '/' + API_VERSION + url, {
+			return request('PUT', API_VERSION + url, {
 					headers: {},
 					json: data
 			});
 	},
 
 	delete: function(url, data) {
-			return request('DELETE', '/' + API_VERSION + url, {
+			return request('DELETE', API_VERSION + url, {
 					headers: {},
 					json: data
 			});

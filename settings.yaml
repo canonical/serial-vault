@@ -9,3 +9,7 @@ logo: "/static/images/logo-ubuntu-white.svg"
 # Backend database details
 driver: "postgres"
 datasource: "dbname=identity-vault"
+
+# Signing Key Store
+keystore: "filesystem"
+keystorePath: "./keystore"

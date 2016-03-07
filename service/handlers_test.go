@@ -21,7 +21,10 @@ package service
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -277,17 +280,222 @@ func TestModelsHandlerWithError(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
+	sendRequestExpectError(t, "GET", "/1.0/models", nil)
+}
+
+func TestModelGetHandler(t *testing.T) {
+
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	result, _ := sendRequest(t, "GET", "/1.0/models/1", nil)
+
+	if result.Model.ID != 1 {
+		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "Alder" {
+		t.Errorf("Expected model name 'Alder', got %s", result.Model.Name)
+	}
+}
+
+func TestModelGetHandlerWithError(t *testing.T) {
+
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	sendRequestExpectError(t, "GET", "/1.0/models/999999", nil)
+}
+
+func TestModelGetHandlerWithBadID(t *testing.T) {
+
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	sendRequestExpectError(t, "GET", "/1.0/models/999999999999999999999999999999", nil)
+}
+
+func TestModelUpdateHandler(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	// Update a model
+	data := `
+	{
+	  "id": 1,
+	  "brand-id": "System",
+    "model":"聖誕快樂",
+    "serial":"A1234/L",
+		"revision": 2,
+    "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+  }`
+
+	result, _ := sendRequest(t, "PUT", "/1.0/models/1", bytes.NewBufferString(data))
+
+	if result.Model.ID != 1 {
+		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "聖誕快樂" {
+		t.Errorf("Expected model name '聖誕快樂', got %s", result.Model.Name)
+	}
+}
+
+func TestModelUpdateHandlerWithErrors(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	// Update a model
+	data := `{}`
+
+	sendRequestExpectError(t, "PUT", "/1.0/models/1", bytes.NewBufferString(data))
+}
+
+func TestModelUpdateHandlerWithNilData(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "PUT", "/1.0/models/1", nil)
+}
+
+func TestModelUpdateHandlerWithEmptyData(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "PUT", "/1.0/models/1", bytes.NewBufferString(""))
+}
+
+func TestModelUpdateHandlerWithBadData(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "PUT", "/1.0/models/1", bytes.NewBufferString("bad"))
+}
+
+func TestModelUpdateHandlerWithBadID(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "PUT", "/1.0/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
+}
+
+func TestModelCreateHandler(t *testing.T) {
+	// Mock the database
+	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc", KeyStoreType: "filesystem"}
+	Environ = &Env{DB: &mockDB{}, Config: config}
+
+	// Read the test signing-key file
+	signingKey, err := ioutil.ReadFile(config.PrivateKeyPath)
+	if err != nil {
+		t.Errorf("Error reading the test signing-key: %v", err)
+	}
+
+	// base64 encode the signing-key
+	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
+
+	// Create a model with the signing-key and convert it to JSON
+	model := ModelWithKey{BrandID: "System", Name: "聖誕快樂", Revision: 2, SigningKey: string(encodedSigningKey)}
+	data, err := json.Marshal(model)
+
+	result, err := sendRequest(t, "POST", "/1.0/models", bytes.NewReader(data))
+	if result.Model.ID != 7 {
+		t.Errorf("Expected model with ID 7, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "聖誕快樂" {
+		t.Errorf("Expected model name '聖誕快樂', got %s", result.Model.Name)
+	}
+}
+
+func TestModelCreateHandlerWithError(t *testing.T) {
+	// Mock the database
+	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc", KeyStoreType: "filesystem"}
+	Environ = &Env{DB: &errorMockDB{}, Config: config}
+
+	// Read the test signing-key file
+	signingKey, err := ioutil.ReadFile(config.PrivateKeyPath)
+	if err != nil {
+		t.Errorf("Error reading the test signing-key: %v", err)
+	}
+
+	// base64 encode the signing-key
+	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
+
+	// Create a model with the signing-key and convert it to JSON
+	model := ModelWithKey{BrandID: "System", Name: "聖誕快樂", Revision: 2, SigningKey: string(encodedSigningKey)}
+	data, err := json.Marshal(model)
+
+	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewReader(data))
+}
+
+func TestModelCreateHandlerWithBase64Error(t *testing.T) {
+	// Mock the database
+	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc", KeyStoreType: "filesystem"}
+	Environ = &Env{DB: &errorMockDB{}, Config: config}
+
+	// Read the test signing-key file
+	signingKey, err := ioutil.ReadFile(config.PrivateKeyPath)
+	if err != nil {
+		t.Errorf("Error reading the test signing-key: %v", err)
+	}
+
+	// Create a model with the signing-key and convert it to JSON (no base64 encoding)
+	model := ModelWithKey{BrandID: "System", Name: "聖誕快樂", Revision: 2, SigningKey: string(signingKey)}
+	data, err := json.Marshal(model)
+
+	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewReader(data))
+}
+
+func TestModelCreateHandlerWithNilData(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "POST", "/1.0/models", nil)
+}
+
+func TestModelCreateHandlerWithEmptyData(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewBufferString(""))
+}
+
+func TestModelCreateHandlerWithBadData(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewBufferString("bad"))
+}
+
+func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/models", nil)
-	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
+	r, _ := http.NewRequest(method, url, data)
+	Router(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := ModelsResponse{}
+	result := ModelResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
-		t.Errorf("Error decoding the models response: %v", err)
+		t.Errorf("Error decoding the model response: %v", err)
+	}
+	if !result.Success {
+		t.Errorf("Expected success, got error: %s", result.ErrorMessage)
+	}
+
+	return result, err
+}
+
+func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	Router(Environ).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := ModelResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the model response: %v", err)
 	}
 	if result.Success {
-		t.Error("Expected error, got sucess")
+		t.Error("Expected error, got success")
 	}
+
+	return result, err
 }

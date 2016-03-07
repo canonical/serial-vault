@@ -23,7 +23,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
@@ -40,17 +39,7 @@ func main() {
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
 	// Start the web service router
-	router := mux.NewRouter()
-
-	// API routes
-	router.Handle("/1.0/version", service.Middleware(http.HandlerFunc(service.VersionHandler), &env)).Methods("GET")
-	router.Handle("/1.0/models", service.Middleware(http.HandlerFunc(service.ModelsHandler), &env)).Methods("GET")
-	router.Handle("/1.0/sign", service.Middleware(http.HandlerFunc(service.SignHandler), &env)).Methods("POST")
-
-	// Web application routes
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
-	router.PathPrefix("/static/").Handler(fs)
-	router.PathPrefix("/").Handler(service.Middleware(http.HandlerFunc(service.IndexHandler), &env))
+	router := service.Router(&env)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
