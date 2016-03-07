@@ -25408,19 +25408,118 @@ var React = require('react');
 var AlertBox = require('./AlertBox');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
+var AlertBox = require('./AlertBox');
+var Models = require('../models/models');
 
 var ModelEdit = React.createClass({
 	displayName: 'ModelEdit',
 
 	getInitialState: function getInitialState() {
-		return { title: null };
+		return { title: null, model: {}, error: null };
 	},
 
 	componentDidMount: function componentDidMount() {
 		if (this.props.params.id) {
 			this.setState({ title: "Edit Model" });
+			this.getModel(this.props.params.id);
 		} else {
 			this.setState({ title: "New Model" });
+		}
+	},
+
+	getModel: function getModel(modelId) {
+		var self = this;
+		Models.get(modelId).then(function (response) {
+			var data = JSON.parse(response.body);
+			console.log(data);
+			self.setState({ model: data.model });
+		});
+	},
+
+	handleChangeBrand: function handleChangeBrand(e) {
+		var model = this.state.model;
+		model['brand-id'] = e.target.value;
+		this.setState({ model: model });
+	},
+
+	handleChangeModel: function handleChangeModel(e) {
+		var model = this.state.model;
+		model.model = e.target.value;
+		this.setState({ model: model });
+	},
+
+	handleChangeRevision: function handleChangeRevision(e) {
+		var model = this.state.model;
+		model.revision = parseInt(e.target.value);
+		this.setState({ model: model });
+	},
+
+	handleChangePrivateKey: function handleChangePrivateKey(e) {
+		var self = this;
+		var model = this.state.model;
+
+		// Get the file
+		var reader = new FileReader();
+		var file = e.target.files[0];
+
+		reader.onload = function (upload) {
+			// Get the base64 data from the URI
+			var data = upload.target.result.split(',')[1];
+			console.log(data);
+			model['signing-key'] = data;
+			self.setState({ model: model });
+		};
+
+		// Read the file as store as data URL
+		reader.readAsDataURL(file);
+	},
+
+	handleSaveClick: function handleSaveClick(e) {
+		e.preventDefault();
+		var self = this;
+
+		if (this.state.model.id) {
+			// Update the existing model
+			Models.update(this.state.model).then(function (response) {
+				var data = JSON.parse(response.body);
+				if (response.statusCode >= 300) {
+					self.setState({ error: data.message });
+				} else {
+					window.location = '/models';
+				}
+			});
+		} else {
+			// Create a new model
+			Models.create(this.state.model).then(function (response) {
+				var data = JSON.parse(response.body);
+				if (response.statusCode >= 300) {
+					self.setState({ error: data.message });
+				} else {
+					window.location = '/models';
+				}
+			});
+		}
+	},
+
+	renderError: function renderError() {
+		if (this.state.error) {
+			return React.createElement(AlertBox, { message: this.state.error });
+		}
+	},
+
+	renderPrivateKey: function renderPrivateKey() {
+		if (!this.state.model.id) {
+			return React.createElement(
+				'li',
+				null,
+				React.createElement(
+					'label',
+					{ htmlFor: 'privateKey' },
+					'Private Key for Signing:'
+				),
+				React.createElement('input', { type: 'file', id: 'privateKey', placeholder: 'The signing-key that will be used to sign the device identity',
+					onChange: this.handleChangePrivateKey })
+			);
 		}
 	},
 
@@ -25437,15 +25536,67 @@ var ModelEdit = React.createClass({
 					null,
 					this.state.title
 				),
-				React.createElement(AlertBox, { message: 'Not implemented yet!' })
-			),
-			React.createElement(
-				'section',
-				{ className: 'row no-border' },
+				React.createElement(AlertBox, { message: this.state.error }),
 				React.createElement(
-					'a',
-					{ href: '/models', className: 'button--secondary' },
-					'Cancel'
+					'form',
+					null,
+					React.createElement(
+						'fieldset',
+						null,
+						React.createElement(
+							'ul',
+							null,
+							React.createElement(
+								'li',
+								null,
+								React.createElement(
+									'label',
+									{ htmlFor: 'brand' },
+									'Brand:'
+								),
+								React.createElement('input', { type: 'text', id: 'brand', placeholder: 'The name of the device brand',
+									value: this.state.model['brand-id'], onChange: this.handleChangeBrand })
+							),
+							React.createElement(
+								'li',
+								null,
+								React.createElement(
+									'label',
+									{ htmlFor: 'model' },
+									'Model:'
+								),
+								React.createElement('input', { type: 'text', id: 'model', placeholder: 'The name of the device model',
+									value: this.state.model.model, onChange: this.handleChangeModel })
+							),
+							React.createElement(
+								'li',
+								null,
+								React.createElement(
+									'label',
+									{ htmlFor: 'revision' },
+									'Revision:'
+								),
+								React.createElement('input', { type: 'number', id: 'revision', placeholder: 'The revision of the device',
+									value: this.state.model.revision, onChange: this.handleChangeRevision })
+							),
+							this.renderPrivateKey()
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'a',
+						{ href: '/models', onClick: this.handleSaveClick, className: 'button--primary' },
+						'Save'
+					),
+					' ',
+					React.createElement(
+						'a',
+						{ href: '/models', className: 'button--secondary' },
+						'Cancel'
+					)
 				)
 			),
 			React.createElement(Footer, null)
@@ -25454,7 +25605,7 @@ var ModelEdit = React.createClass({
 });
 
 module.exports = ModelEdit;
-},{"./AlertBox":231,"./Footer":233,"./Navigation":240,"react":"nakDgH"}],238:[function(require,module,exports){
+},{"../models/models":244,"./AlertBox":231,"./Footer":233,"./Navigation":240,"react":"nakDgH"}],238:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25887,7 +26038,20 @@ var Model = {
 
   list: function list() {
     return Ajax.get(this.url);
+  },
+
+  get: function get(modelId) {
+    return Ajax.get(this.url + '/' + modelId);
+  },
+
+  update: function update(model) {
+    return Ajax.put(this.url + '/' + model.id, model);
+  },
+
+  create: function create(model) {
+    return Ajax.post(this.url, model);
   }
+
 };
 
 module.exports = Model;

@@ -22,7 +22,20 @@ var Model = {
 
 	list: function () {
 			return Ajax.get(this.url);
+	},
+
+	get: function(modelId) {
+		return Ajax.get(this.url + '/' + modelId);
+	},
+
+	update:  function(model) {
+		return Ajax.put(this.url + '/' + model.id, model);
+	},
+
+	create:  function(model) {
+		return Ajax.post(this.url, model);
 	}
+
 }
 
 module.exports = Model;

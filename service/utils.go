@@ -38,6 +38,8 @@ type ConfigSettings struct {
 	Logo           string `yaml:"logo"`
 	Driver         string `yaml:"driver"`
 	DataSource     string `yaml:"datasource"`
+	KeyStoreType   string `yaml:"keystore"`
+	KeyStorePath   string `yaml:"keystorePath"`
 }
 
 // DeviceAssertion defines the device identity.
@@ -137,6 +139,17 @@ func formatBooleanResponse(success bool, message string, w http.ResponseWriter) 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error forming the boolean response.")
+		return err
+	}
+	return nil
+}
+
+func formatModelResponse(success bool, message string, model ModelDisplay, w http.ResponseWriter) error {
+	response := ModelResponse{Success: success, ErrorMessage: message, Model: model}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the model response.")
 		return err
 	}
 	return nil
