@@ -22,14 +22,22 @@ var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var ReactIntl = require('react-intl');
+import {
+    injectIntl
+} from 'react-intl';
 
 var ModelList = React.createClass({
+
   getInitialState: function() {
     return {models: []};
   },
 
   componentDidMount: function() {
     this.getModels();
+
+    var brand = this.props.intl.formatMessage({id:'brand'});
+    console.log(brand);
   },
 
   getModels: function() {
@@ -98,4 +106,4 @@ var ModelList = React.createClass({
   }
 });
 
-module.exports = ModelList;
+module.exports = injectIntl(ModelList);
