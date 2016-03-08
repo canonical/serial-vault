@@ -39,6 +39,9 @@ func main() {
 
 	// Initialize the authorized keys manager
 	env.AuthorizedKeys, err = service.InitializeAuthorizedKeys(sshKeysPath)
+	if err != nil {
+		log.Fatalf("Error initializing the Authorized Keys manager: %v", err)
+	}
 
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)

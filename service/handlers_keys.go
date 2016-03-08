@@ -100,7 +100,7 @@ func AuthorizedKeyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AuthorizedKeyDeleteHandler removes a key from the authorized keys file.
+// decodeKey retrieves the device key from the request body
 func decodeKey(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	if r.Body == nil {

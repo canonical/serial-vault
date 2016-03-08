@@ -36,7 +36,7 @@ type AuthorizedKeystore interface {
 	Delete(string) error
 }
 
-// AuthorizedKeys interface to manage the authorized ssh keys
+// AuthorizedKeys is the concrete base to manage the authorized ssh keys
 type AuthorizedKeys struct {
 	path string
 	mu   sync.RWMutex
@@ -81,6 +81,8 @@ func (auth *AuthorizedKeys) List() []string {
 
 func (auth *AuthorizedKeys) findKey(key string) (int, []string) {
 	authKeyPosition := -1
+
+	key = strings.Trim(key, " ")
 
 	// Get the list of authorized keys
 	keys := auth.List()
