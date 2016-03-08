@@ -17,7 +17,7 @@
 'use strict'
 var React = require('react');
 var Router = require('react-router').Router;
-var render = require('react-dom').render;
+var ReactDOM = require('react-dom');
 var Route = require('react-router').Route;
 var IndexRoute = require('react-router').IndexRoute;
 var browserHistory = require('react-router').browserHistory;
@@ -38,16 +38,43 @@ var Messages = require('./components/messages');
 addLocaleData(en);
 addLocaleData(zh);
 
-render((
-  <IntlProvider locale={'en'} messages={Messages['en']}>
-    <Router history={browserHistory}>
-      <Route path="/" component={App}>
-        <IndexRoute component={Index} />
-        <Route path="models" component={ModelList} />
-        <Route path="models/new" component={ModelEdit} />
-        <Route path="models/:id/edit" component={ModelEdit} />
-        <Route path="*" component={Index} />
-      </Route>
-    </Router>
-  </IntlProvider>
-), document.getElementById("main"))
+window.AppState = {
+  container: document.getElementById("main"),
+
+  getLocale: function() {
+    return localStorage.getItem('locale') || 'en';
+  },
+
+  setLocale: function(lang) {
+    localStorage.setItem('locale', lang);
+  },
+
+  render: function() {
+    var locale = this.getLocale();
+    
+    ReactDOM.render((
+      <IntlProvider locale={locale} messages={Messages[locale]}>
+        <Router history={browserHistory}>
+          <Route path="/" component={App}>
+            <IndexRoute component={Index} />
+            <Route path="models" component={ModelList} />
+            <Route path="models/new" component={ModelEdit} />
+            <Route path="models/:id/edit" component={ModelEdit} />
+            <Route path="*" component={Index} />
+          </Route>
+        </Router>
+      </IntlProvider>
+    ), this.container);
+  },
+
+  unmount: function() {
+    ReactDOM.unmountComponentAtNode(this.container);
+  },
+
+  rerender: function() {
+    this.unmount();
+    this.render();
+  }
+}
+
+window.AppState.render();

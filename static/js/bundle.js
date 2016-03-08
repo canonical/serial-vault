@@ -29261,53 +29261,96 @@ module.exports = AlertBox;
 var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
 
+var LANGUAGES = {
+	en: 'English',
+	zh: 'Chinese'
+};
+
 var App = React.createClass({
-  displayName: 'App',
+	displayName: 'App',
 
-  render: function render() {
-    var M = this.props.intl.formatMessage;
+	getInitialState: function getInitialState() {
+		return { language: window.AppState.getLocale() };
+	},
 
-    return React.createElement(
-      'div',
-      null,
-      React.createElement(
-        'header',
-        { className: 'banner global', role: 'banner' },
-        React.createElement(
-          'nav',
-          { role: 'navigation', className: 'nav-primary nav-right' },
-          React.createElement(
-            'span',
-            { id: 'main-navigation-link' },
-            React.createElement(
-              'a',
-              { href: '#main-navigation' },
-              'Jump to site nav'
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'logo' },
-            React.createElement(
-              'a',
-              { className: 'logo-ubuntu', href: '/' },
-              React.createElement('img', { width: '106', height: '25', src: LOGO, alt: '' }),
-              React.createElement(
-                'span',
-                null,
-                M({ id: "title" })
-              )
-            )
-          )
-        )
-      ),
-      React.createElement(
-        'div',
-        { className: 'wrapper' },
-        this.props.children
-      )
-    );
-  }
+	handleLanguageChange: function handleLanguageChange(e) {
+		e.preventDefault();
+		this.setState({ language: e.target.value });
+		window.AppState.setLocale(e.target.value);
+		window.AppState.rerender();
+	},
+
+	renderLanguage: function renderLanguage(lang) {
+		if (this.state.language === lang) {
+			return React.createElement(
+				'button',
+				{ onClick: this.handleLanguageChange, value: lang, className: 'button--secondary' },
+				LANGUAGES[lang]
+			);
+		} else {
+			return React.createElement(
+				'button',
+				{ onClick: this.handleLanguageChange, value: lang },
+				LANGUAGES[lang]
+			);
+		}
+	},
+
+	render: function render() {
+		var M = this.props.intl.formatMessage;
+		console.log(this.props.intl);
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'header',
+				{ className: 'banner global', role: 'banner' },
+				React.createElement(
+					'nav',
+					{ role: 'navigation', className: 'nav-primary' },
+					React.createElement(
+						'span',
+						{ id: 'main-navigation-link' },
+						React.createElement(
+							'a',
+							{ href: '#navigation' },
+							'Jump to site nav'
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'logo' },
+						React.createElement(
+							'a',
+							{ className: 'logo-ubuntu', href: '/' },
+							React.createElement('img', { width: '106', height: '25', src: LOGO, alt: '' }),
+							React.createElement(
+								'span',
+								null,
+								M({ id: "title" })
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'form',
+							{ id: 'language-form', className: 'header-search' },
+							this.renderLanguage('en'),
+							this.renderLanguage('zh')
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'wrapper' },
+				this.props.children
+			)
+		);
+	}
 });
 
 module.exports = injectIntl(App);
@@ -29907,7 +29950,7 @@ var Navigation = React.createClass({
 
     return React.createElement(
       'nav',
-      { role: 'navigation', className: 'nav-secondary clearfix open' },
+      { id: 'navigation', role: 'navigation', className: 'nav-secondary clearfix open' },
       React.createElement(
         'ul',
         { className: 'second-level-nav' },
@@ -30034,7 +30077,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var React = require('react');
 var Router = require('react-router').Router;
-var render = require('react-dom').render;
+var ReactDOM = require('react-dom');
 var Route = require('react-router').Route;
 var IndexRoute = require('react-router').IndexRoute;
 var browserHistory = require('react-router').browserHistory;
@@ -30053,23 +30096,50 @@ var Messages = require('./components/messages');
 (0, _reactIntl.addLocaleData)(_en2.default);
 (0, _reactIntl.addLocaleData)(_zh2.default);
 
-render(React.createElement(
-  _reactIntl.IntlProvider,
-  { locale: 'en', messages: Messages['en'] },
-  React.createElement(
-    Router,
-    { history: browserHistory },
-    React.createElement(
-      Route,
-      { path: '/', component: App },
-      React.createElement(IndexRoute, { component: Index }),
-      React.createElement(Route, { path: 'models', component: ModelList }),
-      React.createElement(Route, { path: 'models/new', component: ModelEdit }),
-      React.createElement(Route, { path: 'models/:id/edit', component: ModelEdit }),
-      React.createElement(Route, { path: '*', component: Index })
-    )
-  )
-), document.getElementById("main"));
+window.AppState = {
+  container: document.getElementById("main"),
+
+  getLocale: function getLocale() {
+    return localStorage.getItem('locale') || 'en';
+  },
+
+  setLocale: function setLocale(lang) {
+    localStorage.setItem('locale', lang);
+  },
+
+  render: function render() {
+    var locale = this.getLocale();
+
+    ReactDOM.render(React.createElement(
+      _reactIntl.IntlProvider,
+      { locale: locale, messages: Messages[locale] },
+      React.createElement(
+        Router,
+        { history: browserHistory },
+        React.createElement(
+          Route,
+          { path: '/', component: App },
+          React.createElement(IndexRoute, { component: Index }),
+          React.createElement(Route, { path: 'models', component: ModelList }),
+          React.createElement(Route, { path: 'models/new', component: ModelEdit }),
+          React.createElement(Route, { path: 'models/:id/edit', component: ModelEdit }),
+          React.createElement(Route, { path: '*', component: Index })
+        )
+      )
+    ), this.container);
+  },
+
+  unmount: function unmount() {
+    ReactDOM.unmountComponentAtNode(this.container);
+  },
+
+  rerender: function rerender() {
+    this.unmount();
+    this.render();
+  }
+};
+
+window.AppState.render();
 },{"./components/App":270,"./components/Index":272,"./components/ModelEdit":273,"./components/ModelList":274,"./components/messages":277,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],279:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd

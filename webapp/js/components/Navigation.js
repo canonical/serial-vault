@@ -34,7 +34,7 @@ var Navigation = React.createClass({
 
       return (
 
-        <nav role="navigation" className="nav-secondary clearfix open">
+        <nav id="navigation" role="navigation" className="nav-secondary clearfix open">
           <ul className="second-level-nav">
             <li><a className={activeHome} href="/">{M({id:'home'})}</a></li>
             <li><a className={activeModels} href="/models">{M({id:'models'})}</a></li>

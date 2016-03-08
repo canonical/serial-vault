@@ -18,14 +18,43 @@
 var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
 
+const LANGUAGES = {
+	en: 'English',
+	zh: 'Chinese'
+}
+
 var App = React.createClass({
+	getInitialState: function() {
+		return {language: window.AppState.getLocale()}
+	},
+
+	handleLanguageChange: function(e) {
+		e.preventDefault();
+		this.setState({language: e.target.value});
+		window.AppState.setLocale(e.target.value);
+		window.AppState.rerender();
+	},
+
+	renderLanguage: function(lang) {
+		if (this.state.language === lang) {
+			return (
+				<button onClick={this.handleLanguageChange} value={lang} className="button--secondary">{LANGUAGES[lang]}</button>
+			);
+		} else {
+			return (
+				<button onClick={this.handleLanguageChange} value={lang}>{LANGUAGES[lang]}</button>
+			);
+		}
+	},
+
   render: function() {
 		var M = this.props.intl.formatMessage;
+		console.log(this.props.intl);
 
     return (
       <div>
 				<header className="banner global" role="banner">
-				  <nav role="navigation" className="nav-primary nav-right">
+				  <nav role="navigation" className="nav-primary">
 				    <span id="main-navigation-link"><a href="#navigation">Jump to site nav</a></span>
 				    <div className="logo">
 				      <a className="logo-ubuntu" href="/">
@@ -33,6 +62,12 @@ var App = React.createClass({
 				        <span>{M({id:"title"})}</span>
 				      </a>
 				    </div>
+						<div>
+							<form id="language-form" className="header-search">
+									{this.renderLanguage('en')}
+									{this.renderLanguage('zh')}
+							</form>
+						</div>
 				  </nav>
 				</header>
 
