@@ -29259,7 +29259,69 @@ module.exports = AlertBox;
 'use strict';
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
+
+var App = React.createClass({
+  displayName: 'App',
+  render: function render() {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(
+        'h1',
+        null,
+        'App'
+      ),
+      React.createElement(
+        'ul',
+        null,
+        React.createElement(
+          'li',
+          null,
+          React.createElement(
+            'a',
+            { href: '/about' },
+            'About'
+          )
+        ),
+        React.createElement(
+          'li',
+          null,
+          React.createElement(
+            'a',
+            { href: '/inbox' },
+            'Inbox'
+          )
+        )
+      ),
+      this.props.children
+    );
+  }
+});
+
+module.exports = injectIntl(App);
+},{"react":"nakDgH","react-intl":19}],271:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var React = require('react');
 var Vault = require('../models/vault');
+var injectIntl = require('react-intl').injectIntl;
 
 var Footer = React.createClass({
   displayName: 'Footer',
@@ -29281,6 +29343,7 @@ var Footer = React.createClass({
   },
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
     return React.createElement(
       'footer',
       { className: 'global' },
@@ -29290,7 +29353,8 @@ var Footer = React.createClass({
         React.createElement(
           'p',
           null,
-          'Version: ',
+          M({ id: 'version' }),
+          ': ',
           this.state.version
         )
       )
@@ -29298,8 +29362,8 @@ var Footer = React.createClass({
   }
 });
 
-module.exports = Footer;
-},{"../models/vault":280,"react":"nakDgH"}],271:[function(require,module,exports){
+module.exports = injectIntl(Footer);
+},{"../models/vault":281,"react":"nakDgH","react-intl":19}],272:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29321,12 +29385,14 @@ module.exports = Footer;
 var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
+var injectIntl = require('react-intl').injectIntl;
 
 var App = React.createClass({
   displayName: 'App',
 
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
     return React.createElement(
       'div',
       null,
@@ -29337,7 +29403,7 @@ var App = React.createClass({
         React.createElement(
           'h2',
           null,
-          'Identity Vault'
+          M({ id: 'title' })
         ),
         React.createElement(
           'div',
@@ -29345,7 +29411,7 @@ var App = React.createClass({
           React.createElement(
             'div',
             { className: 'box' },
-            'The Identity Vault is a web service that cryptographically signs snappy Ubuntu model assertions.'
+            M({ id: 'description' })
           )
         )
       ),
@@ -29354,8 +29420,8 @@ var App = React.createClass({
   }
 });
 
-module.exports = App;
-},{"./Footer":270,"./Navigation":275,"react":"nakDgH"}],272:[function(require,module,exports){
+module.exports = injectIntl(App);
+},{"./Footer":271,"./Navigation":276,"react":"nakDgH","react-intl":19}],273:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29380,6 +29446,7 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelEdit = React.createClass({
 	displayName: 'ModelEdit',
@@ -29389,19 +29456,23 @@ var ModelEdit = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
+		var M = this.props.intl.formatMessage;
 		if (this.props.params.id) {
-			this.setState({ title: "Edit Model" });
+			this.setTitle(M, 'edit-model');
 			this.getModel(this.props.params.id);
 		} else {
-			this.setState({ title: "New Model" });
+			this.setTitle(M, 'new-model');
 		}
+	},
+
+	setTitle: function setTitle(M, title) {
+		this.setState({ title: M({ id: title }) });
 	},
 
 	getModel: function getModel(modelId) {
 		var self = this;
 		Models.get(modelId).then(function (response) {
 			var data = JSON.parse(response.body);
-			console.log(data);
 			self.setState({ model: data.model });
 		});
 	},
@@ -29435,7 +29506,6 @@ var ModelEdit = React.createClass({
 		reader.onload = function (upload) {
 			// Get the base64 data from the URI
 			var data = upload.target.result.split(',')[1];
-			console.log(data);
 			model['signing-key'] = data;
 			self.setState({ model: model });
 		};
@@ -29477,7 +29547,7 @@ var ModelEdit = React.createClass({
 		}
 	},
 
-	renderPrivateKey: function renderPrivateKey() {
+	renderPrivateKey: function renderPrivateKey(M) {
 		if (!this.state.model.id) {
 			return React.createElement(
 				'li',
@@ -29485,15 +29555,18 @@ var ModelEdit = React.createClass({
 				React.createElement(
 					'label',
 					{ htmlFor: 'privateKey' },
-					'Private Key for Signing:'
+					M({ id: 'private-key' }),
+					':'
 				),
-				React.createElement('input', { type: 'file', id: 'privateKey', placeholder: 'The signing-key that will be used to sign the device identity',
+				React.createElement('input', { type: 'file', id: 'privateKey', placeholder: M({ id: 'private-key-description' }),
 					onChange: this.handleChangePrivateKey })
 			);
 		}
 	},
 
 	render: function render() {
+		var M = this.props.intl.formatMessage;
+
 		return React.createElement(
 			'div',
 			null,
@@ -29522,9 +29595,10 @@ var ModelEdit = React.createClass({
 								React.createElement(
 									'label',
 									{ htmlFor: 'brand' },
-									'Brand:'
+									M({ id: 'brand' }),
+									':'
 								),
-								React.createElement('input', { type: 'text', id: 'brand', placeholder: 'The name of the device brand',
+								React.createElement('input', { type: 'text', id: 'brand', placeholder: M({ id: 'brand-description' }),
 									value: this.state.model['brand-id'], onChange: this.handleChangeBrand })
 							),
 							React.createElement(
@@ -29533,9 +29607,10 @@ var ModelEdit = React.createClass({
 								React.createElement(
 									'label',
 									{ htmlFor: 'model' },
-									'Model:'
+									M({ id: 'model' }),
+									':'
 								),
-								React.createElement('input', { type: 'text', id: 'model', placeholder: 'The name of the device model',
+								React.createElement('input', { type: 'text', id: 'model', placeholder: M({ id: 'model-description' }),
 									value: this.state.model.model, onChange: this.handleChangeModel })
 							),
 							React.createElement(
@@ -29544,12 +29619,13 @@ var ModelEdit = React.createClass({
 								React.createElement(
 									'label',
 									{ htmlFor: 'revision' },
-									'Revision:'
+									M({ id: 'revision' }),
+									':'
 								),
-								React.createElement('input', { type: 'number', id: 'revision', placeholder: 'The revision of the device',
+								React.createElement('input', { type: 'number', id: 'revision', placeholder: M({ id: 'revision-description' }),
 									value: this.state.model.revision, onChange: this.handleChangeRevision })
 							),
-							this.renderPrivateKey()
+							this.renderPrivateKey(M)
 						)
 					)
 				),
@@ -29559,13 +29635,13 @@ var ModelEdit = React.createClass({
 					React.createElement(
 						'a',
 						{ href: '/models', onClick: this.handleSaveClick, className: 'button--primary' },
-						'Save'
+						M({ id: 'save' })
 					),
 					' ',
 					React.createElement(
 						'a',
 						{ href: '/models', className: 'button--secondary' },
-						'Cancel'
+						M({ id: 'cancel' })
 					)
 				)
 			),
@@ -29574,8 +29650,8 @@ var ModelEdit = React.createClass({
 	}
 });
 
-module.exports = ModelEdit;
-},{"../models/models":279,"./AlertBox":269,"./Footer":270,"./Navigation":275,"react":"nakDgH"}],273:[function(require,module,exports){
+module.exports = injectIntl(ModelEdit);
+},{"../models/models":280,"./AlertBox":269,"./Footer":271,"./Navigation":276,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29594,16 +29670,13 @@ module.exports = ModelEdit;
  */
 'use strict';
 
-var _reactIntl = require('react-intl');
-
 var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
-var ReactIntl = require('react-intl');
-
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelList = React.createClass({
   displayName: 'ModelList',
@@ -29694,7 +29767,7 @@ var ModelList = React.createClass({
           ' ',
           React.createElement(
             'a',
-            { href: '/models/new', className: 'button--primary small', title: 'Add a new model' },
+            { href: '/models/new', className: 'button--primary small', title: M({ id: 'add-new-model' }) },
             React.createElement('i', { className: 'fa fa-plus' })
           )
         ),
@@ -29724,8 +29797,8 @@ var ModelList = React.createClass({
   }
 });
 
-module.exports = (0, _reactIntl.injectIntl)(ModelList);
-},{"../models/models":279,"./AlertBox":269,"./Footer":270,"./ModelRow":274,"./Navigation":275,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
+module.exports = injectIntl(ModelList);
+},{"../models/models":280,"./AlertBox":269,"./Footer":271,"./ModelRow":275,"./Navigation":276,"react":"nakDgH","react-intl":19}],275:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29745,11 +29818,13 @@ module.exports = (0, _reactIntl.injectIntl)(ModelList);
 'use strict';
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelRow = React.createClass({
   displayName: 'ModelRow',
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
     return React.createElement(
       'tr',
       null,
@@ -29758,8 +29833,8 @@ var ModelRow = React.createClass({
         null,
         React.createElement(
           'a',
-          { href: '/models/'.concat(this.props.model.id, '/edit'), className: 'button--secondary' },
-          'Edit'
+          { href: '/models/'.concat(this.props.model.id, '/edit'), className: 'button--secondary', title: M({ id: 'edit-model' }) },
+          React.createElement('i', { className: 'fa fa-pencil' })
         )
       ),
       React.createElement(
@@ -29781,8 +29856,8 @@ var ModelRow = React.createClass({
   }
 });
 
-module.exports = ModelRow;
-},{"react":"nakDgH"}],275:[function(require,module,exports){
+module.exports = injectIntl(ModelRow);
+},{"react":"nakDgH","react-intl":19}],276:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29802,11 +29877,14 @@ module.exports = ModelRow;
 'use strict';
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
 
 var Navigation = React.createClass({
   displayName: 'Navigation',
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
+
     var activeHome = '';
     var activeModels = '';
     if (this.props.active === 'home') {
@@ -29828,7 +29906,7 @@ var Navigation = React.createClass({
           React.createElement(
             'a',
             { className: activeHome, href: '/' },
-            'Home'
+            M({ id: 'home' })
           )
         ),
         React.createElement(
@@ -29837,7 +29915,7 @@ var Navigation = React.createClass({
           React.createElement(
             'a',
             { className: activeModels, href: '/models' },
-            'Models'
+            M({ id: 'models' })
           )
         )
       )
@@ -29845,8 +29923,8 @@ var Navigation = React.createClass({
   }
 });
 
-module.exports = Navigation;
-},{"react":"nakDgH"}],276:[function(require,module,exports){
+module.exports = injectIntl(Navigation);
+},{"react":"nakDgH","react-intl":19}],277:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29866,25 +29944,53 @@ module.exports = Navigation;
 'use strict';
 
 var intlData = {
-    zh: {
-        "brand": "牌",
-        "model": "机型",
-        "revision": "版本",
-        "models": "楷模",
-        "models_available": "以下型号可供选择"
-    },
+  zh: {
+    "title": "串行库",
+    "description": "串行库是一个Web服务，加密迹象活泼的Ubuntu模型断言。",
+    "home": "家",
+    "brand": "牌",
+    "brand-description": "设备品牌名称",
+    "model": "机型",
+    "model-description": "设备型号的名称",
+    "revision": "版本",
+    "revision-description": "该设备的修订",
+    "models": "楷模",
+    "models_available": "以下型号可供选择",
+    "version": "版本",
+    "edit-model": "编辑模型",
+    "new-model": "新模式",
+    "add-new-model": "添加新模式",
+    "save": "保存",
+    "cancel": "取消",
+    "private-key": "私钥签名",
+    "private-key-description": "将用于签署设备标识的签署密钥"
+  },
 
-    en: {
-        "brand": "Brand",
-        "model": "Model",
-        "revision": "Revision",
-        "models": "Models",
-        "models_available": "The following models are available"
-    }
+  en: {
+    "title": "Serial Vault",
+    "description": "The Serial Vault is a web service that cryptographically signs snappy Ubuntu model assertions.",
+    "home": "Home",
+    "brand": "Brand",
+    "brand-description": "The name of the device brand",
+    "model": "Model",
+    "model-description": "The name of the device model",
+    "revision": "Revision",
+    "revision-description": "The revision of the device",
+    "models": "Models",
+    "models_available": "The following models are available",
+    "version": "Version",
+    "edit-model": "Edit Model",
+    "new-model": "New Model",
+    "add-new-model": "Add a new model",
+    "save": "Save",
+    "cancel": "Cancel",
+    "private-key": "Private Key for Signing",
+    "private-key-description": "The signing-key that will be used to sign the device identity"
+  }
 };
 
 module.exports = intlData;
-},{}],277:[function(require,module,exports){
+},{}],278:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29919,8 +30025,10 @@ var React = require('react');
 var Router = require('react-router').Router;
 var render = require('react-dom').render;
 var Route = require('react-router').Route;
+var IndexRoute = require('react-router').IndexRoute;
 var Link = require('react-router').Link;
 var browserHistory = require('react-router').browserHistory;
+var App = require('./components/App');
 var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
@@ -29941,14 +30049,18 @@ render(React.createElement(
   React.createElement(
     Router,
     { history: browserHistory },
-    React.createElement(Route, { path: '/', component: Index }),
-    React.createElement(Route, { path: '/models', component: ModelList }),
-    React.createElement(Route, { path: '/models/new', component: ModelEdit }),
-    React.createElement(Route, { path: '/models/:id/edit', component: ModelEdit }),
-    React.createElement(Route, { path: '*', component: Index })
+    React.createElement(
+      Route,
+      { path: '/', component: App },
+      React.createElement(IndexRoute, { component: Index }),
+      React.createElement(Route, { path: 'models', component: ModelList }),
+      React.createElement(Route, { path: 'models/new', component: ModelEdit }),
+      React.createElement(Route, { path: 'models/:id/edit', component: ModelEdit }),
+      React.createElement(Route, { path: '*', component: Index })
+    )
   )
 ), document.getElementById('main'));
-},{"./components/Index":271,"./components/ModelEdit":272,"./components/ModelList":273,"./components/messages":276,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],278:[function(require,module,exports){
+},{"./components/App":270,"./components/Index":272,"./components/ModelEdit":273,"./components/ModelList":274,"./components/messages":277,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],279:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30000,7 +30112,7 @@ var Ajax = {
 };
 
 module.exports = Ajax;
-},{"then-request":255}],279:[function(require,module,exports){
+},{"then-request":255}],280:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30043,7 +30155,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":278}],280:[function(require,module,exports){
+},{"./Ajax":279}],281:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30072,4 +30184,4 @@ var Vault = {
 };
 
 module.exports = Vault;
-},{"./Ajax":278}]},{},[277])
+},{"./Ajax":279}]},{},[278])

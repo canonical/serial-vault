@@ -16,37 +16,27 @@
  */
 'use strict'
 var React = require('react');
-var Vault = require('../models/vault');
 var injectIntl = require('react-intl').injectIntl;
 
+var App = React.createClass({
+  render() {
+    return (
+      <div>
+        <h1>App</h1>
+        {/* change the <a>s to <Link>s */}
+        <ul>
+          <li><a href="/about">About</a></li>
+          <li><a href="/inbox">Inbox</a></li>
+        </ul>
 
-var Footer = React.createClass({
-	getInitialState: function() {
-      return {version: null};
-  },
-
-  componentDidMount: function() {
-    this.getVersion();
-  },
-
-  getVersion: function() {
-    var self = this;
-    Vault.version().then(function(response) {
-      var data = JSON.parse(response.body);
-      self.setState({version: data.version});
-    });
-  },
-
-	render: function() {
-		var M = this.props.intl.formatMessage;
-		return (
-			<footer className="global">
-				<div>
-					<p>{M({id: 'version'})}: {this.state.version}</p>
-				</div>
-			</footer>
-		);
-	}
+        {/*
+          next we replace `<Child>` with `this.props.children`
+          the router will figure out the children for us
+        */}
+        {this.props.children}
+      </div>
+    )
+  }
 });
 
-module.exports = injectIntl(Footer);
+module.exports = injectIntl(App);

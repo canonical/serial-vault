@@ -17,9 +17,12 @@
 'use strict'
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
 
 var Navigation = React.createClass({
     render: function() {
+      var M = this.props.intl.formatMessage;
+
 			var activeHome = '';
 			var activeModels = '';
 			if (this.props.active === 'home') {
@@ -27,17 +30,18 @@ var Navigation = React.createClass({
 			}
 			if (this.props.active === 'models') {
 				activeModels = 'active';
-			}			
+			}
 
       return (
+
         <nav role="navigation" className="nav-secondary clearfix open">
           <ul className="second-level-nav">
-            <li><a className={activeHome} href="/">Home</a></li>
-            <li><a className={activeModels} href="/models">Models</a></li>
+            <li><a className={activeHome} href="/">{M({id:'home'})}</a></li>
+            <li><a className={activeModels} href="/models">{M({id:'models'})}</a></li>
           </ul>
         </nav>
       );
     }
 });
 
-module.exports = Navigation;
+module.exports = injectIntl(Navigation);

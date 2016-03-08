@@ -22,8 +22,7 @@ var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
-var ReactIntl = require('react-intl');
-import {injectIntl} from 'react-intl';
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelList = React.createClass({
 
@@ -82,7 +81,7 @@ var ModelList = React.createClass({
           <Navigation active="models" />
 
           <section className="row no-border">
-            <h2>{M({id:'models'})} <a href="/models/new" className="button--primary small" title="Add a new model">
+            <h2>{M({id:'models'})} <a href="/models/new" className="button--primary small" title={M({id:'add-new-model'})}>
                         <i className="fa fa-plus"></i>
                       </a>
             </h2>

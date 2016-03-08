@@ -17,13 +17,15 @@
 'use strict'
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelRow = React.createClass({
 	render: function() {
+		var M = this.props.intl.formatMessage;
 		return (
 			<tr>
 			  <td>
-					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--secondary">Edit</a>
+					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--secondary" title={M({id: 'edit-model'})}><i className="fa fa-pencil"></i></a>
 				</td>
 				<td>{this.props.model['brand-id']}</td>
 				<td>{this.props.model.model}</td>
@@ -33,4 +35,4 @@ var ModelRow = React.createClass({
 	}
 });
 
-module.exports = ModelRow;
+module.exports = injectIntl(ModelRow);

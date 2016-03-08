@@ -19,27 +19,29 @@
 var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
+var injectIntl = require('react-intl').injectIntl;
 
 var App = React.createClass({
 
   render: function() {
-      return (
-          <div>
-            <Navigation active="home" />
+    var M = this.props.intl.formatMessage;
+    return (
+        <div>
+          <Navigation active="home" />
 
-            <section className="row no-border">
-              <h2>Identity Vault</h2>
-              <div>
-                <div className="box">
-                  The Identity Vault is a web service that cryptographically signs snappy Ubuntu model assertions.
-                </div>
+          <section className="row no-border">
+            <h2>{M({id: 'title'})}</h2>
+            <div>
+              <div className="box">
+                {M({id: 'description'})}
               </div>
-            </section>
+            </div>
+          </section>
 
-            <Footer />
-          </div>
-      );
+          <Footer />
+        </div>
+    );
   }
 });
 
-module.exports = App;
+module.exports = injectIntl(App);

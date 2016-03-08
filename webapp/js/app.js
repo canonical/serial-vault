@@ -19,8 +19,10 @@ var React = require('react');
 var Router = require('react-router').Router;
 var render = require('react-dom').render;
 var Route = require('react-router').Route;
+var IndexRoute = require('react-router').IndexRoute;
 var Link = require('react-router').Link;
 var browserHistory = require('react-router').browserHistory;
+var App = require('./components/App');
 var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
@@ -40,11 +42,13 @@ addLocaleData(zh);
 render((
   <IntlProvider locale={'zh'} messages={Messages['zh']}>
     <Router history={browserHistory}>
-      <Route path="/" component={Index} />
-      <Route path="/models" component={ModelList} />
-      <Route path="/models/new" component={ModelEdit} />
-      <Route path="/models/:id/edit" component={ModelEdit} />
-      <Route path="*" component={Index} />
+      <Route path="/" component={App}>
+        <IndexRoute component={Index} />
+        <Route path="models" component={ModelList} />
+        <Route path="models/new" component={ModelEdit} />
+        <Route path="models/:id/edit" component={ModelEdit} />
+        <Route path="*" component={Index} />
+      </Route>
     </Router>
   </IntlProvider>
 ), document.getElementById('main'))

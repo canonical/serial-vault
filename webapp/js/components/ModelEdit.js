@@ -22,6 +22,7 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelEdit = React.createClass({
 	getInitialState: function() {
@@ -29,19 +30,23 @@ var ModelEdit = React.createClass({
 	},
 
 	componentDidMount: function() {
+		var M = this.props.intl.formatMessage;
 		if (this.props.params.id) {
-			this.setState({title: "Edit Model"});
+			this.setTitle(M, 'edit-model');
 			this.getModel(this.props.params.id);
 		} else {
-			this.setState({title: "New Model"});
+			this.setTitle(M, 'new-model');
 		}
+	},
+
+	setTitle: function(M, title) {
+		this.setState({title: M({id: title})});
 	},
 
 	getModel: function(modelId) {
 		var self = this;
 		Models.get(modelId).then(function(response) {
 			var data = JSON.parse(response.body);
-			console.log(data);
 			self.setState({model: data.model});
 		});
 	},
@@ -75,7 +80,6 @@ var ModelEdit = React.createClass({
 		reader.onload = function(upload) {
 			// Get the base64 data from the URI
 			var data = upload.target.result.split(',')[1];
-			console.log(data);
 			model['signing-key'] = data;
 			self.setState({model: model});
 		}
@@ -119,12 +123,12 @@ var ModelEdit = React.createClass({
 		}
 	},
 
-	renderPrivateKey: function() {
+	renderPrivateKey: function(M) {
 		if (!this.state.model.id) {
 			return (
 				<li>
-					<label htmlFor="privateKey">Private Key for Signing:</label>
-					<input type="file" id="privateKey" placeholder="The signing-key that will be used to sign the device identity"
+					<label htmlFor="privateKey">{M({id: 'private-key'})}:</label>
+					<input type="file" id="privateKey" placeholder={M({id: 'private-key-description'})}
 						onChange={this.handleChangePrivateKey}/>
 				</li>
 			);
@@ -132,6 +136,8 @@ var ModelEdit = React.createClass({
 	},
 
 	render: function() {
+		var M = this.props.intl.formatMessage;
+
 		return (
 			<div>
 				<Navigation active="models" />
@@ -145,29 +151,29 @@ var ModelEdit = React.createClass({
 							<fieldset>
 								<ul>
 									<li>
-										<label htmlFor="brand">Brand:</label>
-										<input type="text" id="brand" placeholder="The name of the device brand"
+										<label htmlFor="brand">{M({id: 'brand'})}:</label>
+										<input type="text" id="brand" placeholder={M({id: 'brand-description'})}
 											value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
 									</li>
 									<li>
-										<label htmlFor="model">Model:</label>
-										<input type="text" id="model" placeholder="The name of the device model"
+										<label htmlFor="model">{M({id: 'model'})}:</label>
+										<input type="text" id="model" placeholder={M({id: 'model-description'})}
 											value={this.state.model.model} onChange={this.handleChangeModel}/>
 									</li>
 									<li>
-										<label htmlFor="revision">Revision:</label>
-										<input type="number" id="revision" placeholder="The revision of the device"
+										<label htmlFor="revision">{M({id: 'revision'})}:</label>
+										<input type="number" id="revision" placeholder={M({id: 'revision-description'})}
 											value={this.state.model.revision} onChange={this.handleChangeRevision}/>
 									</li>
-									{this.renderPrivateKey()}
+									{this.renderPrivateKey(M)}
 								</ul>
 							</fieldset>
 						</form>
 
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">Save</a>
+							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{M({id: 'save'})}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">Cancel</a>
+							<a href='/models' className="button--secondary">{M({id: 'cancel'})}</a>
 						</div>
 				</section>
 
@@ -177,4 +183,4 @@ var ModelEdit = React.createClass({
 	}
 });
 
-module.exports = ModelEdit;
+module.exports = injectIntl(ModelEdit);
