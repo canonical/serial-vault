@@ -30,33 +30,36 @@ import (
 	"testing"
 )
 
-func TestSignHandlerNilData(t *testing.T) {
+func signingRequest(request io.Reader, t *testing.T) *SignResponse {
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", nil)
+	r, _ := http.NewRequest("POST", "/1.0/sign", request)
 	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SignResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
+
 	if err != nil {
 		t.Errorf("Error decoding the signed response: %v", err)
 	}
+
+	return &result
+}
+
+func TestSignHandlerNilData(t *testing.T) {
+
+	result := signingRequest(nil, t)
+
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
 }
 
 func TestSignHandlerNoData(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", new(bytes.Buffer))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
 
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
+	result := signingRequest(new(bytes.Buffer), t)
+
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
@@ -64,8 +67,7 @@ func TestSignHandlerNoData(t *testing.T) {
 
 func TestSignHandler(t *testing.T) {
 	// Mock the database
-	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &mockDB{}}
 
 	const assertions = `
   {
@@ -76,19 +78,12 @@ func TestSignHandler(t *testing.T) {
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+	result := signingRequest(bytes.NewBufferString(assertions), t)
 
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
 	if !result.Success {
 		t.Errorf("Error generated in signing the device: %s", result.ErrorMessage)
 	}
+
 	if result.Signature == "" {
 		t.Errorf("Empty signed data returned.")
 	}
@@ -100,21 +95,16 @@ func TestSignHandlerBadJson(t *testing.T) {
 	  "bad json"
   }`
 
-	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc"}
-	Environ = &Env{Config: config}
+	expectedError := "Error decoding JSON: invalid character '}' after object key"
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+	result := signingRequest(bytes.NewBufferString(assertions), t)
 
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
 	if result.Success {
 		t.Error("Expected failure when sending invalid JSON, got success")
+	}
+
+	if result.ErrorMessage != expectedError {
+		t.Errorf("Error message. Expected: %s; got: %s", expectedError, result.ErrorMessage)
 	}
 }
 
@@ -128,50 +118,16 @@ func TestSignHandlerBadAssertion(t *testing.T) {
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
 
-	config := ConfigSettings{PrivateKeyPath: "../TestKey.asc"}
-	Environ = &Env{Config: config}
+	expectedError := `Error decoding JSON: invalid character '"' after object key:value pair`
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+	result := signingRequest(bytes.NewBufferString(assertions), t)
 
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
 	if result.Success {
 		t.Error("Expected failure when sending invalid JSON, got success")
 	}
-}
 
-func TestSignHandlerBadPrivateKeyPath(t *testing.T) {
-	// Mock the database using an incorrect signing-key (invalid path)
-	config := ConfigSettings{PrivateKeyPath: "Not a good path"}
-	Environ = &Env{DB: &errorMockDB{}, Config: config}
-
-	const assertions = `
-  {
-	  "brand-id": "System",
-    "model":"Bad Path",
-    "serial":"A1234/L",
-		"revision": 2,
-    "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
-  }`
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure with an invalid private key path, got success")
+	if result.ErrorMessage != expectedError {
+		t.Errorf("Error message. Expected: %s; got: %s", expectedError, result.ErrorMessage)
 	}
 }
 
@@ -188,18 +144,16 @@ func TestSignHandlerBadPrivateKeyFile(t *testing.T) {
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+	expectedError := "Error signing the assertions: openpgp: invalid argument: no armored data found"
 
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
+	result := signingRequest(bytes.NewBufferString(assertions), t)
+
 	if result.Success {
-		t.Error("Expected failure with an invalid private key file, got success")
+		t.Error("Expected failure when sending invalid JSON, got success")
+	}
+
+	if result.ErrorMessage != expectedError {
+		t.Errorf("Error message. Expected: %s; got: %s", expectedError, result.ErrorMessage)
 	}
 }
 
@@ -216,18 +170,16 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
     "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
   }`
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+	expectedError := "Cannot find model with the matching brand, model and revision."
 
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
+	result := signingRequest(bytes.NewBufferString(assertions), t)
+
 	if result.Success {
-		t.Error("Expected failure with an invalid model, got success")
+		t.Error("Expected failure when sending invalid JSON, got success")
+	}
+
+	if result.ErrorMessage != expectedError {
+		t.Errorf("Error message. Expected: %s; got: %s", expectedError, result.ErrorMessage)
 	}
 }
 
