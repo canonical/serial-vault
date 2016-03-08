@@ -19,21 +19,29 @@ var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
 
 var App = React.createClass({
-  render() {
+  render: function() {
+		var M = this.props.intl.formatMessage;
+
     return (
       <div>
-        <h1>App</h1>
-        {/* change the <a>s to <Link>s */}
-        <ul>
-          <li><a href="/about">About</a></li>
-          <li><a href="/inbox">Inbox</a></li>
-        </ul>
+				<header className="banner global" role="banner">
+				  <nav role="navigation" className="nav-primary nav-right">
+				    <span id="main-navigation-link"><a href="#main-navigation">Jump to site nav</a></span>
+				    <div className="logo">
+				      <a className="logo-ubuntu" href="/">
+				        <img width="106" height="25" src="{{.Logo}}" alt="" />
+				        <span>{M({id:"title"})}</span>
+				      </a>
+				    </div>
+				  </nav>
+				</header>
 
-        {/*
-          next we replace `<Child>` with `this.props.children`
-          the router will figure out the children for us
-        */}
-        {this.props.children}
+
+				<div className="wrapper">
+
+					{this.props.children}
+				</div>
+
       </div>
     )
   }
