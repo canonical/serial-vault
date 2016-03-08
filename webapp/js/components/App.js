@@ -26,7 +26,7 @@ var App = React.createClass({
       <div>
 				<header className="banner global" role="banner">
 				  <nav role="navigation" className="nav-primary nav-right">
-				    <span id="main-navigation-link"><a href="#main-navigation">Jump to site nav</a></span>
+				    <span id="main-navigation-link"><a href="#navigation">Jump to site nav</a></span>
 				    <div className="logo">
 				      <a className="logo-ubuntu" href="/">
 				        <img width="106" height="25" src={LOGO} alt="" />
