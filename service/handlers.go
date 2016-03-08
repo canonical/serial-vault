@@ -159,7 +159,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	signedText, err := ClearSign(dataToSign, string(privateKey), "")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		errorMessage := fmt.Sprintf("Error signing the assertions: %v\n", err)
+		errorMessage := fmt.Sprintf("Error signing the assertions: %v", err)
 		formatSignResponse(false, errorMessage, "", w)
 		return
 	}
