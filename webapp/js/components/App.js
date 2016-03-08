@@ -29,7 +29,7 @@ var App = React.createClass({
 				    <span id="main-navigation-link"><a href="#main-navigation">Jump to site nav</a></span>
 				    <div className="logo">
 				      <a className="logo-ubuntu" href="/">
-				        <img width="106" height="25" src="{{.Logo}}" alt="" />
+				        <img width="106" height="25" src={LOGO} alt="" />
 				        <span>{M({id:"title"})}</span>
 				      </a>
 				    </div>

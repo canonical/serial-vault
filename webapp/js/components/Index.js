@@ -21,12 +21,12 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var injectIntl = require('react-intl').injectIntl;
 
-var App = React.createClass({
+var Index = React.createClass({
 
   render: function() {
     var M = this.props.intl.formatMessage;
     return (
-        <div>
+        <div className="inner-wrapper">
           <Navigation active="home" />
 
           <section className="row no-border">
@@ -44,4 +44,4 @@ var App = React.createClass({
   }
 });
 
-module.exports = injectIntl(App);
+module.exports = injectIntl(Index);

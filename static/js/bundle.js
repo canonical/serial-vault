@@ -29263,38 +29263,49 @@ var injectIntl = require('react-intl').injectIntl;
 
 var App = React.createClass({
   displayName: 'App',
+
   render: function render() {
+    var M = this.props.intl.formatMessage;
+
     return React.createElement(
       'div',
       null,
       React.createElement(
-        'h1',
-        null,
-        'App'
-      ),
-      React.createElement(
-        'ul',
-        null,
+        'header',
+        { className: 'banner global', role: 'banner' },
         React.createElement(
-          'li',
-          null,
+          'nav',
+          { role: 'navigation', className: 'nav-primary nav-right' },
           React.createElement(
-            'a',
-            { href: '/about' },
-            'About'
-          )
-        ),
-        React.createElement(
-          'li',
-          null,
+            'span',
+            { id: 'main-navigation-link' },
+            React.createElement(
+              'a',
+              { href: '#main-navigation' },
+              'Jump to site nav'
+            )
+          ),
           React.createElement(
-            'a',
-            { href: '/inbox' },
-            'Inbox'
+            'div',
+            { className: 'logo' },
+            React.createElement(
+              'a',
+              { className: 'logo-ubuntu', href: '/' },
+              React.createElement('img', { width: '106', height: '25', src: LOGO, alt: '' }),
+              React.createElement(
+                'span',
+                null,
+                M({ id: "title" })
+              )
+            )
           )
         )
       ),
-      this.props.children
+      React.createElement(
+        'div',
+        { className: 'wrapper' },
+        this.props.children
+      )
     );
   }
 });
@@ -29387,15 +29398,15 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var injectIntl = require('react-intl').injectIntl;
 
-var App = React.createClass({
-  displayName: 'App',
+var Index = React.createClass({
+  displayName: 'Index',
 
 
   render: function render() {
     var M = this.props.intl.formatMessage;
     return React.createElement(
       'div',
-      null,
+      { className: 'inner-wrapper' },
       React.createElement(Navigation, { active: 'home' }),
       React.createElement(
         'section',
@@ -29420,7 +29431,7 @@ var App = React.createClass({
   }
 });
 
-module.exports = injectIntl(App);
+module.exports = injectIntl(Index);
 },{"./Footer":271,"./Navigation":276,"react":"nakDgH","react-intl":19}],273:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
@@ -29569,7 +29580,7 @@ var ModelEdit = React.createClass({
 
 		return React.createElement(
 			'div',
-			null,
+			{ className: 'inner-wrapper' },
 			React.createElement(Navigation, { active: 'models' }),
 			React.createElement(
 				'section',
@@ -29755,7 +29766,7 @@ var ModelList = React.createClass({
 
     return React.createElement(
       'div',
-      null,
+      { className: 'inner-wrapper' },
       React.createElement(Navigation, { active: 'models' }),
       React.createElement(
         'section',
@@ -30026,7 +30037,6 @@ var Router = require('react-router').Router;
 var render = require('react-dom').render;
 var Route = require('react-router').Route;
 var IndexRoute = require('react-router').IndexRoute;
-var Link = require('react-router').Link;
 var browserHistory = require('react-router').browserHistory;
 var App = require('./components/App');
 var Index = require('./components/Index');
@@ -30045,7 +30055,7 @@ var Messages = require('./components/messages');
 
 render(React.createElement(
   _reactIntl.IntlProvider,
-  { locale: 'zh', messages: Messages['zh'] },
+  { locale: 'en', messages: Messages['en'] },
   React.createElement(
     Router,
     { history: browserHistory },
@@ -30059,7 +30069,7 @@ render(React.createElement(
       React.createElement(Route, { path: '*', component: Index })
     )
   )
-), document.getElementById('main'));
+), document.getElementById("main"));
 },{"./components/App":270,"./components/Index":272,"./components/ModelEdit":273,"./components/ModelList":274,"./components/messages":277,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],279:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd

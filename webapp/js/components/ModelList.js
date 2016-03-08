@@ -77,7 +77,7 @@ var ModelList = React.createClass({
     var M = this.props.intl.formatMessage;
 
     return (
-        <div>
+        <div className="inner-wrapper">
           <Navigation active="models" />
 
           <section className="row no-border">
