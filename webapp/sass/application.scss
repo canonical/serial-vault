@@ -10,6 +10,10 @@ div.alert {
 	border-color: $error;
 }
 
+div.warning {
+	border-color: $warning;
+}
+
 footer div {
 	padding-left: 10px;
 }
@@ -17,4 +21,13 @@ footer div {
 .button--primary.small, .button--secondary.small {
 	padding: 0px 5px !important;
 	width: auto;
+}
+
+// The public key table has some long content
+table.PublicKey {
+	table-layout: fixed;
+}
+
+table.PublicKey div.wide {
+	word-wrap: break-word;
 }

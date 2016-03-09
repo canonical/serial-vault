@@ -24928,6 +24928,63 @@ module.exports = AlertBox;
 'use strict';
 
 var React = require('react');
+
+var DialogBox = React.createClass({
+	displayName: 'DialogBox',
+
+	render: function render() {
+		if (this.props.message) {
+			return React.createElement(
+				'div',
+				{ className: 'box warning' },
+				React.createElement(
+					'p',
+					null,
+					this.props.message
+				),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'a',
+						{ href: '', onClick: this.props.handleYesClick, className: 'button--primary' },
+						'Yes'
+					),
+					' ',
+					React.createElement(
+						'a',
+						{ href: '', onClick: this.props.handleCancelClick, className: 'button--secondary' },
+						'Cancel'
+					)
+				)
+			);
+		} else {
+			return React.createElement('span', null);
+		}
+	}
+});
+
+module.exports = DialogBox;
+},{"react":"nakDgH"}],233:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var React = require('react');
 var Vault = require('../models/vault');
 
 var Footer = React.createClass({
@@ -24968,7 +25025,7 @@ var Footer = React.createClass({
 });
 
 module.exports = Footer;
-},{"../models/vault":241,"react":"nakDgH"}],233:[function(require,module,exports){
+},{"../models/vault":245,"react":"nakDgH"}],234:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25024,7 +25081,311 @@ var App = React.createClass({
 });
 
 module.exports = App;
-},{"./Footer":232,"./Navigation":237,"react":"nakDgH"}],234:[function(require,module,exports){
+},{"./Footer":233,"./Navigation":240,"react":"nakDgH"}],235:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var React = require('react');
+var Navigation = require('./Navigation');
+var Footer = require('./Footer');
+var AlertBox = require('./AlertBox');
+var Keys = require('../models/keys');
+
+var KeyAdd = React.createClass({
+  displayName: 'KeyAdd',
+
+  getInitialState: function getInitialState() {
+    return { key: '' };
+  },
+
+  handleChangeKey: function handleChangeKey(e) {
+    this.setState({ key: e.target.value });
+  },
+
+  handleSaveClick: function handleSaveClick(e) {
+    e.preventDefault();
+    var self = this;
+
+    Keys.add(this.state.key).then(function (response) {
+      var data = JSON.parse(response.body);
+      if (response.statusCode >= 300 || !data.success) {
+        self.setState({ error: data.message });
+      } else {
+        window.location = '/keys';
+      }
+    });
+  },
+
+  render: function render() {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(Navigation, { active: 'keys' }),
+      React.createElement(
+        'section',
+        { className: 'row no-border' },
+        React.createElement(
+          'h2',
+          null,
+          'New Public Key'
+        ),
+        React.createElement(
+          'div',
+          { className: 'twelve-col' },
+          React.createElement(AlertBox, { message: this.state.error }),
+          React.createElement(
+            'form',
+            null,
+            React.createElement(
+              'fieldset',
+              null,
+              React.createElement(
+                'ul',
+                null,
+                React.createElement(
+                  'li',
+                  null,
+                  React.createElement(
+                    'label',
+                    { htmlFor: 'key' },
+                    'Public Key:'
+                  ),
+                  React.createElement('textarea', { onChange: this.handleChangeKey, defaultValue: this.state.key,
+                    placeholder: 'Paste the public key of the machine that needs access to the Identity Vault' })
+                )
+              )
+            )
+          ),
+          React.createElement(
+            'div',
+            null,
+            React.createElement(
+              'a',
+              { href: '/keys', onClick: this.handleSaveClick, className: 'button--primary' },
+              'Save'
+            ),
+            ' ',
+            React.createElement(
+              'a',
+              { href: '/keys', className: 'button--secondary' },
+              'Cancel'
+            )
+          )
+        )
+      ),
+      React.createElement(Footer, null)
+    );
+  }
+});
+
+module.exports = KeyAdd;
+},{"../models/keys":243,"./AlertBox":231,"./Footer":233,"./Navigation":240,"react":"nakDgH"}],236:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var React = require('react');
+var Navigation = require('./Navigation');
+var Footer = require('./Footer');
+var AlertBox = require('./AlertBox');
+var DialogBox = require('./DialogBox');
+var Keys = require('../models/keys');
+
+var KeyList = React.createClass({
+  displayName: 'KeyList',
+
+  getInitialState: function getInitialState() {
+    return { keys: [] };
+  },
+
+  componentDidMount: function componentDidMount() {
+    this.getKeys();
+  },
+
+  getKeys: function getKeys() {
+    var self = this;
+    Keys.list().then(function (response) {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+      self.setState({ keys: data.keys, error: message });
+    });
+  },
+
+  handleDeleteClick: function handleDeleteClick(e) {
+    e.preventDefault();
+    var self = this;
+
+    var index = parseInt(e.target.getAttribute('data-key'));
+    this.setState({ confirmDelete: index });
+  },
+
+  handleRemoveClick: function handleRemoveClick(e) {
+    e.preventDefault();
+    var self = this;
+
+    Keys.delete(this.state.keys[this.state.confirmDelete]).then(function (response) {
+      var data = JSON.parse(response.body);
+      if (response.statusCode >= 300 || !data.success) {
+        self.setState({ error: data.message, confirmDelete: null });
+      } else {
+        self.setState({ confirmDelete: null });
+        self.getKeys();
+      }
+    });
+  },
+
+  handleCancelClick: function handleCancelClick(e) {
+    e.preventDefault();
+    this.setState({ confirmDelete: null });
+    this.getKeys();
+  },
+
+  renderDialogOrButton: function renderDialogOrButton(index) {
+    if (this.state.confirmDelete === index) {
+      return React.createElement(DialogBox, { message: 'Confirm deletion of the public key.',
+        handleYesClick: this.handleRemoveClick, handleCancelClick: this.handleCancelClick });
+    }
+  },
+
+  renderTable: function renderTable() {
+    var self = this;
+
+    if (this.state.keys.length > 0) {
+      var index = -1;
+      return React.createElement(
+        'table',
+        { className: 'PublicKey' },
+        React.createElement(
+          'thead',
+          null,
+          React.createElement(
+            'tr',
+            null,
+            React.createElement(
+              'th',
+              null,
+              'Public Key'
+            )
+          )
+        ),
+        React.createElement(
+          'tbody',
+          null,
+          this.state.keys.map(function (key) {
+            index += 1;
+            return React.createElement(
+              'tr',
+              { key: index },
+              React.createElement(
+                'td',
+                null,
+                self.renderDialogOrButton(index),
+                React.createElement(
+                  'div',
+                  { className: 'one-col' },
+                  React.createElement(
+                    'a',
+                    { onClick: self.handleDeleteClick, 'data-key': index, href: '', className: 'button--secondary' },
+                    'Remove'
+                  )
+                ),
+                React.createElement('div', { className: 'one-col' }),
+                React.createElement(
+                  'div',
+                  { className: 'nine-col wide' },
+                  self.state.keys[index]
+                )
+              )
+            );
+          })
+        )
+      );
+    } else {
+      return React.createElement(
+        'p',
+        null,
+        'No public keys found.'
+      );
+    }
+  },
+
+  render: function render() {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(Navigation, { active: 'keys' }),
+      React.createElement(
+        'section',
+        { className: 'row no-border' },
+        React.createElement(
+          'h2',
+          null,
+          'Public Keys ',
+          React.createElement(
+            'a',
+            { href: '/keys/new', className: 'button--primary small', title: 'Add a new public key' },
+            React.createElement('i', { className: 'fa fa-plus' })
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'twelve-col' },
+          React.createElement(
+            'p',
+            null,
+            'The following keys are authorized:'
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'twelve-col' },
+          React.createElement(AlertBox, { message: this.state.error })
+        ),
+        React.createElement(
+          'div',
+          { className: 'twelve-col' },
+          this.renderTable()
+        )
+      ),
+      React.createElement(Footer, null)
+    );
+  }
+});
+
+module.exports = KeyList;
+},{"../models/keys":243,"./AlertBox":231,"./DialogBox":232,"./Footer":233,"./Navigation":240,"react":"nakDgH"}],237:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25129,10 +25490,8 @@ var ModelEdit = React.createClass({
 			});
 		} else {
 			// Create a new model
-			console.log(this.state.model);
 			Models.create(this.state.model).then(function (response) {
 				var data = JSON.parse(response.body);
-				console.log(data);
 				if (response.statusCode >= 300) {
 					self.setState({ error: data.message });
 				} else {
@@ -25246,7 +25605,7 @@ var ModelEdit = React.createClass({
 });
 
 module.exports = ModelEdit;
-},{"../models/models":240,"./AlertBox":231,"./Footer":232,"./Navigation":237,"react":"nakDgH"}],235:[function(require,module,exports){
+},{"../models/models":244,"./AlertBox":231,"./Footer":233,"./Navigation":240,"react":"nakDgH"}],238:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25387,7 +25746,7 @@ var ModelList = React.createClass({
 });
 
 module.exports = ModelList;
-},{"../models/models":240,"./AlertBox":231,"./Footer":232,"./ModelRow":236,"./Navigation":237,"react":"nakDgH"}],236:[function(require,module,exports){
+},{"../models/models":244,"./AlertBox":231,"./Footer":233,"./ModelRow":239,"./Navigation":240,"react":"nakDgH"}],239:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25444,7 +25803,7 @@ var ModelRow = React.createClass({
 });
 
 module.exports = ModelRow;
-},{"react":"nakDgH"}],237:[function(require,module,exports){
+},{"react":"nakDgH"}],240:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25471,11 +25830,15 @@ var Navigation = React.createClass({
   render: function render() {
     var activeHome = '';
     var activeModels = '';
+    var activeKeys = '';
     if (this.props.active === 'home') {
       activeHome = 'active';
     }
     if (this.props.active === 'models') {
       activeModels = 'active';
+    }
+    if (this.props.active === 'keys') {
+      activeKeys = 'active';
     }
 
     return React.createElement(
@@ -25501,6 +25864,15 @@ var Navigation = React.createClass({
             { className: activeModels, href: '/models' },
             'Models'
           )
+        ),
+        React.createElement(
+          'li',
+          null,
+          React.createElement(
+            'a',
+            { className: activeKeys, href: '/keys' },
+            'Public Keys'
+          )
         )
       )
     );
@@ -25508,7 +25880,7 @@ var Navigation = React.createClass({
 });
 
 module.exports = Navigation;
-},{"react":"nakDgH"}],238:[function(require,module,exports){
+},{"react":"nakDgH"}],241:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25536,6 +25908,8 @@ var browserHistory = require('react-router').browserHistory;
 var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
+var KeyList = require('./components/KeyList');
+var KeyAdd = require('./components/KeyAdd');
 
 render(React.createElement(
   Router,
@@ -25544,9 +25918,11 @@ render(React.createElement(
   React.createElement(Route, { path: '/models', component: ModelList }),
   React.createElement(Route, { path: '/models/new', component: ModelEdit }),
   React.createElement(Route, { path: '/models/:id/edit', component: ModelEdit }),
+  React.createElement(Route, { path: '/keys', component: KeyList }),
+  React.createElement(Route, { path: '/keys/new', component: KeyAdd }),
   React.createElement(Route, { path: '*', component: Index })
 ), document.getElementById('main'));
-},{"./components/Index":233,"./components/ModelEdit":234,"./components/ModelList":235,"react":"nakDgH","react-dom":2,"react-router":30}],239:[function(require,module,exports){
+},{"./components/Index":234,"./components/KeyAdd":235,"./components/KeyList":236,"./components/ModelEdit":237,"./components/ModelList":238,"react":"nakDgH","react-dom":2,"react-router":30}],242:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25598,7 +25974,45 @@ var Ajax = {
 };
 
 module.exports = Ajax;
-},{"then-request":217}],240:[function(require,module,exports){
+},{"then-request":217}],243:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var Ajax = require('./Ajax');
+
+var Model = {
+  url: 'keys',
+
+  list: function list() {
+    return Ajax.get(this.url);
+  },
+
+  add: function add(key) {
+    return Ajax.post(this.url, { 'device-key': key });
+  },
+
+  delete: function _delete(key) {
+    return Ajax.post(this.url + '/delete', { 'device-key': key });
+  }
+};
+
+module.exports = Model;
+},{"./Ajax":242}],244:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25641,7 +26055,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":239}],241:[function(require,module,exports){
+},{"./Ajax":242}],245:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -25670,4 +26084,4 @@ var Vault = {
 };
 
 module.exports = Vault;
-},{"./Ajax":239}]},{},[238])
+},{"./Ajax":242}]},{},[241])
