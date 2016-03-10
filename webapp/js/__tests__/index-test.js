@@ -42,7 +42,7 @@ describe('index', function() {
 	 var nav = TestUtils.findRenderedDOMComponentWithTag(indexPage, 'nav');
 
 	 // Check that the navigation tag is set correctly
-	 expect(nav.firstChild.children.length).toBe(2);
+	 expect(nav.firstChild.children.length).toBe(3);
 	 expect(nav.firstChild.children[0].firstChild.className).toBe('active');
 	 expect(nav.firstChild.children[0].firstChild.textContent).toBe('Home');
  });

@@ -1,4 +1,4 @@
-[![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+[![Build Status][travis-image]][travis-url]
 # Identity Vault
 
 A Go web service that digitally signs device assertion details.
@@ -111,3 +111,6 @@ Takes the details from the device, formats the data and clear-signs it.
 ```bash
 curl -X POST -d '{"serial":"M12345/LN", "brand-id":"System", "model":"Device 1000", "revision": 2, "device-key":"ssh-rsa abcd1234"}' http://localhost:8080/1.0/sign
 ```
+
+[travis-image]: https://travis-ci.org/ubuntu-core/identity-vault.svg?branch=master
+[travis-url]: https://travis-ci.org/ubuntu-core/identity-vault

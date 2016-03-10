@@ -38,6 +38,7 @@ var intlData = {
       "cancel": "取消",
       "private-key": "私钥签名",
       "private-key-description": "将用于签署设备标识的签署密钥",
+      "public-keys": "公共密钥",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -81,6 +82,7 @@ var intlData = {
       "cancel": "Cancel",
       "private-key": "Private Key for Signing",
       "private-key-description": "The signing-key that will be used to sign the device identity",
+      "public-keys": "Public Keys",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",

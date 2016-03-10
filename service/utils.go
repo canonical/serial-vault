@@ -58,9 +58,9 @@ const ModelType = "device"
 
 // Env Environment struct that holds the config and data store details.
 type Env struct {
-	Config ConfigSettings
-	//DB     *DB
-	DB Datastore
+	Config         ConfigSettings
+	DB             Datastore
+	AuthorizedKeys AuthorizedKeystore
 }
 
 var settingsFile string
@@ -128,6 +128,17 @@ func formatModelsResponse(success bool, errorCode, errorSubcode, message string,
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error forming the models response.")
+		return err
+	}
+	return nil
+}
+
+func formatBooleanResponse(success bool, message string, w http.ResponseWriter) error {
+	response := BooleanResponse{Success: success, ErrorMessage: message}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the boolean response.")
 		return err
 	}
 	return nil

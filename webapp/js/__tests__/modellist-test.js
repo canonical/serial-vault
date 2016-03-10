@@ -47,7 +47,7 @@ describe('model list', function() {
 	 var nav = TestUtils.findRenderedDOMComponentWithTag(modelsPage, 'nav');
 
 	 // Check that the navigation tag is set correctly
-	 expect(nav.firstChild.children.length).toBe(2);
+	 expect(nav.firstChild.children.length).toBe(3);
 	 expect(nav.firstChild.children[1].firstChild.className).toBe('active');
 	 expect(nav.firstChild.children[1].firstChild.textContent).toBe('Models');
 
@@ -87,7 +87,7 @@ describe('model list', function() {
    var table = TestUtils.findRenderedDOMComponentWithTag(modelsPage, 'table');
 
 	 // Check that the navigation tag is set correctly
-	 expect(nav.firstChild.children.length).toBe(2);
+	 expect(nav.firstChild.children.length).toBe(3);
 	 expect(nav.firstChild.children[1].firstChild.className).toBe('active');
 	 expect(nav.firstChild.children[1].firstChild.textContent).toBe('Models');
 

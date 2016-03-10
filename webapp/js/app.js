@@ -25,6 +25,8 @@ var App = require('./components/App');
 var Index = require('./components/Index');
 var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
+var KeyList = require('./components/KeyList');
+var KeyAdd = require('./components/KeyAdd');
 
 // Imports for i18n
 import {IntlProvider, addLocaleData} from 'react-intl';
@@ -51,7 +53,7 @@ window.AppState = {
 
   render: function() {
     var locale = this.getLocale();
-    
+
     ReactDOM.render((
       <IntlProvider locale={locale} messages={Messages[locale]}>
         <Router history={browserHistory}>
@@ -60,6 +62,8 @@ window.AppState = {
             <Route path="models" component={ModelList} />
             <Route path="models/new" component={ModelEdit} />
             <Route path="models/:id/edit" component={ModelEdit} />
+            <Route path="keys" component={KeyList} />
+            <Route path="keys/new" component={KeyAdd} />
             <Route path="*" component={Index} />
           </Route>
         </Router>

@@ -25,11 +25,15 @@ var Navigation = React.createClass({
 
 			var activeHome = '';
 			var activeModels = '';
+			var activeKeys = '';
 			if (this.props.active === 'home') {
 				activeHome = 'active';
 			}
 			if (this.props.active === 'models') {
 				activeModels = 'active';
+			}
+      if (this.props.active === 'keys') {
+				activeKeys = 'active';
 			}
 
       return (
@@ -38,6 +42,7 @@ var Navigation = React.createClass({
           <ul className="second-level-nav">
             <li><a className={activeHome} href="/">{M({id:'home'})}</a></li>
             <li><a className={activeModels} href="/models">{M({id:'models'})}</a></li>
+            <li><a className={activeKeys} href="/keys">Public Keys</a></li>
           </ul>
         </nav>
       );
