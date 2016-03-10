@@ -110,69 +110,69 @@ func (db *DB) GetModel(modelID int) (*Model, error) {
 }
 
 // UpdateModel updates the model.
-func (db *DB) UpdateModel(model Model) error {
+func (db *DB) UpdateModel(model Model) (string, error) {
 
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.Revision <= 0 {
-		return errors.New("The Brand and Model must be supplied and Revision must be greater than zero.")
+		return "error-validate-model", errors.New("The Brand and Model must be supplied and Revision must be greater than zero")
 	}
 
 	_, err := db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.Revision)
 	if err != nil {
 		log.Printf("Error updating the database model: %v\n", err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return "", nil
 }
 
 // CreateModel updates the model.
-func (db *DB) CreateModel(model Model) (int, error) {
+func (db *DB) CreateModel(model Model) (int, string, error) {
 
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.Revision <= 0 || strings.TrimSpace(model.SigningKey) == "" {
-		return 0, errors.New("The Brand, Model and Signing Key must be supplied and Revision must be greater than zero.")
+		return 0, "error-validate-new-model", errors.New("The Brand, Model and Signing-Key must be supplied and Revision must be greater than zero")
 	}
 
 	// Check that the model does not exist
 	_, err := db.FindModel(model.BrandID, model.Name, model.Revision)
 	if err == nil {
-		return 0, errors.New("A device with the same Brand, Model and Revision already exists.")
+		return 0, "error-model-exists", errors.New("A device with the same Brand, Model and Revision already exists")
 	}
 
 	// Verify that the signing-key is valid
 	_, err = ClearSign("Text to Sign", model.SigningKey, "")
 	if err != nil {
-		return 0, errors.New("The Signing-key is invalid")
+		return 0, "error-invalid-key", errors.New("The Signing-key is invalid")
 	}
 
 	// Create the model in the database
 	_, err = db.Exec(createModelSQL, model.BrandID, model.Name, model.Revision)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)
-		return 0, err
+		return 0, "", err
 	}
 
 	// Get the created model
 	mdl, err := db.FindModel(model.BrandID, model.Name, model.Revision)
 	if err != nil {
-		return 0, errors.New("Cannot find the created model.")
+		return 0, "error-created-model", errors.New("Cannot find the created model")
 	}
 
 	// Store the signing-key in the keystore
 	keystore := GetKeyStore()
 	keyLocation, err := keystore.Put([]byte(model.SigningKey), *mdl)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	// Update the reference to the stored signing-key in the model
 	err = db.updateModelKey(mdl.ID, keyLocation)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
-	return mdl.ID, nil
+	return mdl.ID, "", nil
 }
 
 // updateModelKey updates the reference to the signing-key location

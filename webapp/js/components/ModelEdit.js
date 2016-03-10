@@ -51,6 +51,16 @@ var ModelEdit = React.createClass({
 		});
 	},
 
+	formatError: function(data) {
+		var message = this.props.intl.formatMessage({id: data.error_code});
+		if (data.error_subcode) {
+			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+		} else if (data.message) {
+			message += ': ' + data.message;
+		}
+		return message;
+	},
+
 	handleChangeBrand: function(e) {
 		var model = this.state.model;
 		model['brand-id'] = e.target.value;
@@ -97,7 +107,7 @@ var ModelEdit = React.createClass({
 			Models.update(this.state.model).then(function(response) {
 				var data = JSON.parse(response.body);
 				if (response.statusCode >= 300) {
-					self.setState({error: data.message});
+					self.setState({error: self.formatError(data)});
 				} else {
 					window.location = '/models';
 				}
@@ -107,7 +117,7 @@ var ModelEdit = React.createClass({
 			Models.create(this.state.model).then(function(response) {
 				var data = JSON.parse(response.body);
 				if (response.statusCode >= 300) {
-					self.setState({error: data.message});
+					self.setState({error: self.formatError(data)});
 				} else {
 					window.location = '/models';
 				}

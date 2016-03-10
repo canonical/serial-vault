@@ -68,6 +68,8 @@ type VersionResponse struct {
 // SignResponse is the JSON response from the API Sign method
 type SignResponse struct {
 	Success      bool   `json:"success"`
+	ErrorCode    string `json:"error_code"`
+	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
 	Signature    string `json:"identity"`
 }
@@ -75,6 +77,8 @@ type SignResponse struct {
 // ModelsResponse is the JSON response from the API Models method
 type ModelsResponse struct {
 	Success      bool           `json:"success"`
+	ErrorCode    string         `json:"error_code"`
+	ErrorSubcode string         `json:"error_subcode"`
 	ErrorMessage string         `json:"message"`
 	Models       []ModelDisplay `json:"models"`
 }
@@ -82,6 +86,8 @@ type ModelsResponse struct {
 // ModelResponse is the JSON response from the API Get Model method
 type ModelResponse struct {
 	Success      bool         `json:"success"`
+	ErrorCode    string       `json:"error_code"`
+	ErrorSubcode string       `json:"error_subcode"`
 	ErrorMessage string       `json:"message"`
 	Model        ModelDisplay `json:"model"`
 }
@@ -105,7 +111,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "Uninitialized post data.", "", w)
+		formatSignResponse(false, "error-nil-data", "", "", "", w)
 		return
 	}
 
@@ -118,13 +124,13 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "No data supplied for signing.", "", w)
+		formatSignResponse(false, "error-sign-empty", "", "", "", w)
 		return
 		// Check for parsing errors
 	case err != nil:
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error decoding JSON: %v", err)
-		formatSignResponse(false, errorMessage, "", w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatSignResponse(false, "error-decode-json", "", errorMessage, "", w)
 		return
 	}
 
@@ -132,8 +138,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	model, err := Environ.DB.FindModel(assertions.Brand, assertions.Model, assertions.Revision)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		errorMessage := "Cannot find model with the matching brand, model and revision."
-		formatSignResponse(false, errorMessage, "", w)
+		formatSignResponse(false, "error-model-not-found", "", "", "", w)
 		return
 	}
 
@@ -141,8 +146,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	dataToSign, err := formatAssertion(assertions)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error formatting the assertions: %v", err)
-		formatSignResponse(false, errorMessage, "", w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatSignResponse(false, "error-format-assertions", "", errorMessage, "", w)
 		return
 	}
 
@@ -150,8 +155,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	privateKey, err := getPrivateKey(model.SigningKey)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error reading the private key: %v", err)
-		formatSignResponse(false, errorMessage, "", w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatSignResponse(false, "error-read-private-key", "", errorMessage, "", w)
 		return
 	}
 
@@ -159,14 +164,14 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	signedText, err := ClearSign(dataToSign, string(privateKey), "")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		errorMessage := fmt.Sprintf("Error signing the assertions: %v\n", err)
-		formatSignResponse(false, errorMessage, "", w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatSignResponse(false, "error-signing-assertions", "", errorMessage, "", w)
 		return
 	}
 
 	// Return successful JSON response with the signed text
 	w.WriteHeader(http.StatusOK)
-	formatSignResponse(true, "", string(signedText), w)
+	formatSignResponse(true, "", "", "", string(signedText), w)
 }
 
 func modelForDisplay(model Model) ModelDisplay {
@@ -182,8 +187,8 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	dbModels, err := Environ.DB.ListModels()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		errorMessage := fmt.Sprintf("Error fetching the models: %v", err)
-		formatModelsResponse(false, errorMessage, nil, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelsResponse(false, "error-fetch-models", "", errorMessage, nil, w)
 		return
 	}
 
@@ -196,7 +201,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return successful JSON response with the list of models
-	formatModelsResponse(true, "", models, w)
+	formatModelsResponse(true, "", "", "", models, w)
 }
 
 // ModelGetHandler is the API method to get a model by ID.
@@ -209,23 +214,23 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("Invalid model ID: %v.", vars)
-		formatModelResponse(false, errorMessage, ModelDisplay{}, w)
+		errorMessage := fmt.Sprintf("%v", vars)
+		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelDisplay{}, w)
 		return
 	}
 
 	model, err := Environ.DB.GetModel(modelID)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		errorMessage := "Cannot find model with the ID: %d."
-		formatModelResponse(false, errorMessage, ModelDisplay{ID: modelID}, w)
+		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
+		formatModelResponse(false, "error-get-model", "", errorMessage, ModelDisplay{ID: modelID}, w)
 		return
 	}
 
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
 	mdl := modelForDisplay(*model)
-	formatModelResponse(true, "", mdl, w)
+	formatModelResponse(true, "", "", "", mdl, w)
 }
 
 // ModelUpdateHandler is the API method to update a model.
@@ -237,15 +242,15 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	modelID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("Invalid model ID: %v.", vars["id"])
-		formatModelResponse(false, errorMessage, ModelDisplay{}, w)
+		errorMessage := fmt.Sprintf("%v", vars["id"])
+		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelDisplay{}, w)
 		return
 	}
 
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "Uninitialized post data.", ModelDisplay{}, w)
+		formatModelResponse(false, "error-nil-data", "", "", ModelDisplay{}, w)
 		return
 	}
 	defer r.Body.Close()
@@ -257,28 +262,28 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "No model data supplied.", ModelDisplay{}, w)
+		formatModelResponse(false, "error-model-data", "", "No model data supplied.", ModelDisplay{}, w)
 		return
 		// Check for parsing errors
 	case err != nil:
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error decoding JSON: %v", err)
-		formatModelResponse(false, errorMessage, ModelDisplay{}, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelDisplay{}, w)
 		return
 	}
 
 	// Update the database
 	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, Revision: mdl.Revision}
-	err = Environ.DB.UpdateModel(model)
+	errorSubcode, err := Environ.DB.UpdateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error updating the model: %v.", err)
-		formatModelResponse(false, errorMessage, mdl, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-updating-model", errorSubcode, errorMessage, mdl, w)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	formatModelResponse(true, "", mdl, w)
+	formatModelResponse(true, "", "", "", mdl, w)
 }
 
 // ModelCreateHandler is the API method to create a new model.
@@ -288,7 +293,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "Uninitialized post data.", ModelDisplay{}, w)
+		formatModelResponse(false, "error-nil-data", "", "", ModelDisplay{}, w)
 		return
 	}
 	defer r.Body.Close()
@@ -300,13 +305,13 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "No model data supplied.", ModelDisplay{}, w)
+		formatModelResponse(false, "error-model-data", "", "", ModelDisplay{}, w)
 		return
 		// Check for parsing errors
 	case err != nil:
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error decoding JSON: %v", err)
-		formatModelResponse(false, errorMessage, ModelDisplay{}, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelDisplay{}, w)
 		return
 	}
 
@@ -314,24 +319,25 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	decodedSigningKey, err := base64.StdEncoding.DecodeString(mdlWithKey.SigningKey)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error decoding the base64 Signing Key: %v", err)
-		formatModelResponse(false, errorMessage, ModelDisplay{}, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-decode-key", "", errorMessage, ModelDisplay{}, w)
 		return
 	}
 	mdlWithKey.SigningKey = string(decodedSigningKey)
 
 	// Store the signing-key in the keystore and create a new model
 	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, SigningKey: mdlWithKey.SigningKey, Revision: mdlWithKey.Revision}
-	model.ID, err = Environ.DB.CreateModel(model)
+	errorSubcode := ""
+	model.ID, errorSubcode, err = Environ.DB.CreateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error updating the model: %v", err)
-		formatModelResponse(false, errorMessage, ModelDisplay{}, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-creating-model", errorSubcode, errorMessage, ModelDisplay{}, w)
 		return
 	}
 
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
 	mdl := modelForDisplay(model)
-	formatModelResponse(true, "", mdl, w)
+	formatModelResponse(true, "", "", "", mdl, w)
 }
