@@ -29298,7 +29298,6 @@ var App = React.createClass({
 
 	render: function render() {
 		var M = this.props.intl.formatMessage;
-		console.log(this.props.intl);
 
 		return React.createElement(
 			'div',
@@ -29374,11 +29373,14 @@ module.exports = injectIntl(App);
 'use strict';
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
 
 var DialogBox = React.createClass({
 	displayName: 'DialogBox',
 
 	render: function render() {
+		var M = this.props.intl.formatMessage;
+
 		if (this.props.message) {
 			return React.createElement(
 				'div',
@@ -29394,13 +29396,13 @@ var DialogBox = React.createClass({
 					React.createElement(
 						'a',
 						{ href: '', onClick: this.props.handleYesClick, className: 'button--primary' },
-						'Yes'
+						M({ id: "yes" })
 					),
 					' ',
 					React.createElement(
 						'a',
 						{ href: '', onClick: this.props.handleCancelClick, className: 'button--secondary' },
-						'Cancel'
+						M({ id: "cancel" })
 					)
 				)
 			);
@@ -29410,8 +29412,8 @@ var DialogBox = React.createClass({
 	}
 });
 
-module.exports = DialogBox;
-},{"react":"nakDgH"}],272:[function(require,module,exports){
+module.exports = injectIntl(DialogBox);
+},{"react":"nakDgH","react-intl":19}],272:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29556,6 +29558,7 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Keys = require('../models/keys');
+var injectIntl = require('react-intl').injectIntl;
 
 var KeyAdd = React.createClass({
   displayName: 'KeyAdd',
@@ -29583,6 +29586,8 @@ var KeyAdd = React.createClass({
   },
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
+
     return React.createElement(
       'div',
       null,
@@ -29593,7 +29598,7 @@ var KeyAdd = React.createClass({
         React.createElement(
           'h2',
           null,
-          'New Public Key'
+          M({ id: 'new-public-key' })
         ),
         React.createElement(
           'div',
@@ -29614,10 +29619,11 @@ var KeyAdd = React.createClass({
                   React.createElement(
                     'label',
                     { htmlFor: 'key' },
-                    'Public Key:'
+                    M({ id: 'public-key' }),
+                    ':'
                   ),
                   React.createElement('textarea', { onChange: this.handleChangeKey, defaultValue: this.state.key,
-                    placeholder: 'Paste the public key of the machine that needs access to the Identity Vault' })
+                    placeholder: M({ id: 'new-public-key-description' }) })
                 )
               )
             )
@@ -29628,13 +29634,13 @@ var KeyAdd = React.createClass({
             React.createElement(
               'a',
               { href: '/keys', onClick: this.handleSaveClick, className: 'button--primary' },
-              'Save'
+              M({ id: 'save' })
             ),
             ' ',
             React.createElement(
               'a',
               { href: '/keys', className: 'button--secondary' },
-              'Cancel'
+              M({ id: 'cancel' })
             )
           )
         )
@@ -29644,8 +29650,8 @@ var KeyAdd = React.createClass({
   }
 });
 
-module.exports = KeyAdd;
-},{"../models/keys":283,"./AlertBox":269,"./Footer":272,"./Navigation":279,"react":"nakDgH"}],275:[function(require,module,exports){
+module.exports = injectIntl(KeyAdd);
+},{"../models/keys":283,"./AlertBox":269,"./Footer":272,"./Navigation":279,"react":"nakDgH","react-intl":19}],275:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29670,6 +29676,7 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var DialogBox = require('./DialogBox');
 var Keys = require('../models/keys');
+var injectIntl = require('react-intl').injectIntl;
 
 var KeyList = React.createClass({
   displayName: 'KeyList',
@@ -29725,12 +29732,12 @@ var KeyList = React.createClass({
 
   renderDialogOrButton: function renderDialogOrButton(index) {
     if (this.state.confirmDelete === index) {
-      return React.createElement(DialogBox, { message: 'Confirm deletion of the public key.',
+      return React.createElement(DialogBox, { message: this.props.intl.formatMessage({ id: "public-key-confirm" }),
         handleYesClick: this.handleRemoveClick, handleCancelClick: this.handleCancelClick });
     }
   },
 
-  renderTable: function renderTable() {
+  renderTable: function renderTable(M) {
     var self = this;
 
     if (this.state.keys.length > 0) {
@@ -29747,7 +29754,7 @@ var KeyList = React.createClass({
             React.createElement(
               'th',
               null,
-              'Public Key'
+              M({ id: 'public-key' })
             )
           )
         ),
@@ -29769,7 +29776,7 @@ var KeyList = React.createClass({
                   React.createElement(
                     'a',
                     { onClick: self.handleDeleteClick, 'data-key': index, href: '', className: 'button--secondary' },
-                    'Remove'
+                    React.createElement('i', { className: 'fa fa-times', onClick: self.handleDeleteClick, 'data-key': index })
                   )
                 ),
                 React.createElement('div', { className: 'one-col' }),
@@ -29793,6 +29800,7 @@ var KeyList = React.createClass({
   },
 
   render: function render() {
+    var M = this.props.intl.formatMessage;
     return React.createElement(
       'div',
       null,
@@ -29803,10 +29811,11 @@ var KeyList = React.createClass({
         React.createElement(
           'h2',
           null,
-          'Public Keys ',
+          M({ id: 'public-keys' }),
+          ' ',
           React.createElement(
             'a',
-            { href: '/keys/new', className: 'button--primary small', title: 'Add a new public key' },
+            { href: '/keys/new', className: 'button--primary small', title: M({ id: 'public-key-description' }) },
             React.createElement('i', { className: 'fa fa-plus' })
           )
         ),
@@ -29816,7 +29825,8 @@ var KeyList = React.createClass({
           React.createElement(
             'p',
             null,
-            'The following keys are authorized:'
+            M({ id: 'public-keys-authorized' }),
+            ':'
           )
         ),
         React.createElement(
@@ -29827,7 +29837,7 @@ var KeyList = React.createClass({
         React.createElement(
           'div',
           { className: 'twelve-col' },
-          this.renderTable()
+          this.renderTable(M)
         )
       ),
       React.createElement(Footer, null)
@@ -29835,8 +29845,8 @@ var KeyList = React.createClass({
   }
 });
 
-module.exports = KeyList;
-},{"../models/keys":283,"./AlertBox":269,"./DialogBox":271,"./Footer":272,"./Navigation":279,"react":"nakDgH"}],276:[function(require,module,exports){
+module.exports = injectIntl(KeyList);
+},{"../models/keys":283,"./AlertBox":269,"./DialogBox":271,"./Footer":272,"./Navigation":279,"react":"nakDgH","react-intl":19}],276:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30353,7 +30363,7 @@ var Navigation = React.createClass({
           React.createElement(
             'a',
             { className: activeKeys, href: '/keys' },
-            'Public Keys'
+            M({ id: 'public-keys' })
           )
         )
       )
@@ -30398,11 +30408,18 @@ var intlData = {
     "edit-model": "编辑模型",
     "new-model": "新模式",
     "add-new-model": "添加新模式",
+    "yes": "是",
     "save": "保存",
     "cancel": "取消",
     "private-key": "私钥签名",
     "private-key-description": "将用于签署设备标识的签署密钥",
+    "new-public-key": "新的公用密钥",
+    "public-key": "公钥",
+    "new-public-key-description": "粘贴需要访问身份库的计算机的公钥",
     "public-keys": "公共密钥",
+    "public-key-description": "添加一个新的公共密钥",
+    "public-keys-authorized": "下面的键被授权",
+    "public-key-confirm": "确认公钥缺失",
 
     // Error messages
     "error-nil-data": "未初始化的POST数据",
@@ -30442,11 +30459,18 @@ var intlData = {
     "edit-model": "Edit Model",
     "new-model": "New Model",
     "add-new-model": "Add a new model",
+    "yes": "Yes",
     "save": "Save",
     "cancel": "Cancel",
     "private-key": "Private Key for Signing",
     "private-key-description": "The signing-key that will be used to sign the device identity",
+    "new-public-key": "New Public Key",
+    "public-key": "Public Key",
+    "new-public-key-description": "Paste the public key of the machine that needs access to the Identity Vault",
     "public-keys": "Public Keys",
+    "public-key-description": "Add a new public key",
+    "public-keys-authorized": "The following keys are authorized",
+    "public-key-confirm": "Confirm deletion of the public key",
 
     // Error messages
     "error-nil-data": "Uninitialized POST data",

@@ -49,7 +49,6 @@ var App = React.createClass({
 
   render: function() {
 		var M = this.props.intl.formatMessage;
-		console.log(this.props.intl);
 
     return (
       <div>

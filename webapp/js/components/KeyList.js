@@ -22,6 +22,7 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var DialogBox = require('./DialogBox');
 var Keys = require('../models/keys');
+var injectIntl = require('react-intl').injectIntl;
 
 var KeyList = React.createClass({
   getInitialState: function() {
@@ -77,13 +78,13 @@ var KeyList = React.createClass({
   renderDialogOrButton: function(index) {
     if (this.state.confirmDelete === index) {
       return (
-        <DialogBox message="Confirm deletion of the public key."
+        <DialogBox message={this.props.intl.formatMessage({id: "public-key-confirm"})}
             handleYesClick={this.handleRemoveClick} handleCancelClick={this.handleCancelClick} />
       )
     }
   },
 
-  renderTable: function() {
+  renderTable: function(M) {
     var self = this;
 
     if (this.state.keys.length > 0) {
@@ -92,7 +93,7 @@ var KeyList = React.createClass({
         <table className="PublicKey">
           <thead>
             <tr>
-              <th>Public Key</th>
+              <th>{M({id:'public-key'})}</th>
             </tr>
           </thead>
           <tbody>
@@ -103,7 +104,9 @@ var KeyList = React.createClass({
           				<td>
                       {self.renderDialogOrButton(index)}
                       <div className="one-col">
-                        <a onClick={self.handleDeleteClick} data-key={index} href="" className="button--secondary">Remove</a>
+                        <a onClick={self.handleDeleteClick} data-key={index} href="" className="button--secondary">
+                          <i className="fa fa-times" onClick={self.handleDeleteClick} data-key={index}></i>
+                        </a>
                       </div>
                       <div className="one-col"></div>
                       <div className="nine-col wide">{self.state.keys[index]}</div>
@@ -122,23 +125,24 @@ var KeyList = React.createClass({
   },
 
 	render: function() {
+    var M = this.props.intl.formatMessage;
     return (
         <div>
           <Navigation active="keys" />
 
           <section className="row no-border">
-            <h2>Public Keys <a href="/keys/new" className="button--primary small" title="Add a new public key">
+            <h2>{M({id:'public-keys'})} <a href="/keys/new" className="button--primary small" title={M({id:'public-key-description'})}>
                         <i className="fa fa-plus"></i>
                       </a>
             </h2>
             <div className="twelve-col">
-              <p>The following keys are authorized:</p>
+              <p>{M({id:'public-keys-authorized'})}:</p>
             </div>
             <div className="twelve-col">
               <AlertBox message={this.state.error} />
             </div>
             <div className="twelve-col">
-              {this.renderTable()}
+              {this.renderTable(M)}
             </div>
           </section>
 
@@ -148,4 +152,4 @@ var KeyList = React.createClass({
 	}
 });
 
-module.exports = KeyList;
+module.exports = injectIntl(KeyList);
