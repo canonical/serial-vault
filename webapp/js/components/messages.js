@@ -66,7 +66,13 @@ var intlData = {
       "error-model-exists": "用相同的品牌，型号和版本A设备已经存在",
       "error-invalid-key": "该签名密钥无效",
       "error-created-model": "无法找到创建的模型",
-      "error-validate-new-model": "品牌，型号和签名密钥，必须提供与修订必须大于零"
+      "error-validate-new-model": "品牌，型号和签名密钥，必须提供与修订必须大于零",
+      "error-adding-key": "错误添加公钥",
+      "error-deleting-key": "错误删除公钥",
+      "error-key-data": "没有找到的公开密钥提供的数据",
+      "error-validate-key": "公钥必须输入",
+      "error-key-exists": "SSH公用密钥已经存在",
+      "error-key-not-found": "SSH公用密钥无法找到"
     },
 
 		en: {
@@ -98,6 +104,7 @@ var intlData = {
       "public-keys-authorized": "The following keys are authorized",
       "public-key-confirm": "Confirm deletion of the public key",
 
+
       // Error messages
       "error-nil-data": "Uninitialized POST data",
       "error-sign-empty": "No data supplied for signing",
@@ -117,7 +124,13 @@ var intlData = {
       "error-model-exists": "A device with the same Brand, Model and Revision already exists",
       "error-invalid-key": "The Signing-key is invalid",
       "error-created-model": "Cannot find the created model",
-      "error-validate-new-model": "The Brand, Model and Signing-Key must be supplied and Revision must be greater than zero"
+      "error-validate-new-model": "The Brand, Model and Signing-Key must be supplied and Revision must be greater than zero",
+      "error-adding-key": "Error adding a public key",
+      "error-deleting-key": "Error deleting a public key",
+      "error-key-data": "No data supplied for the public key",
+      "error-validate-key": "The public key must be entered",
+      "error-key-exists": 'The ssh public key already exists',
+      "error-key-not-found": "The ssh public key cannot be found"
 		}
 };
 

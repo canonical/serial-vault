@@ -28,6 +28,16 @@ var KeyAdd = React.createClass({
     return {key: ''};
   },
 
+  formatError: function(data) {
+		var message = this.props.intl.formatMessage({id: data.error_code});
+		if (data.error_subcode) {
+			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+		} else if (data.message) {
+			message += ': ' + data.message;
+		}
+		return message;
+	},
+
   handleChangeKey: function(e) {
 		this.setState({key: e.target.value});
 	},
@@ -39,7 +49,7 @@ var KeyAdd = React.createClass({
     Keys.add(this.state.key).then(function(response) {
       var data = JSON.parse(response.body);
       if ((response.statusCode >= 300) || (!data.success)) {
-        self.setState({error: data.message});
+        self.setState({error: self.formatError(data)});
       } else {
         window.location = '/keys';
       }

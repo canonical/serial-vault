@@ -133,8 +133,8 @@ func formatModelsResponse(success bool, errorCode, errorSubcode, message string,
 	return nil
 }
 
-func formatBooleanResponse(success bool, message string, w http.ResponseWriter) error {
-	response := BooleanResponse{Success: success, ErrorMessage: message}
+func formatBooleanResponse(success bool, errorCode, errorSubcode, message string, w http.ResponseWriter) error {
+	response := BooleanResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
