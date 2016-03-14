@@ -27,7 +27,7 @@ var injectIntl = require('react-intl').injectIntl;
 var ModelList = React.createClass({
 
   getInitialState: function() {
-    return {models: []};
+    return {models: this.props.models || []};
   },
 
   componentDidMount: function() {

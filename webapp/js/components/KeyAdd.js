@@ -25,7 +25,7 @@ var injectIntl = require('react-intl').injectIntl;
 
 var KeyAdd = React.createClass({
   getInitialState: function() {
-    return {key: ''};
+    return {key: '', error: this.props.error};
   },
 
   formatError: function(data) {

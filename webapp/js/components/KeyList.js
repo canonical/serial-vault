@@ -26,7 +26,7 @@ var injectIntl = require('react-intl').injectIntl;
 
 var KeyList = React.createClass({
   getInitialState: function() {
-    return {keys: []};
+    return {keys: this.props.keys || []};
   },
 
   componentDidMount: function() {

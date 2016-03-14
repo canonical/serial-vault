@@ -29,14 +29,18 @@ jest.dontMock('../components/Navigation');
 describe('model list', function() {
  it('displays the models page with no models', function() {
 	 var ModelList = require('../components/ModelList');
+   var IntlProvider = require('react-intl').IntlProvider;
+   var Messages = require('../components/messages').en;
 
    // Mock the data retrieval from the API
    var getModels = jest.genMockFunction();
-   ModelList.prototype.__reactAutoBindMap.getModels = getModels;
+   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getModels = getModels;
 
 	 // Render the component
 	 var modelsPage = TestUtils.renderIntoDocument(
+     <IntlProvider locale="en" messages={Messages}>
 			 <ModelList />
+    </IntlProvider>
 	 );
 
 	 expect(TestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
@@ -61,43 +65,43 @@ describe('model list', function() {
 
  it('displays the models page with some models', function() {
 	 var ModelList = require('../components/ModelList');
+   var IntlProvider = require('react-intl').IntlProvider;
+   var Messages = require('../components/messages').en;
 
-   // Mock the data retrieval from the API
-   var getModels = jest.genMockFunction();
-   ModelList.prototype.__reactAutoBindMap.getModels = getModels;
-
-	 // Render the component
-	 var modelsPage = TestUtils.renderIntoDocument(
-			 <ModelList />
-	 );
+   // Shallow render the component with the translations
+   const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
+   const {intl} = intlProvider.getChildContext();
+   var shallowRenderer = TestUtils.createRenderer();
 
    // Set up a fixture for the model data
-   modelsPage.setState({models: [
+   var models = [
      {id: 1, 'brand-id': 'Brand1', model: 'Name1', revision: 11},
      {id: 2, 'brand-id': 'Brand2', model: 'Name2', revision: 22},
      {id: 3, 'brand-id': 'Brand3', model: 'Name3', revision: 33}
-   ]});
+   ];
 
-	 expect(TestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
+   // Mock the data retrieval from the API
+   var getModels = jest.genMockFunction();
+   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getModels = getModels;
 
-	 // Check all the expected elements are rendered
-	 var section = TestUtils.findRenderedDOMComponentWithTag(modelsPage, 'section');
-	 var h2 = TestUtils.findRenderedDOMComponentWithTag(modelsPage, 'h2');
-	 var nav = TestUtils.findRenderedDOMComponentWithTag(modelsPage, 'nav');
-   var table = TestUtils.findRenderedDOMComponentWithTag(modelsPage, 'table');
+	 // Render the component
+	 shallowRenderer.render(
+			 <ModelList.WrappedComponent intl={intl} models={models} />
+	 );
+   var modelsPage = shallowRenderer.getRenderOutput();
 
-	 // Check that the navigation tag is set correctly
-	 expect(nav.firstChild.children.length).toBe(3);
-	 expect(nav.firstChild.children[1].firstChild.className).toBe('active');
-	 expect(nav.firstChild.children[1].firstChild.textContent).toBe('Models');
-
-   // Check the getModels was called
-   expect(getModels.mock.calls.length).toBe(1);
+   expect(modelsPage.props.children.length).toBe(3);
+   var section = modelsPage.props.children[1];
+   expect(section.props.children.length).toBe(4);
 
    // Check that the table is rendered correctly
-   expect(table.lastChild.children.length).toBe(3); // data rows
-   expect(table.lastChild.children[0].children.length).toBe(4); // cells
-   expect(table.lastChild.children[0].children[1].textContent).toBe('Brand1');
+   var table = section.props.children[3].props.children;
+   var tbody = table.props.children[1]
+   expect(tbody.props.children.length).toBe(3); // data rows
+   var row1 = tbody.props.children[0];
+
+   expect(row1.type.WrappedComponent.displayName).toBe('ModelRow')
+   expect(row1.props.model).toBe(models[0])
 
  });
 

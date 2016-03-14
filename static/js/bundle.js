@@ -29564,7 +29564,7 @@ var KeyAdd = React.createClass({
   displayName: 'KeyAdd',
 
   getInitialState: function getInitialState() {
-    return { key: '' };
+    return { key: '', error: this.props.error };
   },
 
   formatError: function formatError(data) {
@@ -29692,7 +29692,7 @@ var KeyList = React.createClass({
   displayName: 'KeyList',
 
   getInitialState: function getInitialState() {
-    return { keys: [] };
+    return { keys: this.props.keys || [] };
   },
 
   componentDidMount: function componentDidMount() {
@@ -30128,7 +30128,7 @@ var ModelList = React.createClass({
 
 
   getInitialState: function getInitialState() {
-    return { models: [] };
+    return { models: this.props.models || [] };
   },
 
   componentDidMount: function componentDidMount() {
