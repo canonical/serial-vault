@@ -111,7 +111,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-nil-data", "", "", "", w)
+		formatSignResponse(false, "error-nil-data", "", "Uninitialized POST data", "", w)
 		return
 	}
 
@@ -124,7 +124,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-sign-empty", "", "", "", w)
+		formatSignResponse(false, "error-sign-empty", "", "No data supplied for signing", "", w)
 		return
 		// Check for parsing errors
 	case err != nil:
@@ -138,7 +138,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	model, err := Environ.DB.FindModel(assertions.Brand, assertions.Model, assertions.Revision)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		formatSignResponse(false, "error-model-not-found", "", "", "", w)
+		formatSignResponse(false, "error-model-not-found", "", "Cannot find model with the matching brand, model and revision", "", w)
 		return
 	}
 
@@ -250,7 +250,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-nil-data", "", "", ModelDisplay{}, w)
+		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelDisplay{}, w)
 		return
 	}
 	defer r.Body.Close()
@@ -293,7 +293,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-nil-data", "", "", ModelDisplay{}, w)
+		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelDisplay{}, w)
 		return
 	}
 	defer r.Body.Close()
@@ -305,7 +305,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-model-data", "", "", ModelDisplay{}, w)
+		formatModelResponse(false, "error-model-data", "", "No model data supplied", ModelDisplay{}, w)
 		return
 		// Check for parsing errors
 	case err != nil:
