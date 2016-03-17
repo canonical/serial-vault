@@ -25,13 +25,17 @@ jest.dontMock('../components/KeyAdd');
 jest.dontMock('../components/Navigation');
 jest.dontMock('../components/AlertBox');
 
-describe('key list', function() {
+describe('key add', function() {
 	it('displays the new public key page', function() {
+		var IntlProvider = require('react-intl').IntlProvider;
+		var Messages = require('../components/messages').en;
 		var KeyAdd = require('../components/KeyAdd');
 
 		// Render the component
 		var keysPage = TestUtils.renderIntoDocument(
+			<IntlProvider locale="en" messages={Messages}>
 			 <KeyAdd />
+			</IntlProvider>
 		);
 
 		expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
@@ -49,11 +53,19 @@ describe('key list', function() {
 	});
 
 	it('stores updates to the form', function() {
+		var IntlProvider = require('react-intl').IntlProvider;
+		var Messages = require('../components/messages').en;
 		var KeyAdd = require('../components/KeyAdd');
+
+		// Mock the onChange handler
+    var handleChangeKey = jest.genMockFunction();
+    KeyAdd.WrappedComponent.prototype.__reactAutoBindMap.handleChangeKey = handleChangeKey;
 
 		// Render the component
 		var keysPage = TestUtils.renderIntoDocument(
+			<IntlProvider locale="en" messages={Messages}>
 			 <KeyAdd />
+			</IntlProvider>
 		);
 
 		expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
@@ -62,25 +74,30 @@ describe('key list', function() {
 		var textarea = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'textarea');
 		textarea.defaultValue = 'sushi-on-toast';
 		TestUtils.Simulate.change(textarea);
-		expect(keysPage.state.key).toBe('sushi-on-toast')
+		expect(handleChangeKey.mock.calls.length).toBe(1);
+
 	});
 
 	it('displays the alert box on error', function() {
+		var IntlProvider = require('react-intl').IntlProvider;
+		var Messages = require('../components/messages').en;
 		var KeyAdd = require('../components/KeyAdd');
 
+		const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
+    const {intl} = intlProvider.getChildContext();
+		var shallowRenderer = TestUtils.createRenderer();
+
 		// Render the component
-		var keysPage = TestUtils.renderIntoDocument(
-		 <KeyAdd />
+		shallowRenderer.render(
+			<KeyAdd.WrappedComponent intl={intl} error={'Critical: run out of sushi'} />
 		);
+		var keysPage = shallowRenderer.getRenderOutput();
 
-		expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
+		expect(keysPage.props.children.length).toBe(3);
+		var section = keysPage.props.children[1];
 
-		// Set the error message
-		keysPage.setState({error: 'Critical: run out of sushi'});
-
-		var alert = TestUtils.findRenderedDOMComponentWithClass(keysPage, 'alert');
-		expect(alert.children.length).toBe(1);
-		expect(alert.firstChild.textContent).toBe('Critical: run out of sushi');
+		expect(section.props.children.length).toBe(2);
+		expect(section.props.children[1].props.children[0].props.message).toBe('Critical: run out of sushi');
 	});
 
 });

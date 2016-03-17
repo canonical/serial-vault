@@ -71,7 +71,7 @@ func (mdb *mockDB) GetModel(modelID int) (*Model, error) {
 }
 
 // UpdateModel mocks the model update.
-func (mdb *mockDB) UpdateModel(model Model) error {
+func (mdb *mockDB) UpdateModel(model Model) (string, error) {
 	models, _ := mdb.ListModels()
 	found := false
 
@@ -83,14 +83,14 @@ func (mdb *mockDB) UpdateModel(model Model) error {
 	}
 
 	if !found {
-		return errors.New("Cannot find the model.")
+		return "", errors.New("Cannot find the model.")
 	}
-	return nil
+	return "", nil
 }
 
 // CreateModel mocks creating a new model.
-func (mdb *mockDB) CreateModel(model Model) (int, error) {
-	return 7, nil
+func (mdb *mockDB) CreateModel(model Model) (int, string, error) {
+	return 7, "", nil
 }
 
 // Unsuccessful mocks for the database
@@ -125,11 +125,11 @@ func (mdb *errorMockDB) GetModel(modelID int) (*Model, error) {
 }
 
 // UpdateModel mocks the model update, returning an error.
-func (mdb *errorMockDB) UpdateModel(model Model) error {
-	return errors.New("Error updating the model.")
+func (mdb *errorMockDB) UpdateModel(model Model) (string, error) {
+	return "", errors.New("Error updating the database model.")
 }
 
 // CreateModel mocks creating a new model, returning an error.
-func (mdb *errorMockDB) CreateModel(model Model) (int, error) {
-	return 0, errors.New("Error creating the model.")
+func (mdb *errorMockDB) CreateModel(model Model) (int, string, error) {
+	return 0, "", errors.New("Error creating the database model.")
 }

@@ -37,6 +37,8 @@ type AuthorizedKeysResponse struct {
 // BooleanResponse is the JSON response from an API method, indicating success or failure.
 type BooleanResponse struct {
 	Success      bool   `json:"success"`
+	ErrorCode    string `json:"error_code"`
+	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
 }
 
@@ -70,13 +72,13 @@ func AuthorizedKeyAddHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Environ.AuthorizedKeys.Add(deviceKey)
+	errorSubcode, err := Environ.AuthorizedKeys.Add(deviceKey)
 	if err != nil {
-		message := fmt.Sprintf("Error adding new public key: %v", err)
+		message := fmt.Sprintf("%v", err)
 		log.Printf(message)
-		formatBooleanResponse(false, message, w)
+		formatBooleanResponse(false, "error-adding-key", errorSubcode, message, w)
 	} else {
-		formatBooleanResponse(true, "", w)
+		formatBooleanResponse(true, "", "", "", w)
 	}
 }
 
@@ -90,13 +92,13 @@ func AuthorizedKeyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Environ.AuthorizedKeys.Delete(deviceKey)
+	errorSubcode, err := Environ.AuthorizedKeys.Delete(deviceKey)
 	if err != nil {
-		message := fmt.Sprintf("Error deleting a public key: %v", err)
+		message := fmt.Sprintf("%v", err)
 		log.Printf(message)
-		formatBooleanResponse(false, message, w)
+		formatBooleanResponse(false, "error-deleting-key", errorSubcode, message, w)
 	} else {
-		formatBooleanResponse(true, "", w)
+		formatBooleanResponse(true, "", "", "", w)
 	}
 }
 
@@ -105,8 +107,8 @@ func decodeKey(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "Uninitialized POST data.", w)
-		return "", errors.New("Uninitialized POST data.")
+		formatBooleanResponse(false, "error-nil-data", "", "", w)
+		return "", errors.New("error-nil-data")
 	}
 	defer r.Body.Close()
 
@@ -117,13 +119,13 @@ func decodeKey(w http.ResponseWriter, r *http.Request) (string, error) {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "No data supplied for signing.", w)
+		formatBooleanResponse(false, "error-key-data", "", "", w)
 		return "", err
 		// Check for parsing errors
 	case err != nil:
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("Error decoding JSON: %v", err)
-		formatBooleanResponse(false, errorMessage, w)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatBooleanResponse(false, "error-decode-json", "", errorMessage, w)
 		return "", err
 	}
 

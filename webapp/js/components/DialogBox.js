@@ -17,17 +17,20 @@
 'use strict'
 
 var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
 
 var DialogBox = React.createClass({
 	render: function() {
+		var M = this.props.intl.formatMessage;
+
 		if (this.props.message) {
 			return (
 				<div className="box warning">
 					<p>{this.props.message}</p>
 					<div>
-						<a href="" onClick={this.props.handleYesClick} className="button--primary">Yes</a>
+						<a href="" onClick={this.props.handleYesClick} className="button--primary">{M({id: "yes"})}</a>
 						&nbsp;
-						<a href="" onClick={this.props.handleCancelClick} className="button--secondary">Cancel</a>
+						<a href="" onClick={this.props.handleCancelClick} className="button--secondary">{M({id: "cancel"})}</a>
 					</div>
 				</div>
 			);
@@ -37,4 +40,4 @@ var DialogBox = React.createClass({
 	}
 });
 
-module.exports = DialogBox;
+module.exports = injectIntl(DialogBox);

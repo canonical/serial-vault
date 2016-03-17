@@ -32,8 +32,8 @@ import (
 // AuthorizedKeystore interface to manage the authorized ssh keys
 type AuthorizedKeystore interface {
 	List() []string
-	Add(string) error
-	Delete(string) error
+	Add(string) (string, error)
+	Delete(string) (string, error)
 }
 
 // AuthorizedKeys is the concrete base to manage the authorized ssh keys
@@ -101,17 +101,17 @@ func (auth *AuthorizedKeys) findKey(key string) (int, []string) {
 }
 
 // Add saves a new authorized ssh key
-func (auth *AuthorizedKeys) Add(key string) error {
+func (auth *AuthorizedKeys) Add(key string) (string, error) {
 	// Check the public key
 	key = strings.Trim(key, " ")
 	if len(key) == 0 {
-		return errors.New("The public key must be entered.")
+		return "error-validate-key", errors.New("The public key must be entered.")
 	}
 
 	// Check if the key already exists
 	authKeyPosition, _ := auth.findKey(key)
 	if authKeyPosition >= 0 {
-		return errors.New("The ssh public key already exists.")
+		return "error-key-exists", errors.New("The ssh public key already exists.")
 	}
 
 	// Turn on the write lock
@@ -121,21 +121,21 @@ func (auth *AuthorizedKeys) Add(key string) error {
 	// Open the authorized_keys file for writing, create it if it does not exist.
 	file, err := os.OpenFile(auth.path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(key + "\n")
-	return err
+	return "", err
 }
 
 // Delete removes an authorized ssh key
-func (auth *AuthorizedKeys) Delete(key string) error {
+func (auth *AuthorizedKeys) Delete(key string) (string, error) {
 
 	// Get the index of the key
 	authKeyPosition, keys := auth.findKey(key)
 	if authKeyPosition < 0 {
-		return errors.New("The ssh public key cannot be found.")
+		return "error-key-not-found", errors.New("The ssh public key cannot be found.")
 	}
 
 	// Remove the unwanted ssh key from the list
@@ -148,7 +148,7 @@ func (auth *AuthorizedKeys) Delete(key string) error {
 	// Overwrite the contents of the authorized keys file
 	file, err := os.Create(auth.path)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 
@@ -156,9 +156,9 @@ func (auth *AuthorizedKeys) Delete(key string) error {
 	for _, deviceKey := range keys {
 		_, err = file.WriteString(deviceKey + "\n")
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	return nil
+	return "", nil
 }

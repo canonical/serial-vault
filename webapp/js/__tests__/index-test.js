@@ -28,10 +28,14 @@ jest.dontMock('../components/Navigation');
 describe('index', function() {
  it('displays the index page elements', function() {
 	 var Index = require('../components/Index');
+   var IntlProvider = require('react-intl').IntlProvider;
+   var Messages = require('../components/messages').en;
 
 	 // Render the component
 	 var indexPage = TestUtils.renderIntoDocument(
+     <IntlProvider locale="en" messages={Messages}>
 			 <Index />
+     </IntlProvider>
 	 );
 
 	 expect(TestUtils.isCompositeComponent(indexPage)).toBeTruthy();

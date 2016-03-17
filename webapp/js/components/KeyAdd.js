@@ -21,11 +21,22 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Keys = require('../models/keys');
+var injectIntl = require('react-intl').injectIntl;
 
 var KeyAdd = React.createClass({
   getInitialState: function() {
-    return {key: ''};
+    return {key: '', error: this.props.error};
   },
+
+  formatError: function(data) {
+		var message = this.props.intl.formatMessage({id: data.error_code});
+		if (data.error_subcode) {
+			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+		} else if (data.message) {
+			message += ': ' + data.message;
+		}
+		return message;
+	},
 
   handleChangeKey: function(e) {
 		this.setState({key: e.target.value});
@@ -38,7 +49,7 @@ var KeyAdd = React.createClass({
     Keys.add(this.state.key).then(function(response) {
       var data = JSON.parse(response.body);
       if ((response.statusCode >= 300) || (!data.success)) {
-        self.setState({error: data.message});
+        self.setState({error: self.formatError(data)});
       } else {
         window.location = '/keys';
       }
@@ -46,12 +57,14 @@ var KeyAdd = React.createClass({
   },
 
 	render: function() {
+    var M = this.props.intl.formatMessage;
+
     return (
       <div>
         <Navigation active="keys" />
 
         <section className="row no-border">
-          <h2>New Public Key</h2>
+          <h2>{M({id: 'new-public-key'})}</h2>
           <div className="twelve-col">
             <AlertBox message={this.state.error} />
 
@@ -59,18 +72,18 @@ var KeyAdd = React.createClass({
               <fieldset>
                 <ul>
                   <li>
-                    <label htmlFor="key">Public Key:</label>
+                    <label htmlFor="key">{M({id: 'public-key'})}:</label>
                     <textarea onChange={this.handleChangeKey} defaultValue={this.state.key}
-                        placeholder="Paste the public key of the machine that needs access to the Identity Vault">
+                        placeholder={M({id: 'new-public-key-description'})}>
                     </textarea>
                   </li>
                 </ul>
               </fieldset>
             </form>
             <div>
-							<a href='/keys' onClick={this.handleSaveClick} className="button--primary">Save</a>
+							<a href='/keys' onClick={this.handleSaveClick} className="button--primary">{M({id: 'save'})}</a>
 							&nbsp;
-							<a href='/keys' className="button--secondary">Cancel</a>
+							<a href='/keys' className="button--secondary">{M({id: 'cancel'})}</a>
 						</div>
           </div>
         </section>
@@ -81,4 +94,4 @@ var KeyAdd = React.createClass({
 	}
 });
 
-module.exports = KeyAdd;
+module.exports = injectIntl(KeyAdd);

@@ -111,8 +111,8 @@ func getPrivateKey(privateKeyFilePath string) ([]byte, error) {
 	return privateKey, nil
 }
 
-func formatSignResponse(success bool, message, signature string, w http.ResponseWriter) error {
-	response := SignResponse{Success: success, ErrorMessage: message, Signature: signature}
+func formatSignResponse(success bool, errorCode, errorSubcode, message, signature string, w http.ResponseWriter) error {
+	response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: signature}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -122,8 +122,8 @@ func formatSignResponse(success bool, message, signature string, w http.Response
 	return nil
 }
 
-func formatModelsResponse(success bool, message string, models []ModelDisplay, w http.ResponseWriter) error {
-	response := ModelsResponse{Success: success, ErrorMessage: message, Models: models}
+func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelDisplay, w http.ResponseWriter) error {
+	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -133,8 +133,8 @@ func formatModelsResponse(success bool, message string, models []ModelDisplay, w
 	return nil
 }
 
-func formatBooleanResponse(success bool, message string, w http.ResponseWriter) error {
-	response := BooleanResponse{Success: success, ErrorMessage: message}
+func formatBooleanResponse(success bool, errorCode, errorSubcode, message string, w http.ResponseWriter) error {
+	response := BooleanResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -144,8 +144,8 @@ func formatBooleanResponse(success bool, message string, w http.ResponseWriter) 
 	return nil
 }
 
-func formatModelResponse(success bool, message string, model ModelDisplay, w http.ResponseWriter) error {
-	response := ModelResponse{Success: success, ErrorMessage: message, Model: model}
+func formatModelResponse(success bool, errorCode, errorSubcode, message string, model ModelDisplay, w http.ResponseWriter) error {
+	response := ModelResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Model: model}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {

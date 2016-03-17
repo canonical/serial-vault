@@ -22,10 +22,12 @@ var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var injectIntl = require('react-intl').injectIntl;
 
 var ModelList = React.createClass({
+
   getInitialState: function() {
-    return {models: []};
+    return {models: this.props.models || []};
   },
 
   componentDidMount: function() {
@@ -44,7 +46,7 @@ var ModelList = React.createClass({
     });
   },
 
-  renderTable: function() {
+  renderTable: function(M) {
     var self = this;
 
     if (this.state.models.length > 0) {
@@ -52,7 +54,7 @@ var ModelList = React.createClass({
         <table>
           <thead>
             <tr>
-              <th></th><th>Brand</th><th>Model</th><th>Revision</th>
+              <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'revision'})}</th>
             </tr>
           </thead>
           <tbody>
@@ -72,30 +74,32 @@ var ModelList = React.createClass({
   },
 
   render: function() {
-      return (
-          <div>
-            <Navigation active="models" />
+    var M = this.props.intl.formatMessage;
 
-            <section className="row no-border">
-              <h2>Models <a href="/models/new" className="button--primary small" title="Add a new model">
-                          <i className="fa fa-plus"></i>
-                        </a>
-              </h2>
-              <div className="twelve-col">
-                <p>The following models are available:</p>
-              </div>
-              <div className="twelve-col">
-                <AlertBox message={this.state.message} />
-              </div>
-              <div className="twelve-col">
-                {this.renderTable()}
-              </div>
-            </section>
+    return (
+        <div className="inner-wrapper">
+          <Navigation active="models" />
 
-            <Footer />
-          </div>
-      );
+          <section className="row no-border">
+            <h2>{M({id:'models'})} <a href="/models/new" className="button--primary small" title={M({id:'add-new-model'})}>
+                        <i className="fa fa-plus"></i>
+                      </a>
+            </h2>
+            <div className="twelve-col">
+              <p>{M({id:'models_available'})}:</p>
+            </div>
+            <div className="twelve-col">
+              <AlertBox message={this.state.message} />
+            </div>
+            <div className="twelve-col">
+              {this.renderTable(M)}
+            </div>
+          </section>
+
+          <Footer />
+        </div>
+    );
   }
 });
 
-module.exports = ModelList;
+module.exports = injectIntl(ModelList);

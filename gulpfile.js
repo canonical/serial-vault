@@ -39,7 +39,6 @@ gulp.task('compile_app', ['compile_components', 'compile_models'], function(){
         .pipe(gulp.dest(path.BUILD));
 });
 
-
 gulp.task('build', ['compile_app'], function(){
   return gulp.src([path.BUILD + 'app.js'])
     .pipe(browserify({}))

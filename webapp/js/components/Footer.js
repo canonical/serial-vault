@@ -17,6 +17,8 @@
 'use strict'
 var React = require('react');
 var Vault = require('../models/vault');
+var injectIntl = require('react-intl').injectIntl;
+
 
 var Footer = React.createClass({
 	getInitialState: function() {
@@ -36,14 +38,15 @@ var Footer = React.createClass({
   },
 
 	render: function() {
+		var M = this.props.intl.formatMessage;
 		return (
 			<footer className="global">
 				<div>
-					<p>Version: {this.state.version}</p>
+					<p>{M({id: 'version'})}: {this.state.version}</p>
 				</div>
 			</footer>
 		);
 	}
 });
 
-module.exports = Footer;
+module.exports = injectIntl(Footer);

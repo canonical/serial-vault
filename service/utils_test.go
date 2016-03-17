@@ -95,7 +95,7 @@ func TestFormatSignResponse(t *testing.T) {
 	const signature = "聖誕快樂NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf/TKTNraWeyGL49TDxun"
 
 	w := httptest.NewRecorder()
-	err := formatSignResponse(true, "", signature, w)
+	err := formatSignResponse(true, "", "", "", signature, w)
 	if err != nil {
 		t.Errorf("Error forming signing response: %v", err)
 	}
@@ -117,7 +117,7 @@ func TestFormatModelsResponse(t *testing.T) {
 	models = append(models, ModelDisplay{ID: 2, BrandID: "Vendor", Name: "Ash", Revision: 7})
 
 	w := httptest.NewRecorder()
-	err := formatModelsResponse(true, "", models, w)
+	err := formatModelsResponse(true, "", "", "", models, w)
 	if err != nil {
 		t.Errorf("Error forming models response: %v", err)
 	}

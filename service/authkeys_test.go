@@ -43,17 +43,17 @@ func TestListInvalidFile(t *testing.T) {
 
 func addSSHKeys(t *testing.T, auth *AuthorizedKeys) []string {
 	// Add a test ssh key (should create the file)
-	err := auth.Add("test ssh key")
+	_, err := auth.Add("test ssh key")
 	if err != nil {
 		t.Errorf("Expected success, got: %v", err)
 	}
 
-	err = auth.Add("another ssh key")
+	_, err = auth.Add("another ssh key")
 	if err != nil {
 		t.Errorf("Expected success, got: %v", err)
 	}
 
-	err = auth.Add("yet another ssh key")
+	_, err = auth.Add("yet another ssh key")
 	if err != nil {
 		t.Errorf("Expected success, got: %v", err)
 	}
@@ -80,9 +80,12 @@ func TestAdd(t *testing.T) {
 func TestAddInvalidKey(t *testing.T) {
 	auth := &AuthorizedKeys{path: "../test/authorized_keys_new"}
 
-	err := auth.Add("     ")
+	errorSubcode, err := auth.Add("     ")
 	if err == nil {
 		t.Error("Expected failure, got success.")
+	}
+	if errorSubcode != "error-validate-key" {
+		t.Errorf("Expected 'error-validate-key' message, got: %s", errorSubcode)
 	}
 
 	// Delete the created file
@@ -96,9 +99,12 @@ func TestAddDuplicateKey(t *testing.T) {
 	addSSHKeys(t, auth)
 
 	// Add a duplicate key
-	err := auth.Add("  yet another ssh key  ")
+	errorSubcode, err := auth.Add("  yet another ssh key  ")
 	if err == nil {
 		t.Error("Expected failure, got success.")
+	}
+	if errorSubcode != "error-key-exists" {
+		t.Errorf("Expected 'error-key-exists' message, got: %s", errorSubcode)
 	}
 
 	// Delete the created file
@@ -114,7 +120,7 @@ func TestDelete(t *testing.T) {
 	keys := addSSHKeys(t, auth)
 
 	// Delete one of the keys
-	err := auth.Delete(keys[1])
+	_, err := auth.Delete(keys[1])
 	if err != nil {
 		t.Errorf("Expected success, got: %v", err)
 	}
@@ -135,9 +141,12 @@ func TestDeleteKeyNotFound(t *testing.T) {
 	keys := addSSHKeys(t, auth)
 
 	// Delete one of the keys
-	err := auth.Delete("key that does not exist")
+	errorSubcode, err := auth.Delete("key that does not exist")
 	if err == nil {
 		t.Error("Expected error, got success.")
+	}
+	if errorSubcode != "error-key-not-found" {
+		t.Errorf("Expected 'error-key-not-found' message, got: %s", errorSubcode)
 	}
 
 	keysAfterDelete := auth.List()
@@ -153,9 +162,12 @@ func TestDeleteFileNotFound(t *testing.T) {
 	auth := &AuthorizedKeys{path: "../test/authorized_keys_new"}
 
 	// Delete one of the keys
-	err := auth.Delete("key that does not exist")
+	errorSubcode, err := auth.Delete("key that does not exist")
 	if err == nil {
 		t.Error("Expected error, got success.")
+	}
+	if errorSubcode != "error-key-not-found" {
+		t.Errorf("Expected 'error-key-not-found' message, got: %s", errorSubcode)
 	}
 
 	keysAfterDelete := auth.List()
