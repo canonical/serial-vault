@@ -140,11 +140,11 @@ func (db *DB) CreateModel(model Model) (int, string, error) {
 		return 0, "error-model-exists", errors.New("A device with the same Brand, Model and Revision already exists")
 	}
 
-	// Verify that the signing-key is valid
-	_, err = ClearSign("Text to Sign", model.SigningKey, "")
-	if err != nil {
-		return 0, "error-invalid-key", errors.New("The Signing-key is invalid")
-	}
+	// TODO: Verify that the signing-key is valid
+	// _, err = ClearSign("Text to Sign", model.SigningKey, "")
+	// if err != nil {
+	// 	return 0, "error-invalid-key", errors.New("The Signing-key is invalid")
+	// }
 
 	// Create the model in the database
 	_, err = db.Exec(createModelSQL, model.BrandID, model.Name, model.Revision)
@@ -160,17 +160,25 @@ func (db *DB) CreateModel(model Model) (int, string, error) {
 	}
 
 	// Store the signing-key in the keystore
-	keystore := GetKeyStore()
-	keyLocation, err := keystore.Put([]byte(model.SigningKey), *mdl)
-	if err != nil {
-		return 0, "", err
-	}
+	//TODO: use the asserts module to store the new signing-key
+	// create the privateKey object
+	//Environ.KeypairDB.Put(authorityID, privateKey)
+
+	// keystore, err := GetKeyStore()
+	// if err != nil {
+	// 	return 0, "", err
+	// }
+	// keyLocation, err := keystore.Put([]byte(model.SigningKey), *mdl)
+	// if err != nil {
+	// 	return 0, "", err
+	// }
 
 	// Update the reference to the stored signing-key in the model
-	err = db.updateModelKey(mdl.ID, keyLocation)
-	if err != nil {
-		return 0, "", err
-	}
+	// TODO: remove as we use keyID instead
+	// err = db.updateModelKey(mdl.ID, keyLocation)
+	// if err != nil {
+	// 	return 0, "", err
+	// }
 
 	return mdl.ID, "", nil
 }

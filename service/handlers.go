@@ -24,30 +24,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/ubuntu-core/snappy/asserts"
 )
 
-// Assertions are the details of the device
-type Assertions struct {
-	Brand        string `json:"brand-id"`
-	Model        string `json:"model"`
-	SerialNumber string `json:"serial"`
-	Type         string `json:"type"`
-	Revision     int    `json:"revision"`
-	PublicKey    string `json:"device-key"`
-}
-
-// ModelDisplay is the JSON version of a model, excluding the signing-key
+// ModelDisplay is the JSON version of a model, with the signing key ID
 type ModelDisplay struct {
 	ID       int    `json:"id"`
 	BrandID  string `json:"brand-id"`
 	Name     string `json:"model"`
 	Type     string `json:"type"`
 	Revision int    `json:"revision"`
+	KeyID    string `json:"key-id"`
 }
 
 // ModelWithKey is the JSON version of a model, including the signing-key
@@ -111,67 +104,66 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-nil-data", "", "Uninitialized POST data", "", w)
+		formatSignResponse(false, "error-nil-data", "", "Uninitialized POST data", nil, w)
 		return
 	}
 
-	assertions := new(Assertions)
-	err := json.NewDecoder(r.Body).Decode(&assertions)
+	// Read the full request body
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+	if len(data) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-sign-empty", "", "No data supplied for signing", nil, w)
+		return
+	}
 
 	defer r.Body.Close()
 
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-sign-empty", "", "No data supplied for signing", "", w)
-		return
-		// Check for parsing errors
-	case err != nil:
+	// Use the ubuntu-core assertions module to decode the body and validate
+	assertion, err := asserts.Decode(data)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
-		formatSignResponse(false, "error-decode-json", "", errorMessage, "", w)
+		formatSignResponse(false, "error-decode-json", "", errorMessage, nil, w)
+		return
+	}
+
+	// Check that we have a device-serial assertion (the details will have been validated by Decode call)
+	if assertion.Header("type") != "device-serial" {
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'device-serial'", nil, w)
+		return
+	}
+
+	revision, err := strconv.Atoi(assertion.Header("revision"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-decode-assertion", "error-invalid-revision", "The revision is invalid", nil, w)
 		return
 	}
 
 	// Validate the model by checking that it exists on the database
-	model, err := Environ.DB.FindModel(assertions.Brand, assertions.Model, assertions.Revision)
+	model, err := Environ.DB.FindModel(assertion.Header("brand-id"), assertion.Header("model"), revision)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		formatSignResponse(false, "error-model-not-found", "", "Cannot find model with the matching brand, model and revision", "", w)
+		formatSignResponse(false, "error-model-not-found", "", "Cannot find model with the matching brand, model and revision", nil, w)
 		return
 	}
 
-	// Format the assertions string
-	dataToSign, err := formatAssertion(assertions)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatSignResponse(false, "error-format-assertions", "", errorMessage, "", w)
-		return
-	}
-
-	// Read the private key into a string using the model's signing key
-	privateKey, err := getPrivateKey(model.SigningKey)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatSignResponse(false, "error-read-private-key", "", errorMessage, "", w)
-		return
-	}
-
-	// Sign the assertions
-	signedText, err := ClearSign(dataToSign, string(privateKey), "")
+	// Sign the assertion with the ubuntu-core assertions module
+	signedAssertion, err := Environ.KeypairDB.Sign(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.SigningKey)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("%v", err)
-		formatSignResponse(false, "error-signing-assertions", "", errorMessage, "", w)
+		formatSignResponse(false, "error-signing-assertions", "", errorMessage, signedAssertion, w)
 		return
 	}
 
 	// Return successful JSON response with the signed text
 	w.WriteHeader(http.StatusOK)
-	formatSignResponse(true, "", "", "", string(signedText), w)
+	formatSignResponse(true, "", "", "", signedAssertion, w)
 }
 
 func modelForDisplay(model Model) ModelDisplay {

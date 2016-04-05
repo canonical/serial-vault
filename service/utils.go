@@ -25,7 +25,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
+
+	"github.com/ubuntu-core/snappy/asserts"
 
 	"gopkg.in/yaml.v2"
 )
@@ -61,6 +62,7 @@ type Env struct {
 	Config         ConfigSettings
 	DB             Datastore
 	AuthorizedKeys AuthorizedKeystore
+	KeypairDB      *asserts.Database
 }
 
 var settingsFile string
@@ -87,38 +89,20 @@ func ReadConfig(config *ConfigSettings) error {
 	return nil
 }
 
-func formatAssertion(assertions *Assertions) (string, error) {
-	timestamp := time.Now().UTC().String()
-	assertion := DeviceAssertion{
-		Type: "device", Brand: assertions.Brand, Model: assertions.Model,
-		SerialNumber: assertions.SerialNumber, Timestamp: timestamp, Revision: assertions.Revision,
-		PublicKey: assertions.PublicKey}
+func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
+	if assertion == nil {
+		response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: ""}
 
-	dataToSign, err := yaml.Marshal(assertion)
-	if err != nil {
-		log.Println("Error formatting the assertions.")
-		return "", err
+		// Encode the response as JSON
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Println("Error forming the signing response.")
+			return err
+		}
+	} else {
+		log.Println("-------------------------")
+		log.Printf("%v", assertion)
 	}
-	return string(dataToSign), nil
-}
 
-// Return the armored private key as a string
-func getPrivateKey(privateKeyFilePath string) ([]byte, error) {
-	privateKey, err := ioutil.ReadFile(privateKeyFilePath)
-	if err != nil {
-		return nil, err
-	}
-	return privateKey, nil
-}
-
-func formatSignResponse(success bool, errorCode, errorSubcode, message, signature string, w http.ResponseWriter) error {
-	response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: signature}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the signing response.")
-		return err
-	}
 	return nil
 }
 
