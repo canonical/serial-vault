@@ -100,7 +100,20 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the signing-key in the database
+	keypair := Keypair{
+		AuthorityID: keypairWithKey.AuthorityID,
+		KeyID:       privateKey.PublicKey().ID(),
+	}
+	errorCode, err = Environ.DB.PutKeypair(keypair)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, errorCode, "", err.Error(), w)
+		return
+	}
 
+	// Return success response
+	w.WriteHeader(http.StatusOK)
+	formatBooleanResponse(true, "", "", "", w)
 }
 
 // deserializePrivateKey decodes a base64 encoded private key file and converts

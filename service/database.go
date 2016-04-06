@@ -35,6 +35,11 @@ type Datastore interface {
 	UpdateModel(model Model) (string, error)
 	CreateModel(model Model) (int, string, error)
 	CreateModelTable() error
+
+	ListKeypairs() ([]Keypair, error)
+	GetKeypair(keypairID int) (*Keypair, error)
+	PutKeypair(keypair Keypair) (string, error)
+	CreateKeypairTable() error
 }
 
 // DB local database interface with our custom methods.
