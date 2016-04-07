@@ -91,6 +91,7 @@ func ReadConfig(config *ConfigSettings) error {
 
 func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
 	if assertion == nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: ""}
 
 		// Encode the response as JSON
@@ -99,8 +100,15 @@ func formatSignResponse(success bool, errorCode, errorSubcode, message string, a
 			return err
 		}
 	} else {
-		log.Println("-------------------------")
-		log.Printf("%v", assertion)
+		w.Header().Set("Content-Type", asserts.MediaType)
+		w.WriteHeader(http.StatusOK)
+		encoder := asserts.NewEncoder(w)
+		err := encoder.Encode(assertion)
+		if err != nil {
+			// Not much we can do if we're here - apart from panic!
+			log.Println("Error encoding the assertion.")
+			return err
+		}
 	}
 
 	return nil
@@ -118,6 +126,7 @@ func formatModelsResponse(success bool, errorCode, errorSubcode, message string,
 }
 
 func formatBooleanResponse(success bool, errorCode, errorSubcode, message string, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	response := BooleanResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
 
 	// Encode the response as JSON

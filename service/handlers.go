@@ -91,8 +91,6 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 
 // SignHandler is the API method to sign assertions from the device
 func SignHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatSignResponse(false, "error-nil-data", "", "Uninitialized POST data", nil, w)
@@ -153,7 +151,6 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return successful JSON response with the signed text
-	w.WriteHeader(http.StatusOK)
 	formatSignResponse(true, "", "", "", signedAssertion, w)
 }
 
