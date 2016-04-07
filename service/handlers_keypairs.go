@@ -90,8 +90,6 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 		formatBooleanResponse(false, errorCode, "", err.Error(), w)
 		return
 	}
-	fmt.Println(privateKey.PublicKey().ID())
-	fmt.Println(privateKey.PublicKey().Fingerprint())
 
 	// Store the signing-key in the keypair store using the asserts module
 	err = Environ.KeypairDB.ImportKey(keypairWithKey.AuthorityID, privateKey)

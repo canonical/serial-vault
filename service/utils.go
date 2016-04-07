@@ -106,7 +106,7 @@ func formatSignResponse(success bool, errorCode, errorSubcode, message string, a
 	return nil
 }
 
-func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelDisplay, w http.ResponseWriter) error {
+func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelSerialize, w http.ResponseWriter) error {
 	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
 
 	// Encode the response as JSON
@@ -128,7 +128,7 @@ func formatBooleanResponse(success bool, errorCode, errorSubcode, message string
 	return nil
 }
 
-func formatModelResponse(success bool, errorCode, errorSubcode, message string, model ModelDisplay, w http.ResponseWriter) error {
+func formatModelResponse(success bool, errorCode, errorSubcode, message string, model ModelSerialize, w http.ResponseWriter) error {
 	response := ModelResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Model: model}
 
 	// Encode the response as JSON

@@ -20,7 +20,6 @@
 package service
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,24 +32,16 @@ import (
 	"github.com/ubuntu-core/snappy/asserts"
 )
 
-// ModelDisplay is the JSON version of a model, with the signing key ID
-type ModelDisplay struct {
-	ID       int    `json:"id"`
-	BrandID  string `json:"brand-id"`
-	Name     string `json:"model"`
-	Type     string `json:"type"`
-	Revision int    `json:"revision"`
-	KeyID    string `json:"key-id"`
-}
-
-// ModelWithKey is the JSON version of a model, including the signing-key
-type ModelWithKey struct {
-	ID         int    `json:"id"`
-	BrandID    string `json:"brand-id"`
-	Name       string `json:"model"`
-	Type       string `json:"type"`
-	SigningKey string `json:"signing-key"`
-	Revision   int    `json:"revision"`
+// ModelSerialize is the JSON version of a model, with the signing key ID
+type ModelSerialize struct {
+	ID          int    `json:"id"`
+	BrandID     string `json:"brand-id"`
+	Name        string `json:"model"`
+	Type        string `json:"type"`
+	KeypairID   int    `json:"keypair-id"`
+	Revision    int    `json:"revision"`
+	AuthorityID string `json:"authority-id"`
+	KeyID       string `json:"key-id"`
 }
 
 // VersionResponse is the JSON response from the API Version method
@@ -69,20 +60,20 @@ type SignResponse struct {
 
 // ModelsResponse is the JSON response from the API Models method
 type ModelsResponse struct {
-	Success      bool           `json:"success"`
-	ErrorCode    string         `json:"error_code"`
-	ErrorSubcode string         `json:"error_subcode"`
-	ErrorMessage string         `json:"message"`
-	Models       []ModelDisplay `json:"models"`
+	Success      bool             `json:"success"`
+	ErrorCode    string           `json:"error_code"`
+	ErrorSubcode string           `json:"error_subcode"`
+	ErrorMessage string           `json:"message"`
+	Models       []ModelSerialize `json:"models"`
 }
 
 // ModelResponse is the JSON response from the API Get Model method
 type ModelResponse struct {
-	Success      bool         `json:"success"`
-	ErrorCode    string       `json:"error_code"`
-	ErrorSubcode string       `json:"error_subcode"`
-	ErrorMessage string       `json:"message"`
-	Model        ModelDisplay `json:"model"`
+	Success      bool           `json:"success"`
+	ErrorCode    string         `json:"error_code"`
+	ErrorSubcode string         `json:"error_subcode"`
+	ErrorMessage string         `json:"message"`
+	Model        ModelSerialize `json:"model"`
 }
 
 // VersionHandler is the API method to return the version of the service
@@ -153,7 +144,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sign the assertion with the ubuntu-core assertions module
-	signedAssertion, err := Environ.KeypairDB.Sign(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.SigningKey)
+	signedAssertion, err := Environ.KeypairDB.Sign(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.KeyID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -166,15 +157,15 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	formatSignResponse(true, "", "", "", signedAssertion, w)
 }
 
-func modelForDisplay(model Model) ModelDisplay {
-	return ModelDisplay{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision}
+func modelForDisplay(model Model) ModelSerialize {
+	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID}
 }
 
 // ModelsHandler is the API method to list the models
 func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	var models []ModelDisplay
+	var models []ModelSerialize
 
 	dbModels, err := Environ.DB.ListModels()
 	if err != nil {
@@ -207,7 +198,7 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("%v", vars)
-		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelDisplay{}, w)
+		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelSerialize{}, w)
 		return
 	}
 
@@ -215,13 +206,13 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
-		formatModelResponse(false, "error-get-model", "", errorMessage, ModelDisplay{ID: modelID}, w)
+		formatModelResponse(false, "error-get-model", "", errorMessage, ModelSerialize{ID: modelID}, w)
 		return
 	}
 
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
-	mdl := modelForDisplay(*model)
+	mdl := modelForDisplay(model)
 	formatModelResponse(true, "", "", "", mdl, w)
 }
 
@@ -235,32 +226,32 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("%v", vars["id"])
-		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelDisplay{}, w)
+		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelSerialize{}, w)
 		return
 	}
 
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelDisplay{}, w)
+		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelSerialize{}, w)
 		return
 	}
 	defer r.Body.Close()
 
 	// Decode the JSON body
-	mdl := ModelDisplay{}
+	mdl := ModelSerialize{}
 	err = json.NewDecoder(r.Body).Decode(&mdl)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-model-data", "", "No model data supplied.", ModelDisplay{}, w)
+		formatModelResponse(false, "error-model-data", "", "No model data supplied.", ModelSerialize{}, w)
 		return
 		// Check for parsing errors
 	case err != nil:
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelDisplay{}, w)
+		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelSerialize{}, w)
 		return
 	}
 
@@ -285,51 +276,40 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelDisplay{}, w)
+		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelSerialize{}, w)
 		return
 	}
 	defer r.Body.Close()
 
 	// Decode the JSON body
-	mdlWithKey := ModelWithKey{}
+	mdlWithKey := ModelSerialize{}
 	err := json.NewDecoder(r.Body).Decode(&mdlWithKey)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
 		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-model-data", "", "No model data supplied", ModelDisplay{}, w)
+		formatModelResponse(false, "error-model-data", "", "No model data supplied", ModelSerialize{}, w)
 		return
 		// Check for parsing errors
 	case err != nil:
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelDisplay{}, w)
+		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelSerialize{}, w)
 		return
 	}
 
-	// The signing-key is base64 encoded, so we need to decode it
-	decodedSigningKey, err := base64.StdEncoding.DecodeString(mdlWithKey.SigningKey)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-decode-key", "", errorMessage, ModelDisplay{}, w)
-		return
-	}
-	mdlWithKey.SigningKey = string(decodedSigningKey)
-
-	// Store the signing-key in the keystore and create a new model
-	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, SigningKey: mdlWithKey.SigningKey, Revision: mdlWithKey.Revision}
+	// Create a new model, linked to the existing signing-key
+	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, Revision: mdlWithKey.Revision}
 	errorSubcode := ""
-	model.ID, errorSubcode, err = Environ.DB.CreateModel(model)
+	model, errorSubcode, err = Environ.DB.CreateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-creating-model", errorSubcode, errorMessage, ModelDisplay{}, w)
+		formatModelResponse(false, "error-creating-model", errorSubcode, errorMessage, ModelSerialize{}, w)
 		return
 	}
 
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
-	mdl := modelForDisplay(model)
-	formatModelResponse(true, "", "", "", mdl, w)
+	formatModelResponse(true, "", "", "", modelForDisplay(model), w)
 }

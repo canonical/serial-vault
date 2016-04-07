@@ -112,9 +112,9 @@ func TestFormatSignResponse(t *testing.T) {
 }
 
 func TestFormatModelsResponse(t *testing.T) {
-	var models []ModelDisplay
-	models = append(models, ModelDisplay{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂", Revision: 1})
-	models = append(models, ModelDisplay{ID: 2, BrandID: "Vendor", Name: "Ash", Revision: 7})
+	var models []ModelSerialize
+	models = append(models, ModelSerialize{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂", Revision: 1})
+	models = append(models, ModelSerialize{ID: 2, BrandID: "Vendor", Name: "Ash", Revision: 7})
 
 	w := httptest.NewRecorder()
 	err := formatModelsResponse(true, "", "", "", models, w)

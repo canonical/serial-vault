@@ -34,19 +34,19 @@ func main() {
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
-	// Create the model table, if it does not exist
-	err := env.DB.CreateModelTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'model' table.")
-	}
-
 	// Create the keypair table, if it does not exist
-	err = env.DB.CreateKeypairTable()
+	err := env.DB.CreateKeypairTable()
 	if err != nil {
 		log.Fatal(err)
 	} else {
 		log.Println("Created the 'keypair' table.")
+	}
+
+	// Create the model table, if it does not exist
+	err = env.DB.CreateModelTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Created the 'model' table.")
 	}
 }
