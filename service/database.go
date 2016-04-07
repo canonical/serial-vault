@@ -39,6 +39,7 @@ type Datastore interface {
 	ListKeypairs() ([]Keypair, error)
 	GetKeypair(keypairID int) (*Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
+	UpdateKeypairActive(keypairID int, active bool) error
 	CreateKeypairTable() error
 }
 

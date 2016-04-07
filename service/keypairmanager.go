@@ -27,13 +27,15 @@ import (
 
 const createKeypairTableSQL = `
 	CREATE TABLE IF NOT EXISTS keypair (
-		id          serial primary key not null,
-		authority_id    varchar(200) not null,
-		key_id        varchar(200) not null
+		id            serial primary key not null,
+		authority_id  varchar(200) not null,
+		key_id        varchar(200) not null,
+		active        boolean default true
 	)
 `
 const listKeypairsSQL = "select id, authority_id, key_id from keypair order by authority_id, key_id"
 const getKeypairSQL = "select id, authority_id, key_id from keypair where id=$1"
+const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const upsertKeypairSQL = `
 	WITH upsert AS (
 		update keypair set authority_id=$1, key_id=$2 RETURNING *
@@ -48,6 +50,7 @@ type Keypair struct {
 	ID          int
 	AuthorityID string
 	KeyID       string
+	Active      bool
 }
 
 // CreateKeypairTable creates the database table for a keypair.
@@ -83,7 +86,7 @@ func (db *DB) ListKeypairs() ([]Keypair, error) {
 func (db *DB) GetKeypair(keypairID int) (*Keypair, error) {
 	keypair := Keypair{}
 
-	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID)
+	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
 		return nil, err
@@ -106,4 +109,15 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 	}
 
 	return "", nil
+}
+
+// UpdateKeypairActive sets the active state of a keypair
+func (db *DB) UpdateKeypairActive(keypairID int, active bool) error {
+	_, err := db.Exec(toggleKeypairSQL, keypairID, active)
+	if err != nil {
+		log.Printf("Error updating the database keypair: %v\n", err)
+		return err
+	}
+
+	return nil
 }

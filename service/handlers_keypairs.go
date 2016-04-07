@@ -27,8 +27,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/ubuntu-core/snappy/asserts"
 
 	"golang.org/x/crypto/openpgp/armor"
@@ -141,4 +143,44 @@ func deserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string,
 		return nil, "error-invalid-key", errors.New("Not a private key")
 	}
 	return asserts.OpenPGPPrivateKey(privateKey), "", nil
+}
+
+// KeypairDisableHandler disables an existing keypair, which will mean that any
+// linked Models will not be able to be signed. The asserts module does not allow
+// a keypair to be deleted, so the keypair will just be disabled in the local database.
+func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the keypair primary key
+	vars := mux.Vars(r)
+	keypairID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars["id"])
+		formatBooleanResponse(false, "error-invalid-keypair", "", errorMessage, w)
+		return
+	}
+
+	// Update the keypair in the local database
+	Environ.DB.UpdateKeypairActive(keypairID, false)
+}
+
+// KeypairEnableHandler enables an existing keypair, which will mean that any
+// linked Models will be able to be signed. The asserts module does not allow
+// a keypair to be deleted, so the keypair will just be enabled in the local database.
+func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the keypair primary key
+	vars := mux.Vars(r)
+	keypairID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars["id"])
+		formatBooleanResponse(false, "error-invalid-keypair", "", errorMessage, w)
+		return
+	}
+
+	// Update the keypair in the local database
+	Environ.DB.UpdateKeypairActive(keypairID, true)
 }
