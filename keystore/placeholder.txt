@@ -1,1 +1,3 @@
 The default location for a filesystem keystore.
+
+A test key is provided that is used in the unit tests.

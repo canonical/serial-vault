@@ -23,11 +23,7 @@ import (
 	"encoding/json"
 	"net/http/httptest"
 	"testing"
-
-	"gopkg.in/yaml.v2"
 )
-
-const TestPrivateKeyPath = "../TestKey.asc"
 
 func TestReadConfig(t *testing.T) {
 	settingsFile = "../settings.yaml"
@@ -53,61 +49,6 @@ func TestReadConfigInvalidFile(t *testing.T) {
 	err := ReadConfig(&config)
 	if err == nil {
 		t.Error("Expected an error with an invalid config file.")
-	}
-}
-
-func TestFormatAssertion(t *testing.T) {
-	assertions := Assertions{Brand: "System", Model: "聖誕快樂", SerialNumber: "ABC1234",
-		PublicKey: "ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf/TKTNraWeyGL49TDxunDkf5T8yfCWbOaQCWFsr8yK2oawp3DNBjC4C9eYVN"}
-
-	var identity DeviceAssertion
-
-	response, err := formatAssertion(&assertions)
-	if err != nil {
-		t.Errorf("Error formatting the assertions: %v", err)
-	}
-	yaml.Unmarshal([]byte(response), &identity)
-
-	if identity.PublicKey != assertions.PublicKey || identity.Brand != assertions.Brand ||
-		identity.Model != assertions.Model || identity.SerialNumber != assertions.SerialNumber {
-		t.Error("Formatted assertion not as expected.")
-	}
-}
-
-func TestGetPrivateKey(t *testing.T) {
-	key, err := getPrivateKey(TestPrivateKeyPath)
-	if err != nil {
-		t.Errorf("Error reading the private key file: %v", err)
-	}
-	if len(key) == 0 {
-		t.Errorf("Empty private key returned.")
-	}
-}
-
-func TestGetPrivateKeyInvalidPath(t *testing.T) {
-	_, err := getPrivateKey("Not a good path")
-	if err == nil {
-		t.Error("Expected an error when using an invalid file path.")
-	}
-}
-
-func TestFormatSignResponse(t *testing.T) {
-	const signature = "聖誕快樂NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf/TKTNraWeyGL49TDxun"
-
-	w := httptest.NewRecorder()
-	err := formatSignResponse(true, "", "", "", signature, w)
-	if err != nil {
-		t.Errorf("Error forming signing response: %v", err)
-	}
-
-	var result SignResponse
-	err = json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-
-	if result.Signature != signature || !result.Success || result.ErrorMessage != "" {
-		t.Errorf("Signed response not as expected: %v", result)
 	}
 }
 

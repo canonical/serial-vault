@@ -160,7 +160,14 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	Environ.DB.UpdateKeypairActive(keypairID, false)
+	err = Environ.DB.UpdateKeypairActive(keypairID, false)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
+		return
+	}
+
+	formatBooleanResponse(true, "", "", "", w)
 }
 
 // KeypairEnableHandler enables an existing keypair, which will mean that any
@@ -180,5 +187,11 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	Environ.DB.UpdateKeypairActive(keypairID, true)
+	err = Environ.DB.UpdateKeypairActive(keypairID, true)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
+		return
+	}
+	formatBooleanResponse(true, "", "", "", w)
 }

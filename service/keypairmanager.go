@@ -83,16 +83,16 @@ func (db *DB) ListKeypairs() ([]Keypair, error) {
 }
 
 // GetKeypair fetches a single keypair from the database by ID
-func (db *DB) GetKeypair(keypairID int) (*Keypair, error) {
+func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{}
 
 	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
-		return nil, err
+		return keypair, err
 	}
 
-	return &keypair, nil
+	return keypair, nil
 }
 
 // PutKeypair stores a keypair in the database

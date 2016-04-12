@@ -100,7 +100,9 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Read the full request body
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-sign-read", "", err.Error(), nil, w)
+		return
 	}
 	if len(data) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -114,8 +116,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	assertion, err := asserts.Decode(data)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatSignResponse(false, "error-decode-json", "", errorMessage, nil, w)
+		formatSignResponse(false, "error-decode-json", "", err.Error(), nil, w)
 		return
 	}
 
@@ -145,8 +146,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	signedAssertion, err := Environ.KeypairDB.Sign(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.KeyID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatSignResponse(false, "error-signing-assertions", "", errorMessage, signedAssertion, w)
+		formatSignResponse(false, "error-signing-assertions", "", err.Error(), signedAssertion, w)
 		return
 	}
 
