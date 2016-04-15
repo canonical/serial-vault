@@ -121,21 +121,14 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that we have a device-serial assertion (the details will have been validated by Decode call)
-	if assertion.Header("type") != "device-serial" {
+	if assertion.Type() != asserts.DeviceSerialType {
 		w.WriteHeader(http.StatusBadRequest)
 		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'device-serial'", nil, w)
 		return
 	}
 
-	revision, err := strconv.Atoi(assertion.Header("revision"))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-decode-assertion", "error-invalid-revision", "The revision is invalid", nil, w)
-		return
-	}
-
 	// Validate the model by checking that it exists on the database
-	model, err := Environ.DB.FindModel(assertion.Header("brand-id"), assertion.Header("model"), revision)
+	model, err := Environ.DB.FindModel(assertion.Header("brand-id"), assertion.Header("model"), assertion.Revision())
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		formatSignResponse(false, "error-model-not-found", "", "Cannot find model with the matching brand, model and revision", nil, w)

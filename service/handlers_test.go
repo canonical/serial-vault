@@ -70,7 +70,7 @@ func TestSignHandler(t *testing.T) {
 
 	const assertions = `type: device-serial
 authority-id: System
-brand-id: Vendor
+brand-id: System
 model: Alder
 serial: A1234/L
 revision: 1
@@ -263,7 +263,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 
 	const assertions = `type: device-serial
 authority-id: System
-brand-id: Vendor
+brand-id: System
 model: Alder
 serial: A1234/L
 revision: 1

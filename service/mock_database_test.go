@@ -49,7 +49,10 @@ func (mdb *mockDB) ListModels() ([]Model, error) {
 
 // FindModel mocks the database response for finding a model
 func (mdb *mockDB) FindModel(brandID, modelName string, revision int) (Model, error) {
-	model := Model{ID: 1, BrandID: "Vendor", Name: "Alder", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3"}
+	model := Model{ID: 1, BrandID: "System", Name: "Alder", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3"}
+	if model.BrandID != brandID || model.Name != modelName || model.Revision != revision {
+		return model, errors.New("Cannot find a model for that brand, model and revision")
+	}
 	return model, nil
 }
 
