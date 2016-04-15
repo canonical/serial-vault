@@ -30,11 +30,17 @@ import (
 // Datastore interface for the database logic
 type Datastore interface {
 	ListModels() ([]Model, error)
-	FindModel(brandID, modelName string, revision int) (*Model, error)
-	GetModel(modelID int) (*Model, error)
+	FindModel(brandID, modelName string, revision int) (Model, error)
+	GetModel(modelID int) (Model, error)
 	UpdateModel(model Model) (string, error)
-	CreateModel(model Model) (int, string, error)
+	CreateModel(model Model) (Model, string, error)
 	CreateModelTable() error
+
+	ListKeypairs() ([]Keypair, error)
+	GetKeypair(keypairID int) (Keypair, error)
+	PutKeypair(keypair Keypair) (string, error)
+	UpdateKeypairActive(keypairID int, active bool) error
+	CreateKeypairTable() error
 }
 
 // DB local database interface with our custom methods.

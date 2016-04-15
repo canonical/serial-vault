@@ -20,53 +20,27 @@
 package service
 
 import (
-	"fmt"
-	"io/ioutil"
-	"log"
+	"errors"
+
+	"github.com/ubuntu-core/snappy/asserts"
 )
 
-// KeyStore interface to save and retrieve a signing-key
-type KeyStore interface {
-	Put(data []byte, model Model) (string, error)
-	Get(model Model) ([]byte, error)
-}
+// keypairDatabase holds the storage of the private keys for signing. The are
+// accessed by using the authority-id and key-id.
+var keypairDatabase *asserts.Database
 
 // GetKeyStore returns the keystore as defined in the config file
-func GetKeyStore() KeyStore {
+func GetKeyStore(config ConfigSettings) (*asserts.Database, error) {
 	switch {
-	case Environ.Config.KeyStoreType == "filesystem":
-		return FilesystemKeyStore{Path: Environ.Config.KeyStorePath}
+	case config.KeyStoreType == "filesystem":
+		fsStore, err := asserts.OpenFSKeypairManager(config.KeyStorePath)
+		if err != nil {
+			return nil, err
+		}
+		db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
+			KeypairManager: fsStore,
+		})
+		return db, err
 	}
-	return nil
-}
-
-// FilesystemKeyStore that stores signing-keys in the filesystem
-type FilesystemKeyStore struct {
-	Path string
-}
-
-func (fs FilesystemKeyStore) fullPath(model Model) string {
-	// Format the path name for the keystore file
-	return fmt.Sprintf("%s/model%d", fs.Path, model.ID)
-}
-
-// Put creates a new signing-key in the keystore for a specific model/revision
-func (fs FilesystemKeyStore) Put(data []byte, model Model) (string, error) {
-	fullPath := fs.fullPath(model)
-	err := ioutil.WriteFile(fullPath, data, 0600)
-	if err != nil {
-		log.Printf("Error saving key to keystore: %s", fullPath)
-	}
-
-	return fullPath, err
-}
-
-// Get fetches the signing-key for a specific model/revision from the keystore
-func (fs FilesystemKeyStore) Get(model Model) ([]byte, error) {
-	fullPath := fs.fullPath(model)
-	data, err := ioutil.ReadFile(fullPath)
-	if err != nil {
-		log.Printf("Error retrieving key to keystore: %s", fullPath)
-	}
-	return data, err
+	return nil, errors.New("Invalid keystore type specified.")
 }

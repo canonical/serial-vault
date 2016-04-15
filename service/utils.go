@@ -25,21 +25,21 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
+
+	"github.com/ubuntu-core/snappy/asserts"
 
 	"gopkg.in/yaml.v2"
 )
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
-	PrivateKeyPath string `yaml:"privateKeyPath"`
-	Version        string `yaml:"version"`
-	Title          string `yaml:"title"`
-	Logo           string `yaml:"logo"`
-	Driver         string `yaml:"driver"`
-	DataSource     string `yaml:"datasource"`
-	KeyStoreType   string `yaml:"keystore"`
-	KeyStorePath   string `yaml:"keystorePath"`
+	Version      string `yaml:"version"`
+	Title        string `yaml:"title"`
+	Logo         string `yaml:"logo"`
+	Driver       string `yaml:"driver"`
+	DataSource   string `yaml:"datasource"`
+	KeyStoreType string `yaml:"keystore"`
+	KeyStorePath string `yaml:"keystorePath"`
 }
 
 // DeviceAssertion defines the device identity.
@@ -61,6 +61,7 @@ type Env struct {
 	Config         ConfigSettings
 	DB             Datastore
 	AuthorizedKeys AuthorizedKeystore
+	KeypairDB      *asserts.Database
 }
 
 var settingsFile string
@@ -87,42 +88,32 @@ func ReadConfig(config *ConfigSettings) error {
 	return nil
 }
 
-func formatAssertion(assertions *Assertions) (string, error) {
-	timestamp := time.Now().UTC().String()
-	assertion := DeviceAssertion{
-		Type: "device", Brand: assertions.Brand, Model: assertions.Model,
-		SerialNumber: assertions.SerialNumber, Timestamp: timestamp, Revision: assertions.Revision,
-		PublicKey: assertions.PublicKey}
+func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
+	if assertion == nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: ""}
 
-	dataToSign, err := yaml.Marshal(assertion)
-	if err != nil {
-		log.Println("Error formatting the assertions.")
-		return "", err
+		// Encode the response as JSON
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Println("Error forming the signing response.")
+			return err
+		}
+	} else {
+		w.Header().Set("Content-Type", asserts.MediaType)
+		w.WriteHeader(http.StatusOK)
+		encoder := asserts.NewEncoder(w)
+		err := encoder.Encode(assertion)
+		if err != nil {
+			// Not much we can do if we're here - apart from panic!
+			log.Println("Error encoding the assertion.")
+			return err
+		}
 	}
-	return string(dataToSign), nil
-}
 
-// Return the armored private key as a string
-func getPrivateKey(privateKeyFilePath string) ([]byte, error) {
-	privateKey, err := ioutil.ReadFile(privateKeyFilePath)
-	if err != nil {
-		return nil, err
-	}
-	return privateKey, nil
-}
-
-func formatSignResponse(success bool, errorCode, errorSubcode, message, signature string, w http.ResponseWriter) error {
-	response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: signature}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the signing response.")
-		return err
-	}
 	return nil
 }
 
-func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelDisplay, w http.ResponseWriter) error {
+func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelSerialize, w http.ResponseWriter) error {
 	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
 
 	// Encode the response as JSON
@@ -134,6 +125,7 @@ func formatModelsResponse(success bool, errorCode, errorSubcode, message string,
 }
 
 func formatBooleanResponse(success bool, errorCode, errorSubcode, message string, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	response := BooleanResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
 
 	// Encode the response as JSON
@@ -144,7 +136,7 @@ func formatBooleanResponse(success bool, errorCode, errorSubcode, message string
 	return nil
 }
 
-func formatModelResponse(success bool, errorCode, errorSubcode, message string, model ModelDisplay, w http.ResponseWriter) error {
+func formatModelResponse(success bool, errorCode, errorSubcode, message string, model ModelSerialize, w http.ResponseWriter) error {
 	response := ModelResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Model: model}
 
 	// Encode the response as JSON

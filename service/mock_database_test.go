@@ -29,27 +29,35 @@ func (mdb *mockDB) CreateModelTable() error {
 	return nil
 }
 
+// CreateKeypairTable mock for the create keypair table method
+func (mdb *mockDB) CreateKeypairTable() error {
+	return nil
+}
+
 // ModelsList Mock the database response for a list of models
 func (mdb *mockDB) ListModels() ([]Model, error) {
 
 	var models []Model
-	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "Alder", SigningKey: "alder", Revision: 1})
-	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "Ash", SigningKey: "ash", Revision: 7})
-	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "Basswood", SigningKey: "basswood", Revision: 23})
-	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "Korina", SigningKey: "korina", Revision: 42})
-	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "Mahogany", SigningKey: "mahogany", Revision: 10})
-	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "Maple", SigningKey: "maple", Revision: 12})
+	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "Alder", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "Ash", KeypairID: 1, Revision: 7, AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "Basswood", KeypairID: 1, Revision: 23, AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "Korina", KeypairID: 1, Revision: 42, AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "Mahogany", KeypairID: 1, Revision: 10, AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "Maple", KeypairID: 1, Revision: 12, AuthorityID: "System", KeyID: "61abf588e52be7a3"})
 	return models, nil
 }
 
 // FindModel mocks the database response for finding a model
-func (mdb *mockDB) FindModel(brandID, modelName string, revision int) (*Model, error) {
-	model := Model{ID: 1, BrandID: "Vendor", Name: "Alder", SigningKey: "../TestKey.asc", Revision: 1}
-	return &model, nil
+func (mdb *mockDB) FindModel(brandID, modelName string, revision int) (Model, error) {
+	model := Model{ID: 1, BrandID: "System", Name: "Alder", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3"}
+	if model.BrandID != brandID || model.Name != modelName || model.Revision != revision {
+		return model, errors.New("Cannot find a model for that brand, model and revision")
+	}
+	return model, nil
 }
 
 // GetModel mocks the model from the database by ID.
-func (mdb *mockDB) GetModel(modelID int) (*Model, error) {
+func (mdb *mockDB) GetModel(modelID int) (Model, error) {
 
 	var model Model
 	found := false
@@ -64,10 +72,10 @@ func (mdb *mockDB) GetModel(modelID int) (*Model, error) {
 	}
 
 	if !found {
-		return nil, errors.New("Cannot find the model.")
+		return model, errors.New("Cannot find the model.")
 	}
 
-	return &model, nil
+	return model, nil
 }
 
 // UpdateModel mocks the model update.
@@ -89,8 +97,30 @@ func (mdb *mockDB) UpdateModel(model Model) (string, error) {
 }
 
 // CreateModel mocks creating a new model.
-func (mdb *mockDB) CreateModel(model Model) (int, string, error) {
-	return 7, "", nil
+func (mdb *mockDB) CreateModel(model Model) (Model, string, error) {
+	model = Model{ID: 7, BrandID: "System", Name: "聖誕快樂", KeypairID: 1, Revision: 2, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
+
+	return model, "", nil
+}
+
+func (mdb *mockDB) GetKeypair(keypairID int) (Keypair, error) {
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	return keypair, nil
+}
+
+func (mdb *mockDB) ListKeypairs() ([]Keypair, error) {
+	var keypairs []Keypair
+	keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
+	keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
+	return keypairs, nil
+}
+
+func (mdb *mockDB) PutKeypair(keypair Keypair) (string, error) {
+	return "", nil
+}
+
+func (mdb *mockDB) UpdateKeypairActive(keypairID int, active bool) error {
+	return nil
 }
 
 // Unsuccessful mocks for the database
@@ -101,27 +131,24 @@ func (mdb *errorMockDB) CreateModelTable() error {
 	return errors.New("Error creating the model table.")
 }
 
+// CreateKeypairTable mock for the create keypair table method
+func (mdb *errorMockDB) CreateKeypairTable() error {
+	return nil
+}
+
 // ModelsList Mock the database response for a list of models
 func (mdb *errorMockDB) ListModels() ([]Model, error) {
 	return nil, errors.New("Error getting the models.")
 }
 
 // FindModel mocks the database response for finding a model, returning an invalid signing-key
-func (mdb *errorMockDB) FindModel(brandID, modelName string, revision int) (*Model, error) {
-	modelNonexistentFile := Model{ID: 1, BrandID: "System", Name: "Bad Path", SigningKey: "not a good path", Revision: 2}
-	modelInvalidKeyFile := Model{ID: 1, BrandID: "System", Name: "聖誕快樂", SigningKey: "../README.md", Revision: 2}
-
-	if brandID == modelNonexistentFile.BrandID && modelName == modelNonexistentFile.Name && revision == modelNonexistentFile.Revision {
-		return &modelNonexistentFile, nil
-	} else if brandID == modelInvalidKeyFile.BrandID && modelName == modelInvalidKeyFile.Name && revision == modelInvalidKeyFile.Revision {
-		return &modelInvalidKeyFile, nil
-	}
-	return nil, errors.New("Error finding the model.")
+func (mdb *errorMockDB) FindModel(brandID, modelName string, revision int) (Model, error) {
+	return Model{}, errors.New("Error finding the model.")
 }
 
 // GetModel mocks the model from the database by ID, returning an error.
-func (mdb *errorMockDB) GetModel(modelID int) (*Model, error) {
-	return nil, errors.New("Error retrieving the model.")
+func (mdb *errorMockDB) GetModel(modelID int) (Model, error) {
+	return Model{}, errors.New("Error retrieving the model.")
 }
 
 // UpdateModel mocks the model update, returning an error.
@@ -130,6 +157,24 @@ func (mdb *errorMockDB) UpdateModel(model Model) (string, error) {
 }
 
 // CreateModel mocks creating a new model, returning an error.
-func (mdb *errorMockDB) CreateModel(model Model) (int, string, error) {
-	return 0, "", errors.New("Error creating the database model.")
+func (mdb *errorMockDB) CreateModel(model Model) (Model, string, error) {
+	return Model{}, "", errors.New("Error creating the database model.")
+}
+
+func (mdb *errorMockDB) GetKeypair(keypairID int) (Keypair, error) {
+	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	return keypair, errors.New("Error fetching from the database.")
+}
+
+func (mdb *errorMockDB) ListKeypairs() ([]Keypair, error) {
+	var keypairs []Keypair
+	return keypairs, errors.New("Error fetching from the database.")
+}
+
+func (mdb *errorMockDB) PutKeypair(keypair Keypair) (string, error) {
+	return "", errors.New("Error updating the database.")
+}
+
+func (mdb *errorMockDB) UpdateKeypairActive(keypairID int, active bool) error {
+	return errors.New("Error updating the database.")
 }

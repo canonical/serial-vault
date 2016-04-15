@@ -46,6 +46,12 @@ func main() {
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
+	// Opening the keypair manager to create the signing database
+	env.KeypairDB, err = service.GetKeyStore(env.Config)
+	if err != nil {
+		log.Fatalf("Error initializing the signing-key database: %v", err)
+	}
+
 	// Start the web service router
 	router := service.Router(&env)
 
