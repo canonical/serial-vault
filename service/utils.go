@@ -146,3 +146,14 @@ func formatModelResponse(success bool, errorCode, errorSubcode, message string, 
 	}
 	return nil
 }
+
+func formatKeypairsResponse(success bool, errorCode, errorSubcode, message string, keypairs []Keypair, w http.ResponseWriter) error {
+	response := KeypairsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Keypairs: keypairs}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the models response.")
+		return err
+	}
+	return nil
+}

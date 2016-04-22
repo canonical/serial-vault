@@ -76,6 +76,15 @@ type ModelResponse struct {
 	Model        ModelSerialize `json:"model"`
 }
 
+// KeypairsResponse is the JSON response from the API Keypairs method
+type KeypairsResponse struct {
+	Success      bool      `json:"success"`
+	ErrorCode    string    `json:"error_code"`
+	ErrorSubcode string    `json:"error_subcode"`
+	ErrorMessage string    `json:"message"`
+	Keypairs     []Keypair `json:"keypairs"`
+}
+
 // VersionHandler is the API method to return the version of the service
 func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -155,7 +164,7 @@ func modelForDisplay(model Model) ModelSerialize {
 func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	var models []ModelSerialize
+	models := []ModelSerialize{}
 
 	dbModels, err := Environ.DB.ListModels()
 	if err != nil {

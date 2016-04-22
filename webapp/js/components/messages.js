@@ -37,6 +37,11 @@ var intlData = {
       "yes": "是",
       "save": "保存",
       "cancel": "取消",
+      "activate": "启用",
+      "deactivate": "关闭",
+      "authority-id": "<Signing Authority>",
+      "key-id": "<Key ID>",
+      "active": "<Active>",
       "private-key": "私钥签名",
       "private-key-description": "将用于签署设备标识的签署密钥",
       "new-public-key": "新的公用密钥",
@@ -46,6 +51,9 @@ var intlData = {
       "public-key-description": "添加一个新的公共密钥",
       "public-keys-authorized": "下面的键被授权",
       "public-key-confirm": "确认公钥缺失",
+      "signing-key": "<Signing Key>",
+      "signing-keys": "<Signing Keys>",
+      "no-signing-keys-found": "<No Signing Keys found.>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -94,6 +102,11 @@ var intlData = {
       "yes": "Yes",
       "save": "Save",
       "cancel": "Cancel",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "authority-id": "Signing Authority",
+      "key-id": "Key ID",
+      "active": "Active",
       "private-key": "Private Key for Signing",
       "private-key-description": "The signing-key that will be used to sign the device identity",
       "new-public-key": "New Public Key",
@@ -103,7 +116,9 @@ var intlData = {
       "public-key-description": "Add a new public key",
       "public-keys-authorized": "The following keys are authorized",
       "public-key-confirm": "Confirm deletion of the public key",
-
+      "signing-key": "Signing Key",
+      "signing-keys": "Signing Keys",
+      "no-signing-keys-found": "No signing keys found.",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",

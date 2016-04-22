@@ -73,7 +73,7 @@ func (db *DB) CreateModelTable() error {
 
 // ListModels fetches the full catalogue of models from the database.
 func (db *DB) ListModels() ([]Model, error) {
-	var models []Model
+	models := []Model{}
 
 	rows, err := db.Query(listModelsSQL)
 	if err != nil {

@@ -1,3 +1,5 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
+
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -20,18 +22,25 @@ var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
+var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var Keypairs = require('../models/keypairs');
 var injectIntl = require('react-intl').injectIntl;
 
 var ModelList = React.createClass({
 
   getInitialState: function() {
-    return {models: this.props.models || []};
+    return {models: this.props.models || [], keypairs: this.props.keypairs || []};
   },
 
   componentDidMount: function() {
+    this.refresh();
+  },
+
+  refresh: function() {
     this.getModels();
+    this.getKeypairs();
   },
 
   getModels: function() {
@@ -46,6 +55,18 @@ var ModelList = React.createClass({
     });
   },
 
+  getKeypairs: function() {
+    var self = this;
+    Keypairs.list().then(function(response) {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+      self.setState({keypairs: data.keypairs, message: message});
+    });
+  },
+
   renderTable: function(M) {
     var self = this;
 
@@ -54,7 +75,7 @@ var ModelList = React.createClass({
         <table>
           <thead>
             <tr>
-              <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'revision'})}</th>
+              <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'revision'})}</th><th>{M({id:'signing-key'})}</th>
             </tr>
           </thead>
           <tbody>
@@ -93,6 +114,11 @@ var ModelList = React.createClass({
             </div>
             <div className="twelve-col">
               {this.renderTable(M)}
+            </div>
+
+            <h2>{M({id:'signing-keys'})}</h2>
+            <div className="twelve-col">
+              <KeypairList keypairs={this.state.keypairs} refresh={this.refresh} />
             </div>
           </section>
 

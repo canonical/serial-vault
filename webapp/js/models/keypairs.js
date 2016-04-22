@@ -15,25 +15,27 @@
  *
  */
 'use strict'
+var Ajax = require('./Ajax');
 
-var React = require('react');
-var injectIntl = require('react-intl').injectIntl;
+var Keypair = {
+	url: 'keypairs',
 
-var ModelRow = React.createClass({
-	render: function() {
-		var M = this.props.intl.formatMessage;
-		return (
-			<tr>
-			  <td>
-					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--secondary" title={M({id: 'edit-model'})}><i className="fa fa-pencil"></i></a>
-				</td>
-				<td>{this.props.model['brand-id']}</td>
-				<td>{this.props.model.model}</td>
-				<td>{this.props.model.revision}</td>
-				<td>{this.props.model['authority-id']}/{this.props.model['key-id']}</td>
-			</tr>
-		)
+	list: function () {
+			return Ajax.get(this.url);
+	},
+
+	enable:  function(keypairId) {
+		return Ajax.post(this.url + '/' + keypairId + '/enable', {});
+	},
+
+	disable:  function(keypairId) {
+		return Ajax.post(this.url + '/' + keypairId + '/disable', {});
+	},
+
+	create:  function(keypair) {
+		return Ajax.post(this.url, keypair);
 	}
-});
 
-module.exports = injectIntl(ModelRow);
+}
+
+module.exports = Keypair;

@@ -29476,7 +29476,7 @@ var Footer = React.createClass({
 });
 
 module.exports = injectIntl(Footer);
-},{"../models/vault":285,"react":"nakDgH","react-intl":19}],273:[function(require,module,exports){
+},{"../models/vault":287,"react":"nakDgH","react-intl":19}],273:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29534,7 +29534,7 @@ var Index = React.createClass({
 });
 
 module.exports = injectIntl(Index);
-},{"./Footer":272,"./Navigation":279,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
+},{"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29661,7 +29661,7 @@ var KeyAdd = React.createClass({
 });
 
 module.exports = injectIntl(KeyAdd);
-},{"../models/keys":283,"./AlertBox":269,"./Footer":272,"./Navigation":279,"react":"nakDgH","react-intl":19}],275:[function(require,module,exports){
+},{"../models/keys":285,"./AlertBox":269,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],275:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29856,7 +29856,137 @@ var KeyList = React.createClass({
 });
 
 module.exports = injectIntl(KeyList);
-},{"../models/keys":283,"./AlertBox":269,"./DialogBox":271,"./Footer":272,"./Navigation":279,"react":"nakDgH","react-intl":19}],276:[function(require,module,exports){
+},{"../models/keys":285,"./AlertBox":269,"./DialogBox":271,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],276:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
+var Keypairs = require('../models/keypairs');
+
+var KeypairList = React.createClass({
+  displayName: 'KeypairList',
+
+
+  handleDeactivate: function handleDeactivate(e) {
+    console.log(e.target.getAttribute('data-key'));
+    var self = this;
+    Keypairs.disable(e.target.getAttribute('data-key')).then(self.props.refresh);
+  },
+
+  handleActivate: function handleActivate(e) {
+    console.log(e.target.getAttribute('data-key'));
+    var self = this;
+    Keypairs.enable(e.target.getAttribute('data-key')).then(self.props.refresh);
+  },
+
+  renderRow: function renderRow(keypr, M) {
+    return React.createElement(
+      'tr',
+      { key: keypr.ID },
+      React.createElement(
+        'td',
+        null,
+        keypr.Active ? React.createElement(
+          'button',
+          { 'data-key': keypr.ID, onClick: this.handleDeactivate, className: 'button--secondary' },
+          M({ id: 'deactivate' })
+        ) : React.createElement(
+          'button',
+          { 'data-key': keypr.ID, onClick: this.handleActivate, className: 'button--secondary' },
+          M({ id: 'activate' })
+        )
+      ),
+      React.createElement(
+        'td',
+        null,
+        keypr.AuthorityID
+      ),
+      React.createElement(
+        'td',
+        null,
+        keypr.KeyID
+      ),
+      React.createElement(
+        'td',
+        null,
+        keypr.Active ? React.createElement('i', { className: 'fa fa-check' }) : React.createElement('i', { className: 'fa fa-times' })
+      )
+    );
+  },
+
+  renderTable: function renderTable(M) {
+    var self = this;
+
+    if (this.props.keypairs.length > 0) {
+      return React.createElement(
+        'table',
+        null,
+        React.createElement(
+          'thead',
+          null,
+          React.createElement(
+            'tr',
+            null,
+            React.createElement('th', null),
+            React.createElement(
+              'th',
+              null,
+              M({ id: 'authority-id' })
+            ),
+            React.createElement(
+              'th',
+              null,
+              M({ id: 'key-id' })
+            ),
+            React.createElement(
+              'th',
+              null,
+              M({ id: 'active' })
+            )
+          )
+        ),
+        React.createElement(
+          'tbody',
+          null,
+          this.props.keypairs.map(function (keypr) {
+            return self.renderRow(keypr, M);
+          })
+        )
+      );
+    } else {
+      return React.createElement(
+        'p',
+        null,
+        'No keypairs found.'
+      );
+    }
+  },
+
+  render: function render() {
+    var M = this.props.intl.formatMessage;
+    return this.renderTable(M);
+  }
+
+});
+
+module.exports = injectIntl(KeypairList);
+},{"../models/keypairs":284,"react":"nakDgH","react-intl":19}],277:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30096,7 +30226,9 @@ var ModelEdit = React.createClass({
 });
 
 module.exports = injectIntl(ModelEdit);
-},{"../models/models":284,"./AlertBox":269,"./Footer":272,"./Navigation":279,"react":"nakDgH","react-intl":19}],277:[function(require,module,exports){
+},{"../models/models":286,"./AlertBox":269,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],278:[function(require,module,exports){
+// -*- Mode: Go; indent-tabs-mode: t -*-
+
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30119,8 +30251,10 @@ var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
+var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var Keypairs = require('../models/keypairs');
 var injectIntl = require('react-intl').injectIntl;
 
 var ModelList = React.createClass({
@@ -30128,11 +30262,16 @@ var ModelList = React.createClass({
 
 
   getInitialState: function getInitialState() {
-    return { models: this.props.models || [] };
+    return { models: this.props.models || [], keypairs: [] };
   },
 
   componentDidMount: function componentDidMount() {
+    this.refresh();
+  },
+
+  refresh: function refresh() {
     this.getModels();
+    this.getKeypairs();
   },
 
   getModels: function getModels() {
@@ -30144,6 +30283,18 @@ var ModelList = React.createClass({
         message = data.message;
       }
       self.setState({ models: data.models, message: message });
+    });
+  },
+
+  getKeypairs: function getKeypairs() {
+    var self = this;
+    Keypairs.list().then(function (response) {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+      self.setState({ keypairs: data.keypairs, message: message });
     });
   },
 
@@ -30175,6 +30326,11 @@ var ModelList = React.createClass({
               'th',
               null,
               M({ id: 'revision' })
+            ),
+            React.createElement(
+              'th',
+              null,
+              M({ id: 'signing-key' })
             )
           )
         ),
@@ -30235,6 +30391,16 @@ var ModelList = React.createClass({
           'div',
           { className: 'twelve-col' },
           this.renderTable(M)
+        ),
+        React.createElement(
+          'h2',
+          null,
+          M({ id: 'signing-keys' })
+        ),
+        React.createElement(
+          'div',
+          { className: 'twelve-col' },
+          React.createElement(KeypairList, { keypairs: this.state.keypairs, refresh: this.refresh })
         )
       ),
       React.createElement(Footer, null)
@@ -30243,7 +30409,7 @@ var ModelList = React.createClass({
 });
 
 module.exports = injectIntl(ModelList);
-},{"../models/models":284,"./AlertBox":269,"./Footer":272,"./ModelRow":278,"./Navigation":279,"react":"nakDgH","react-intl":19}],278:[function(require,module,exports){
+},{"../models/keypairs":284,"../models/models":286,"./AlertBox":269,"./Footer":272,"./KeypairList":276,"./ModelRow":279,"./Navigation":280,"react":"nakDgH","react-intl":19}],279:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30296,13 +30462,20 @@ var ModelRow = React.createClass({
         'td',
         null,
         this.props.model.revision
+      ),
+      React.createElement(
+        'td',
+        null,
+        this.props.model['authority-id'],
+        '/',
+        this.props.model['key-id']
       )
     );
   }
 });
 
 module.exports = injectIntl(ModelRow);
-},{"react":"nakDgH","react-intl":19}],279:[function(require,module,exports){
+},{"react":"nakDgH","react-intl":19}],280:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30382,7 +30555,7 @@ var Navigation = React.createClass({
 });
 
 module.exports = injectIntl(Navigation);
-},{"react":"nakDgH","react-intl":19}],280:[function(require,module,exports){
+},{"react":"nakDgH","react-intl":19}],281:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30421,6 +30594,11 @@ var intlData = {
     "yes": "是",
     "save": "保存",
     "cancel": "取消",
+    "activate": "启用",
+    "deactivate": "关闭",
+    "authority-id": "<Signing Authority>",
+    "key-id": "<Key ID>",
+    "active": "<Active>",
     "private-key": "私钥签名",
     "private-key-description": "将用于签署设备标识的签署密钥",
     "new-public-key": "新的公用密钥",
@@ -30430,6 +30608,8 @@ var intlData = {
     "public-key-description": "添加一个新的公共密钥",
     "public-keys-authorized": "下面的键被授权",
     "public-key-confirm": "确认公钥缺失",
+    "signing-key": "<Signing Key>",
+    "signing-keys": "<Signing Keys>",
 
     // Error messages
     "error-nil-data": "未初始化的POST数据",
@@ -30478,6 +30658,11 @@ var intlData = {
     "yes": "Yes",
     "save": "Save",
     "cancel": "Cancel",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "authority-id": "Signing Authority",
+    "key-id": "Key ID",
+    "active": "Active",
     "private-key": "Private Key for Signing",
     "private-key-description": "The signing-key that will be used to sign the device identity",
     "new-public-key": "New Public Key",
@@ -30487,6 +30672,8 @@ var intlData = {
     "public-key-description": "Add a new public key",
     "public-keys-authorized": "The following keys are authorized",
     "public-key-confirm": "Confirm deletion of the public key",
+    "signing-key": "Signing Key",
+    "signing-keys": "Signing Keys",
 
     // Error messages
     "error-nil-data": "Uninitialized POST data",
@@ -30518,7 +30705,7 @@ var intlData = {
 };
 
 module.exports = intlData;
-},{}],281:[function(require,module,exports){
+},{}],282:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30618,7 +30805,7 @@ window.AppState = {
 };
 
 window.AppState.render();
-},{"./components/App":270,"./components/Index":273,"./components/KeyAdd":274,"./components/KeyList":275,"./components/ModelEdit":276,"./components/ModelList":277,"./components/messages":280,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],282:[function(require,module,exports){
+},{"./components/App":270,"./components/Index":273,"./components/KeyAdd":274,"./components/KeyList":275,"./components/ModelEdit":277,"./components/ModelList":278,"./components/messages":281,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],283:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30670,7 +30857,50 @@ var Ajax = {
 };
 
 module.exports = Ajax;
-},{"then-request":255}],283:[function(require,module,exports){
+},{"then-request":255}],284:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var Ajax = require('./Ajax');
+
+var Keypair = {
+  url: 'keypairs',
+
+  list: function list() {
+    return Ajax.get(this.url);
+  },
+
+  enable: function enable(keypairId) {
+    return Ajax.post(this.url + '/' + keypairId + '/enable', {});
+  },
+
+  disable: function disable(keypairId) {
+    return Ajax.post(this.url + '/' + keypairId + '/disable', {});
+  },
+
+  create: function create(keypair) {
+    return Ajax.post(this.url, keypair);
+  }
+
+};
+
+module.exports = Keypair;
+},{"./Ajax":283}],285:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30708,7 +30938,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":282}],284:[function(require,module,exports){
+},{"./Ajax":283}],286:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30751,7 +30981,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":282}],285:[function(require,module,exports){
+},{"./Ajax":283}],287:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30780,4 +31010,4 @@ var Vault = {
 };
 
 module.exports = Vault;
-},{"./Ajax":282}]},{},[281])
+},{"./Ajax":283}]},{},[282])

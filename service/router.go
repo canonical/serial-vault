@@ -40,6 +40,7 @@ func Router(env *Env) *mux.Router {
 	router.Handle("/1.0/sign", Middleware(http.HandlerFunc(SignHandler), env)).Methods("POST")
 
 	// API routes: signing-keys
+	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairListHandler), env)).Methods("GET")
 	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler), env)).Methods("POST")
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")

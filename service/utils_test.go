@@ -75,3 +75,27 @@ func TestFormatModelsResponse(t *testing.T) {
 		t.Errorf("Expected the first model name of '%s', got: %s", models[0].Name, result.Models[0].Name)
 	}
 }
+
+func TestFormatKeypairsResponse(t *testing.T) {
+	var keypairs []Keypair
+	keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "Vendor", KeyID: "12345678abcde", Active: true})
+	keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "Vendor", KeyID: "abcdef123456", Active: true})
+
+	w := httptest.NewRecorder()
+	err := formatKeypairsResponse(true, "", "", "", keypairs, w)
+	if err != nil {
+		t.Errorf("Error forming keypairs response: %v", err)
+	}
+
+	var result KeypairsResponse
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the keypairs response: %v", err)
+	}
+	if len(result.Keypairs) != len(keypairs) || !result.Success || result.ErrorMessage != "" {
+		t.Errorf("Keypairs response not as expected: %v", result)
+	}
+	if result.Keypairs[0].KeyID != keypairs[0].KeyID {
+		t.Errorf("Expected the first key IS '%s', got: %s", keypairs[0].KeyID, result.Keypairs[0].KeyID)
+	}
+}

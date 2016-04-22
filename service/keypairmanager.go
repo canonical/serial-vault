@@ -33,8 +33,8 @@ const createKeypairTableSQL = `
 		active        boolean default true
 	)
 `
-const listKeypairsSQL = "select id, authority_id, key_id from keypair order by authority_id, key_id"
-const getKeypairSQL = "select id, authority_id, key_id from keypair where id=$1"
+const listKeypairsSQL = "select id, authority_id, key_id, active from keypair order by authority_id, key_id"
+const getKeypairSQL = "select id, authority_id, key_id, active from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const upsertKeypairSQL = `
 	WITH upsert AS (
@@ -72,7 +72,7 @@ func (db *DB) ListKeypairs() ([]Keypair, error) {
 
 	for rows.Next() {
 		keypair := Keypair{}
-		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID)
+		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active)
 		if err != nil {
 			return nil, err
 		}

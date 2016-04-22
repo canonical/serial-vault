@@ -29,6 +29,48 @@ import (
 	"testing"
 )
 
+func TestKeypairListHandler(t *testing.T) {
+
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/1.0/keypairs", nil)
+	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := KeypairsResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the keypairs response: %v", err)
+	}
+	if len(result.Keypairs) != 2 {
+		t.Errorf("Expected 2 keypairs, got %d", len(result.Keypairs))
+	}
+	if result.Keypairs[0].KeyID != "61abf588e52be7a3" {
+		t.Errorf("Expected key ID '61abf588e52be7a3', got %s", result.Keypairs[0].KeyID)
+	}
+}
+
+func TestKeypairListHandlerWithError(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/1.0/keypairs", nil)
+	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := KeypairsResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the keypairs response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success")
+	}
+}
+
 func TestKeypairHandlerNilData(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs", nil)
