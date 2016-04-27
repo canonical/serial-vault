@@ -80,7 +80,9 @@ var intlData = {
       "error-key-data": "没有找到的公开密钥提供的数据",
       "error-validate-key": "公钥必须输入",
       "error-key-exists": "SSH公用密钥已经存在",
-      "error-key-not-found": "SSH公用密钥无法找到"
+      "error-key-not-found": "SSH公用密钥无法找到",
+      "error-validate-signingkey": "<The Signing Key must be selected>"
+
     },
 
 		en: {
@@ -145,7 +147,8 @@ var intlData = {
       "error-key-data": "No data supplied for the public key",
       "error-validate-key": "The public key must be entered",
       "error-key-exists": 'The ssh public key already exists',
-      "error-key-not-found": "The ssh public key cannot be found"
+      "error-key-not-found": "The ssh public key cannot be found",
+      "error-validate-signingkey": "The Signing Key must be selected"
 		}
 };
 

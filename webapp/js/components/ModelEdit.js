@@ -22,15 +22,18 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var Keypairs = require('../models/keypairs');
 var injectIntl = require('react-intl').injectIntl;
 
 var ModelEdit = React.createClass({
 	getInitialState: function() {
-		return {title: null, model: {}, error: null};
+		return {title: null, model: {}, error: null, keypairs: []};
 	},
 
 	componentDidMount: function() {
 		var M = this.props.intl.formatMessage;
+		this.getKeypairs();
+
 		if (this.props.params.id) {
 			this.setTitle(M, 'edit-model');
 			this.getModel(this.props.params.id);
@@ -48,6 +51,18 @@ var ModelEdit = React.createClass({
 		Models.get(modelId).then(function(response) {
 			var data = JSON.parse(response.body);
 			self.setState({model: data.model});
+		});
+	},
+
+	getKeypairs: function() {
+		var self = this;
+		Keypairs.list().then(function(response) {
+			var data = JSON.parse(response.body);
+			var message = "";
+			if (!data.success) {
+				message = data.message;
+			}
+			self.setState({keypairs: data.keypairs, message: message});
 		});
 	},
 
@@ -82,20 +97,22 @@ var ModelEdit = React.createClass({
 	handleChangePrivateKey: function(e) {
 		var self = this;
 		var model = this.state.model;
+		model['keypair-id'] = parseInt(e.target.value);
+		this.setState({model: model});
 
-		// Get the file
-		var reader = new FileReader();
-		var file = e.target.files[0];
-
-		reader.onload = function(upload) {
-			// Get the base64 data from the URI
-			var data = upload.target.result.split(',')[1];
-			model['signing-key'] = data;
-			self.setState({model: model});
-		}
-
-		// Read the file as store as data URL
-		reader.readAsDataURL(file);
+		// // Get the file
+		// var reader = new FileReader();
+		// var file = e.target.files[0];
+		//
+		// reader.onload = function(upload) {
+		// 	// Get the base64 data from the URI
+		// 	var data = upload.target.result.split(',')[1];
+		// 	model['signing-key'] = data;
+		// 	self.setState({model: model});
+		// }
+		//
+		// // Read the file as store as data URL
+		// reader.readAsDataURL(file);
 	},
 
 	handleSaveClick: function(e) {
@@ -133,20 +150,9 @@ var ModelEdit = React.createClass({
 		}
 	},
 
-	renderPrivateKey: function(M) {
-		if (!this.state.model.id) {
-			return (
-				<li>
-					<label htmlFor="privateKey">{M({id: 'private-key'})}:</label>
-					<input type="file" id="privateKey" placeholder={M({id: 'private-key-description'})}
-						onChange={this.handleChangePrivateKey}/>
-				</li>
-			);
-		}
-	},
-
 	render: function() {
 		var M = this.props.intl.formatMessage;
+		var self = this;
 
 		return (
 			<div className="inner-wrapper">
@@ -175,7 +181,17 @@ var ModelEdit = React.createClass({
 										<input type="number" id="revision" placeholder={M({id: 'revision-description'})}
 											value={this.state.model.revision} onChange={this.handleChangeRevision}/>
 									</li>
-									{this.renderPrivateKey(M)}
+									<li>
+										<label htmlFor="keypair">{M({id: 'private-key'})}:</label>
+										<select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
+											<option></option>
+											{this.state.keypairs.map(function(kpr) {
+												if (kpr.Active) {
+													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+												}
+											})}
+										</select>
+									</li>
 								</ul>
 							</fieldset>
 						</form>

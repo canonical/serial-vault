@@ -29884,13 +29884,11 @@ var KeypairList = React.createClass({
 
 
   handleDeactivate: function handleDeactivate(e) {
-    console.log(e.target.getAttribute('data-key'));
     var self = this;
     Keypairs.disable(e.target.getAttribute('data-key')).then(self.props.refresh);
   },
 
   handleActivate: function handleActivate(e) {
-    console.log(e.target.getAttribute('data-key'));
     var self = this;
     Keypairs.enable(e.target.getAttribute('data-key')).then(self.props.refresh);
   },
@@ -29973,7 +29971,7 @@ var KeypairList = React.createClass({
       return React.createElement(
         'p',
         null,
-        'No keypairs found.'
+        M({ id: 'no-signing-keys-found' })
       );
     }
   },
@@ -30011,17 +30009,20 @@ var Navigation = require('./Navigation');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
+var Keypairs = require('../models/keypairs');
 var injectIntl = require('react-intl').injectIntl;
 
 var ModelEdit = React.createClass({
 	displayName: 'ModelEdit',
 
 	getInitialState: function getInitialState() {
-		return { title: null, model: {}, error: null };
+		return { title: null, model: {}, error: null, keypairs: [] };
 	},
 
 	componentDidMount: function componentDidMount() {
 		var M = this.props.intl.formatMessage;
+		this.getKeypairs();
+
 		if (this.props.params.id) {
 			this.setTitle(M, 'edit-model');
 			this.getModel(this.props.params.id);
@@ -30039,6 +30040,18 @@ var ModelEdit = React.createClass({
 		Models.get(modelId).then(function (response) {
 			var data = JSON.parse(response.body);
 			self.setState({ model: data.model });
+		});
+	},
+
+	getKeypairs: function getKeypairs() {
+		var self = this;
+		Keypairs.list().then(function (response) {
+			var data = JSON.parse(response.body);
+			var message = "";
+			if (!data.success) {
+				message = data.message;
+			}
+			self.setState({ keypairs: data.keypairs, message: message });
 		});
 	},
 
@@ -30073,20 +30086,22 @@ var ModelEdit = React.createClass({
 	handleChangePrivateKey: function handleChangePrivateKey(e) {
 		var self = this;
 		var model = this.state.model;
+		model['keypair-id'] = parseInt(e.target.value);
+		this.setState({ model: model });
 
-		// Get the file
-		var reader = new FileReader();
-		var file = e.target.files[0];
-
-		reader.onload = function (upload) {
-			// Get the base64 data from the URI
-			var data = upload.target.result.split(',')[1];
-			model['signing-key'] = data;
-			self.setState({ model: model });
-		};
-
-		// Read the file as store as data URL
-		reader.readAsDataURL(file);
+		// // Get the file
+		// var reader = new FileReader();
+		// var file = e.target.files[0];
+		//
+		// reader.onload = function(upload) {
+		// 	// Get the base64 data from the URI
+		// 	var data = upload.target.result.split(',')[1];
+		// 	model['signing-key'] = data;
+		// 	self.setState({model: model});
+		// }
+		//
+		// // Read the file as store as data URL
+		// reader.readAsDataURL(file);
 	},
 
 	handleSaveClick: function handleSaveClick(e) {
@@ -30122,25 +30137,9 @@ var ModelEdit = React.createClass({
 		}
 	},
 
-	renderPrivateKey: function renderPrivateKey(M) {
-		if (!this.state.model.id) {
-			return React.createElement(
-				'li',
-				null,
-				React.createElement(
-					'label',
-					{ htmlFor: 'privateKey' },
-					M({ id: 'private-key' }),
-					':'
-				),
-				React.createElement('input', { type: 'file', id: 'privateKey', placeholder: M({ id: 'private-key-description' }),
-					onChange: this.handleChangePrivateKey })
-			);
-		}
-	},
-
 	render: function render() {
 		var M = this.props.intl.formatMessage;
+		var self = this;
 
 		return React.createElement(
 			'div',
@@ -30200,7 +30199,32 @@ var ModelEdit = React.createClass({
 								React.createElement('input', { type: 'number', id: 'revision', placeholder: M({ id: 'revision-description' }),
 									value: this.state.model.revision, onChange: this.handleChangeRevision })
 							),
-							this.renderPrivateKey(M)
+							React.createElement(
+								'li',
+								null,
+								React.createElement(
+									'label',
+									{ htmlFor: 'keypair' },
+									M({ id: 'private-key' }),
+									':'
+								),
+								React.createElement(
+									'select',
+									{ value: this.state.model['keypair-id'], id: 'keypair', onChange: this.handleChangePrivateKey },
+									React.createElement('option', null),
+									this.state.keypairs.map(function (kpr) {
+										if (kpr.Active) {
+											return React.createElement(
+												'option',
+												{ key: kpr.ID, value: kpr.ID },
+												kpr.AuthorityID,
+												'/',
+												kpr.KeyID
+											);
+										}
+									})
+								)
+							)
 						)
 					)
 				),
@@ -30226,7 +30250,7 @@ var ModelEdit = React.createClass({
 });
 
 module.exports = injectIntl(ModelEdit);
-},{"../models/models":286,"./AlertBox":269,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],278:[function(require,module,exports){
+},{"../models/keypairs":284,"../models/models":286,"./AlertBox":269,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],278:[function(require,module,exports){
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
@@ -30262,7 +30286,7 @@ var ModelList = React.createClass({
 
 
   getInitialState: function getInitialState() {
-    return { models: this.props.models || [], keypairs: [] };
+    return { models: this.props.models || [], keypairs: this.props.keypairs || [] };
   },
 
   componentDidMount: function componentDidMount() {
@@ -30610,6 +30634,7 @@ var intlData = {
     "public-key-confirm": "确认公钥缺失",
     "signing-key": "<Signing Key>",
     "signing-keys": "<Signing Keys>",
+    "no-signing-keys-found": "<No Signing Keys found.>",
 
     // Error messages
     "error-nil-data": "未初始化的POST数据",
@@ -30636,7 +30661,9 @@ var intlData = {
     "error-key-data": "没有找到的公开密钥提供的数据",
     "error-validate-key": "公钥必须输入",
     "error-key-exists": "SSH公用密钥已经存在",
-    "error-key-not-found": "SSH公用密钥无法找到"
+    "error-key-not-found": "SSH公用密钥无法找到",
+    "error-validate-signingkey": "<The Signing Key must be selected>"
+
   },
 
   en: {
@@ -30674,6 +30701,7 @@ var intlData = {
     "public-key-confirm": "Confirm deletion of the public key",
     "signing-key": "Signing Key",
     "signing-keys": "Signing Keys",
+    "no-signing-keys-found": "No signing keys found.",
 
     // Error messages
     "error-nil-data": "Uninitialized POST data",
@@ -30700,7 +30728,8 @@ var intlData = {
     "error-key-data": "No data supplied for the public key",
     "error-validate-key": "The public key must be entered",
     "error-key-exists": 'The ssh public key already exists',
-    "error-key-not-found": "The ssh public key cannot be found"
+    "error-key-not-found": "The ssh public key cannot be found",
+    "error-validate-signingkey": "The Signing Key must be selected"
   }
 };
 
@@ -30971,6 +31000,7 @@ var Model = {
   },
 
   update: function update(model) {
+    console.log(model);
     return Ajax.put(this.url + '/' + model.id, model);
   },
 
