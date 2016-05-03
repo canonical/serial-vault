@@ -29476,7 +29476,7 @@ var Footer = React.createClass({
 });
 
 module.exports = injectIntl(Footer);
-},{"../models/vault":287,"react":"nakDgH","react-intl":19}],273:[function(require,module,exports){
+},{"../models/vault":288,"react":"nakDgH","react-intl":19}],273:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29534,7 +29534,7 @@ var Index = React.createClass({
 });
 
 module.exports = injectIntl(Index);
-},{"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
+},{"./Footer":272,"./Navigation":281,"react":"nakDgH","react-intl":19}],274:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29661,7 +29661,7 @@ var KeyAdd = React.createClass({
 });
 
 module.exports = injectIntl(KeyAdd);
-},{"../models/keys":285,"./AlertBox":269,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],275:[function(require,module,exports){
+},{"../models/keys":286,"./AlertBox":269,"./Footer":272,"./Navigation":281,"react":"nakDgH","react-intl":19}],275:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29856,7 +29856,168 @@ var KeyList = React.createClass({
 });
 
 module.exports = injectIntl(KeyList);
-},{"../models/keys":285,"./AlertBox":269,"./DialogBox":271,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],276:[function(require,module,exports){
+},{"../models/keys":286,"./AlertBox":269,"./DialogBox":271,"./Footer":272,"./Navigation":281,"react":"nakDgH","react-intl":19}],276:[function(require,module,exports){
+/*
+ * Copyright (C) 2016-2017 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+'use strict';
+
+var React = require('react');
+var injectIntl = require('react-intl').injectIntl;
+var Keypairs = require('../models/keypairs');
+var Navigation = require('./Navigation');
+var AlertBox = require('./AlertBox');
+var Footer = require('./Footer');
+
+var KeypairAdd = React.createClass({
+	displayName: 'KeypairAdd',
+
+	getInitialState: function getInitialState() {
+		return { authorityId: null, key: null, error: this.props.error };
+	},
+
+	handleChangeAuthorityId: function handleChangeAuthorityId(e) {
+		this.setState({ authorityId: e.target.value });
+	},
+
+	handleChangeKey: function handleChangeKey(e) {
+		this.setState({ key: e.target.value });
+	},
+
+	handleFileUpload: function handleFileUpload(e) {
+		var self = this;
+		var reader = new FileReader();
+		var file = e.target.files[0];
+
+		reader.onload = function (upload) {
+			self.setState({
+				key: upload.target.result.split(',')[1]
+			});
+		};
+
+		reader.readAsDataURL(file);
+	},
+
+	handleSaveClick: function handleSaveClick(e) {
+		var self = this;
+		e.preventDefault();
+
+		Keypairs.create(this.state.authorityId, this.state.key).then(function (response) {
+			var data = JSON.parse(response.body);
+			if (response.statusCode >= 300 || !data.success) {
+				self.setState({ error: self.formatError(data) });
+			} else {
+				window.location = '/models';
+			}
+		});
+	},
+
+	formatError: function formatError(data) {
+		var message = this.props.intl.formatMessage({ id: data.error_code });
+		if (data.error_subcode) {
+			message += ': ' + this.props.intl.formatMessage({ id: data.error_subcode });
+		} else if (data.message) {
+			message += ': ' + data.message;
+		}
+		return message;
+	},
+
+	render: function render() {
+		var M = this.props.intl.formatMessage;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(Navigation, { active: 'keys' }),
+			React.createElement(
+				'section',
+				{ className: 'row no-border' },
+				React.createElement(
+					'h2',
+					null,
+					M({ id: 'new-signing-key' })
+				),
+				React.createElement(
+					'div',
+					{ className: 'twelve-col' },
+					React.createElement(AlertBox, { message: this.state.error }),
+					React.createElement(
+						'form',
+						null,
+						React.createElement(
+							'fieldset',
+							null,
+							React.createElement(
+								'ul',
+								null,
+								React.createElement(
+									'li',
+									null,
+									React.createElement(
+										'label',
+										{ htmlFor: 'key' },
+										M({ id: 'authority-id' }),
+										':'
+									),
+									React.createElement('input', { type: 'text', onChange: this.handleChangeAuthorityId, placeholder: M({ id: 'authority-id-description' }) })
+								),
+								React.createElement(
+									'li',
+									null,
+									React.createElement(
+										'label',
+										{ htmlFor: 'key' },
+										M({ id: 'signing-key' }),
+										':'
+									),
+									React.createElement('textarea', { onChange: this.handleChangeKey, defaultValue: this.state.key,
+										placeholder: M({ id: 'new-signing-key-description' }) })
+								),
+								React.createElement(
+									'li',
+									null,
+									React.createElement('input', { type: 'file', onChange: this.handleFileUpload })
+								)
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'a',
+							{ href: '/models', onClick: this.handleSaveClick, className: 'button--primary' },
+							M({ id: 'save' })
+						),
+						' ',
+						React.createElement(
+							'a',
+							{ href: '/models', className: 'button--secondary' },
+							M({ id: 'cancel' })
+						)
+					)
+				)
+			),
+			React.createElement(Footer, null)
+		);
+	}
+});
+
+module.exports = injectIntl(KeypairAdd);
+},{"../models/keypairs":285,"./AlertBox":269,"./Footer":272,"./Navigation":281,"react":"nakDgH","react-intl":19}],277:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -29984,7 +30145,7 @@ var KeypairList = React.createClass({
 });
 
 module.exports = injectIntl(KeypairList);
-},{"../models/keypairs":284,"react":"nakDgH","react-intl":19}],277:[function(require,module,exports){
+},{"../models/keypairs":285,"react":"nakDgH","react-intl":19}],278:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30250,7 +30411,7 @@ var ModelEdit = React.createClass({
 });
 
 module.exports = injectIntl(ModelEdit);
-},{"../models/keypairs":284,"../models/models":286,"./AlertBox":269,"./Footer":272,"./Navigation":280,"react":"nakDgH","react-intl":19}],278:[function(require,module,exports){
+},{"../models/keypairs":285,"../models/models":287,"./AlertBox":269,"./Footer":272,"./Navigation":281,"react":"nakDgH","react-intl":19}],279:[function(require,module,exports){
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
@@ -30419,7 +30580,13 @@ var ModelList = React.createClass({
         React.createElement(
           'h2',
           null,
-          M({ id: 'signing-keys' })
+          M({ id: 'signing-keys' }),
+          ' ',
+          React.createElement(
+            'a',
+            { href: '/models/keypairs/new', className: 'button--primary small', title: M({ id: 'add-new-signing-key' }) },
+            React.createElement('i', { className: 'fa fa-plus' })
+          )
         ),
         React.createElement(
           'div',
@@ -30433,7 +30600,7 @@ var ModelList = React.createClass({
 });
 
 module.exports = injectIntl(ModelList);
-},{"../models/keypairs":284,"../models/models":286,"./AlertBox":269,"./Footer":272,"./KeypairList":276,"./ModelRow":279,"./Navigation":280,"react":"nakDgH","react-intl":19}],279:[function(require,module,exports){
+},{"../models/keypairs":285,"../models/models":287,"./AlertBox":269,"./Footer":272,"./KeypairList":277,"./ModelRow":280,"./Navigation":281,"react":"nakDgH","react-intl":19}],280:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30499,7 +30666,7 @@ var ModelRow = React.createClass({
 });
 
 module.exports = injectIntl(ModelRow);
-},{"react":"nakDgH","react-intl":19}],280:[function(require,module,exports){
+},{"react":"nakDgH","react-intl":19}],281:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30579,7 +30746,7 @@ var Navigation = React.createClass({
 });
 
 module.exports = injectIntl(Navigation);
-},{"react":"nakDgH","react-intl":19}],281:[function(require,module,exports){
+},{"react":"nakDgH","react-intl":19}],282:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30621,6 +30788,7 @@ var intlData = {
     "activate": "启用",
     "deactivate": "关闭",
     "authority-id": "<Signing Authority>",
+    "authority-id-description": "<The authority for signing models>",
     "key-id": "<Key ID>",
     "active": "<Active>",
     "private-key": "私钥签名",
@@ -30634,7 +30802,11 @@ var intlData = {
     "public-key-confirm": "确认公钥缺失",
     "signing-key": "<Signing Key>",
     "signing-keys": "<Signing Keys>",
-    "no-signing-keys-found": "<No Signing Keys found.>",
+    "no-signing-keys-found": "<No Signing Keys found>",
+    "new-signing-key-description": "<Paste the signing-key or upload the file>",
+    "no-signing-keys-found": "<No signing keys found>",
+    "new-signing-key": "<New Signing Key>",
+    "add-new-signing-key": "<Add a new signing key>",
 
     // Error messages
     "error-nil-data": "未初始化的POST数据",
@@ -30662,7 +30834,8 @@ var intlData = {
     "error-validate-key": "公钥必须输入",
     "error-key-exists": "SSH公用密钥已经存在",
     "error-key-not-found": "SSH公用密钥无法找到",
-    "error-validate-signingkey": "<The Signing Key must be selected>"
+    "error-validate-signingkey": "<The Signing Key must be selected>",
+    "error-keypair-store": "Error storing the signing key"
 
   },
 
@@ -30688,20 +30861,24 @@ var intlData = {
     "activate": "Activate",
     "deactivate": "Deactivate",
     "authority-id": "Signing Authority",
+    "authority-id-description": "The authority for signing models",
     "key-id": "Key ID",
     "active": "Active",
     "private-key": "Private Key for Signing",
     "private-key-description": "The signing-key that will be used to sign the device identity",
     "new-public-key": "New Public Key",
     "public-key": "Public Key",
-    "new-public-key-description": "Paste the public key of the machine that needs access to the Identity Vault",
+    "new-public-key-description": "Paste the public key of the machine that needs access to the Serial Vault",
     "public-keys": "Public Keys",
     "public-key-description": "Add a new public key",
     "public-keys-authorized": "The following keys are authorized",
     "public-key-confirm": "Confirm deletion of the public key",
     "signing-key": "Signing Key",
     "signing-keys": "Signing Keys",
-    "no-signing-keys-found": "No signing keys found.",
+    "new-signing-key-description": "Paste the signing-key or upload the file",
+    "no-signing-keys-found": "No signing keys found",
+    "new-signing-key": "New Signing Key",
+    "add-new-signing-key": "Add a new signing key",
 
     // Error messages
     "error-nil-data": "Uninitialized POST data",
@@ -30729,12 +30906,13 @@ var intlData = {
     "error-validate-key": "The public key must be entered",
     "error-key-exists": 'The ssh public key already exists',
     "error-key-not-found": "The ssh public key cannot be found",
-    "error-validate-signingkey": "The Signing Key must be selected"
+    "error-validate-signingkey": "The Signing Key must be selected",
+    "error-keypair-store": "Error storing the signing key"
   }
 };
 
 module.exports = intlData;
-},{}],282:[function(require,module,exports){
+},{}],283:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30777,6 +30955,7 @@ var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
 var KeyList = require('./components/KeyList');
 var KeyAdd = require('./components/KeyAdd');
+var KeypairAdd = require('./components/KeypairAdd');
 
 // Imports for i18n
 
@@ -30815,6 +30994,7 @@ window.AppState = {
           React.createElement(Route, { path: 'models', component: ModelList }),
           React.createElement(Route, { path: 'models/new', component: ModelEdit }),
           React.createElement(Route, { path: 'models/:id/edit', component: ModelEdit }),
+          React.createElement(Route, { path: 'models/keypairs/new', component: KeypairAdd }),
           React.createElement(Route, { path: 'keys', component: KeyList }),
           React.createElement(Route, { path: 'keys/new', component: KeyAdd }),
           React.createElement(Route, { path: '*', component: Index })
@@ -30834,7 +31014,7 @@ window.AppState = {
 };
 
 window.AppState.render();
-},{"./components/App":270,"./components/Index":273,"./components/KeyAdd":274,"./components/KeyList":275,"./components/ModelEdit":277,"./components/ModelList":278,"./components/messages":281,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],283:[function(require,module,exports){
+},{"./components/App":270,"./components/Index":273,"./components/KeyAdd":274,"./components/KeyList":275,"./components/KeypairAdd":276,"./components/ModelEdit":278,"./components/ModelList":279,"./components/messages":282,"react":"nakDgH","react-dom":3,"react-intl":19,"react-intl/lib/locale-data/en":16,"react-intl/lib/locale-data/zh":17,"react-router":68}],284:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30886,7 +31066,7 @@ var Ajax = {
 };
 
 module.exports = Ajax;
-},{"then-request":255}],284:[function(require,module,exports){
+},{"then-request":255}],285:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30922,14 +31102,14 @@ var Keypair = {
     return Ajax.post(this.url + '/' + keypairId + '/disable', {});
   },
 
-  create: function create(keypair) {
-    return Ajax.post(this.url, keypair);
+  create: function create(authorityId, key) {
+    return Ajax.post(this.url, { 'authority-id': authorityId, 'private-key': key });
   }
 
 };
 
 module.exports = Keypair;
-},{"./Ajax":283}],285:[function(require,module,exports){
+},{"./Ajax":284}],286:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -30967,7 +31147,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":283}],286:[function(require,module,exports){
+},{"./Ajax":284}],287:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -31000,7 +31180,6 @@ var Model = {
   },
 
   update: function update(model) {
-    console.log(model);
     return Ajax.put(this.url + '/' + model.id, model);
   },
 
@@ -31011,7 +31190,7 @@ var Model = {
 };
 
 module.exports = Model;
-},{"./Ajax":283}],287:[function(require,module,exports){
+},{"./Ajax":284}],288:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -31040,4 +31219,4 @@ var Vault = {
 };
 
 module.exports = Vault;
-},{"./Ajax":283}]},{},[282])
+},{"./Ajax":284}]},{},[283])

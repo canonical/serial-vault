@@ -27,6 +27,7 @@ var ModelList = require('./components/ModelList');
 var ModelEdit = require('./components/ModelEdit');
 var KeyList = require('./components/KeyList');
 var KeyAdd = require('./components/KeyAdd');
+var KeypairAdd = require('./components/KeypairAdd');
 
 // Imports for i18n
 import {IntlProvider, addLocaleData} from 'react-intl';
@@ -62,6 +63,7 @@ window.AppState = {
             <Route path="models" component={ModelList} />
             <Route path="models/new" component={ModelEdit} />
             <Route path="models/:id/edit" component={ModelEdit} />
+            <Route path="models/keypairs/new" component={KeypairAdd} />
             <Route path="keys" component={KeyList} />
             <Route path="keys/new" component={KeyAdd} />
             <Route path="*" component={Index} />

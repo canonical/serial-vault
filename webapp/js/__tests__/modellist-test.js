@@ -65,7 +65,7 @@ describe('model list', function() {
    // Check the 'no models' and 'no keypairs' message is rendered
    expect(section.children.length).toBe(6);
    expect(section.children[3].textContent).toBe('No models found.');
-   expect(section.children[5].textContent).toBe('No signing keys found.');
+   expect(section.children[5].textContent).toBe('No signing keys found');
  });
 
  it('displays the models page with some models', function() {

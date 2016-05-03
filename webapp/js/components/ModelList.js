@@ -116,7 +116,12 @@ var ModelList = React.createClass({
               {this.renderTable(M)}
             </div>
 
-            <h2>{M({id:'signing-keys'})}</h2>
+            <h2>
+              {M({id:'signing-keys'})}&nbsp;
+              <a href="/models/keypairs/new" className="button--primary small" title={M({id:'add-new-signing-key'})}>
+                <i className="fa fa-plus"></i>
+              </a>
+            </h2>
             <div className="twelve-col">
               <KeypairList keypairs={this.state.keypairs} refresh={this.refresh} />
             </div>

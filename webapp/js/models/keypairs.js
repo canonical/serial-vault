@@ -32,8 +32,8 @@ var Keypair = {
 		return Ajax.post(this.url + '/' + keypairId + '/disable', {});
 	},
 
-	create:  function(keypair) {
-		return Ajax.post(this.url, keypair);
+	create:  function(authorityId, key) {
+		return Ajax.post(this.url, {'authority-id': authorityId, 'private-key': key});
 	}
 
 }
