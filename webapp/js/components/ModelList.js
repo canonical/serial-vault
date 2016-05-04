@@ -31,7 +31,7 @@ var injectIntl = require('react-intl').injectIntl;
 var ModelList = React.createClass({
 
   getInitialState: function() {
-    return {models: this.props.models || [], keypairs: this.props.keypairs || []};
+    return {models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null};
   },
 
   componentDidMount: function() {
@@ -67,6 +67,46 @@ var ModelList = React.createClass({
     });
   },
 
+  formatError: function(data) {
+		var message = this.props.intl.formatMessage({id: data.error_code});
+		if (data.error_subcode) {
+			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+		} else if (data.message) {
+			message += ': ' + data.message;
+		}
+		return message;
+	},
+
+  handleDelete: function(e) {
+    e.preventDefault();
+    this.setState({confirmDelete: parseInt(e.target.getAttribute('data-key'))});
+  },
+
+  handleDeleteModel: function(e) {
+    e.preventDefault();
+    var self = this;
+    var models = this.state.models.filter(function(mdl) {
+      return mdl.id === self.state.confirmDelete;
+    });
+    if (models.length === 0) {
+      return;
+    }
+
+    Models.delete(models[0]).then(function(response) {
+      var data = JSON.parse(response.body);
+      if ((response.statusCode >= 300) || (!data.success)) {
+        self.setState({message: self.formatError(data)});
+      } else {
+        window.location = '/models';
+      }
+    });
+  },
+
+  handleDeleteModelCancel: function(e) {
+    e.preventDefault();
+    this.setState({confirmDelete: null});
+  },
+
   renderTable: function(M) {
     var self = this;
 
@@ -81,7 +121,8 @@ var ModelList = React.createClass({
           <tbody>
             {this.state.models.map(function(mdl) {
               return (
-                <ModelRow key={mdl.id} model={mdl} />
+                <ModelRow key={mdl.id} model={mdl} delete={self.handleDelete} confirmDelete={self.state.confirmDelete}
+                  deleteModel={self.handleDeleteModel} cancelDelete={self.handleDeleteModelCancel} />
               );
             })}
           </tbody>

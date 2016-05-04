@@ -29941,7 +29941,7 @@ var KeypairAdd = React.createClass({
 		return React.createElement(
 			'div',
 			null,
-			React.createElement(Navigation, { active: 'keys' }),
+			React.createElement(Navigation, { active: 'models' }),
 			React.createElement(
 				'section',
 				{ className: 'row no-border' },
@@ -29968,11 +29968,11 @@ var KeypairAdd = React.createClass({
 									null,
 									React.createElement(
 										'label',
-										{ htmlFor: 'key' },
+										{ htmlFor: 'authority-id' },
 										M({ id: 'authority-id' }),
 										':'
 									),
-									React.createElement('input', { type: 'text', onChange: this.handleChangeAuthorityId, placeholder: M({ id: 'authority-id-description' }) })
+									React.createElement('input', { type: 'text', id: 'authority-id', onChange: this.handleChangeAuthorityId, placeholder: M({ id: 'authority-id-description' }) })
 								),
 								React.createElement(
 									'li',
@@ -29983,7 +29983,7 @@ var KeypairAdd = React.createClass({
 										M({ id: 'signing-key' }),
 										':'
 									),
-									React.createElement('textarea', { onChange: this.handleChangeKey, defaultValue: this.state.key,
+									React.createElement('textarea', { onChange: this.handleChangeKey, defaultValue: this.state.key, id: 'key',
 										placeholder: M({ id: 'new-signing-key-description' }) })
 								),
 								React.createElement(
@@ -30447,7 +30447,7 @@ var ModelList = React.createClass({
 
 
   getInitialState: function getInitialState() {
-    return { models: this.props.models || [], keypairs: this.props.keypairs || [] };
+    return { models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null };
   },
 
   componentDidMount: function componentDidMount() {
@@ -30481,6 +30481,46 @@ var ModelList = React.createClass({
       }
       self.setState({ keypairs: data.keypairs, message: message });
     });
+  },
+
+  formatError: function formatError(data) {
+    var message = this.props.intl.formatMessage({ id: data.error_code });
+    if (data.error_subcode) {
+      message += ': ' + this.props.intl.formatMessage({ id: data.error_subcode });
+    } else if (data.message) {
+      message += ': ' + data.message;
+    }
+    return message;
+  },
+
+  handleDelete: function handleDelete(e) {
+    e.preventDefault();
+    this.setState({ confirmDelete: parseInt(e.target.getAttribute('data-key')) });
+  },
+
+  handleDeleteModel: function handleDeleteModel(e) {
+    e.preventDefault();
+    var self = this;
+    var models = this.state.models.filter(function (mdl) {
+      return mdl.id === self.state.confirmDelete;
+    });
+    if (models.length === 0) {
+      return;
+    }
+
+    Models.delete(models[0]).then(function (response) {
+      var data = JSON.parse(response.body);
+      if (response.statusCode >= 300 || !data.success) {
+        self.setState({ message: self.formatError(data) });
+      } else {
+        window.location = '/models';
+      }
+    });
+  },
+
+  handleDeleteModelCancel: function handleDeleteModelCancel(e) {
+    e.preventDefault();
+    this.setState({ confirmDelete: null });
   },
 
   renderTable: function renderTable(M) {
@@ -30523,7 +30563,8 @@ var ModelList = React.createClass({
           'tbody',
           null,
           this.state.models.map(function (mdl) {
-            return React.createElement(ModelRow, { key: mdl.id, model: mdl });
+            return React.createElement(ModelRow, { key: mdl.id, model: mdl, 'delete': self.handleDelete, confirmDelete: self.state.confirmDelete,
+              deleteModel: self.handleDeleteModel, cancelDelete: self.handleDeleteModelCancel });
           })
         )
       );
@@ -30623,46 +30664,84 @@ var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
 
 var ModelRow = React.createClass({
-  displayName: 'ModelRow',
+	displayName: 'ModelRow',
 
-  render: function render() {
-    var M = this.props.intl.formatMessage;
-    return React.createElement(
-      'tr',
-      null,
-      React.createElement(
-        'td',
-        null,
-        React.createElement(
-          'a',
-          { href: '/models/'.concat(this.props.model.id, '/edit'), className: 'button--secondary', title: M({ id: 'edit-model' }) },
-          React.createElement('i', { className: 'fa fa-pencil' })
-        )
-      ),
-      React.createElement(
-        'td',
-        null,
-        this.props.model['brand-id']
-      ),
-      React.createElement(
-        'td',
-        null,
-        this.props.model.model
-      ),
-      React.createElement(
-        'td',
-        null,
-        this.props.model.revision
-      ),
-      React.createElement(
-        'td',
-        null,
-        this.props.model['authority-id'],
-        '/',
-        this.props.model['key-id']
-      )
-    );
-  }
+	renderActions: function renderActions(M) {
+		if (this.props.model.id !== this.props.confirmDelete) {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'a',
+					{ href: '/models/'.concat(this.props.model.id, '/edit'), className: 'button--primary', title: M({ id: 'edit-model' }) },
+					React.createElement('i', { className: 'fa fa-pencil' })
+				),
+				' ',
+				React.createElement(
+					'a',
+					{ href: '', onClick: this.props.delete, 'data-key': this.props.model.id, className: 'button--secondary', title: M({ id: 'delete-model' }) },
+					React.createElement('i', { className: 'fa fa-trash', 'data-key': this.props.model.id })
+				)
+			);
+		} else {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'em',
+					null,
+					M({ id: 'confirm-model-delete' })
+				),
+				React.createElement('br', null),
+				React.createElement(
+					'button',
+					{ onClick: this.props.deleteModel, className: 'button--primary small' },
+					M({ id: 'yes' })
+				),
+				' ',
+				React.createElement(
+					'button',
+					{ onClick: this.props.cancelDelete, className: 'button--secondary small' },
+					M({ id: 'cancel' })
+				)
+			);
+		}
+	},
+
+	render: function render() {
+		var M = this.props.intl.formatMessage;
+		return React.createElement(
+			'tr',
+			null,
+			React.createElement(
+				'td',
+				null,
+				this.renderActions(M)
+			),
+			React.createElement(
+				'td',
+				null,
+				this.props.model['brand-id']
+			),
+			React.createElement(
+				'td',
+				null,
+				this.props.model.model
+			),
+			React.createElement(
+				'td',
+				null,
+				this.props.model.revision
+			),
+			React.createElement(
+				'td',
+				null,
+				this.props.model['authority-id'],
+				'/',
+				this.props.model['key-id']
+			)
+		);
+	}
 });
 
 module.exports = injectIntl(ModelRow);
@@ -30781,7 +30860,9 @@ var intlData = {
     "version": "版本",
     "edit-model": "编辑模型",
     "new-model": "新模式",
+    "delete-model": "<Delete model>",
     "add-new-model": "添加新模式",
+    "confirm-model-delete": "<Confirm deletion of this model>",
     "yes": "是",
     "save": "保存",
     "cancel": "取消",
@@ -30855,6 +30936,8 @@ var intlData = {
     "edit-model": "Edit Model",
     "new-model": "New Model",
     "add-new-model": "Add a new model",
+    "delete-model": "Delete model",
+    "confirm-model-delete": "Confirm deletion of this model",
     "yes": "Yes",
     "save": "Save",
     "cancel": "Cancel",
@@ -31169,23 +31252,27 @@ module.exports = Model;
 var Ajax = require('./Ajax');
 
 var Model = {
-  url: 'models',
+	url: 'models',
 
-  list: function list() {
-    return Ajax.get(this.url);
-  },
+	list: function list() {
+		return Ajax.get(this.url);
+	},
 
-  get: function get(modelId) {
-    return Ajax.get(this.url + '/' + modelId);
-  },
+	get: function get(modelId) {
+		return Ajax.get(this.url + '/' + modelId);
+	},
 
-  update: function update(model) {
-    return Ajax.put(this.url + '/' + model.id, model);
-  },
+	update: function update(model) {
+		return Ajax.put(this.url + '/' + model.id, model);
+	},
 
-  create: function create(model) {
-    return Ajax.post(this.url, model);
-  }
+	delete: function _delete(model) {
+		return Ajax.delete(this.url + '/' + model.id, {});
+	},
+
+	create: function create(model) {
+		return Ajax.post(this.url, model);
+	}
 
 };
 

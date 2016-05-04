@@ -53,6 +53,7 @@ const getModelSQL = `
 	where m.id=$1`
 const updateModelSQL = "update model set brand_id=$2, name=$3, revision=$4, keypair_id=$5 where id=$1"
 const createModelSQL = "insert into model (brand_id,name,revision,keypair_id) values ($1,$2,$3,$4) RETURNING id"
+const deleteModelSQL = "delete from model where id=$1"
 
 // Model holds the model details in the local database
 type Model struct {
@@ -173,4 +174,16 @@ func (db *DB) CreateModel(model Model) (Model, string, error) {
 		return model, "", err
 	}
 	return mdl, "", nil
+}
+
+// DeleteModel deletes a model record.
+func (db *DB) DeleteModel(model Model) (string, error) {
+
+	_, err := db.Exec(deleteModelSQL, model.ID)
+	if err != nil {
+		log.Printf("Error deleting the database model: %v\n", err)
+		return "", err
+	}
+
+	return "", nil
 }

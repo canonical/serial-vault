@@ -445,6 +445,32 @@ func TestModelUpdateHandlerWithBadID(t *testing.T) {
 	sendRequestExpectError(t, "PUT", "/1.0/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
+func TestModelDeleteHandler(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	// Delete a model
+	data := "{}"
+	sendRequest(t, "DELETE", "/1.0/models/1", bytes.NewBufferString(data))
+}
+
+func TestModelDeleteHandlerWithErrors(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	// Delete a model
+	data := `{}`
+
+	sendRequestExpectError(t, "DELETE", "/1.0/models/1", bytes.NewBufferString(data))
+}
+
+func TestModelDeleteHandlerWithBadID(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	sendRequestExpectError(t, "DELETE", "/1.0/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
+}
+
 func TestModelCreateHandler(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
