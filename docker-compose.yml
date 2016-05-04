@@ -1,0 +1,15 @@
+db:
+  image: postgres
+  volumes:
+      - ./db/postgres-setup.sql:/docker-entrypoint-initdb.d/setup.sql
+  environment:
+      POSTGRES_PASSWORD: ubuntu
+web:
+  build: .
+#    command: python manage.py runserver 0.0.0.0:8000
+#    volumes:
+#      - .:/code
+  ports:
+    - "8080:8080"
+  links:
+    - db
