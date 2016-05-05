@@ -99,20 +99,6 @@ var ModelEdit = React.createClass({
 		var model = this.state.model;
 		model['keypair-id'] = parseInt(e.target.value);
 		this.setState({model: model});
-
-		// // Get the file
-		// var reader = new FileReader();
-		// var file = e.target.files[0];
-		//
-		// reader.onload = function(upload) {
-		// 	// Get the base64 data from the URI
-		// 	var data = upload.target.result.split(',')[1];
-		// 	model['signing-key'] = data;
-		// 	self.setState({model: model});
-		// }
-		//
-		// // Read the file as store as data URL
-		// reader.readAsDataURL(file);
 	},
 
 	handleSaveClick: function(e) {

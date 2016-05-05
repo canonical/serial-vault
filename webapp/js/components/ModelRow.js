@@ -18,6 +18,7 @@
 
 var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
+var DialogBox = require('./DialogBox');
 
 var ModelRow = React.createClass({
 	renderActions: function(M) {
@@ -32,11 +33,7 @@ var ModelRow = React.createClass({
 			);
 		} else {
 			return (
-				<div>
-					<em>{M({id: 'confirm-model-delete'})}</em><br />
-					<button onClick={this.props.deleteModel} className="button--primary small">{M({id: 'yes'})}</button>&nbsp;
-					<button onClick={this.props.cancelDelete} className="button--secondary small">{M({id: 'cancel'})}</button>
-				</div>
+				<DialogBox message={M({id: 'confirm-model-delete'})} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} />
 			);
 		}
 	},

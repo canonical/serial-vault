@@ -30249,20 +30249,6 @@ var ModelEdit = React.createClass({
 		var model = this.state.model;
 		model['keypair-id'] = parseInt(e.target.value);
 		this.setState({ model: model });
-
-		// // Get the file
-		// var reader = new FileReader();
-		// var file = e.target.files[0];
-		//
-		// reader.onload = function(upload) {
-		// 	// Get the base64 data from the URI
-		// 	var data = upload.target.result.split(',')[1];
-		// 	model['signing-key'] = data;
-		// 	self.setState({model: model});
-		// }
-		//
-		// // Read the file as store as data URL
-		// reader.readAsDataURL(file);
 	},
 
 	handleSaveClick: function handleSaveClick(e) {
@@ -30662,6 +30648,7 @@ module.exports = injectIntl(ModelList);
 
 var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
+var DialogBox = require('./DialogBox');
 
 var ModelRow = React.createClass({
 	displayName: 'ModelRow',
@@ -30684,27 +30671,7 @@ var ModelRow = React.createClass({
 				)
 			);
 		} else {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'em',
-					null,
-					M({ id: 'confirm-model-delete' })
-				),
-				React.createElement('br', null),
-				React.createElement(
-					'button',
-					{ onClick: this.props.deleteModel, className: 'button--primary small' },
-					M({ id: 'yes' })
-				),
-				' ',
-				React.createElement(
-					'button',
-					{ onClick: this.props.cancelDelete, className: 'button--secondary small' },
-					M({ id: 'cancel' })
-				)
-			);
+			return React.createElement(DialogBox, { message: M({ id: 'confirm-model-delete' }), handleYesClick: this.props.deleteModel, handleCancelClick: this.props.cancelDelete });
 		}
 	},
 
@@ -30745,7 +30712,7 @@ var ModelRow = React.createClass({
 });
 
 module.exports = injectIntl(ModelRow);
-},{"react":"nakDgH","react-intl":19}],281:[function(require,module,exports){
+},{"./DialogBox":271,"react":"nakDgH","react-intl":19}],281:[function(require,module,exports){
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
