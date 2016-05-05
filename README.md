@@ -25,6 +25,61 @@ Run it:
   $ go run server.go -config=/path/to/settings.yaml
   ```
 
+## Development Environment
+
+### Install Go
+Follow the instructions to [install Go](https://golang.org/doc/install).
+
+### Install the React development environment
+#### Pre-requisites
+- Install the build packages
+```bash
+sudo apt-get install build-essential libssl-dev
+```
+
+- Install NVM
+Install the [Node Version Manager](https://github.com/creationix/nvm) that will allow a specific
+version of Node.js to be installed. Follow the installation instructions.
+
+- Install the latest stable Node.js and npm
+The latest stable (LTS) version of Node can be found on the [Node website](nodejs.org).
+```bash
+# Overview of available commands
+nvm help
+
+# Install the latest stable version
+nvm install v4.4.3
+
+# Select the version to use
+nvm ls
+nvm use v4.4.3
+
+# Install gulp globally
+npm install -g gulp
+```
+
+- Install the nodejs dependencies
+```bash
+cd identity-vault
+npm install
+```
+
+### Working with React
+
+#### Build the project bundle
+```bash
+# Select the version to use
+nvm ls
+nvm use v4.4.3
+gulp
+```
+
+#### Run the tests
+```bash
+npm test
+```
+
+
 ## API Methods
 
 ### /1.0/version (GET)
@@ -79,38 +134,29 @@ Run it:
 Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
+The message must be the device-serial assertion format and is best generated using the snappy ubuntu-core libraries.
+```
+type: device-serial
+authority-id: System
+brand-id: System Inc.
+model: Router 3400
+revision: 12
+serial: A1228M\L
+timestamp: 2016-01-02T15:04:05Z
+device-key: openpgp WkUDQbqFCKZBPvKbwR...
 
-```json
-{
-  "serial":"M12345/LN",
-  "brand-id": "System",
-  "model":"Device 1000",
-  "device-key":"ssh-rsa abcd1234",
-  "revision": 2
-}
+openpgp mQINBFaiIK4BEADHpUm...
 ```
 - brand-id: the Account ID of the manufacturer (string)
 - model: the name of the device (string)
 - serial: serial number of the device (string)
 - device-key: the type and public key of the device (string)
 - revision: the revision of the device (integer)
+- signature: the signed data
 
 #### Output message
+The method returns a signed device-serial assertion using the key from the vault.
 
-```json
-{
-  "success":true,
-  "message":"",
-  "signature":"-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\ntype: device\nbrand-id: System\nmodel: Device 1000\nserial: M12345/LN\ntimestamp: 2016-02-03 17:22:59.93489652 +0000 UTC\nrevision: 2\ndevice-key: ssh-rsa abcd1234\n-----BEGIN PGP SIGNATURE-----\n\nwsFcBAEBCA ... A5LT\n-----END PGP SIGNATURE-----"}
-```
-- success: whether the submission was successful (bool)
-- message: error message from the submission (string)
-- identity: the formatted, clear-signed data (string)
-
-#### Example
-```bash
-curl -X POST -d '{"serial":"M12345/LN", "brand-id":"System", "model":"Device 1000", "revision": 2, "device-key":"ssh-rsa abcd1234"}' http://localhost:8080/1.0/sign
-```
 
 [travis-image]: https://travis-ci.org/ubuntu-core/identity-vault.svg?branch=master
 [travis-url]: https://travis-ci.org/ubuntu-core/identity-vault
