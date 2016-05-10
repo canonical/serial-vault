@@ -14,6 +14,11 @@ var path = {
 	DIST: 'static/'
 };
 
+// Use production mode to omit debug code from modules
+gulp.task('set-prod-node-env', function() {
+    return process.env.NODE_ENV = 'production';
+});
+
 // Compile the Vanilla SASS files into the CSS folder
 gulp.task('sass', function () {
     gulp.src(path.BASE + 'sass/*.scss')
@@ -47,7 +52,7 @@ gulp.task('build', ['compile_app'], function(){
         bundler.require('react');
     })
     .pipe(rename('bundle.js'))
-    //.pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest(path.DIST + 'js/'));
 });
 
@@ -57,4 +62,4 @@ gulp.task('clean', ['build', 'sass'], function() {
 });
 
 // Default: remember that these tasks get run asynchronously
-gulp.task('default', ['build', 'sass', 'clean']);
+gulp.task('default', ['set-prod-node-env', 'build', 'sass', 'clean']);

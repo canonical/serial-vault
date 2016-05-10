@@ -268,7 +268,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	formatModelResponse(true, "", "", "", mdl, w)
 }
 
-// ModelDeleteHandler is the API method to update a model.
+// ModelDeleteHandler is the API method to delete a model.
 func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

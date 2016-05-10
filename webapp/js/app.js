@@ -31,15 +31,9 @@ var KeypairAdd = require('./components/KeypairAdd');
 
 // Imports for i18n
 import {IntlProvider, addLocaleData} from 'react-intl';
-import en from 'react-intl/lib/locale-data/en';
-import zh from 'react-intl/lib/locale-data/zh';
 
 // Translated messages
 var Messages = require('./components/messages');
-
-// Add the locales we need
-addLocaleData(en);
-addLocaleData(zh);
 
 window.AppState = {
   container: document.getElementById("main"),
