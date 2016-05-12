@@ -37,9 +37,11 @@ func Router(env *Env) *mux.Router {
 	router.Handle("/1.0/models", Middleware(http.HandlerFunc(ModelCreateHandler), env)).Methods("POST")
 	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler), env)).Methods("GET")
 	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler), env)).Methods("PUT")
+	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler), env)).Methods("DELETE")
 	router.Handle("/1.0/sign", Middleware(http.HandlerFunc(SignHandler), env)).Methods("POST")
 
 	// API routes: signing-keys
+	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairListHandler), env)).Methods("GET")
 	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler), env)).Methods("POST")
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")

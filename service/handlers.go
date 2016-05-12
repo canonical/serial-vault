@@ -76,6 +76,15 @@ type ModelResponse struct {
 	Model        ModelSerialize `json:"model"`
 }
 
+// KeypairsResponse is the JSON response from the API Keypairs method
+type KeypairsResponse struct {
+	Success      bool      `json:"success"`
+	ErrorCode    string    `json:"error_code"`
+	ErrorSubcode string    `json:"error_subcode"`
+	ErrorMessage string    `json:"message"`
+	Keypairs     []Keypair `json:"keypairs"`
+}
+
 // VersionHandler is the API method to return the version of the service
 func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -155,7 +164,7 @@ func modelForDisplay(model Model) ModelSerialize {
 func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	var models []ModelSerialize
+	models := []ModelSerialize{}
 
 	dbModels, err := Environ.DB.ListModels()
 	if err != nil {
@@ -246,7 +255,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, Revision: mdl.Revision}
+	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, Revision: mdl.Revision, KeypairID: mdl.KeypairID}
 	errorSubcode, err := Environ.DB.UpdateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -257,6 +266,34 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	formatModelResponse(true, "", "", "", mdl, w)
+}
+
+// ModelDeleteHandler is the API method to delete a model.
+func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the model primary key
+	vars := mux.Vars(r)
+	modelID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars["id"])
+		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelSerialize{}, w)
+		return
+	}
+
+	// Update the database
+	model := Model{ID: modelID}
+	errorSubcode, err := Environ.DB.DeleteModel(model)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-deleting-model", errorSubcode, errorMessage, ModelSerialize{}, w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	formatModelResponse(true, "", "", "", ModelSerialize{}, w)
 }
 
 // ModelCreateHandler is the API method to create a new model.

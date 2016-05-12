@@ -17,29 +17,25 @@
 'use strict'
 var Ajax = require('./Ajax');
 
-var Model = {
-	url: 'models',
+var Keypair = {
+	url: 'keypairs',
 
 	list: function () {
 			return Ajax.get(this.url);
 	},
 
-	get: function(modelId) {
-		return Ajax.get(this.url + '/' + modelId);
+	enable:  function(keypairId) {
+		return Ajax.post(this.url + '/' + keypairId + '/enable', {});
 	},
 
-	update:  function(model) {
-		return Ajax.put(this.url + '/' + model.id, model);
+	disable:  function(keypairId) {
+		return Ajax.post(this.url + '/' + keypairId + '/disable', {});
 	},
 
-	delete:  function(model) {
-		return Ajax.delete(this.url + '/' + model.id, {});
-	},
-
-	create:  function(model) {
-		return Ajax.post(this.url, model);
+	create:  function(authorityId, key) {
+		return Ajax.post(this.url, {'authority-id': authorityId, 'private-key': key});
 	}
 
 }
 
-module.exports = Model;
+module.exports = Keypair;

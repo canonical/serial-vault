@@ -96,6 +96,24 @@ func (mdb *mockDB) UpdateModel(model Model) (string, error) {
 	return "", nil
 }
 
+// DeleteModel mocks the model deletion.
+func (mdb *mockDB) DeleteModel(model Model) (string, error) {
+	models, _ := mdb.ListModels()
+	found := false
+
+	for _, mdl := range models {
+		if mdl.ID == model.ID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return "", errors.New("Cannot find the model.")
+	}
+	return "", nil
+}
+
 // CreateModel mocks creating a new model.
 func (mdb *mockDB) CreateModel(model Model) (Model, string, error) {
 	model = Model{ID: 7, BrandID: "System", Name: "聖誕快樂", KeypairID: 1, Revision: 2, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
@@ -154,6 +172,11 @@ func (mdb *errorMockDB) GetModel(modelID int) (Model, error) {
 // UpdateModel mocks the model update, returning an error.
 func (mdb *errorMockDB) UpdateModel(model Model) (string, error) {
 	return "", errors.New("Error updating the database model.")
+}
+
+// DeleteModel mocks the model deletion, returning an error.
+func (mdb *errorMockDB) DeleteModel(model Model) (string, error) {
+	return "", errors.New("Error deleting the database model.")
 }
 
 // CreateModel mocks creating a new model, returning an error.

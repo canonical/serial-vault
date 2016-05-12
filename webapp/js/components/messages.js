@@ -33,10 +33,18 @@ var intlData = {
       "version": "版本",
       "edit-model": "编辑模型",
       "new-model": "新模式",
+      "delete-model": "<Delete model>",
       "add-new-model": "添加新模式",
+      "confirm-model-delete": "<Confirm deletion of this model>",
       "yes": "是",
       "save": "保存",
       "cancel": "取消",
+      "activate": "启用",
+      "deactivate": "关闭",
+      "authority-id": "<Signing Authority>",
+      "authority-id-description": "<The authority for signing models>",
+      "key-id": "<Key ID>",
+      "active": "<Active>",
       "private-key": "私钥签名",
       "private-key-description": "将用于签署设备标识的签署密钥",
       "new-public-key": "新的公用密钥",
@@ -46,6 +54,13 @@ var intlData = {
       "public-key-description": "添加一个新的公共密钥",
       "public-keys-authorized": "下面的键被授权",
       "public-key-confirm": "确认公钥缺失",
+      "signing-key": "<Signing Key>",
+      "signing-keys": "<Signing Keys>",
+      "no-signing-keys-found": "<No Signing Keys found>",
+      "new-signing-key-description": "<Paste the signing-key or upload the file>",
+      "no-signing-keys-found": "<No signing keys found>",
+      "new-signing-key": "<New Signing Key>",
+      "add-new-signing-key": "<Add a new signing key>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -72,7 +87,10 @@ var intlData = {
       "error-key-data": "没有找到的公开密钥提供的数据",
       "error-validate-key": "公钥必须输入",
       "error-key-exists": "SSH公用密钥已经存在",
-      "error-key-not-found": "SSH公用密钥无法找到"
+      "error-key-not-found": "SSH公用密钥无法找到",
+      "error-validate-signingkey": "<The Signing Key must be selected>",
+      "error-keypair-store": "Error storing the signing key"
+
     },
 
 		en: {
@@ -91,19 +109,32 @@ var intlData = {
       "edit-model": "Edit Model",
       "new-model": "New Model",
       "add-new-model": "Add a new model",
+      "delete-model": "Delete model",
+      "confirm-model-delete": "Confirm deletion of this model",
       "yes": "Yes",
       "save": "Save",
       "cancel": "Cancel",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "authority-id": "Signing Authority",
+      "authority-id-description": "The authority for signing models",
+      "key-id": "Key ID",
+      "active": "Active",
       "private-key": "Private Key for Signing",
       "private-key-description": "The signing-key that will be used to sign the device identity",
       "new-public-key": "New Public Key",
       "public-key": "Public Key",
-      "new-public-key-description": "Paste the public key of the machine that needs access to the Identity Vault",
+      "new-public-key-description": "Paste the public key of the machine that needs access to the Serial Vault",
       "public-keys": "Public Keys",
       "public-key-description": "Add a new public key",
       "public-keys-authorized": "The following keys are authorized",
       "public-key-confirm": "Confirm deletion of the public key",
-
+      "signing-key": "Signing Key",
+      "signing-keys": "Signing Keys",
+      "new-signing-key-description": "Paste the signing-key or upload the file",
+      "no-signing-keys-found": "No signing keys found",
+      "new-signing-key": "New Signing Key",
+      "add-new-signing-key": "Add a new signing key",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",
@@ -130,7 +161,9 @@ var intlData = {
       "error-key-data": "No data supplied for the public key",
       "error-validate-key": "The public key must be entered",
       "error-key-exists": 'The ssh public key already exists',
-      "error-key-not-found": "The ssh public key cannot be found"
+      "error-key-not-found": "The ssh public key cannot be found",
+      "error-validate-signingkey": "The Signing Key must be selected",
+      "error-keypair-store": "Error storing the signing key"
 		}
 };
 

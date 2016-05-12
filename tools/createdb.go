@@ -40,6 +40,12 @@ func main() {
 		log.Fatal(err)
 	} else {
 		log.Println("Created the 'keypair' table.")
+
+		// Create the test key (if the filesystem store is used)
+		if env.Config.KeyStoreType == "filesystem" {
+			// Create the test key as it is in the default filesystem keystore
+			env.DB.PutKeypair(service.Keypair{AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+		}
 	}
 
 	// Create the model table, if it does not exist
