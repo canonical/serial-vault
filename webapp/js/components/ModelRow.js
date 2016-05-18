@@ -49,6 +49,7 @@ var ModelRow = React.createClass({
 				<td>{this.props.model.model}</td>
 				<td>{this.props.model.revision}</td>
 				<td>{this.props.model['authority-id']}/{this.props.model['key-id']}</td>
+				<td>{this.props.model['key-active'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
 			</tr>
 		)
 	}
