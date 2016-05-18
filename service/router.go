@@ -37,6 +37,7 @@ func Router(env *Env) *mux.Router {
 	router.Handle("/1.0/models", Middleware(http.HandlerFunc(ModelCreateHandler), env)).Methods("POST")
 	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler), env)).Methods("GET")
 	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler), env)).Methods("PUT")
+	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler), env)).Methods("DELETE")
 	router.Handle("/1.0/sign", Middleware(http.HandlerFunc(SignHandler), env)).Methods("POST")
 
 	// API routes: signing-keys

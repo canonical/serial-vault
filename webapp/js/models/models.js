@@ -32,6 +32,10 @@ var Model = {
 		return Ajax.put(this.url + '/' + model.id, model);
 	},
 
+	delete:  function(model) {
+		return Ajax.delete(this.url + '/' + model.id, {});
+	},
+
 	create:  function(model) {
 		return Ajax.post(this.url, model);
 	}

@@ -18,14 +18,32 @@
 
 var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
+var DialogBox = require('./DialogBox');
 
 var ModelRow = React.createClass({
+	renderActions: function(M) {
+		if (this.props.model.id !== this.props.confirmDelete) {
+			return (
+				<div>
+					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--primary" title={M({id: 'edit-model'})}><i className="fa fa-pencil"></i></a>
+					&nbsp;
+					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="button--secondary" title={M({id: 'delete-model'})}>
+						<i className="fa fa-trash" data-key={this.props.model.id}></i></a>
+				</div>
+			);
+		} else {
+			return (
+				<DialogBox message={M({id: 'confirm-model-delete'})} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} />
+			);
+		}
+	},
+
 	render: function() {
 		var M = this.props.intl.formatMessage;
 		return (
 			<tr>
 			  <td>
-					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--secondary" title={M({id: 'edit-model'})}><i className="fa fa-pencil"></i></a>
+					{this.renderActions(M)}
 				</td>
 				<td>{this.props.model['brand-id']}</td>
 				<td>{this.props.model.model}</td>

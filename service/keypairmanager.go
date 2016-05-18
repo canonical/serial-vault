@@ -38,7 +38,9 @@ const getKeypairSQL = "select id, authority_id, key_id, active from keypair wher
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const upsertKeypairSQL = `
 	WITH upsert AS (
-		update keypair set authority_id=$1, key_id=$2 RETURNING *
+		update keypair set authority_id=$1, key_id=$2
+		where authority_id=$1 and key_id=$2
+		RETURNING *
 	)
 	insert into keypair (authority_id,key_id)
 	select $1, $2
