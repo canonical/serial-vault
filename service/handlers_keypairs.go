@@ -109,7 +109,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the signing-key in the keypair store using the asserts module
-	err = Environ.KeypairDB.ImportKey(keypairWithKey.AuthorityID, privateKey)
+	err = Environ.KeypairDB.ImportSigningKey(keypairWithKey.AuthorityID, privateKey)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-store", "", err.Error(), w)
@@ -136,6 +136,8 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 // deserializePrivateKey decodes a base64 encoded private key file and converts
 // it to a private key that can be used for storage in the keypair store
 func deserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string, error) {
+	const errorInvalidKey = "error-invalid-key"
+
 	// The private-key is base64 encoded, so we need to decode it
 	decodedPrivateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
 	if err != nil {
@@ -145,17 +147,17 @@ func deserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string,
 	// Validate the signing-key
 	block, err := armor.Decode(bytes.NewReader(decodedPrivateKey))
 	if err != nil {
-		return nil, "error-invalid-key", err
+		return nil, errorInvalidKey, err
 	}
 
 	p, err := packet.Read(block.Body)
 	if err != nil {
-		return nil, "error-invalid-key", err
+		return nil, errorInvalidKey, err
 	}
 
 	privateKey, ok := p.(*packet.PrivateKey)
 	if !ok {
-		return nil, "error-invalid-key", errors.New("Not a private key")
+		return nil, errorInvalidKey, errors.New("Not a private key")
 	}
 	return asserts.OpenPGPPrivateKey(privateKey), "", nil
 }

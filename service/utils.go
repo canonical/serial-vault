@@ -61,7 +61,7 @@ type Env struct {
 	Config         ConfigSettings
 	DB             Datastore
 	AuthorizedKeys AuthorizedKeystore
-	KeypairDB      *asserts.Database
+	KeypairDB      *KeypairDatabase
 }
 
 var settingsFile string

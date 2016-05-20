@@ -145,7 +145,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sign the assertion with the ubuntu-core assertions module
-	signedAssertion, err := Environ.KeypairDB.Sign(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.KeyID)
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.KeyID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSignResponse(false, "error-signing-assertions", "", err.Error(), signedAssertion, w)

@@ -253,7 +253,7 @@ func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 
 	// Check the JSON response
 	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	json.NewDecoder(w.Body).Decode(&result)
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
@@ -283,7 +283,7 @@ func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 
 	// Check the JSON response
 	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	json.NewDecoder(w.Body).Decode(&result)
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
