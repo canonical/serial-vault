@@ -24,7 +24,7 @@ import (
 	"io"
 
 	"github.com/google/go-tpm/tpm"
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // TPM20KeypairStore is the storage container for signing-keys in the TPM2.0 device

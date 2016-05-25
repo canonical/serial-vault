@@ -29,7 +29,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // ModelSerialize is the JSON version of a model, with the signing key ID
@@ -129,10 +129,10 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that we have a device-serial assertion (the details will have been validated by Decode call)
-	if assertion.Type() != asserts.DeviceSerialType {
+	// Check that we have a serial assertion (the details will have been validated by Decode call)
+	if assertion.Type() != asserts.SerialType {
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'device-serial'", nil, w)
+		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'serial'", nil, w)
 		return
 	}
 
@@ -145,7 +145,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sign the assertion with the ubuntu-core assertions module
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.DeviceSerialType, assertion.Headers(), assertion.Body(), model.KeyID)
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.KeyID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSignResponse(false, "error-signing-assertions", "", err.Error(), signedAssertion, w)

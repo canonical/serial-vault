@@ -22,7 +22,7 @@ package service
 import (
 	"errors"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // KeypairStoreType defines the capabilities of a keypair storage method

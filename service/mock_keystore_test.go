@@ -22,7 +22,7 @@ package service
 import (
 	"errors"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 type errorMockKeypairManager struct{}
