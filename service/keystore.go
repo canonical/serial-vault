@@ -52,6 +52,7 @@ type KeypairStore interface {
 type KeypairDatabase struct {
 	KeyStoreType KeypairStoreType
 	*asserts.Database
+	*TPM20KeypairStore
 }
 
 var keypairDB KeypairDatabase
@@ -60,7 +61,15 @@ var keypairDB KeypairDatabase
 func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	switch {
 	case config.KeyStoreType == TPM20Store.Name:
-		return nil, nil
+		rw, err := OpenTPMStore(config.KeyStorePath)
+		if err != nil {
+			return nil, err
+		}
+
+		tpm20 := TPM20KeypairStore{config.KeyStorePath, rw}
+
+		keypairDB = KeypairDatabase{TPM20Store, nil, &tpm20}
+		return &keypairDB, err
 
 	case config.KeyStoreType == FilesystemStore.Name:
 		fsStore, err := asserts.OpenFSKeypairManager(config.KeyStorePath)
@@ -71,7 +80,7 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 			KeypairManager: fsStore,
 		})
 
-		keypairDB = KeypairDatabase{FilesystemStore, db}
+		keypairDB = KeypairDatabase{FilesystemStore, db, nil}
 		return &keypairDB, err
 
 	default:
@@ -84,7 +93,8 @@ func (kdb *KeypairDatabase) ImportSigningKey(authorityID string, privateKey asse
 
 	switch {
 	case kdb.KeyStoreType.Name == TPM20Store.Name:
-		return nil
+		// TPM 2.0 keypairs handled by the internal TPM 2.0 library (until ubuntu-core includes TPM 2.0 capability)
+		return kdb.TPM20ImportKey(authorityID, privateKey)
 
 	default:
 		// Keypairs are handled by the ubuntu-core library, so this is a pass-through to the core library

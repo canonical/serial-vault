@@ -31,7 +31,7 @@ func getMemoryKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: asserts.NewMemoryKeypairManager(),
 	})
-	keypairDB := KeypairDatabase{FilesystemStore, db}
+	keypairDB := KeypairDatabase{FilesystemStore, db, nil}
 	return &keypairDB, err
 }
 
@@ -49,6 +49,6 @@ func getErrorMockKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: mockStore,
 	})
-	keypairDB := KeypairDatabase{FilesystemStore, db}
+	keypairDB := KeypairDatabase{FilesystemStore, db, nil}
 	return &keypairDB, err
 }

@@ -8,5 +8,7 @@ driver: "postgres"
 datasource: "dbname=identity-vault"
 
 # Signing Key Store
-keystore: "filesystem"
-keystorePath: "./keystore"
+#keystore: "filesystem"
+#keystorePath: "./keystore"
+keystore: "tpm2.0"
+keystorePath: "/dev/pts/19"
