@@ -174,6 +174,8 @@ var ModelEdit = React.createClass({
 											{this.state.keypairs.map(function(kpr) {
 												if (kpr.Active) {
 													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+												} else {
+													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({(M({id: 'inactive'}))})</option>;
 												}
 											})}
 										</select>
