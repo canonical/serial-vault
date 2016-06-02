@@ -135,7 +135,7 @@ func TestSignHandlerBadAssertion(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: Vendor
 model: Alder
@@ -175,7 +175,7 @@ func TestSignHandlerBadAssertionNoRevision(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: Vendor
 model: Alder
@@ -264,7 +264,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 	// Mock the database, ot finding the model
 	Environ = &Env{DB: &errorMockDB{}}
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: Vendor
 model: Cannot Find This

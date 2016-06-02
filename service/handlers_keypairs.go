@@ -62,7 +62,7 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // KeypairCreateHandler is the API method to create a new keypair that can be used
-// for signing device-serial assertions. The keypairs are stored in the signing database
+// for signing serial assertions. The keypairs are stored in the signing database
 // and the authority-id/key-id is stored in the models database. Models can then be
 // linked to one of the existing signing-keys.
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
