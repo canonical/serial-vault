@@ -1,5 +1,6 @@
 FROM golang:1.6.2
 
+RUN apt-get update && apt-get install -y postgresql-client
 ADD . /go/src/github.com/ubuntu-core/identity-vault
 
 WORKDIR /go/src/github.com/ubuntu-core/identity-vault
