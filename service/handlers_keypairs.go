@@ -31,7 +31,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 
 	"golang.org/x/crypto/openpgp/armor"
 	"golang.org/x/crypto/openpgp/packet"

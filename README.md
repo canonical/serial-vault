@@ -134,7 +134,7 @@ npm test
 Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
-The message must be the device-serial assertion format and is best generated using the snappy ubuntu-core libraries.
+The message must be the device-serial assertion format and is best generated using the snapd libraries.
 ```
 type: device-serial
 authority-id: System

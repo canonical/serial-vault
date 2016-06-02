@@ -26,7 +26,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 
 	"gopkg.in/yaml.v2"
 )
