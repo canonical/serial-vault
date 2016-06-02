@@ -27,7 +27,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 func TestSignHandlerNilData(t *testing.T) {
@@ -68,7 +68,7 @@ func TestSignHandlerInactive(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: System
 model: Inactive
@@ -104,7 +104,7 @@ func TestSignHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: System
 model: Alder
@@ -297,7 +297,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: System
 model: Alder
