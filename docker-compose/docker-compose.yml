@@ -5,10 +5,7 @@ db:
   environment:
       POSTGRES_PASSWORD: ubuntu
 web:
-  build: .
-#    command: python manage.py runserver 0.0.0.0:8000
-#    volumes:
-#      - .:/code
+  build: ..
   ports:
     - "8080:8080"
   links:

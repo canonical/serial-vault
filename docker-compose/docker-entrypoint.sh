@@ -16,6 +16,6 @@ done
 set -e
 
 cd $GOPATH/src/github.com/ubuntu-core/identity-vault
-go run tools/createdb.go
+go run tools/createdb.go -config=docker-compose/settings.yaml
 
-go run server.go -config=settings.yaml
+go run server.go -config=docker-compose/settings.yaml
