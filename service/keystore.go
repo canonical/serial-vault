@@ -22,7 +22,7 @@ package service
 import (
 	"errors"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // keypairDatabase holds the storage of the private keys for signing. The are
