@@ -64,6 +64,9 @@ const (
 	algRSA       = "0x0001"
 	algKeyedHash = "0x0008"
 	algSymCipher = "0x0025"
+
+	handleHash = "0x81010002"
+	handleSym  = "0x81010003"
 )
 
 // TPM20KeypairStore is the storage container for signing-keys in the TPM2.0 device
@@ -97,7 +100,7 @@ func (tpmStore *TPM20KeypairStore) TPM20ImportKey(authorityID, keyID, base64Priv
 	}
 
 	// Create a KeyedHash key to create the context for the hash key
-	err = tpmStore.createKey(setting.Data, algKeyedHash, "hash")
+	err = tpmStore.createKey(setting.Data, algKeyedHash, "hash", handleHash)
 	if err != nil {
 		return "", err
 	}
@@ -119,7 +122,7 @@ func (tpmStore *TPM20KeypairStore) TPM20ImportKey(authorityID, keyID, base64Priv
 	Environ.DB.PutSetting(Setting{Code: tpmStore.generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
 
 	// Create an assymetric key to create the context for symmetric encryption
-	err = tpmStore.createKey(setting.Data, algSymCipher, "sym")
+	err = tpmStore.createKey(setting.Data, algSymCipher, "sym", handleSym)
 	if err != nil {
 		return "", err
 	}
@@ -202,12 +205,6 @@ func (tpmStore *TPM20KeypairStore) generateEncryptionKey(authorityID, keyID stri
 		return "", err
 	}
 
-	// Get the key context that will be used for the HMAC call
-	keyContextPathSetting, err := Environ.DB.GetSetting("hash_context")
-	if err != nil {
-		return "", err
-	}
-
 	// Create a file to hold the symmetric encryption key that will be used
 	hashKey, err := ioutil.TempFile("", "tmp")
 	if err != nil {
@@ -216,7 +213,7 @@ func (tpmStore *TPM20KeypairStore) generateEncryptionKey(authorityID, keyID stri
 	os.Remove(hashKey.Name())
 
 	// Use the TPM module to hash the plain-text
-	cmd := exec.Command("tpm2_hmac", "-c", keyContextPathSetting.Data, "-g", algSHA256, "-I", tmpfile.Name(), "-o", hashKey.Name())
+	cmd := exec.Command("tpm2_hmac", "-k", handleHash, "-g", algSHA256, "-I", tmpfile.Name(), "-o", hashKey.Name())
 	out, err := cmd.Output()
 	if err != nil {
 		log.Printf("Error in TPM hmac, %v", err)
@@ -238,7 +235,7 @@ func (tpmStore *TPM20KeypairStore) generateEncryptionKey(authorityID, keyID stri
 }
 
 // createKey uses the TPM 2.0 module to generate a key and load it into the TPM 2.0 module.
-func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, prefix string) error {
+func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, prefix, handle string) error {
 
 	// Check if we've already created a key for this operation
 	_, err := Environ.DB.GetSetting(strings.Join([]string{prefix, "context"}, "_"))
@@ -292,22 +289,21 @@ func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, p
 		return err
 	}
 
-	// Save the paths in the settings database
-	err = Environ.DB.PutSetting(Setting{Code: strings.Join([]string{prefix, "public"}, "_"), Data: publicKey.Name()})
+	// Move the key to non-volatile storage, so it will survive a power cycle
+	cmd = exec.Command("tpm2_evictcontrol", "-A", "o", "-c", keyContext.Name(), "-S", handle)
+	stdout, err = cmd.Output()
+	log.Println(string(stdout[:]))
 	if err != nil {
-		log.Printf("Error in saving the public key path in settings, %v", err)
+		log.Printf("Error in TPM create, %v", err)
+		log.Println(string(stdout[:]))
 		return err
 	}
-	err = Environ.DB.PutSetting(Setting{Code: strings.Join([]string{prefix, "private"}, "_"), Data: privateKey.Name()})
-	if err != nil {
-		log.Printf("Error in saving the private key path in settings, %v", err)
-		return err
-	}
-	err = Environ.DB.PutSetting(Setting{Code: strings.Join([]string{prefix, "context"}, "_"), Data: keyContext.Name()})
-	if err != nil {
-		log.Printf("Error in saving the context key path in settings, %v", err)
-		return err
-	}
+
+	// Clean up the created files
+	os.Remove(keyContext.Name())
+	os.Remove(publicKey.Name())
+	os.Remove(privateKey.Name())
+	os.Remove(nameFile.Name())
 
 	return nil
 }
