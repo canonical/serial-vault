@@ -42,7 +42,7 @@ const listModelsSQL = `
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id
+	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, sealed_key
 	from model m
 	inner join keypair k on k.id = m.keypair_id and k.active
 	where brand_id=$1 and name=$2 and revision=$3`
@@ -64,6 +64,7 @@ type Model struct {
 	Revision    int
 	AuthorityID string // from the keypair
 	KeyID       string // from the keypair
+	SealedKey   string // from the keypair
 }
 
 // CreateModelTable creates the database table for a model.
@@ -100,7 +101,7 @@ func (db *DB) FindModel(brandID, modelName string, revision int) (Model, error) 
 	model := Model{}
 
 	err := db.QueryRow(findModelSQL, brandID, modelName, revision).Scan(
-		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID)
+		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.SealedKey)
 	switch {
 	case err == sql.ErrNoRows:
 		return model, err

@@ -100,16 +100,8 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Deserialize and validate the private key, converting it into a crypto object
-	privateKey, errorCode, err := deserializePrivateKey(keypairWithKey.PrivateKey)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, errorCode, "", err.Error(), w)
-		return
-	}
-
 	// Store the signing-key in the keypair store using the asserts module
-	err = Environ.KeypairDB.ImportSigningKey(keypairWithKey.AuthorityID, privateKey)
+	privateKey, sealedPrivateKey, err := Environ.KeypairDB.ImportSigningKey(keypairWithKey.AuthorityID, keypairWithKey.PrivateKey)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-store", "", err.Error(), w)
@@ -120,8 +112,9 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	keypair := Keypair{
 		AuthorityID: keypairWithKey.AuthorityID,
 		KeyID:       privateKey.PublicKey().ID(),
+		SealedKey:   sealedPrivateKey,
 	}
-	errorCode, err = Environ.DB.PutKeypair(keypair)
+	errorCode, err := Environ.DB.PutKeypair(keypair)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, errorCode, "", err.Error(), w)
@@ -136,16 +129,20 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 // deserializePrivateKey decodes a base64 encoded private key file and converts
 // it to a private key that can be used for storage in the keypair store
 func deserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string, error) {
-	const errorInvalidKey = "error-invalid-key"
-
 	// The private-key is base64 encoded, so we need to decode it
 	decodedPrivateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
 	if err != nil {
 		return nil, "error-decode-key", err
 	}
 
+	return privateKeyToAssertsKey(decodedPrivateKey)
+}
+
+func privateKeyToAssertsKey(key []byte) (asserts.PrivateKey, string, error) {
+	const errorInvalidKey = "error-invalid-key"
+
 	// Validate the signing-key
-	block, err := armor.Decode(bytes.NewReader(decodedPrivateKey))
+	block, err := armor.Decode(bytes.NewReader(key))
 	if err != nil {
 		return nil, errorInvalidKey, err
 	}

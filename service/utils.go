@@ -157,3 +157,14 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 	}
 	return nil
 }
+
+// padRight truncates a string to a specific length, padding with a named
+// character for shorter strings.
+func padRight(str, pad string, length int) string {
+	for {
+		str += pad
+		if len(str) > length {
+			return str[0:length]
+		}
+	}
+}

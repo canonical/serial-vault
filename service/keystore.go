@@ -44,7 +44,7 @@ var (
 
 // KeypairStore interface to wrap the signing-key store interactions for all store types
 type KeypairStore interface {
-	ImportSigningKey(string, asserts.PrivateKey) error
+	ImportSigningKey(string, string) (asserts.PrivateKey, string, error)
 	SignAssertion(*asserts.AssertionType, map[string]string, []byte, string) (asserts.Assertion, error)
 }
 
@@ -66,9 +66,16 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 			return nil, err
 		}
 
+		// Initalize the TPM store
 		tpm20 := TPM20KeypairStore{config.KeyStorePath, rw}
 
-		keypairDB = KeypairDatabase{TPM20Store, nil, &tpm20}
+		// Prepare the memory store for the unsealed keys
+		memStore := asserts.NewMemoryKeypairManager()
+		db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
+			KeypairManager: memStore,
+		})
+
+		keypairDB = KeypairDatabase{TPM20Store, db, &tpm20}
 		return &keypairDB, err
 
 	case config.KeyStoreType == FilesystemStore.Name:
@@ -89,25 +96,36 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 }
 
 // ImportSigningKey adds a new signing-key for an authority into the keypair store
-func (kdb *KeypairDatabase) ImportSigningKey(authorityID string, privateKey asserts.PrivateKey) error {
+func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey string) (asserts.PrivateKey, string, error) {
+	privateKey, _, err := deserializePrivateKey(base64PrivateKey)
+	if err != nil {
+		return nil, "", err
+	}
 
 	switch {
 	case kdb.KeyStoreType.Name == TPM20Store.Name:
 		// TPM 2.0 keypairs handled by the internal TPM 2.0 library (until ubuntu-core includes TPM 2.0 capability)
-		return kdb.TPM20ImportKey(authorityID, privateKey)
+		sealedPrivateKey, err := kdb.TPM20ImportKey(authorityID, privateKey.PublicKey().ID(), base64PrivateKey)
+		return privateKey, sealedPrivateKey, err
 
 	default:
 		// Keypairs are handled by the ubuntu-core library, so this is a pass-through to the core library
-		return kdb.ImportKey(authorityID, privateKey)
+		return privateKey, "", kdb.ImportKey(authorityID, privateKey)
 	}
 }
 
 // SignAssertion signs an assertion using the signing-key from the keypair store
-func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, headers map[string]string, body []byte, keyID string) (asserts.Assertion, error) {
+func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, headers map[string]string, body []byte, authorityID string, keyID string, sealedSigningKey string) (asserts.Assertion, error) {
 
 	switch {
 	case kdb.KeyStoreType.Name == TPM20Store.Name:
-		return nil, nil
+		err := kdb.TPM20UnsealKey(assertType, headers, body, authorityID, keyID, sealedSigningKey)
+		if err != nil {
+			return nil, err
+		}
+
+		// Sign the key using the unsealed key in the memory keypair store
+		return kdb.Sign(assertType, headers, body, keyID)
 
 	default:
 		// Filesystem keypairs are handled by the ubuntu-core library, so this is a pass-through to the core library

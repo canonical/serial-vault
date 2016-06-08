@@ -42,6 +42,9 @@ type Datastore interface {
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateKeypairActive(keypairID int, active bool) error
 	CreateKeypairTable() error
+	CreateSettingsTable() error
+	PutSetting(setting Setting) error
+	GetSetting(code string) (Setting, error)
 }
 
 // DB local database interface with our custom methods.

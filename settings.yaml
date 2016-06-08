@@ -11,4 +11,4 @@ datasource: "dbname=identity-vault"
 keystore: "filesystem"
 keystorePath: "./keystore"
 #keystore: "tpm2.0"
-#keystorePath: "/dev/tpm0
+#keystorePath: "/dev/tpm0"

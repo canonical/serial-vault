@@ -55,4 +55,23 @@ func main() {
 	} else {
 		log.Println("Created the 'model' table.")
 	}
+
+	// Create the keypair table, if it does not exist
+	err = env.DB.CreateSettingsTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Created the 'settings' table.")
+	}
+
+	// Initalize the TPM store, authenticating with the TPM 2.0 module
+	if env.Config.KeyStoreType == service.TPM20Store.Name {
+		log.Println("Initialize the TPM2.0 store")
+		err = service.TPM2InitializeKeystore(env)
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			log.Println("Initialized TPM 2.0 module.")
+		}
+	}
 }
