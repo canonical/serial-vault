@@ -67,7 +67,7 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 		}
 
 		// Initalize the TPM store
-		tpm20 := TPM20KeypairStore{config.KeyStorePath, rw}
+		tpm20 := TPM20KeypairStore{config.KeyStorePath, config.KeyStoreSecret, rw}
 
 		// Prepare the memory store for the unsealed keys
 		memStore := asserts.NewMemoryKeypairManager()

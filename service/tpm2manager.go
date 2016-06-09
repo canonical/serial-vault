@@ -28,6 +28,9 @@ import (
 // TPM2InitializeKeystore initializes the TPM 2.0 module by taking ownership of the module
 // and generating the key for sealing and unsealing signing keys. The context values provide
 // the TPM 2.0 authentication and these are stored in the database.
+// Main TPM 2.0 operations:
+//  * takeownership
+//  * createprimary
 func TPM2InitializeKeystore(env Env) error {
 	log.Println("Initialize the TPM Keystore...")
 

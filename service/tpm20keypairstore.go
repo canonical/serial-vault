@@ -17,28 +17,6 @@
  *
  */
 
-/* Process
-
-createdb
-[x] takeownership
-[x] createprimary
-
-importkey
-[x] Use the auth/key-id as the key
-[x] Create an KeyedHash key for context
-[x] Use TPM to HMAC the data (using KeyedHash context)
-[x] Create an TPM assymetric key (using RSA context)
-[ ] Use AES symmetric encryption to encrypt the signing-key file (using TPM)
-[ ] Encrypt the auth-key and store that locally
-
-
-sign
-[ ] Decrypt the key using the assymetric key
-[x] Decrypt the signing key
-[x] Load into memory store
-
-*/
-
 package service
 
 import (
@@ -71,8 +49,9 @@ const (
 
 // TPM20KeypairStore is the storage container for signing-keys in the TPM2.0 device
 type TPM20KeypairStore struct {
-	path string
-	rw   io.ReadWriteCloser
+	path   string
+	secret string
+	rw     io.ReadWriteCloser
 }
 
 // getAuth creates a hash from the keypair authority
@@ -90,7 +69,13 @@ func OpenTPMStore(path string) (io.ReadWriteCloser, error) {
 	return nil, nil
 }
 
-// TPM20ImportKey adds a new signing-key to the TPM2.0 store
+// TPM20ImportKey adds a new signing-key to the TPM2.0 store.
+// The main TPM2.0 operations:
+//  * Use the auth/key-id as the key
+//  * Create an KeyedHash key for context
+//  * Use TPM to HMAC the auth-key (using KeyedHash context)
+//  * Use AES symmetric encryption to encrypt the signing-key file (using Go)
+//  * Encrypt the auth-key and store in the database (using Go)
 func (tpmStore *TPM20KeypairStore) TPM20ImportKey(authorityID, keyID, base64PrivateKey string) (string, error) {
 
 	// Get the parent context from the database settings table
@@ -112,28 +97,18 @@ func (tpmStore *TPM20KeypairStore) TPM20ImportKey(authorityID, keyID, base64Priv
 	}
 
 	// Use the HMAC-ed auth-key as the key to encrypt the signing-key
-	sealedSigningKey, err := tpmStore.encryptSigningKey(base64PrivateKey, authKeyHash)
+	sealedSigningKey, err := tpmStore.encryptKey(base64PrivateKey, authKeyHash)
 
 	// base64 encode the sealed signing-key for storage
 	base64SealedSigningkey := base64.StdEncoding.EncodeToString(sealedSigningKey)
-
-	// Encrypt the HMAC-ed auth-key for storage
-	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(authKeyHash))
-	Environ.DB.PutSetting(Setting{Code: tpmStore.generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
-
-	// Create an assymetric key to create the context for symmetric encryption
-	err = tpmStore.createKey(setting.Data, algSymCipher, "sym", handleSym)
-	if err != nil {
-		return "", err
-	}
-
-	// TODO: encrypt and store the auth-key hash
-	// TODO: clean up temporary files
 
 	return base64SealedSigningkey, err
 }
 
 // TPM20UnsealKey unseals a TPM-sealed signing-key and stores it in the memory store
+//  * Decrypt the auth-key
+//  * Decrypt the signing key
+//  * Load into memory store
 func (tpmStore *TPM20KeypairStore) TPM20UnsealKey(assertType *asserts.AssertionType, headers map[string]string, body []byte, authorityID string, keyID string, base64SealedSigningKey string) error {
 
 	// Check if we have already unsealed the key into the memory store
@@ -148,10 +123,18 @@ func (tpmStore *TPM20KeypairStore) TPM20UnsealKey(assertType *asserts.AssertionT
 			log.Println("Cannot find the auth-key for the signing-key")
 			return err
 		}
-		// TODO: need to also decrypt the decoded auth-key
-		authKey, err := base64.StdEncoding.DecodeString(authKeySetting.Data)
+
+		// Decode the auth-key from storage
+		encryptedAuthKey, err := base64.StdEncoding.DecodeString(authKeySetting.Data)
 		if err != nil {
 			log.Println("Could not decode the auth-key for the signing-key")
+			return err
+		}
+
+		// Decrypt the decoded auth-key
+		authKey, err := tpmStore.decryptKey(encryptedAuthKey, tpmStore.secret)
+		if err != nil {
+			log.Println("Could not decrypt the auth-key for the signing-key")
 			return err
 		}
 
@@ -161,7 +144,7 @@ func (tpmStore *TPM20KeypairStore) TPM20UnsealKey(assertType *asserts.AssertionT
 			log.Println("Could not decode the signing-key")
 			return err
 		}
-		base64SigningKey, err := tpmStore.decryptSigningKey(sealedSigningKey, string(authKey[:]))
+		base64SigningKey, err := tpmStore.decryptKey(sealedSigningKey, string(authKey[:]))
 		if err != nil {
 			log.Println("Could not decrypt the signing-key")
 			return err
@@ -227,6 +210,16 @@ func (tpmStore *TPM20KeypairStore) generateEncryptionKey(authorityID, keyID stri
 		return "", err
 	}
 
+	// Encrypt and store the auth-key hash
+	encryptedAuthKeyHash, err := tpmStore.encryptKey(string(encryptionKey[:]), tpmStore.secret)
+	if err != nil {
+		return "", err
+	}
+
+	// Encrypt the HMAC-ed auth-key for storage
+	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
+	Environ.DB.PutSetting(Setting{Code: tpmStore.generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
+
 	// Remove the temporary files
 	os.Remove(tmpfile.Name())
 	os.Remove(hashKey.Name())
@@ -238,7 +231,7 @@ func (tpmStore *TPM20KeypairStore) generateEncryptionKey(authorityID, keyID stri
 func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, prefix, handle string) error {
 
 	// Check if we've already created a key for this operation
-	_, err := Environ.DB.GetSetting(strings.Join([]string{prefix, "context"}, "_"))
+	_, err := Environ.DB.GetSetting(handle)
 	if err == nil {
 		// Already created a key, so let's use it
 		log.Printf("Using the existing key for '%s'", prefix)
@@ -292,12 +285,14 @@ func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, p
 	// Move the key to non-volatile storage, so it will survive a power cycle
 	cmd = exec.Command("tpm2_evictcontrol", "-A", "o", "-c", keyContext.Name(), "-S", handle)
 	stdout, err = cmd.Output()
-	log.Println(string(stdout[:]))
 	if err != nil {
 		log.Printf("Error in TPM create, %v", err)
 		log.Println(string(stdout[:]))
 		return err
 	}
+
+	// Store the handle so we know that it has been created
+	Environ.DB.PutSetting(Setting{Code: handle, Data: handle})
 
 	// Clean up the created files
 	os.Remove(keyContext.Name())
@@ -309,7 +304,7 @@ func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, p
 }
 
 // encryptSigningKey uses the symmetric encryption to encrypt the signing-key for storage
-func (tpmStore *TPM20KeypairStore) encryptSigningKey(base64PrivateKey, keyText string) ([]byte, error) {
+func (tpmStore *TPM20KeypairStore) encryptKey(plainTextKey, keyText string) ([]byte, error) {
 	// The AES key needs to be 16 or 32 bytes i.e. AES-128 or AES-256
 	aesKey := padRight(keyText, "x", 32)
 
@@ -320,7 +315,7 @@ func (tpmStore *TPM20KeypairStore) encryptSigningKey(base64PrivateKey, keyText s
 	}
 
 	// The IV needs to be unique, but not secure. Including it at the start of the plaintext
-	ciphertext := make([]byte, aes.BlockSize+len(base64PrivateKey))
+	ciphertext := make([]byte, aes.BlockSize+len(plainTextKey))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
 		log.Printf("Error creating the IV for the cipher: %v", err)
@@ -329,13 +324,13 @@ func (tpmStore *TPM20KeypairStore) encryptSigningKey(base64PrivateKey, keyText s
 
 	// Use CFB mode for the encryption
 	cfb := cipher.NewCFBEncrypter(block, iv)
-	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(base64PrivateKey))
+	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(plainTextKey))
 
 	return ciphertext, nil
 }
 
-func (tpmStore *TPM20KeypairStore) decryptSigningKey(sealedSigningKey []byte, authKey string) ([]byte, error) {
-	aesKey := padRight(authKey, "x", 32)
+func (tpmStore *TPM20KeypairStore) decryptKey(sealedKey []byte, keyText string) ([]byte, error) {
+	aesKey := padRight(keyText, "x", 32)
 
 	block, err := aes.NewCipher([]byte(aesKey))
 	if err != nil {
@@ -343,16 +338,16 @@ func (tpmStore *TPM20KeypairStore) decryptSigningKey(sealedSigningKey []byte, au
 		return nil, err
 	}
 
-	if len(sealedSigningKey) < aes.BlockSize {
+	if len(sealedKey) < aes.BlockSize {
 		return nil, errors.New("Cipher text too short")
 	}
 
-	iv := sealedSigningKey[:aes.BlockSize]
-	sealedSigningKey = sealedSigningKey[aes.BlockSize:]
+	iv := sealedKey[:aes.BlockSize]
+	sealedKey = sealedKey[aes.BlockSize:]
 
 	// Use CFB mode for the decryption
 	cfb := cipher.NewCFBDecrypter(block, iv)
-	cfb.XORKeyStream(sealedSigningKey, sealedSigningKey)
+	cfb.XORKeyStream(sealedKey, sealedKey)
 
-	return sealedSigningKey, nil
+	return sealedKey, nil
 }

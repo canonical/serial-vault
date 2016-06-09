@@ -33,13 +33,14 @@ import (
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
-	Version      string `yaml:"version"`
-	Title        string `yaml:"title"`
-	Logo         string `yaml:"logo"`
-	Driver       string `yaml:"driver"`
-	DataSource   string `yaml:"datasource"`
-	KeyStoreType string `yaml:"keystore"`
-	KeyStorePath string `yaml:"keystorePath"`
+	Version        string `yaml:"version"`
+	Title          string `yaml:"title"`
+	Logo           string `yaml:"logo"`
+	Driver         string `yaml:"driver"`
+	DataSource     string `yaml:"datasource"`
+	KeyStoreType   string `yaml:"keystore"`
+	KeyStorePath   string `yaml:"keystorePath"`
+	KeyStoreSecret string `yaml:"keystoreSecret"`
 }
 
 // DeviceAssertion defines the device identity.
