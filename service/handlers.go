@@ -42,6 +42,7 @@ type ModelSerialize struct {
 	Revision    int    `json:"revision"`
 	AuthorityID string `json:"authority-id"`
 	KeyID       string `json:"key-id"`
+	KeyActive   bool   `json:"key-active"`
 }
 
 // VersionResponse is the JSON response from the API Version method
@@ -121,7 +122,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	// Use the ubuntu-core assertions module to decode the body and validate
+	// Use the snapd assertions module to decode the body and validate
 	assertion, err := asserts.Decode(data)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -144,8 +145,16 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Sign the assertion with the ubuntu-core assertions module
+	// Check that the model has an active keypair
+	if !model.KeyActive {
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-model-not-active", "", "The model is linked with an inactive signing-key", nil, w)
+		return
+	}
+
+	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSignResponse(false, "error-signing-assertions", "", err.Error(), signedAssertion, w)
@@ -157,7 +166,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func modelForDisplay(model Model) ModelSerialize {
-	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID}
+	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive}
 }
 
 // ModelsHandler is the API method to list the models

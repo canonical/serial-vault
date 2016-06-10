@@ -35,6 +35,8 @@ Follow the instructions to [install Go](https://golang.org/doc/install).
 - Install the build packages
 ```bash
 sudo apt-get install build-essential libssl-dev
+# For TPM2.0
+sudo apt-get install tpm2-tools
 ```
 
 - Install NVM
@@ -134,7 +136,7 @@ npm test
 Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
-The message must be the serial assertion format and is best generated using the snapcore libraries.
+The message must be the serial assertion format and is best generated using the snapd libraries.
 ```
 type: serial
 authority-id: System

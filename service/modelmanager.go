@@ -36,20 +36,20 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id
+	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, k.active
 	from model m
-	inner join keypair k on k.id = m.keypair_id and k.active
+	inner join keypair k on k.id = m.keypair_id
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, sealed_key
+	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, k.active, sealed_key
 	from model m
-	inner join keypair k on k.id = m.keypair_id and k.active
+	inner join keypair k on k.id = m.keypair_id
 	where brand_id=$1 and name=$2 and revision=$3`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id
+	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, k.active
 	from model m
-	inner join keypair k on k.id = m.keypair_id and k.active
+	inner join keypair k on k.id = m.keypair_id
 	where m.id=$1`
 const updateModelSQL = "update model set brand_id=$2, name=$3, revision=$4, keypair_id=$5 where id=$1"
 const createModelSQL = "insert into model (brand_id,name,revision,keypair_id) values ($1,$2,$3,$4) RETURNING id"
@@ -64,6 +64,7 @@ type Model struct {
 	Revision    int
 	AuthorityID string // from the keypair
 	KeyID       string // from the keypair
+	KeyActive   bool   // from the keypair
 	SealedKey   string // from the keypair
 }
 
@@ -86,7 +87,7 @@ func (db *DB) ListModels() ([]Model, error) {
 
 	for rows.Next() {
 		model := Model{}
-		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID)
+		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.KeyActive)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +102,7 @@ func (db *DB) FindModel(brandID, modelName string, revision int) (Model, error) 
 	model := Model{}
 
 	err := db.QueryRow(findModelSQL, brandID, modelName, revision).Scan(
-		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.SealedKey)
+		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey)
 	switch {
 	case err == sql.ErrNoRows:
 		return model, err
@@ -117,7 +118,7 @@ func (db *DB) FindModel(brandID, modelName string, revision int) (Model, error) 
 func (db *DB) GetModel(modelID int) (Model, error) {
 	model := Model{}
 
-	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID)
+	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.KeyActive)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return model, err
