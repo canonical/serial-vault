@@ -30,10 +30,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
-
-	"github.com/snapcore/snapd/asserts"
 )
 
 const (
@@ -49,9 +46,9 @@ const (
 
 // TPM20KeypairStore is the storage container for signing-keys in the TPM2.0 device
 type TPM20KeypairStore struct {
-	path   string
-	secret string
-	rw     io.ReadWriteCloser
+	path       string
+	secret     string
+	tpmCommand TPM20Command
 }
 
 // getAuth creates a hash from the keypair authority
@@ -60,13 +57,10 @@ func getAuth(authorityID string) [20]byte {
 	return auth
 }
 
-// OpenTPMStore opens access to the TPM2.0 device
-func OpenTPMStore(path string) (io.ReadWriteCloser, error) {
-	// TODO: Check if we still need this method
-	// Use the TPM library to open the store
-	// rw, err := tpm.OpenTPM(path)
-	// return rw, err
-	return nil, nil
+// OpenTPMStore opens access to the TPM2.0 device. This is a no-op when using
+// the tpm2-tools package.
+func OpenTPMStore(path string) error {
+	return nil
 }
 
 // TPM20ImportKey adds a new signing-key to the TPM2.0 store.
@@ -109,7 +103,7 @@ func (tpmStore *TPM20KeypairStore) TPM20ImportKey(authorityID, keyID, base64Priv
 //  * Decrypt the auth-key
 //  * Decrypt the signing key
 //  * Load into memory store
-func (tpmStore *TPM20KeypairStore) TPM20UnsealKey(assertType *asserts.AssertionType, headers map[string]string, body []byte, authorityID string, keyID string, base64SealedSigningKey string) error {
+func (tpmStore *TPM20KeypairStore) TPM20UnsealKey(authorityID string, keyID string, base64SealedSigningKey string) error {
 
 	// Check if we have already unsealed the key into the memory store
 	_, err := keypairDB.PublicKey(authorityID, keyID)
@@ -196,11 +190,8 @@ func (tpmStore *TPM20KeypairStore) generateEncryptionKey(authorityID, keyID stri
 	os.Remove(hashKey.Name())
 
 	// Use the TPM module to hash the plain-text
-	cmd := exec.Command("tpm2_hmac", "-k", handleHash, "-g", algSHA256, "-I", tmpfile.Name(), "-o", hashKey.Name())
-	out, err := cmd.Output()
+	err = tpmStore.tpmCommand.runCommand("tpm2_hmac", "-k", handleHash, "-g", algSHA256, "-I", tmpfile.Name(), "-o", hashKey.Name())
 	if err != nil {
-		log.Printf("Error in TPM hmac, %v", err)
-		log.Println(string(out[:]))
 		return "", err
 	}
 
@@ -239,21 +230,21 @@ func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, p
 	}
 
 	// Generate a unique file name to hold the key context
-	keyContext, err := ioutil.TempFile("keystore", ".context")
+	keyContext, err := ioutil.TempFile(tpmStore.path, ".context")
 	if err != nil {
 		return err
 	}
 
 	// Generate a unique file name to hold the public and private key and name file
-	publicKey, err := ioutil.TempFile("keystore", ".pub")
+	publicKey, err := ioutil.TempFile(tpmStore.path, ".pub")
 	if err != nil {
 		return err
 	}
-	privateKey, err := ioutil.TempFile("keystore", ".prv")
+	privateKey, err := ioutil.TempFile(tpmStore.path, ".prv")
 	if err != nil {
 		return err
 	}
-	nameFile, err := ioutil.TempFile("keystore", ".name")
+	nameFile, err := ioutil.TempFile(tpmStore.path, ".name")
 	if err != nil {
 		return err
 	}
@@ -265,29 +256,20 @@ func (tpmStore *TPM20KeypairStore) createKey(primaryKeyContextPath, algorithm, p
 	os.Remove(nameFile.Name())
 
 	// Create the key in the heirarchy
-	cmd := exec.Command("tpm2_create", "-g", algSHA256, "-G", algorithm, "-c", primaryKeyContextPath, "-o", publicKey.Name(), "-O", privateKey.Name())
-	stdout, err := cmd.Output()
+	err = tpmStore.tpmCommand.runCommand("tpm2_create", "-g", algSHA256, "-G", algorithm, "-c", primaryKeyContextPath, "-o", publicKey.Name(), "-O", privateKey.Name())
 	if err != nil {
-		log.Printf("Error in TPM create, %v", err)
-		log.Println(string(stdout[:]))
 		return err
 	}
 
 	// Load the key in the heirarchy
-	cmd = exec.Command("tpm2_load", "-c", primaryKeyContextPath, "-u", publicKey.Name(), "-r", privateKey.Name(), "-n", nameFile.Name(), "-C", keyContext.Name())
-	out, err := cmd.Output()
+	err = tpmStore.tpmCommand.runCommand("tpm2_load", "-c", primaryKeyContextPath, "-u", publicKey.Name(), "-r", privateKey.Name(), "-n", nameFile.Name(), "-C", keyContext.Name())
 	if err != nil {
-		log.Printf("Error in TPM load, %v", err)
-		log.Println(string(out[:]))
 		return err
 	}
 
 	// Move the key to non-volatile storage, so it will survive a power cycle
-	cmd = exec.Command("tpm2_evictcontrol", "-A", "o", "-c", keyContext.Name(), "-S", handle)
-	stdout, err = cmd.Output()
+	err = tpmStore.tpmCommand.runCommand("tpm2_evictcontrol", "-A", "o", "-c", keyContext.Name(), "-S", handle)
 	if err != nil {
-		log.Printf("Error in TPM create, %v", err)
-		log.Println(string(stdout[:]))
 		return err
 	}
 

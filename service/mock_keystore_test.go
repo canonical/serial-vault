@@ -31,8 +31,8 @@ func getMemoryKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: asserts.NewMemoryKeypairManager(),
 	})
-	keypairDB := KeypairDatabase{FilesystemStore, db, nil}
-	return &keypairDB, err
+	kdb := KeypairDatabase{FilesystemStore, db, nil}
+	return &kdb, err
 }
 
 func (emkdb *errorMockKeypairManager) Get(authorityID, keyID string) (asserts.PrivateKey, error) {
@@ -49,6 +49,6 @@ func getErrorMockKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: mockStore,
 	})
-	keypairDB := KeypairDatabase{FilesystemStore, db, nil}
-	return &keypairDB, err
+	kdb := KeypairDatabase{FilesystemStore, db, nil}
+	return &kdb, err
 }

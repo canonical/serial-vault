@@ -8,8 +8,10 @@ driver: "postgres"
 datasource: "dbname=identity-vault"
 
 # Signing Key Store
-#keystore: "filesystem"
+keystore: "filesystem"
+keystorePath: "./keystore"
+
+# For TPM 2.0
+#keystore: "tpm2.0"
 #keystorePath: "./keystore"
-keystore: "tpm2.0"
-keystorePath: "/dev/tpm0"
-keystoreSecret: "this needs to be 32 bytes long!!"
+#keystoreSecret: "this needs to be 32 bytes long!!"

@@ -61,13 +61,13 @@ var keypairDB KeypairDatabase
 func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	switch {
 	case config.KeyStoreType == TPM20Store.Name:
-		rw, err := OpenTPMStore(config.KeyStorePath)
+		err := OpenTPMStore(config.KeyStorePath)
 		if err != nil {
 			return nil, err
 		}
 
 		// Initalize the TPM store
-		tpm20 := TPM20KeypairStore{config.KeyStorePath, config.KeyStoreSecret, rw}
+		tpm20 := TPM20KeypairStore{config.KeyStorePath, config.KeyStoreSecret, &tpm20Command{}}
 
 		// Prepare the memory store for the unsealed keys
 		memStore := asserts.NewMemoryKeypairManager()
@@ -119,7 +119,7 @@ func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, hea
 
 	switch {
 	case kdb.KeyStoreType.Name == TPM20Store.Name:
-		err := kdb.TPM20UnsealKey(assertType, headers, body, authorityID, keyID, sealedSigningKey)
+		err := kdb.TPM20UnsealKey(authorityID, keyID, sealedSigningKey)
 		if err != nil {
 			return nil, err
 		}

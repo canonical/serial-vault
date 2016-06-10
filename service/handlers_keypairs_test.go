@@ -169,8 +169,8 @@ func TestKeypairHandlerBadPrivateKeyNotEncoded(t *testing.T) {
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
-	if result.ErrorCode != "error-decode-key" {
-		t.Errorf("Expected a 'decode-key' message, got %s", result.ErrorCode)
+	if result.ErrorCode != "error-keypair-store" {
+		t.Errorf("Expected a 'keypair-store' message, got %s", result.ErrorCode)
 	}
 }
 
@@ -197,8 +197,8 @@ func TestKeypairHandlerBadPrivateKeyEncoded(t *testing.T) {
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
-	if result.ErrorCode != "error-invalid-key" {
-		t.Errorf("Expected a 'invalid-key' message, got %s", result.ErrorCode)
+	if result.ErrorCode != "error-keypair-store" {
+		t.Errorf("Expected a 'keypair-store' message, got %s", result.ErrorCode)
 	}
 }
 
