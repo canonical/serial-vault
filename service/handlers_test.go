@@ -573,7 +573,7 @@ func TestModelCreateHandlerWithBadData(t *testing.T) {
 func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	Router(Environ).ServeHTTP(w, r)
+	SigningRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
@@ -591,7 +591,7 @@ func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelRespons
 func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	Router(Environ).ServeHTTP(w, r)
+	SigningRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}

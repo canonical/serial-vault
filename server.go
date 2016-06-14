@@ -23,6 +23,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
@@ -37,12 +38,6 @@ func main() {
 		log.Fatalf("Error parsing the config file: %v", err)
 	}
 
-	// Initialize the authorized keys manager
-	env.AuthorizedKeys, err = service.InitializeAuthorizedKeys(sshKeysPath)
-	if err != nil {
-		log.Fatalf("Error initializing the Authorized Keys manager: %v", err)
-	}
-
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
@@ -52,8 +47,25 @@ func main() {
 		log.Fatalf("Error initializing the signing-key database: %v", err)
 	}
 
-	// Start the web service router
-	router := service.Router(&env)
+	var router *mux.Router
+	var address string
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	switch service.ServiceMode {
+	case "admin":
+		// Initialize the authorized keys manager
+		env.AuthorizedKeys, err = service.InitializeAuthorizedKeys(sshKeysPath)
+		if err != nil {
+			log.Fatalf("Error initializing the Authorized Keys manager: %v", err)
+		}
+
+		// Create the admin web service router
+		router = service.AdminRouter(&env)
+		address = ":8081"
+	default:
+		// Create the user web service router
+		router = service.SigningRouter(&env)
+		address = ":8080"
+	}
+
+	log.Fatal(http.ListenAndServe(address, router))
 }

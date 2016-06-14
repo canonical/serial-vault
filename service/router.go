@@ -25,8 +25,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Router returns the application route handler
-func Router(env *Env) *mux.Router {
+// SigningRouter returns the application route handler for the user methods
+func SigningRouter(env *Env) *mux.Router {
 
 	// Start the web service router
 	router := mux.NewRouter()
@@ -39,6 +39,15 @@ func Router(env *Env) *mux.Router {
 	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler), env)).Methods("PUT")
 	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler), env)).Methods("DELETE")
 	router.Handle("/1.0/sign", Middleware(http.HandlerFunc(SignHandler), env)).Methods("POST")
+
+	return router
+}
+
+// AdminRouter returns the application route handler for administrating the application
+func AdminRouter(env *Env) *mux.Router {
+
+	// Start the web service router
+	router := mux.NewRouter()
 
 	// API routes: signing-keys
 	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairListHandler), env)).Methods("GET")

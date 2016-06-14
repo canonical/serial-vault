@@ -31,6 +31,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Accepted service modes
+var (
+	ModeSigning = "signing"
+	ModeAdmin   = "admin"
+)
+
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
 	Version      string `yaml:"version"`
@@ -66,9 +72,13 @@ type Env struct {
 
 var settingsFile string
 
+// ServiceMode is whether we are running the user or admin service
+var ServiceMode string
+
 // ParseArgs checks the command line arguments
 func ParseArgs() {
 	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
+	flag.StringVar(&ServiceMode, "mode", ModeSigning, "Mode of operation: signing service or admin service")
 	flag.Parse()
 }
 
