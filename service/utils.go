@@ -75,6 +75,14 @@ var settingsFile string
 // ServiceMode is whether we are running the user or admin service
 var ServiceMode string
 
+// BooleanResponse is the JSON response from an API method, indicating success or failure.
+type BooleanResponse struct {
+	Success      bool   `json:"success"`
+	ErrorCode    string `json:"error_code"`
+	ErrorSubcode string `json:"error_subcode"`
+	ErrorMessage string `json:"message"`
+}
+
 // ParseArgs checks the command line arguments
 func ParseArgs() {
 	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
