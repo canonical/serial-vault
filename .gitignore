@@ -3,6 +3,11 @@
 *.log
 node_modules
 keystore/model*
+keystore/.primary*
+keystore/.context*
+keystore/.name*
+keystore/.prv*
+keystore/.pub*
 tags
 .tags
 coverage/

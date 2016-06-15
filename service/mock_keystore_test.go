@@ -27,11 +27,12 @@ import (
 
 type errorMockKeypairManager struct{}
 
-func getMemoryKeyStore(config ConfigSettings) (*asserts.Database, error) {
+func getMemoryKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: asserts.NewMemoryKeypairManager(),
 	})
-	return db, err
+	kdb := KeypairDatabase{FilesystemStore, db, nil}
+	return &kdb, err
 }
 
 func (emkdb *errorMockKeypairManager) Get(authorityID, keyID string) (asserts.PrivateKey, error) {
@@ -42,11 +43,12 @@ func (emkdb *errorMockKeypairManager) Put(authorityID string, privKey asserts.Pr
 	return errors.New("MOCK error saving the private key")
 }
 
-func getErrorMockKeyStore(config ConfigSettings) (*asserts.Database, error) {
+func getErrorMockKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	mockStore := new(errorMockKeypairManager)
 
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: mockStore,
 	})
-	return db, err
+	kdb := KeypairDatabase{FilesystemStore, db, nil}
+	return &kdb, err
 }

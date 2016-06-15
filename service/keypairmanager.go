@@ -30,20 +30,21 @@ const createKeypairTableSQL = `
 		id            serial primary key not null,
 		authority_id  varchar(200) not null,
 		key_id        varchar(200) not null,
-		active        boolean default true
+		active        boolean default true,
+		sealed_key    text
 	)
 `
 const listKeypairsSQL = "select id, authority_id, key_id, active from keypair order by authority_id, key_id"
-const getKeypairSQL = "select id, authority_id, key_id, active from keypair where id=$1"
+const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const upsertKeypairSQL = `
 	WITH upsert AS (
-		update keypair set authority_id=$1, key_id=$2
+		update keypair set authority_id=$1, key_id=$2, sealed_key=$3
 		where authority_id=$1 and key_id=$2
 		RETURNING *
 	)
-	insert into keypair (authority_id,key_id)
-	select $1, $2
+	insert into keypair (authority_id,key_id,sealed_key)
+	select $1, $2, $3
 	where not exists (select * from upsert)
 `
 
@@ -53,6 +54,7 @@ type Keypair struct {
 	AuthorityID string
 	KeyID       string
 	Active      bool
+	SealedKey   string
 }
 
 // CreateKeypairTable creates the database table for a keypair.
@@ -88,7 +90,7 @@ func (db *DB) ListKeypairs() ([]Keypair, error) {
 func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{}
 
-	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active)
+	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
 		return keypair, err
@@ -104,7 +106,7 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered.")
 	}
 
-	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID)
+	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
 		return "", err

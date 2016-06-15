@@ -153,7 +153,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := Environ.KeypairDB.Sign(asserts.SerialType, assertion.Headers(), assertion.Body(), model.KeyID)
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSignResponse(false, "error-signing-assertions", "", err.Error(), signedAssertion, w)
