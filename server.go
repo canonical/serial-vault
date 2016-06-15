@@ -27,8 +27,6 @@ import (
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
-const sshKeysPath = "/.ssh/authorized_keys"
-
 func main() {
 	env := service.Env{}
 	// Parse the command line arguments
@@ -52,12 +50,6 @@ func main() {
 
 	switch service.ServiceMode {
 	case "admin":
-		// Initialize the authorized keys manager
-		env.AuthorizedKeys, err = service.InitializeAuthorizedKeys(sshKeysPath)
-		if err != nil {
-			log.Fatalf("Error initializing the Authorized Keys manager: %v", err)
-		}
-
 		// Create the admin web service router
 		router = service.AdminRouter(&env)
 		address = ":8081"

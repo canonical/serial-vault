@@ -65,10 +65,9 @@ const ModelType = "device"
 
 // Env Environment struct that holds the config and data store details.
 type Env struct {
-	Config         ConfigSettings
-	DB             Datastore
-	AuthorizedKeys AuthorizedKeystore
-	KeypairDB      *KeypairDatabase
+	Config    ConfigSettings
+	DB        Datastore
+	KeypairDB *KeypairDatabase
 }
 
 var settingsFile string
