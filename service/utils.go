@@ -33,13 +33,14 @@ import (
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
-	Version      string `yaml:"version"`
-	Title        string `yaml:"title"`
-	Logo         string `yaml:"logo"`
-	Driver       string `yaml:"driver"`
-	DataSource   string `yaml:"datasource"`
-	KeyStoreType string `yaml:"keystore"`
-	KeyStorePath string `yaml:"keystorePath"`
+	Version        string `yaml:"version"`
+	Title          string `yaml:"title"`
+	Logo           string `yaml:"logo"`
+	Driver         string `yaml:"driver"`
+	DataSource     string `yaml:"datasource"`
+	KeyStoreType   string `yaml:"keystore"`
+	KeyStorePath   string `yaml:"keystorePath"`
+	KeyStoreSecret string `yaml:"keystoreSecret"`
 }
 
 // DeviceAssertion defines the device identity.
@@ -61,7 +62,7 @@ type Env struct {
 	Config         ConfigSettings
 	DB             Datastore
 	AuthorizedKeys AuthorizedKeystore
-	KeypairDB      *asserts.Database
+	KeypairDB      *KeypairDatabase
 }
 
 var settingsFile string
@@ -156,4 +157,15 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 		return err
 	}
 	return nil
+}
+
+// padRight truncates a string to a specific length, padding with a named
+// character for shorter strings.
+func padRight(str, pad string, length int) string {
+	for {
+		str += pad
+		if len(str) > length {
+			return str[0:length]
+		}
+	}
 }

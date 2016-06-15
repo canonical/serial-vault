@@ -10,3 +10,8 @@ datasource: "dbname=identity-vault"
 # Signing Key Store
 keystore: "filesystem"
 keystorePath: "./keystore"
+
+# For TPM 2.0
+#keystore: "tpm2.0"
+#keystorePath: "./keystore"
+#keystoreSecret: "this needs to be 32 bytes long!!"

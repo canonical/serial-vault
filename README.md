@@ -35,6 +35,8 @@ Follow the instructions to [install Go](https://golang.org/doc/install).
 - Install the build packages
 ```bash
 sudo apt-get install build-essential libssl-dev
+# For TPM2.0
+sudo apt-get install tpm2-tools
 ```
 
 - Install NVM
