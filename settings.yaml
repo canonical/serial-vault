@@ -8,12 +8,12 @@ driver: "postgres"
 datasource: "dbname=identity-vault"
 
 # Signing Key Store
-keystore: "filesystem"
-keystorePath: "./keystore"
+#keystore: "filesystem"
+#keystorePath: "./keystore"
 
 # For Database
-#keystore: "database"
-#keystorePath: "./keystore"
+keystore: "database"
+keystoreSecret: "secret code to encrypt the auth-key hash"
 
 # For TPM 2.0
 #keystore: "tpm2.0"
