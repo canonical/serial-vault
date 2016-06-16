@@ -295,7 +295,7 @@ func TestKeypairDisableHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/disable", bytes.NewBufferString("{}"))
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -314,7 +314,7 @@ func TestKeypairDisableHandlerError(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/disable", bytes.NewBufferString("{}"))
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -336,7 +336,7 @@ func TestKeypairDisableHandlerBadID(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs/9999999999999999999999999/disable", bytes.NewBufferString("{}"))
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -358,7 +358,7 @@ func TestKeypairEnableHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/enable", bytes.NewBufferString("{}"))
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -377,7 +377,7 @@ func TestKeypairEnableHandlerError(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/enable", bytes.NewBufferString("{}"))
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -399,7 +399,7 @@ func TestKeypairEnableHandlerBadID(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/keypairs/9999999999999999999999999/enable", bytes.NewBufferString("{}"))
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}

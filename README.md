@@ -22,8 +22,10 @@ Configure it:
 Run it:
   ```bash
   $ cd identity-vault
-  $ go run server.go -config=/path/to/settings.yaml
+  $ go run server.go -config=/path/to/settings.yaml -mode=signing
   ```
+
+The application has an admin service that can be run by using mode=admin.
 
 ## Development Environment
 

@@ -1,3 +1,5 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
+
 /*
  * Copyright (C) 2016-2017 Canonical Ltd
  *
@@ -14,23 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-'use strict'
-var Ajax = require('./Ajax');
 
-var Model = {
-	url: 'keys',
+package service
 
-	list: function () {
-			return Ajax.get(this.url);
-	},
+import "testing"
 
-	add: function (key) {
-			return Ajax.post(this.url, {'device-key': key});
-	},
+func TestTPM2InitializeKeystore(t *testing.T) {
+	// Set up the environment variables
+	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	env := Env{Config: config, DB: &mockDB{}}
 
-	delete: function (key) {
-			return Ajax.post(this.url + '/delete', {'device-key': key});
-	},
+	err := TPM2InitializeKeystore(env, &mockTPM20Command{})
+	if err != nil {
+		t.Errorf("Error initializing the TPM keystore: %v", err)
+	}
 }
-
-module.exports = Model;

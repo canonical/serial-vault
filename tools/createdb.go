@@ -67,7 +67,7 @@ func main() {
 	// Initalize the TPM store, authenticating with the TPM 2.0 module
 	if env.Config.KeyStoreType == service.TPM20Store.Name {
 		log.Println("Initialize the TPM2.0 store")
-		err = service.TPM2InitializeKeystore(env)
+		err = service.TPM2InitializeKeystore(env, nil)
 		if err != nil {
 			log.Fatal(err)
 		} else {

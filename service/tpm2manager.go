@@ -22,7 +22,6 @@ package service
 import (
 	"io/ioutil"
 	"log"
-	"os/exec"
 )
 
 // TPM2InitializeKeystore initializes the TPM 2.0 module by taking ownership of the module
@@ -31,29 +30,30 @@ import (
 // Main TPM 2.0 operations:
 //  * takeownership
 //  * createprimary
-func TPM2InitializeKeystore(env Env) error {
+func TPM2InitializeKeystore(env Env, command TPM20Command) error {
 	log.Println("Initialize the TPM Keystore...")
 
 	// Generate a unique file name to hold the primary key context
-	primaryKeyContext, err := ioutil.TempFile("keystore", ".primary")
+	primaryKeyContext, err := ioutil.TempFile(env.Config.KeyStorePath, ".primary")
 	if err != nil {
 		return err
 	}
 
+	if command == nil {
+		command = &tpm20Command{}
+	}
+
 	// Take ownership of the TPM 2.0 module
-	cmd := exec.Command("tpm2_takeownership", "-c")
-	_, err = cmd.Output()
+	err = command.runCommand("tpm2_takeownership", "-c")
 	if err != nil {
 		log.Printf("Error in TPM takeownership, %v", err)
 		return err
 	}
 
 	// Create the primary key in the heirarchy
-	cmd = exec.Command("tpm2_createprimary", "-A", "o", "-g", algSHA256, "-G", algRSA, "-C", primaryKeyContext.Name())
-	out, err := cmd.Output()
+	err = command.runCommand("tpm2_createprimary", "-A", "o", "-g", algSHA256, "-G", algRSA, "-C", primaryKeyContext.Name())
 	if err != nil {
 		log.Printf("Error in TPM createprimary, %v", err)
-		log.Println(string(out[:]))
 		return err
 	}
 

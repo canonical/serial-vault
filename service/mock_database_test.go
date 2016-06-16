@@ -22,7 +22,9 @@ package service
 import "errors"
 
 // Successful mocks for the database
-type mockDB struct{}
+type mockDB struct {
+	encryptedAuthKeyHash string
+}
 
 // CreateModelTable mock for the create model table method
 func (mdb *mockDB) CreateModelTable() error {
@@ -150,17 +152,26 @@ func (mdb *mockDB) UpdateKeypairActive(keypairID int, active bool) error {
 }
 
 func (mdb *mockDB) GetSetting(code string) (Setting, error) {
-	if code == "System/12345678abcdef" {
+	switch code {
+	case "System/12345678abcdef":
 		// Returning the encrypted, base64 encoded HMAC-ed auth-key: fake-hmac-ed-data
 		return Setting{Code: "System/12345678abcdef", Data: "pmXt1iwvM5P947KATp24rMQFHEnAf2tUXGl1XXyfhDhf"}, nil
-	}
-	if code == "do-not-find" {
+
+	case "System/abcdef12345678":
+		return Setting{Code: "System/abcdef12345678", Data: mdb.encryptedAuthKeyHash}, nil
+
+	case "do-not-find":
 		return Setting{}, errors.New("Cannot find 'do-not-find'")
+
+	default:
+		return Setting{Code: code, Data: code}, nil
 	}
-	return Setting{Code: code, Data: code}, nil
 }
 
 func (mdb *mockDB) PutSetting(setting Setting) error {
+	if setting.Code == "System/abcdef12345678" {
+		mdb.encryptedAuthKeyHash = setting.Data
+	}
 	return nil
 }
 
