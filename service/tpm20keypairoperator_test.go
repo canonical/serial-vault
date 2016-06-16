@@ -22,7 +22,6 @@ package service
 import (
 	"encoding/base64"
 	"io/ioutil"
-	"log"
 	"testing"
 
 	"github.com/snapcore/snapd/asserts"
@@ -41,7 +40,7 @@ func getTPMKeyStoreWithMockCommand() *KeypairDatabase {
 	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
 	Environ = &Env{Config: config, DB: &mockDB{}}
 
-	tpm20 := TPM20KeypairStore{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
+	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 
 	// Prepare the memory store for the unsealed keys
 	memStore := asserts.NewMemoryKeypairManager()
@@ -53,10 +52,10 @@ func getTPMKeyStoreWithMockCommand() *KeypairDatabase {
 	return &keypairDB
 }
 
-func TestTPMGetKeyStoreFilesystem(t *testing.T) {
+func TestTPMGetKeyStore(t *testing.T) {
 	keystore, err := getTPMKeyStore()
 	if err != nil {
-		t.Error("Error setting up the filesystem keystore")
+		t.Error("Error setting up the TPM keystore")
 	}
 	if keystore == nil {
 		t.Error("Nil keystore returned")
@@ -64,23 +63,18 @@ func TestTPMGetKeyStoreFilesystem(t *testing.T) {
 }
 
 func TestTPMEncryptDecrypt(t *testing.T) {
-	keystore, err := getTPMKeyStore()
-	if err != nil {
-		t.Error("Error setting up the filesystem keystore")
-	}
 
 	plainText := "fake-hmac-ed-data"
 
-	cipherText, err := keystore.encryptKey(plainText, "this needs to be 32 bytes long!!")
+	cipherText, err := encryptKey(plainText, "this needs to be 32 bytes long!!")
 	if err != nil {
 		t.Errorf("Error encrypting text: %v", err)
 	}
 	if string(cipherText[:]) == plainText {
 		t.Error("Invalid encryption")
 	}
-	log.Println(base64.StdEncoding.EncodeToString([]byte(cipherText)))
 
-	plainTextAgain, err := keystore.decryptKey(cipherText, "this needs to be 32 bytes long!!")
+	plainTextAgain, err := decryptKey(cipherText, "this needs to be 32 bytes long!!")
 	if err != nil {
 		t.Errorf("Error decrypting text: %v", err)
 	}
@@ -90,31 +84,34 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 }
 
 func TestGenerateAuthKey(t *testing.T) {
-	keystore, err := getTPMKeyStore()
-	if err != nil {
-		t.Error("Error setting up the filesystem keystore")
-	}
 
-	authKey := keystore.generateAuthKey("Hello", "World")
+	authKey := generateAuthKey("Hello", "World")
 	if authKey != "Hello/World" {
 		t.Errorf("Error generating the auth-key: %v", authKey)
 	}
 }
 
 func TestTPMCreateKey(t *testing.T) {
-	keypairDB := getTPMKeyStoreWithMockCommand()
+	// Set up the environment variables
+	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	Environ = &Env{Config: config, DB: &mockDB{}}
 
-	err := keypairDB.createKey("primaryKeyContextPath", algKeyedHash, "test", "do-not-find")
+	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
+
+	err := tpm20.createKey("primaryKeyContextPath", algKeyedHash, "test", "do-not-find")
 	if err != nil {
 		t.Errorf("Error creating the TPM key: %v", err)
 	}
-
 }
 
 func TestTPMGenerateEncryptionKey(t *testing.T) {
-	keypairDB := getTPMKeyStoreWithMockCommand()
+	// Set up the environment variables
+	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	Environ = &Env{Config: config, DB: &mockDB{}}
 
-	hashedAuthKey, err := keypairDB.generateEncryptionKey("System", "12345678abcdef")
+	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
+
+	hashedAuthKey, err := tpm20.generateEncryptionKey("System", "12345678abcdef")
 	if err != nil {
 		t.Errorf("Error encrypting the TPM auth-key: %v", err)
 	}
@@ -132,7 +129,7 @@ func TestTPMImportKeyUnsealKey(t *testing.T) {
 	}
 	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
 
-	sealedSigningKey, err := keypairDB.TPM20ImportKey("System", "12345678abcdef", encodedSigningKey)
+	sealedSigningKey, err := keypairDB.keypairOperator.ImportKeypair("System", "12345678abcdef", encodedSigningKey)
 	if err != nil {
 		t.Errorf("Error encrypting the signing-key: %v", err)
 	}
@@ -140,7 +137,7 @@ func TestTPMImportKeyUnsealKey(t *testing.T) {
 		t.Error("The sealed and unsealed signing-keys are the same")
 	}
 
-	err = keypairDB.TPM20UnsealKey("System", "12345678abcdef", sealedSigningKey)
+	err = keypairDB.keypairOperator.UnsealKeypair("System", "12345678abcdef", sealedSigningKey)
 	if err != nil {
 		t.Errorf("Error decrypting the signing-key: %v", err)
 	}

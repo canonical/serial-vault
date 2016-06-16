@@ -27,14 +27,14 @@ import (
 
 // KeypairStoreType defines the capabilities of a keypair storage method
 type KeypairStoreType struct {
-	Name    string
-	CanSign bool
+	Name string
 }
 
 // Understood keypair storage types
 var (
-	FilesystemStore = KeypairStoreType{"filesystem", false}
-	TPM20Store      = KeypairStoreType{"tpm2.0", true}
+	FilesystemStore = KeypairStoreType{"filesystem"}
+	DatabaseStore   = KeypairStoreType{"database"}
+	TPM20Store      = KeypairStoreType{"tpm2.0"}
 )
 
 // Common error messages.
@@ -48,26 +48,39 @@ type KeypairStore interface {
 	SignAssertion(*asserts.AssertionType, map[string]string, []byte, string) (asserts.Assertion, error)
 }
 
+// KeypairOperator interface used by some keypair stores to seal and unseal signing-keys for storage
+type KeypairOperator interface {
+	ImportKeypair(authorityID, keyID, base64PrivateKey string) (string, error)
+	UnsealKeypair(authorityID string, keyID string, base64SealedSigningKey string) error
+}
+
 // KeypairDatabase holds the
 type KeypairDatabase struct {
 	KeyStoreType KeypairStoreType
 	*asserts.Database
-	*TPM20KeypairStore
+	keypairOperator KeypairOperator
 }
 
 var keypairDB KeypairDatabase
 
 // GetKeyStore returns the keystore as defined in the config file
 func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
-	switch {
-	case config.KeyStoreType == TPM20Store.Name:
-		err := OpenTPMStore(config.KeyStorePath)
-		if err != nil {
-			return nil, err
-		}
+	switch config.KeyStoreType {
+	case DatabaseStore.Name:
+		// Prepare the memory store for the unsealed keys
+		memStore := asserts.NewMemoryKeypairManager()
+		db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
+			KeypairManager: memStore,
+		})
 
+		dbOperator := DatabaseKeypairOperator{}
+
+		keypairDB = KeypairDatabase{DatabaseStore, db, &dbOperator}
+		return &keypairDB, err
+
+	case TPM20Store.Name:
 		// Initalize the TPM store
-		tpm20 := TPM20KeypairStore{config.KeyStorePath, config.KeyStoreSecret, &tpm20Command{}}
+		tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &tpm20Command{}}
 
 		// Prepare the memory store for the unsealed keys
 		memStore := asserts.NewMemoryKeypairManager()
@@ -78,7 +91,7 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 		keypairDB = KeypairDatabase{TPM20Store, db, &tpm20}
 		return &keypairDB, err
 
-	case config.KeyStoreType == FilesystemStore.Name:
+	case FilesystemStore.Name:
 		fsStore, err := asserts.OpenFSKeypairManager(config.KeyStorePath)
 		if err != nil {
 			return nil, err
@@ -102,10 +115,13 @@ func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey strin
 		return nil, "", err
 	}
 
-	switch {
-	case kdb.KeyStoreType.Name == TPM20Store.Name:
-		// TPM 2.0 keypairs handled by the internal TPM 2.0 library (until ubuntu-core includes TPM 2.0 capability)
-		sealedPrivateKey, err := kdb.TPM20ImportKey(authorityID, privateKey.PublicKey().ID(), base64PrivateKey)
+	switch kdb.KeyStoreType.Name {
+	case DatabaseStore.Name:
+		fallthrough
+
+	case TPM20Store.Name:
+		// Use an internal operator to handle encryption of signing-keys for storage
+		sealedPrivateKey, err := kdb.keypairOperator.ImportKeypair(authorityID, privateKey.PublicKey().ID(), base64PrivateKey)
 		return privateKey, sealedPrivateKey, err
 
 	default:
@@ -117,9 +133,14 @@ func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey strin
 // SignAssertion signs an assertion using the signing-key from the keypair store
 func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, headers map[string]string, body []byte, authorityID string, keyID string, sealedSigningKey string) (asserts.Assertion, error) {
 
-	switch {
-	case kdb.KeyStoreType.Name == TPM20Store.Name:
-		err := kdb.TPM20UnsealKey(authorityID, keyID, sealedSigningKey)
+	switch kdb.KeyStoreType.Name {
+
+	case DatabaseStore.Name:
+		fallthrough
+
+	case TPM20Store.Name:
+		// Use an internal operator to handle decryption of signing-keys from storage
+		err := kdb.keypairOperator.UnsealKeypair(authorityID, keyID, sealedSigningKey)
 		if err != nil {
 			return nil, err
 		}
