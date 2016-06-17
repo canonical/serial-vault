@@ -49,6 +49,7 @@ type ConfigSettings struct {
 	Version        string `yaml:"version"`
 	Title          string `yaml:"title"`
 	Logo           string `yaml:"logo"`
+	DocRoot        string `yaml:"docRoot"`
 	Driver         string `yaml:"driver"`
 	DataSource     string `yaml:"datasource"`
 	KeyStoreType   string `yaml:"keystore"`
