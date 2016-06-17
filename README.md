@@ -22,8 +22,10 @@ Configure it:
 Run it:
   ```bash
   $ cd identity-vault
-  $ go run server.go -config=/path/to/settings.yaml
+  $ go run server.go -config=/path/to/settings.yaml -mode=signing
   ```
+
+The application has an admin service that can be run by using mode=admin.
 
 ## Try with docker
   ```bash
@@ -44,6 +46,8 @@ Follow the instructions to [install Go](https://golang.org/doc/install).
 - Install the build packages
 ```bash
 sudo apt-get install build-essential libssl-dev
+# For TPM2.0
+sudo apt-get install tpm2-tools
 ```
 
 - Install NVM
@@ -143,9 +147,9 @@ npm test
 Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
-The message must be the device-serial assertion format and is best generated using the snappy ubuntu-core libraries.
+The message must be the serial assertion format and is best generated using the snapd libraries.
 ```
-type: device-serial
+type: serial
 authority-id: System
 brand-id: System Inc.
 model: Router 3400
@@ -164,7 +168,7 @@ openpgp mQINBFaiIK4BEADHpUm...
 - signature: the signed data
 
 #### Output message
-The method returns a signed device-serial assertion using the key from the vault.
+The method returns a signed serial assertion using the key from the vault.
 
 
 [travis-image]: https://travis-ci.org/ubuntu-core/identity-vault.svg?branch=master

@@ -22,7 +22,9 @@ package service
 import "errors"
 
 // Successful mocks for the database
-type mockDB struct{}
+type mockDB struct {
+	encryptedAuthKeyHash string
+}
 
 // CreateModelTable mock for the create model table method
 func (mdb *mockDB) CreateModelTable() error {
@@ -31,6 +33,11 @@ func (mdb *mockDB) CreateModelTable() error {
 
 // CreateKeypairTable mock for the create keypair table method
 func (mdb *mockDB) CreateKeypairTable() error {
+	return nil
+}
+
+// CreateSettingsTable mock for the create settings table method
+func (mdb *mockDB) CreateSettingsTable() error {
 	return nil
 }
 
@@ -144,6 +151,30 @@ func (mdb *mockDB) UpdateKeypairActive(keypairID int, active bool) error {
 	return nil
 }
 
+func (mdb *mockDB) GetSetting(code string) (Setting, error) {
+	switch code {
+	case "System/12345678abcdef":
+		// Returning the encrypted, base64 encoded HMAC-ed auth-key: fake-hmac-ed-data
+		return Setting{Code: "System/12345678abcdef", Data: "pmXt1iwvM5P947KATp24rMQFHEnAf2tUXGl1XXyfhDhf"}, nil
+
+	case "System/abcdef12345678":
+		return Setting{Code: "System/abcdef12345678", Data: mdb.encryptedAuthKeyHash}, nil
+
+	case "do-not-find":
+		return Setting{}, errors.New("Cannot find 'do-not-find'")
+
+	default:
+		return Setting{Code: code, Data: code}, nil
+	}
+}
+
+func (mdb *mockDB) PutSetting(setting Setting) error {
+	if setting.Code == "System/abcdef12345678" {
+		mdb.encryptedAuthKeyHash = setting.Data
+	}
+	return nil
+}
+
 // Unsuccessful mocks for the database
 type errorMockDB struct{}
 
@@ -154,6 +185,11 @@ func (mdb *errorMockDB) CreateModelTable() error {
 
 // CreateKeypairTable mock for the create keypair table method
 func (mdb *errorMockDB) CreateKeypairTable() error {
+	return nil
+}
+
+// CreateSettingsTable mock for the create settings table method
+func (mdb *errorMockDB) CreateSettingsTable() error {
 	return nil
 }
 
@@ -203,4 +239,12 @@ func (mdb *errorMockDB) PutKeypair(keypair Keypair) (string, error) {
 
 func (mdb *errorMockDB) UpdateKeypairActive(keypairID int, active bool) error {
 	return errors.New("Error updating the database.")
+}
+
+func (mdb *errorMockDB) GetSetting(code string) (Setting, error) {
+	return Setting{Code: code, Data: code}, nil
+}
+
+func (mdb *errorMockDB) PutSetting(setting Setting) error {
+	return nil
 }

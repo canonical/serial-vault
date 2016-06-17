@@ -27,39 +27,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 )
 
 func TestSignHandlerNilData(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", nil)
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected an error, got success response")
-	}
+	sendRequestSignError(t, "POST", "/1.0/sign", nil)
 }
 
 func TestSignHandlerNoData(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", new(bytes.Buffer))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected an error, got success response")
-	}
+	sendRequestSignError(t, "POST", "/1.0/sign", new(bytes.Buffer))
 }
 
 func TestSignHandlerInactive(t *testing.T) {
@@ -68,7 +44,7 @@ func TestSignHandlerInactive(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: System
 model: Inactive
@@ -79,20 +55,8 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
 `
+	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected an error, got success response")
-	}
 	if result.ErrorCode != "error-model-not-active" {
 		t.Errorf("Expected 'error-model-not-active', got %v", result.ErrorCode)
 	}
@@ -104,7 +68,7 @@ func TestSignHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: System
 model: Alder
@@ -115,7 +79,6 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
 `
-
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
 	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
@@ -135,7 +98,7 @@ func TestSignHandlerBadAssertion(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: Vendor
 model: Alder
@@ -146,27 +109,8 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
 `
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	if w.Code == http.StatusOK {
-		t.Errorf("Expected error HTTP status, got: %d", w.Code)
-	}
-	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
-		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
-	}
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure when sending invalid JSON, got success")
-	}
 }
 
 func TestSignHandlerBadAssertionNoRevision(t *testing.T) {
@@ -175,7 +119,7 @@ func TestSignHandlerBadAssertionNoRevision(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: Vendor
 model: Alder
@@ -185,27 +129,8 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
 `
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	if w.Code == http.StatusOK {
-		t.Errorf("Expected error HTTP status, got: %d", w.Code)
-	}
-	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
-		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
-	}
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure when sending invalid JSON, got success")
-	}
 }
 
 func TestSignHandlerBadAssertionWrongType(t *testing.T) {
@@ -232,29 +157,10 @@ required-snaps: gadget
 timestamp: 2016-01-02T15:04:05Z
 device-key: openpgp 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
 
-openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
+openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
+	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	if w.Code == http.StatusOK {
-		t.Errorf("Expected error HTTP status, got: %d", w.Code)
-	}
-	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
-		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
-	}
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure when sending invalid JSON, got success")
-	}
 	if result.ErrorSubcode != "error-invalid-type" {
 		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorSubcode)
 	}
@@ -264,7 +170,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 	// Mock the database, ot finding the model
 	Environ = &Env{DB: &errorMockDB{}}
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: Vendor
 model: Cannot Find This
@@ -275,20 +181,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
 `
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure with an invalid model, got success")
-	}
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
 }
 
 func TestSignHandlerErrorKeyStore(t *testing.T) {
@@ -297,7 +190,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
-	const assertions = `type: device-serial
+	const assertions = `type: serial
 authority-id: System
 brand-id: System
 model: Alder
@@ -308,28 +201,8 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp env.KeypairDB, err = service.GetKeyStore(env.Config)
 `
+	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
-
-	// Check that we have an error response
-	if w.Code == http.StatusOK {
-		t.Errorf("Expected error HTTP status, got: %d", w.Code)
-	}
-	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
-		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
-	}
-
-	// Check the JSON response
-	result := SignResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the signed response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure with an invalid model, got success")
-	}
 	if result.ErrorCode != "error-signing-assertions" {
 		t.Errorf("Expected an 'error signing' message, got %s", result.ErrorCode)
 	}
@@ -340,16 +213,8 @@ func TestVersionHandler(t *testing.T) {
 	config := ConfigSettings{Version: "1.2.5"}
 	Environ = &Env{Config: config}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/version", nil)
-	http.HandlerFunc(VersionHandler).ServeHTTP(w, r)
+	result, _ := sendRequestVersion(t, "GET", "/1.0/version", nil)
 
-	// Check the JSON response
-	result := VersionResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the version response: %v", err)
-	}
 	if result.Version != Environ.Config.Version {
 		t.Errorf("Incorrect version returned. Expected '%s' got: %v", Environ.Config.Version, result.Version)
 	}
@@ -384,7 +249,20 @@ func TestModelsHandlerWithError(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "GET", "/1.0/models", nil)
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/1.0/models", nil)
+	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := ModelsResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the models response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success response")
+	}
+
 }
 
 func TestModelGetHandler(t *testing.T) {
@@ -573,7 +451,7 @@ func TestModelCreateHandlerWithBadData(t *testing.T) {
 func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
@@ -591,7 +469,7 @@ func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelRespons
 func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	Router(Environ).ServeHTTP(w, r)
+	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
@@ -601,6 +479,46 @@ func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (M
 	}
 	if result.Success {
 		t.Error("Expected error, got success")
+	}
+
+	return result, err
+}
+
+func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (VersionResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	SigningRouter(Environ).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := VersionResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the version response: %v", err)
+	}
+
+	return result, err
+}
+
+func sendRequestSignError(t *testing.T, method, url string, data io.Reader) (SignResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	SigningRouter(Environ).ServeHTTP(w, r)
+
+	if w.Code == http.StatusOK {
+		t.Errorf("Expected error HTTP status, got: %d", w.Code)
+	}
+	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
+		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
+	}
+
+	// Check the JSON response
+	result := SignResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signed response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected an error, got success response")
 	}
 
 	return result, err

@@ -20,26 +20,40 @@
 package service
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"flag"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
-	"github.com/ubuntu-core/snappy/asserts"
+	"github.com/snapcore/snapd/asserts"
 
 	"gopkg.in/yaml.v2"
 )
 
+// Accepted service modes
+var (
+	ModeSigning = "signing"
+	ModeAdmin   = "admin"
+)
+
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
-	Version      string `yaml:"version"`
-	Title        string `yaml:"title"`
-	Logo         string `yaml:"logo"`
-	Driver       string `yaml:"driver"`
-	DataSource   string `yaml:"datasource"`
-	KeyStoreType string `yaml:"keystore"`
-	KeyStorePath string `yaml:"keystorePath"`
+	Version        string `yaml:"version"`
+	Title          string `yaml:"title"`
+	Logo           string `yaml:"logo"`
+	Driver         string `yaml:"driver"`
+	DataSource     string `yaml:"datasource"`
+	KeyStoreType   string `yaml:"keystore"`
+	KeyStorePath   string `yaml:"keystorePath"`
+	KeyStoreSecret string `yaml:"keystoreSecret"`
 }
 
 // DeviceAssertion defines the device identity.
@@ -58,17 +72,28 @@ const ModelType = "device"
 
 // Env Environment struct that holds the config and data store details.
 type Env struct {
-	Config         ConfigSettings
-	DB             Datastore
-	AuthorizedKeys AuthorizedKeystore
-	KeypairDB      *asserts.Database
+	Config    ConfigSettings
+	DB        Datastore
+	KeypairDB *KeypairDatabase
 }
 
 var settingsFile string
 
+// ServiceMode is whether we are running the user or admin service
+var ServiceMode string
+
+// BooleanResponse is the JSON response from an API method, indicating success or failure.
+type BooleanResponse struct {
+	Success      bool   `json:"success"`
+	ErrorCode    string `json:"error_code"`
+	ErrorSubcode string `json:"error_subcode"`
+	ErrorMessage string `json:"message"`
+}
+
 // ParseArgs checks the command line arguments
 func ParseArgs() {
 	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
+	flag.StringVar(&ServiceMode, "mode", ModeSigning, "Mode of operation: signing service or admin service")
 	flag.Parse()
 }
 
@@ -156,4 +181,77 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 		return err
 	}
 	return nil
+}
+
+// padRight truncates a string to a specific length, padding with a named
+// character for shorter strings.
+func padRight(str, pad string, length int) string {
+	for {
+		str += pad
+		if len(str) > length {
+			return str[0:length]
+		}
+	}
+}
+
+func generateAuthKey(authorityID, keyID string) string {
+	return strings.Join([]string{authorityID, "/", keyID}, "")
+}
+
+func createSecret(length int) (string, error) {
+	rb := make([]byte, length)
+	_, err := rand.Read(rb)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(rb), nil
+}
+
+// encryptKey uses symmetric encryption to encrypt the data for storage
+func encryptKey(plainTextKey, keyText string) ([]byte, error) {
+	// The AES key needs to be 16 or 32 bytes i.e. AES-128 or AES-256
+	aesKey := padRight(keyText, "x", 32)
+
+	block, err := aes.NewCipher([]byte(aesKey))
+	if err != nil {
+		log.Printf("Error creating the cipher block: %v", err)
+		return nil, err
+	}
+
+	// The IV needs to be unique, but not secure. Including it at the start of the plaintext
+	ciphertext := make([]byte, aes.BlockSize+len(plainTextKey))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
+		log.Printf("Error creating the IV for the cipher: %v", err)
+		return nil, err
+	}
+
+	// Use CFB mode for the encryption
+	cfb := cipher.NewCFBEncrypter(block, iv)
+	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(plainTextKey))
+
+	return ciphertext, nil
+}
+
+func decryptKey(sealedKey []byte, keyText string) ([]byte, error) {
+	aesKey := padRight(keyText, "x", 32)
+
+	block, err := aes.NewCipher([]byte(aesKey))
+	if err != nil {
+		log.Printf("Error creating the cipher block: %v", err)
+		return nil, err
+	}
+
+	if len(sealedKey) < aes.BlockSize {
+		return nil, errors.New("Cipher text too short")
+	}
+
+	iv := sealedKey[:aes.BlockSize]
+	sealedKey = sealedKey[aes.BlockSize:]
+
+	// Use CFB mode for the decryption
+	cfb := cipher.NewCFBDecrypter(block, iv)
+	cfb.XORKeyStream(sealedKey, sealedKey)
+
+	return sealedKey, nil
 }
