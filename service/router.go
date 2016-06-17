@@ -21,6 +21,7 @@ package service
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -59,7 +60,8 @@ func AdminRouter(env *Env) *mux.Router {
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")
 
 	// Web application routes
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
+	path := []string{env.Config.DocRoot, "/static/"}
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
 	router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler), env)).Methods("GET")

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd $SNAP
+
+bin/identity-vault -mode=admin -config=data/settings.yaml
