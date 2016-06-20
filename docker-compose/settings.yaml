@@ -1,5 +1,5 @@
 # Identity Vault version
-version: "0.2.0"
+version: "0.3.0"
 title: "Identity Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
 
@@ -10,3 +10,12 @@ datasource: "postgres://postgres:ubuntu@db:5432/identityvault?sslmode=disable"
 # Signing Key Store
 keystore: "filesystem"
 keystorePath: "./keystore"
+
+# For Database
+#keystore: "database"
+#keystoreSecret: "secret code to encrypt the auth-key hash"
+
+# For TPM 2.0
+#keystore: "tpm2.0"
+#keystorePath: "./keystore"
+#keystoreSecret: "this needs to be 32 bytes long!!"
