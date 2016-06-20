@@ -22,10 +22,11 @@ package service
 import (
 	"log"
 	"net/http"
+	"strings"
 	"text/template"
 )
 
-var indexTemplate = "static/app.html"
+var indexTemplate = "/static/app.html"
 
 // Page is the page details for the web application
 type Page struct {
@@ -37,7 +38,8 @@ type Page struct {
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	page := Page{Title: Environ.Config.Title, Logo: Environ.Config.Logo}
 
-	t, err := template.ParseFiles(indexTemplate)
+	path := []string{Environ.Config.DocRoot, indexTemplate}
+	t, err := template.ParseFiles(strings.Join(path, ""))
 	if err != nil {
 		log.Printf("Error loading the application template: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
