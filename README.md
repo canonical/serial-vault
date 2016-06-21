@@ -27,6 +27,15 @@ Run it:
 
 The application has an admin service that can be run by using mode=admin.
 
+## Try with docker
+  ```bash
+  $ git clone https://github.com/ubuntu-core/identity-vault
+  $ cd identity-vault/
+  $ docker-compose up
+  # remove containers after try
+  $ docker-compose rm
+  ```
+
 ## Development Environment
 
 ### Install Go
