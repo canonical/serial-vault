@@ -1,0 +1,35 @@
+#!/bin/sh -e
+
+err () {
+    echo "$1" >&2
+}
+
+if [ -z "$SNAP_DATA" ]; then
+    err "SNAP_DATA not set."
+    exit 1
+fi
+
+if [ ! -w "$SNAP_DATA" ]; then
+    err "Please re-run as root:"
+    err "\`cat settings.yaml | sudo /snap/bin/serial-vault.config\`"
+    exit 1
+fi
+
+if [ -t 0 ]; then
+    err "This tool lets you replace the Serial-Vault configuration file:"
+    err "\`cat settings.yaml | sudo /snap/bin/serial-vault.config\`"
+    err ""
+    err "You will need to restart the service to pick up any changes:"
+    err "\`systemctl restart snap.serial-vault.serial-vault.service\`"
+    err ""
+    exit 1
+else
+    if [ -e "$SNAP_DATA/config.xml" ] && [ "-f" != "$1" ]; then
+        err "Sorry, the Serial Vault already has configuration data."
+        err ""
+        err "If you wish to overwrite it, run:"
+        err "\`cat settings.yaml | sudo /snap/bin/serial-vault.config -f\`"
+        exit 1
+    fi
+    cat - > "$SNAP_DATA/settings.yaml"
+fi

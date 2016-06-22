@@ -2,4 +2,5 @@
 
 cd $SNAP
 
-bin/identity-vault -mode=admin -config=data/settings.yaml
+bin/tools -config=$SNAP_DATA/settings.yaml
+bin/identity-vault -mode=signing -config=$SNAP_DATA/settings.yaml
