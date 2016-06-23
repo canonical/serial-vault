@@ -55,6 +55,7 @@ type ConfigSettings struct {
 	KeyStoreType   string `yaml:"keystore"`
 	KeyStorePath   string `yaml:"keystorePath"`
 	KeyStoreSecret string `yaml:"keystoreSecret"`
+	Mode           string `yaml:"mode"`
 }
 
 // DeviceAssertion defines the device identity.
@@ -94,7 +95,7 @@ type BooleanResponse struct {
 // ParseArgs checks the command line arguments
 func ParseArgs() {
 	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
-	flag.StringVar(&ServiceMode, "mode", ModeSigning, "Mode of operation: signing service or admin service")
+	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing service or admin service")
 	flag.Parse()
 }
 
@@ -111,6 +112,12 @@ func ReadConfig(config *ConfigSettings) error {
 		log.Println("Error parsing the config file.")
 		return err
 	}
+
+	// Set the service mode from the config file if it is not set
+	if ServiceMode == "" {
+		ServiceMode = config.Mode
+	}
+
 	return nil
 }
 
