@@ -43,6 +43,7 @@ type Datastore interface {
 	UpdateKeypairActive(keypairID int, active bool) error
 	CreateKeypairTable() error
 	CreateSettingsTable() error
+	CreateSigningLogTable() error
 	PutSetting(setting Setting) error
 	GetSetting(code string) (Setting, error)
 }
