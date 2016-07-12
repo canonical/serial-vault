@@ -42,10 +42,14 @@ type Datastore interface {
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateKeypairActive(keypairID int, active bool) error
 	CreateKeypairTable() error
+
 	CreateSettingsTable() error
-	CreateSigningLogTable() error
 	PutSetting(setting Setting) error
 	GetSetting(code string) (Setting, error)
+
+	CreateSigningLogTable() error
+	CheckForDuplicate(signLog SigningLog) (bool, error)
+	CreateSigningLog(signLog SigningLog) error
 }
 
 // DB local database interface with our custom methods.
