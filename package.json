@@ -3,7 +3,8 @@
   "version": "0.2.0",
   "description": "A Go web service that digitally signs device assertion details.",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test-coverage": "jest --coverage"
   },
   "jest": {
     "scriptPreprocessor": "./node_modules/babel-jest",

@@ -42,6 +42,7 @@ var intlData = {
       "delete-model": "<Delete model>",
       "add-new-model": "添加新模式",
       "confirm-model-delete": "<Confirm deletion of this model>",
+      "confirm-log-delete": "Confirm deletion of this log",
       "yes": "是",
       "save": "保存",
       "cancel": "取消",
@@ -67,6 +68,7 @@ var intlData = {
       "new-signing-key-description": "<Paste the signing-key or upload the file>",
       "new-signing-key": "<New Signing Key>",
       "add-new-signing-key": "<Add a new signing key>",
+      "more": "<More>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -124,6 +126,7 @@ var intlData = {
       "add-new-model": "Add a new model",
       "delete-model": "Delete model",
       "confirm-model-delete": "Confirm deletion of this model",
+      "confirm-log-delete": "Confirm deletion of this log",
       "yes": "Yes",
       "save": "Save",
       "cancel": "Cancel",
@@ -149,6 +152,7 @@ var intlData = {
       "no-signing-keys-found": "No signing keys found",
       "new-signing-key": "New Signing Key",
       "add-new-signing-key": "Add a new signing key",
+      "more": "More",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",
