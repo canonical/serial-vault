@@ -1,6 +1,6 @@
-# Identity Vault version
-version: "0.3.0"
-title: "Identity Vault"
+# Serial Vault version
+version: "0.4.0"
+title: "Serial Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
 
 # Service mode: signing or admin
