@@ -126,7 +126,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	assertion, err := asserts.Decode(data)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-decode-json", "", err.Error(), nil, w)
+		formatSignResponse(false, "error-decode-assertion", "", err.Error(), nil, w)
 		return
 	}
 
@@ -152,12 +152,43 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the fingerprint of the assertion device-key
+	publicKey, err := decodePublicKey([]byte(assertion.Header("device-key")))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Printf("Invalid device-key: %v", err)
+		formatSignResponse(false, "error-decode-assertion", "error-device-key", "The device-key is invalid", nil, w)
+		return
+	}
+
+	// Check that we have not already signed this device
+	signingLog := SigningLog{Make: assertion.Header("brand-id"), Model: assertion.Header("model"), SerialNumber: assertion.Header("serial"), Fingerprint: publicKey.Fingerprint()}
+	duplicateExists, err := Environ.DB.CheckForDuplicate(signingLog)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formatSignResponse(false, "error-signing-assertions", "", err.Error(), nil, w)
+		return
+	}
+	if duplicateExists {
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-signing-assertions", "error-duplicate", "The serial number and/or device-key have already been used to sign a device", nil, w)
+		return
+	}
+
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		formatSignResponse(false, "error-signing-assertions", "", err.Error(), signedAssertion, w)
+		formatSignResponse(false, "error-signing-assertions", "", err.Error(), nil, w)
+		return
+	}
+
+	// Store the serial number and device-key fingerprint in the database
+	err = Environ.DB.CreateSigningLog(signingLog)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formatSignResponse(false, "error-signing-assertions", "", err.Error(), nil, w)
 		return
 	}
 

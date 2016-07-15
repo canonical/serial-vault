@@ -15,40 +15,22 @@
  *
  */
 'use strict'
-var request =require('then-request');
-var API_VERSION = '/1.0/';
+var Ajax = require('./Ajax');
 
-var Ajax = {
-	get: function(url, qs) {
-			if (!qs) {
-				qs = {};
-			}
-			return request('GET', API_VERSION + url, {
-					headers: {},
-					qs: qs
-			});
+var SigningLog = {
+    url: 'signinglog',
+
+	list: function (fromID) {
+		var data = {}
+		if (fromID) {
+			data.fromID = fromID;
+		}
+		return Ajax.get(this.url, data);
 	},
 
-	post: function(url, data) {
-			return request('POST', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
-	},
-
-	put: function(url, data) {
-			return request('PUT', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
-	},
-
-	delete: function(url, data) {
-			return request('DELETE', API_VERSION + url, {
-					headers: {},
-					json: data
-			});
+	delete:  function(log) {
+		return Ajax.delete(this.url + '/' + log.id, {});
 	}
 }
 
-module.exports = Ajax;
+module.exports = SigningLog;

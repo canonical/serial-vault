@@ -1,0 +1,29 @@
+name: serial-vault
+version: 0.4
+summary: Serial Vault Service
+description: Service for the Serial Vault that signs serial assertions.
+confinement: strict
+
+apps:
+    serial-vault:
+      command: bin/snap-run-service
+      plugs: [network, network-bind]
+      daemon: simple
+    config:
+      command: bin/set-config
+
+parts:
+    service:
+        plugin: go
+        source: git://github.com/ubuntu-core/identity-vault
+        go-importpath: github.com/ubuntu-core/identity-vault
+    assets:
+        source: git://github.com/ubuntu-core/identity-vault
+        plugin: copy
+        files:
+          bin/set-config: bin/set-config
+          bin/snap-run-service: bin/snap-run-service
+          bin/snap-run-admin-service: bin/snap-run-admin-service
+          bin/snap-run-signing-service: bin/snap-run-signing-service
+          settings.yaml: data/settings.yaml
+          static: static

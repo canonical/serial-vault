@@ -52,7 +52,7 @@ describe('model edit', function() {
    var nav = TestUtils.findRenderedDOMComponentWithTag(modelPage, 'nav');
 
    // Check that the navigation tag is set correctly
-	 expect(nav.firstChild.children.length).toBe(2);
+	 expect(nav.firstChild.children.length).toBe(3);
 	 expect(nav.firstChild.children[1].firstChild.className).toBe('active');
 	 expect(nav.firstChild.children[1].firstChild.textContent).toBe('Models');
 
@@ -99,9 +99,9 @@ describe('model edit', function() {
 
    // Get the save link
    var anchors = TestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'a');
-   expect(anchors.length).toBe(4);
-   expect(anchors[2].textContent).toBe('Save');
-   TestUtils.Simulate.click(anchors[2]);
+   expect(anchors.length).toBe(5);
+   expect(anchors[3].textContent).toBe('Save');
+   TestUtils.Simulate.click(anchors[3]);
    expect(handleSaveClick.mock.calls.length).toBe(1);
  });
 

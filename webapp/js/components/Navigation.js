@@ -26,6 +26,7 @@ var Navigation = React.createClass({
 			var activeHome = '';
 			var activeModels = '';
 			var activeKeys = '';
+			var activeSigningLog = '';
 			if (this.props.active === 'home') {
 				activeHome = 'active';
 			}
@@ -35,6 +36,9 @@ var Navigation = React.createClass({
       if (this.props.active === 'keys') {
 				activeKeys = 'active';
 			}
+      if (this.props.active === 'signinglog') {
+				activeSigningLog = 'active';
+			}
 
       return (
 
@@ -42,6 +46,7 @@ var Navigation = React.createClass({
           <ul className="second-level-nav">
             <li><a className={activeHome} href="/">{M({id:'home'})}</a></li>
             <li><a className={activeModels} href="/models">{M({id:'models'})}</a></li>
+            <li><a className={activeSigningLog} href="/signinglog">{M({id:'signinglog'})}</a></li>
           </ul>
         </nav>
       );

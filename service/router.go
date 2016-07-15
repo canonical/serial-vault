@@ -59,11 +59,16 @@ func AdminRouter(env *Env) *mux.Router {
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
 	router.Handle("/1.0/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")
 
+	// API routes: signing log
+	router.Handle("/1.0/signinglog", Middleware(http.HandlerFunc(SigningLogHandler), env)).Methods("GET")
+	router.Handle("/1.0/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler), env)).Methods("DELETE")
+
 	// Web application routes
 	path := []string{env.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
 	router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
+	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler), env)).Methods("GET")
 
 	return router

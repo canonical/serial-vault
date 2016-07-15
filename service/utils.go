@@ -20,6 +20,7 @@
 package service
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -27,11 +28,14 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+
+	"golang.org/x/crypto/openpgp/packet"
 
 	"github.com/snapcore/snapd/asserts"
 
@@ -185,7 +189,18 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the models response.")
+		log.Println("Error forming the keypairs response.")
+		return err
+	}
+	return nil
+}
+
+func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []SigningLog, w http.ResponseWriter) error {
+	response := SigningLogResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the signing log response.")
 		return err
 	}
 	return nil
@@ -262,4 +277,49 @@ func decryptKey(sealedKey []byte, keyText string) ([]byte, error) {
 	cfb.XORKeyStream(sealedKey, sealedKey)
 
 	return sealedKey, nil
+}
+
+// decodePublicKey replicates a private method in snapcore asserts to convert the device-key header
+// into a usable PublicKey format.
+func decodePublicKey(pubKey []byte) (asserts.PublicKey, error) {
+	pkt, err := decodeOpenpgp(pubKey, "public key")
+	if err != nil {
+		return nil, err
+	}
+	pubk, ok := pkt.(*packet.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("expected public key, got instead: %T", pkt)
+	}
+	return asserts.OpenPGPPublicKey(pubk), nil
+}
+
+func decodeOpenpgp(formatAndBase64 []byte, kind string) (packet.Packet, error) {
+	if len(formatAndBase64) == 0 {
+		return nil, fmt.Errorf("empty %s", kind)
+	}
+	format, data, err := splitFormatAndBase64Decode(formatAndBase64)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", kind, err)
+	}
+	if format != "openpgp" {
+		return nil, fmt.Errorf("unsupported %s format: %q", kind, format)
+	}
+	pkt, err := packet.Read(bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("could not decode %s data: %v", kind, err)
+	}
+	return pkt, nil
+}
+
+func splitFormatAndBase64Decode(formatAndBase64 []byte) (string, []byte, error) {
+	parts := bytes.SplitN(formatAndBase64, []byte(" "), 2)
+	if len(parts) != 2 {
+		return "", nil, fmt.Errorf("expected format and base64 data separated by space")
+	}
+	buf := make([]byte, base64.StdEncoding.DecodedLen(len(parts[1])))
+	n, err := base64.StdEncoding.Decode(buf, parts[1])
+	if err != nil {
+		return "", nil, fmt.Errorf("could not decode base64 data: %v", err)
+	}
+	return string(parts[0]), buf[:n], nil
 }

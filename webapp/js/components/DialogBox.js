@@ -28,9 +28,9 @@ var DialogBox = React.createClass({
 				<div className="box warning">
 					<p>{this.props.message}</p>
 					<div>
-						<a href="" onClick={this.props.handleYesClick} className="button--primary">{M({id: "yes"})}</a>
+						<a href="" onClick={this.props.handleYesClick} className="button--primary small">{M({id: "yes"})}</a>
 						&nbsp;
-						<a href="" onClick={this.props.handleCancelClick} className="button--secondary">{M({id: "cancel"})}</a>
+						<a href="" onClick={this.props.handleCancelClick} className="button--secondary small">{M({id: "cancel"})}</a>
 					</div>
 				</div>
 			);
