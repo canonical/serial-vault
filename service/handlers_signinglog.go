@@ -20,8 +20,11 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // SigningLogResponse is the JSON response from the API Signing Log method
@@ -33,7 +36,7 @@ type SigningLogResponse struct {
 	SigningLog   []SigningLog `json:"logs"`
 }
 
-// SigningLogHandler is the API method to sign assertions from the device
+// SigningLogHandler is the API method to fetch the log records from signing
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -60,4 +63,32 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
 	formatSigningLogResponse(true, "", "", "", logs, w)
+}
+
+// SigningLogDeleteHandler is the API method to delete a signing log entry
+func SigningLogDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the signinglog primary key
+	vars := mux.Vars(r)
+	logID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars["id"])
+		formatSigningLogResponse(false, "error-invalid-signinglog", "", errorMessage, nil, w)
+		return
+	}
+
+	// Update the database
+	signingLog := SigningLog{ID: logID}
+	errorSubcode, err := Environ.DB.DeleteSigningLog(signingLog)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatSigningLogResponse(false, "error-deleting-signinglog", errorSubcode, errorMessage, nil, w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	formatSigningLogResponse(true, "", "", "", nil, w)
 }

@@ -49,6 +49,7 @@ const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx 
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint) VALUES ($1, $2, $3, $4)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
+const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 
 // SigningLog holds the details of the serial number and public key fingerprint that were supplied
 // in a serial assertion for signing. The details are stored in the local database,
@@ -131,4 +132,16 @@ func (db *DB) ListSigningLog(fromID int) ([]SigningLog, error) {
 	}
 
 	return signingLogs, nil
+}
+
+// DeleteSigningLog deletes a signing log record.
+func (db *DB) DeleteSigningLog(signingLog SigningLog) (string, error) {
+
+	_, err := db.Exec(deleteSigningLogSQL, signingLog.ID)
+	if err != nil {
+		log.Printf("Error deleting the database signing log: %v\n", err)
+		return "", err
+	}
+
+	return "", nil
 }

@@ -26,6 +26,10 @@ var SigningLog = {
 			data.fromID = fromID;
 		}
 		return Ajax.get(this.url, data);
+	},
+
+	delete:  function(log) {
+		return Ajax.delete(this.url + '/' + log.id, {});
 	}
 }
 

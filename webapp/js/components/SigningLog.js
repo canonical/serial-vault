@@ -55,6 +55,36 @@ var SigningLogList = React.createClass({
     this.setState({fromID: fromID}, this.getLogs);
   },
 
+  handleDelete: function(e) {
+    e.preventDefault();
+    this.setState({confirmDelete: parseInt(e.target.getAttribute('data-key'))});
+  },
+
+  handleDeleteLog: function(e) {
+    e.preventDefault();
+    var self = this;
+    var logs = this.state.logs.filter(function(log) {
+      return log.id === self.state.confirmDelete;
+    });
+    if (logs.length === 0) {
+      return;
+    }
+
+    SigningLogModel.delete(logs[0]).then(function(response) {
+      var data = JSON.parse(response.body);
+      if ((response.statusCode >= 300) || (!data.success)) {
+        self.setState({message: self.formatError(data)});
+      } else {
+        window.location = '/signinglog';
+      }
+    });
+  },
+
+  handleDeleteLogCancel: function(e) {
+    e.preventDefault();
+    this.setState({confirmDelete: null});
+  },
+
   renderTable: function(M) {
     var self = this;
 
