@@ -24,16 +24,18 @@ var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
 var injectIntl = require('react-intl').injectIntl;
 
+const PAGINATION_SIZE = 50;
+
 var SigningLogList = React.createClass({
   getInitialState: function() {
-    return {logs: this.props.logs || [], confirmDelete: null, message: null, fromID: null};
+    return {logs: this.props.logs || [], confirmDelete: null, message: null, fromID: null, showMore: true};
   },
 
   componentDidMount: function () {
-    this.getlogs();
+    this.getLogs();
   },
 
-  getlogs: function () {
+  getLogs: function () {
     var self = this;
 
     SigningLogModel.list(this.state.fromID).then(function(response) {
@@ -42,8 +44,15 @@ var SigningLogList = React.createClass({
       if (!data.success) {
         message = data.message;
       }
-      self.setState({logs: data.logs, message: message});
+      var showMore = data.logs.length == PAGINATION_SIZE;
+      self.setState({logs: self.state.logs.concat(data.logs), message: message, showMore: showMore});
     });
+  },
+
+  getMoreLogs: function() {
+    var fromID = this.state.logs[this.state.logs.length-1].id
+    console.log(fromID);
+    this.setState({fromID: fromID}, this.getLogs);
   },
 
   renderTable: function(M) {
@@ -51,21 +60,24 @@ var SigningLogList = React.createClass({
 
     if (this.state.logs.length > 0) {
       return (
-        <table>
-          <thead>
-            <tr>
-              <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.logs.map(function(l) {
-              return (
-                <SigningLogRow key={l.id} log={l} delete={self.handleDelete} confirmDelete={self.state.confirmDelete}
-                  deleteLog={self.handleDeleteLog} cancelDelete={self.handleDeleteLogCancel} />
-              );
-            })}
-          </tbody>
-        </table>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.logs.map(function(l) {
+                return (
+                  <SigningLogRow key={l.id} log={l} delete={self.handleDelete} confirmDelete={self.state.confirmDelete}
+                    deleteLog={self.handleDeleteLog} cancelDelete={self.handleDeleteLogCancel} />
+                );
+              })}
+            </tbody>
+          </table>
+          {this.state.showMore? <button onClick={self.getMoreLogs}>{M({id:'more'})}</button> : ''}
+        </div>
       );
     } else {
       return (

@@ -26,7 +26,7 @@ var SigningLogRow = React.createClass({
 		if (this.props.log.id !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="button--secondary" title={M({id: 'delete-log'})}>
+					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="button--secondary small" title={M({id: 'delete-log'})}>
 						<i className="fa fa-trash" data-key={this.props.log.id}></i></a>
 				</div>
 			);

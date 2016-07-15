@@ -21,11 +21,11 @@ var SigningLog = {
     url: 'signinglog',
 
 	list: function (fromID) {
+		var data = {}
 		if (fromID) {
-			data = {fromID: fromID}
-			return Ajax.get(this.url + '?fromID=' + fromID);
+			data.fromID = fromID;
 		}
-		return Ajax.get(this.url);
+		return Ajax.get(this.url, data);
 	}
 }
 

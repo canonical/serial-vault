@@ -19,9 +19,13 @@ var request =require('then-request');
 var API_VERSION = '/1.0/';
 
 var Ajax = {
-	get: function(url) {
+	get: function(url, qs) {
+			if (!qs) {
+				qs = {};
+			}
 			return request('GET', API_VERSION + url, {
-					headers: {}
+					headers: {},
+					qs: qs
 			});
 	},
 
