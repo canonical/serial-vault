@@ -50,6 +50,7 @@ type Datastore interface {
 	CreateSigningLogTable() error
 	CheckForDuplicate(signLog SigningLog) (bool, error)
 	CreateSigningLog(signLog SigningLog) error
+	ListSigningLog(fromID int) ([]SigningLog, error)
 }
 
 // DB local database interface with our custom methods.

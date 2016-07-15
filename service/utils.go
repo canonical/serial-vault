@@ -189,7 +189,18 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the models response.")
+		log.Println("Error forming the keypairs response.")
+		return err
+	}
+	return nil
+}
+
+func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []SigningLog, w http.ResponseWriter) error {
+	response := SigningLogResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the signing log response.")
 		return err
 	}
 	return nil

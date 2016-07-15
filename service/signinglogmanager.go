@@ -37,20 +37,28 @@ const createSigningLogTableSQL = `
 	)
 `
 
+// MaxFromID is the maximum ID value
+const MaxFromID = 2147483647
+
+// Indexes
 const createSigningLogSerialNumberIndexSQL = "CREATE INDEX IF NOT EXISTS serialnumber_idx ON signinglog (make,model,serial_number)"
 const createSigningLogFingerprintIndexSQL = "CREATE INDEX IF NOT EXISTS fingerprint_idx ON signinglog (fingerprint)"
+const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx ON signinglog (created)"
+
+// Queries
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint) VALUES ($1, $2, $3, $4)"
+const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
 
 // SigningLog holds the details of the serial number and public key fingerprint that were supplied
 // in a serial assertion for signing. The details are stored in the local database,
 type SigningLog struct {
-	ID           int
-	Make         string
-	Model        string
-	SerialNumber string
-	Fingerprint  string
-	Created      time.Time
+	ID           int       `json:"id"`
+	Make         string    `json:"make"`
+	Model        string    `json:"model"`
+	SerialNumber string    `json:"serialnumber"`
+	Fingerprint  string    `json:"fingerprint"`
+	Created      time.Time `json:"created"`
 }
 
 // CreateSigningLogTable creates the database table for a signing log with its indexes.
@@ -60,6 +68,10 @@ func (db *DB) CreateSigningLogTable() error {
 		return err
 	}
 	_, err = db.Exec(createSigningLogSerialNumberIndexSQL)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(createSigningLogCreatedIndexSQL)
 	if err != nil {
 		return err
 	}
@@ -95,4 +107,28 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	}
 
 	return nil
+}
+
+// ListSigningLog returns a list of signing log records from a specific date/time.
+// The fromId parameter is used enables the use of indexes for more efficient pagination.
+func (db *DB) ListSigningLog(fromID int) ([]SigningLog, error) {
+	signingLogs := []SigningLog{}
+
+	rows, err := db.Query(listSigningLogSQL, fromID)
+	if err != nil {
+		log.Printf("Error retrieving database models: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		signingLog := SigningLog{}
+		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created)
+		if err != nil {
+			return nil, err
+		}
+		signingLogs = append(signingLogs, signingLog)
+	}
+
+	return signingLogs, nil
 }

@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/ubuntu-core/identity-vault",
   "dependencies": {
+    "moment": "^2.14.1",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "react-intl": "^2.1.2",
