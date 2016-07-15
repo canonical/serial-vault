@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestReadConfig(t *testing.T) {
@@ -98,7 +99,7 @@ func TestFormatKeypairsResponse(t *testing.T) {
 		t.Errorf("Keypairs response not as expected: %v", result)
 	}
 	if result.Keypairs[0].KeyID != keypairs[0].KeyID {
-		t.Errorf("Expected the first key IS '%s', got: %s", keypairs[0].KeyID, result.Keypairs[0].KeyID)
+		t.Errorf("Expected the first key ID '%s', got: %s", keypairs[0].KeyID, result.Keypairs[0].KeyID)
 	}
 }
 
@@ -129,5 +130,29 @@ func TestDecodePublicKeyInvalid(t *testing.T) {
 	_, err = decodePublicKey([]byte(key))
 	if err == nil {
 		t.Error("Expected an error with an invalid public key")
+	}
+}
+
+func TestFormatSigningLogResponse(t *testing.T) {
+	var signingLog []SigningLog
+	signingLog = append(signingLog, SigningLog{ID: 1, Make: "System", Model: "Router 3400", SerialNumber: "A1", Fingerprint: "a1", Created: time.Now()})
+	signingLog = append(signingLog, SigningLog{ID: 2, Make: "System", Model: "Router 3400", SerialNumber: "A2", Fingerprint: "a2", Created: time.Now()})
+
+	w := httptest.NewRecorder()
+	err := formatSigningLogResponse(true, "", "", "", signingLog, w)
+	if err != nil {
+		t.Errorf("Error forming signing log response: %v", err)
+	}
+
+	var result SigningLogResponse
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log response: %v", err)
+	}
+	if len(result.SigningLog) != len(signingLog) || !result.Success || result.ErrorMessage != "" {
+		t.Errorf("Signing log response not as expected: %v", result)
+	}
+	if result.SigningLog[0].Fingerprint != signingLog[0].Fingerprint {
+		t.Errorf("Expected the first fingerprint '%s', got: %s", signingLog[0].Fingerprint, result.SigningLog[0].Fingerprint)
 	}
 }

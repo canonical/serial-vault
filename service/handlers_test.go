@@ -282,6 +282,29 @@ func TestVersionHandler(t *testing.T) {
 
 }
 
+func TestVersionHandlerNilEnviron(t *testing.T) {
+
+	config := ConfigSettings{Version: "1.2.5"}
+	env := &Env{Config: config}
+	Environ = nil
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/1.0/version", nil)
+	SigningRouter(env).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := VersionResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the version response: %v", err)
+	}
+
+	if result.Version != Environ.Config.Version {
+		t.Errorf("Incorrect version returned. Expected '%s' got: %v", Environ.Config.Version, result.Version)
+	}
+
+}
+
 func TestModelsHandler(t *testing.T) {
 
 	// Mock the database

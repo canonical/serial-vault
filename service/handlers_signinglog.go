@@ -40,14 +40,14 @@ type SigningLogResponse struct {
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Check if we have a from date in the query params
+	// Check if we have a from ID in the query params
 	var fromID int
 	var err error
-	fromDateParam := r.FormValue("fromID")
-	if len(fromDateParam) == 0 {
+	fromIDParam := r.FormValue("fromID")
+	if len(fromIDParam) == 0 {
 		fromID = MaxFromID
 	} else {
-		fromID, err = strconv.Atoi(fromDateParam)
+		fromID, err = strconv.Atoi(fromIDParam)
 		if err != nil {
 			fromID = MaxFromID
 		}

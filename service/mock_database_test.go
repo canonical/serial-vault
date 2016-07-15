@@ -19,7 +19,11 @@
 
 package service
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"time"
+)
 
 // Successful mocks for the database
 type mockDB struct {
@@ -196,6 +200,25 @@ func (mdb *mockDB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
+func (mdb *mockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
+	logs, _ := mdb.ListSigningLog(100)
+	if signingLog.ID > len(logs)+1 {
+		return "", errors.New("Cannot find the signing log")
+	}
+	return "", nil
+}
+
+func (mdb *mockDB) ListSigningLog(fromID int) ([]SigningLog, error) {
+	signingLog := []SigningLog{}
+	if fromID > 11 {
+		fromID = 11
+	}
+	for i := 1; i < fromID; i++ {
+		signingLog = append(signingLog, SigningLog{ID: i, Make: "System", Model: "Router 3400", SerialNumber: fmt.Sprintf("A%d", i), Fingerprint: fmt.Sprintf("a%d", i), Created: time.Now()})
+	}
+	return signingLog, nil
+}
+
 // Unsuccessful mocks for the database
 type errorMockDB struct{}
 
@@ -280,4 +303,14 @@ func (mdb *errorMockDB) CreateSigningLog(signLog SigningLog) error {
 
 func (mdb *errorMockDB) CreateSigningLogTable() error {
 	return nil
+}
+
+func (mdb *errorMockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
+
+	return "", errors.New("Error deleting the database signing log.")
+}
+
+func (mdb *errorMockDB) ListSigningLog(fromID int) ([]SigningLog, error) {
+	var signingLog []SigningLog
+	return signingLog, errors.New("Error retrieving the signing logs")
 }
