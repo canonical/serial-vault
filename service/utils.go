@@ -48,9 +48,12 @@ var (
 	ModeAdmin   = "admin"
 )
 
+// Set the application version from a constant
+const version = "0.6.0"
+
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
-	Version        string   `yaml:"version"`
+	Version        string
 	Title          string   `yaml:"title"`
 	Logo           string   `yaml:"logo"`
 	DocRoot        string   `yaml:"docRoot"`
@@ -118,6 +121,9 @@ func ReadConfig(config *ConfigSettings) error {
 		log.Println("Error parsing the config file.")
 		return err
 	}
+
+	// Set the application version from the constant
+	config.Version = version
 
 	// Set the service mode from the config file if it is not set
 	if ServiceMode == "" {
