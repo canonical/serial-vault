@@ -50,16 +50,18 @@ var (
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
-	Version        string `yaml:"version"`
-	Title          string `yaml:"title"`
-	Logo           string `yaml:"logo"`
-	DocRoot        string `yaml:"docRoot"`
-	Driver         string `yaml:"driver"`
-	DataSource     string `yaml:"datasource"`
-	KeyStoreType   string `yaml:"keystore"`
-	KeyStorePath   string `yaml:"keystorePath"`
-	KeyStoreSecret string `yaml:"keystoreSecret"`
-	Mode           string `yaml:"mode"`
+	Version        string   `yaml:"version"`
+	Title          string   `yaml:"title"`
+	Logo           string   `yaml:"logo"`
+	DocRoot        string   `yaml:"docRoot"`
+	Driver         string   `yaml:"driver"`
+	DataSource     string   `yaml:"datasource"`
+	KeyStoreType   string   `yaml:"keystore"`
+	KeyStorePath   string   `yaml:"keystorePath"`
+	KeyStoreSecret string   `yaml:"keystoreSecret"`
+	Mode           string   `yaml:"mode"`
+	APIKeys        []string `yaml:"apiKeys"`
+	APIKeysMap     map[string]struct{}
 }
 
 // DeviceAssertion defines the device identity.
@@ -120,6 +122,12 @@ func ReadConfig(config *ConfigSettings) error {
 	// Set the service mode from the config file if it is not set
 	if ServiceMode == "" {
 		ServiceMode = config.Mode
+	}
+
+	// Migrate the API keys to a map for more efficient lookups
+	config.APIKeysMap = make(map[string]struct{})
+	for _, key := range config.APIKeys {
+		config.APIKeysMap[key] = struct{}{}
 	}
 
 	return nil
@@ -322,4 +330,18 @@ func splitFormatAndBase64Decode(formatAndBase64 []byte) (string, []byte, error) 
 		return "", nil, fmt.Errorf("could not decode base64 data: %v", err)
 	}
 	return string(parts[0]), buf[:n], nil
+}
+
+// checkAPIKey the API key header to make sure it is an allowed header
+func checkAPIKey(apiKey string) error {
+	if Environ.Config.APIKeys == nil || len(Environ.Config.APIKeys) == 0 {
+		log.Println("No API key authorisation defined - default policy is allow")
+		return nil
+	}
+
+	if _, ok := Environ.Config.APIKeysMap[apiKey]; !ok {
+		return errors.New("Unauthorized API key used")
+	}
+
+	return nil
 }

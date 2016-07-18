@@ -1,5 +1,5 @@
 # Serial Vault version
-version: "0.4.0"
+version: "0.5.0"
 title: "Serial Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
 
@@ -25,3 +25,7 @@ keystoreSecret: "secret code to encrypt the auth-key hash"
 #keystore: "tpm2.0"
 #keystorePath: "./keystore"
 #keystoreSecret: "this needs to be 32 bytes long!!"
+
+# Valid API keys
+apiKeys:
+    - U2VyaWFsIFZhdWx0Cg
