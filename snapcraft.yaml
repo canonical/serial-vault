@@ -7,7 +7,9 @@ confinement: strict
 apps:
     serial-vault:
       command: bin/snap-run-service
-      plugs: [network, network-bind]
+      plugs:
+        - network
+        - network-bind
       daemon: simple
     config:
       command: bin/set-config
