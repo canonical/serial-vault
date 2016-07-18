@@ -101,6 +101,16 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 
 // SignHandler is the API method to sign assertions from the device
 func SignHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Check that we have an authorised API key header
+	err := checkAPIKey(r.Header.Get("api-key"))
+	if err != nil {
+		log.Printf("Unauthorized API key used: %v\n", r.Header.Get("api-key"))
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-api-key", "", "Unauthorized API key used", nil, w)
+		return
+	}
+
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatSignResponse(false, "error-nil-data", "", "Uninitialized POST data", nil, w)

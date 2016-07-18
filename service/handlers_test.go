@@ -31,11 +31,24 @@ import (
 )
 
 func TestSignHandlerNilData(t *testing.T) {
-	sendRequestSignError(t, "POST", "/1.0/sign", nil)
+	sendRequestSignError(t, "POST", "/1.0/sign", nil, "")
 }
 
 func TestSignHandlerNoData(t *testing.T) {
-	sendRequestSignError(t, "POST", "/1.0/sign", new(bytes.Buffer))
+	sendRequestSignError(t, "POST", "/1.0/sign", new(bytes.Buffer), "")
+}
+
+func TestSignHandlerInvalidAPIKey(t *testing.T) {
+	// Set up the API key
+	apiKeySlice := []string{"InbuiltAPIKey"}
+	apiKeys := make(map[string]struct{})
+	apiKeys["InbuiltAPIKey"] = struct{}{}
+
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+
+	sendRequestSignError(t, "POST", "/1.0/sign", new(bytes.Buffer), "InvalidAPIKey")
 }
 
 func TestSignHandlerInactive(t *testing.T) {
@@ -55,7 +68,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "error-model-not-active" {
 		t.Errorf("Expected 'error-model-not-active', got %v", result.ErrorCode)
@@ -63,8 +76,13 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 }
 
 func TestSignHandler(t *testing.T) {
+	// Set up the API key
+	apiKeySlice := []string{"InbuiltAPIKey"}
+	apiKeys := make(map[string]struct{})
+	apiKeys["InbuiltAPIKey"] = struct{}{}
+
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
@@ -81,6 +99,7 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	r.Header.Add("api-key", "InbuiltAPIKey")
 	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
 
 	// Check that we have a assertion as a response
@@ -109,7 +128,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
 }
 
@@ -129,7 +148,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
 }
 
@@ -160,7 +179,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorSubcode != "error-invalid-type" {
 		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorSubcode)
@@ -182,7 +201,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerDuplicateSigner(t *testing.T) {
@@ -202,7 +221,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerCheckDuplicateError(t *testing.T) {
@@ -222,7 +241,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerSigningLogError(t *testing.T) {
@@ -242,7 +261,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerErrorKeyStore(t *testing.T) {
@@ -262,7 +281,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
-	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "error-signing-assertions" {
 		t.Errorf("Expected an 'error signing' message, got %s", result.ErrorCode)
@@ -583,9 +602,10 @@ func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (Versi
 	return result, err
 }
 
-func sendRequestSignError(t *testing.T, method, url string, data io.Reader) (SignResponse, error) {
+func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiKey string) (SignResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
+	r.Header.Add("api-key", apiKey)
 	SigningRouter(Environ).ServeHTTP(w, r)
 
 	if w.Code == http.StatusOK {
