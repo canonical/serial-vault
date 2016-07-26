@@ -49,7 +49,7 @@ var (
 )
 
 // Set the application version from a constant
-const version = "0.6.0"
+const version = "0.7.0"
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
@@ -350,4 +350,10 @@ func checkAPIKey(apiKey string) error {
 	}
 
 	return nil
+}
+
+// logMessage logs a message in a fixed format so it can be analyzed by log handlers
+// e.g. "METHOD CODE descriptive reason"
+func logMessage(method, code, reason string) {
+	log.Printf("%s %s %s\n", method, code, reason)
 }
