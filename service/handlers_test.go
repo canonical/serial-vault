@@ -364,3 +364,77 @@ func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiK
 
 	return result, err
 }
+
+func TestNonceHandler(t *testing.T) {
+	// Set up the API key
+	apiKeySlice := []string{"InbuiltAPIKey"}
+	apiKeys := make(map[string]struct{})
+	apiKeys["InbuiltAPIKey"] = struct{}{}
+
+	// Mock the database
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/1.0/nonce", nil)
+	r.Header.Add("api-key", "InbuiltAPIKey")
+	SigningRouter(Environ).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := NonceResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the nonce response: %v", err)
+	}
+
+}
+
+func TestNonceHandlerInvalidAPIKey(t *testing.T) {
+	// Set up the API key
+	apiKeySlice := []string{"InbuiltAPIKey"}
+	apiKeys := make(map[string]struct{})
+	apiKeys["InbuiltAPIKey"] = struct{}{}
+
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+
+	sendRequestNonceError(t, "POST", "/1.0/nonce", new(bytes.Buffer), "InvalidAPIKey")
+}
+
+func TestNonceHandlerError(t *testing.T) {
+	// Set up the API key
+	apiKeySlice := []string{"InbuiltAPIKey"}
+	apiKeys := make(map[string]struct{})
+	apiKeys["InbuiltAPIKey"] = struct{}{}
+
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	Environ = &Env{DB: &errorMockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+
+	sendRequestNonceError(t, "POST", "/1.0/nonce", new(bytes.Buffer), "InbuiltAPIKey")
+}
+
+func sendRequestNonceError(t *testing.T, method, url string, data io.Reader, apiKey string) (NonceResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	r.Header.Add("api-key", apiKey)
+	SigningRouter(Environ).ServeHTTP(w, r)
+
+	if w.Code == http.StatusOK {
+		t.Errorf("Expected error HTTP status, got: %d", w.Code)
+	}
+
+	// Check the JSON response
+	result := NonceResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the nonce response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected an error, got success response")
+	}
+
+	return result, err
+}

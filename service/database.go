@@ -52,6 +52,9 @@ type Datastore interface {
 	CreateSigningLog(signLog SigningLog) error
 	ListSigningLog(fromID int) ([]SigningLog, error)
 	DeleteSigningLog(signingLog SigningLog) (string, error)
+
+	CreateDeviceNonceTable() error
+	CreateDeviceNonce() (DeviceNonce, error)
 }
 
 // DB local database interface with our custom methods.

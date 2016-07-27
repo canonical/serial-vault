@@ -33,6 +33,15 @@ type VersionResponse struct {
 	Version string `json:"version"`
 }
 
+// NonceResponse is the JSON response from the API Version method
+type NonceResponse struct {
+	Success      bool   `json:"success"`
+	ErrorCode    string `json:"error_code"`
+	ErrorSubcode string `json:"error_subcode"`
+	ErrorMessage string `json:"message"`
+	Nonce        string `json:"nonce"`
+}
+
 // SignResponse is the JSON response from the API Sign method
 type SignResponse struct {
 	Success      bool   `json:"success"`
@@ -181,4 +190,27 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return successful JSON response with the signed text
 	formatSignResponse(true, "", "", "", signedAssertion, w)
+}
+
+// NonceHandler is the API method to generate a nonce
+func NonceHandler(w http.ResponseWriter, r *http.Request) {
+	// Check that we have an authorised API key header
+	err := checkAPIKey(r.Header.Get("api-key"))
+	if err != nil {
+		logMessage("NONCE", "invalid-api-key", "Invalid API key used")
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-api-key", "", "Invalid API key used", nil, w)
+		return
+	}
+
+	nonce, err := Environ.DB.CreateDeviceNonce()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logMessage("NONCE", "generate-nonce", err.Error())
+		formatNonceResponse(false, "error-generate-nonce", "", err.Error(), DeviceNonce{}, w)
+		return
+	}
+
+	// Return successful JSON response with the nonce
+	formatNonceResponse(true, "", "", "", nonce, w)
 }

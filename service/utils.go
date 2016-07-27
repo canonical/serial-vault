@@ -220,6 +220,17 @@ func formatSigningLogResponse(success bool, errorCode, errorSubcode, message str
 	return nil
 }
 
+func formatNonceResponse(success bool, errorCode, errorSubcode, message string, nonce DeviceNonce, w http.ResponseWriter) error {
+	response := NonceResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Nonce: nonce.Nonce}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the nonce response.")
+		return err
+	}
+	return nil
+}
+
 // padRight truncates a string to a specific length, padding with a named
 // character for shorter strings.
 func padRight(str, pad string, length int) string {

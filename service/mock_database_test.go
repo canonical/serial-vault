@@ -219,6 +219,14 @@ func (mdb *mockDB) ListSigningLog(fromID int) ([]SigningLog, error) {
 	return signingLog, nil
 }
 
+func (mdb *mockDB) CreateDeviceNonceTable() error {
+	return nil
+}
+
+func (mdb *mockDB) CreateDeviceNonce() (DeviceNonce, error) {
+	return DeviceNonce{Nonce: "1234567890", TimeStamp: 1234567890}, nil
+}
+
 // Unsuccessful mocks for the database
 type errorMockDB struct{}
 
@@ -313,4 +321,12 @@ func (mdb *errorMockDB) DeleteSigningLog(signingLog SigningLog) (string, error) 
 func (mdb *errorMockDB) ListSigningLog(fromID int) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
+}
+
+func (mdb *errorMockDB) CreateDeviceNonceTable() error {
+	return nil
+}
+
+func (mdb *errorMockDB) CreateDeviceNonce() (DeviceNonce, error) {
+	return DeviceNonce{}, errors.New("MOCK error generating the nonce")
 }
