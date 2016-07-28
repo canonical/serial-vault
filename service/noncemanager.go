@@ -21,6 +21,8 @@ package service
 
 import (
 	"crypto/sha1"
+	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -38,8 +40,14 @@ const createDeviceNonceTableSQL = `
 	)
 `
 
+// Indexes
+const createDeviceNonceNonceIndexSQL = "CREATE INDEX IF NOT EXISTS nonce_idx ON devicenonce (nonce)"
+const createDeviceNonceTimeStampIndexSQL = "CREATE INDEX IF NOT EXISTS timestamp_idx ON devicenonce (timestamp)"
+
 // Queries
 const createDeviceNonceSQL = "INSERT INTO devicenonce (nonce, timestamp) VALUES ($1, $2)"
+const deleteExpiredDeviceNonceSQL = "DELETE FROM devicenonce where timestamp<$1"
+const findDeviceNonceSQL = "SELECT * FROM devicenonce where nonce=$1"
 
 // DeviceNonce holds the details of the nonce, combining a timestamp and random text
 type DeviceNonce struct {
@@ -51,10 +59,18 @@ type DeviceNonce struct {
 
 // CreateDeviceNonceTable creates the database table for nonces with its indexes.
 func (db *DB) CreateDeviceNonceTable() error {
+	// Create the table
 	_, err := db.Exec(createDeviceNonceTableSQL)
 	if err != nil {
 		return err
 	}
+
+	// Create the indexes
+	_, err = db.Exec(createDeviceNonceNonceIndexSQL)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(createDeviceNonceTimeStampIndexSQL)
 	return err
 }
 
@@ -71,6 +87,31 @@ func (db *DB) CreateDeviceNonce() (DeviceNonce, error) {
 	}
 
 	return nonce, nil
+}
+
+// ValidateDeviceNonce checks that a device nonce is valid and has not expired
+func (db *DB) ValidateDeviceNonce(nonce string) error {
+	// Remove expired nonces from the table
+	timestamp := time.Now().Unix() - nonceMaximumAge
+	_, err := db.Exec(deleteExpiredDeviceNonceSQL, timestamp)
+	if err != nil {
+		log.Printf("Error deleting expired nonces: %v\n", err)
+		return errors.New("Error communicating with the database")
+	}
+
+	// Find the nonce in the database
+	var deviceNonce DeviceNonce
+	err = db.QueryRow(findDeviceNonceSQL, nonce).Scan(&deviceNonce.ID, &deviceNonce.Nonce, &deviceNonce.TimeStamp, &deviceNonce.Created)
+	switch {
+	case err == sql.ErrNoRows:
+		// Invalid or expired nonce
+		return err
+	case err != nil:
+		log.Printf("Error checking nonce: %v\n", err)
+		return errors.New("Error communicating with the database")
+	}
+
+	return nil
 }
 
 func generateNonce() DeviceNonce {

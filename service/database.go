@@ -55,6 +55,7 @@ type Datastore interface {
 
 	CreateDeviceNonceTable() error
 	CreateDeviceNonce() (DeviceNonce, error)
+	ValidateDeviceNonce(nonce string) error
 }
 
 // DB local database interface with our custom methods.

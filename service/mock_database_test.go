@@ -227,6 +227,10 @@ func (mdb *mockDB) CreateDeviceNonce() (DeviceNonce, error) {
 	return DeviceNonce{Nonce: "1234567890", TimeStamp: 1234567890}, nil
 }
 
+func (mdb *mockDB) ValidateDeviceNonce(nonce string) error {
+	return nil
+}
+
 // Unsuccessful mocks for the database
 type errorMockDB struct{}
 
@@ -329,4 +333,8 @@ func (mdb *errorMockDB) CreateDeviceNonceTable() error {
 
 func (mdb *errorMockDB) CreateDeviceNonce() (DeviceNonce, error) {
 	return DeviceNonce{}, errors.New("MOCK error generating the nonce")
+}
+
+func (mdb *errorMockDB) ValidateDeviceNonce(nonce string) error {
+	return errors.New("MOCK error validating a nonce")
 }
