@@ -1,7 +1,8 @@
-# Identity Vault version
-version: "0.3.0"
-title: "Identity Vault"
+title: "Serial Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
+
+# Path to the assets (${docRoot}/static)
+docRoot: "."
 
 # Backend database details
 driver: "postgres"
@@ -19,3 +20,7 @@ keystorePath: "./keystore"
 #keystore: "tpm2.0"
 #keystorePath: "./keystore"
 #keystoreSecret: "this needs to be 32 bytes long!!"
+
+# Valid API keys
+apiKeys:
+    - U2VyaWFsIFZhdWx0Cg
