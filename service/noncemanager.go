@@ -21,7 +21,6 @@ package service
 
 import (
 	"crypto/sha1"
-	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -47,7 +46,7 @@ const createDeviceNonceTimeStampIndexSQL = "CREATE INDEX IF NOT EXISTS timestamp
 // Queries
 const createDeviceNonceSQL = "INSERT INTO devicenonce (nonce, timestamp) VALUES ($1, $2)"
 const deleteExpiredDeviceNonceSQL = "DELETE FROM devicenonce where timestamp<$1"
-const findDeviceNonceSQL = "SELECT * FROM devicenonce where nonce=$1"
+const deleteDeviceNonceSQL = "DELETE FROM devicenonce where nonce=$1"
 
 // DeviceNonce holds the details of the nonce, combining a timestamp and random text
 type DeviceNonce struct {
@@ -99,16 +98,22 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 		return errors.New("Error communicating with the database")
 	}
 
-	// Find the nonce in the database
-	var deviceNonce DeviceNonce
-	err = db.QueryRow(findDeviceNonceSQL, nonce).Scan(&deviceNonce.ID, &deviceNonce.Nonce, &deviceNonce.TimeStamp, &deviceNonce.Created)
-	switch {
-	case err == sql.ErrNoRows:
-		// Invalid or expired nonce
-		return err
-	case err != nil:
+	// Find the nonce in the database to check that it is valid (we already deleted expired nonces)
+	// Here we attempt to delete the nonce and check the number of rows affected. This makes sure that
+	// we do not allow a nonce to be re-used.
+	result, err := db.Exec(deleteDeviceNonceSQL, nonce)
+	if err != nil {
 		log.Printf("Error checking nonce: %v\n", err)
 		return errors.New("Error communicating with the database")
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error checking nonce delete row count: %v\n", err)
+		return errors.New("Error communicating with the database")
+	}
+	if rows == 0 {
+		log.Println("Error invalid or expired nonce")
+		return errors.New("The nonce is invalid or expired")
 	}
 
 	return nil

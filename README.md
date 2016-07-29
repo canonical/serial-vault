@@ -1,5 +1,5 @@
 [![Build Status][travis-image]][travis-url]
-# Identity Vault
+# Serial Vault
 
 A Go web service that digitally signs device assertion details.
 
@@ -96,7 +96,7 @@ npm test
 ## API Methods
 
 ### /1.0/version (GET)
-> Return the version of the identity vault service.
+> Return the version of the serial vault service.
 
 #### Output message
 ```json
@@ -104,41 +104,23 @@ npm test
   "version":"0.1.0",
 }
 ```
-- version: the version of the identity vault service (string)
+- version: the version of the serial vault service (string)
 
 
-### /1.0/models (GET)
-> Return the available models from the identity vault.
+### /1.0/nonce (POST)
+> Returns a nonce that is needed for the signing request.
 
 #### Output message
 ```json
 {
+  "nonce": "abc123456",
   "success": true,
-  "message": "",
-  "models": [
-  {
-    "brand-id": "System",
-    "model": "DroidBox 2400",
-    "type": "device",
-    "revision": 2
-  },
-  {
-    "brand-id": "System",
-    "model": "DroidBox 1200",
-    "type": "device",
-    "revision": 1
-  },
-  {
-    "brand-id": "System",
-    "model": "Drone 1000",
-    "type": "device",
-    "revision": 4
-  }]
+  "message": ""
 }
 ```
 - success: whether the request was successful (bool)
 - message: error message from the request (string)
-- models: the list of available models (array)
+- nonce: unique string that is needed for signing requests (string)
 
 
 ### /1.0/sign (POST)
@@ -157,6 +139,7 @@ revision: 12
 serial: A1228M\L
 timestamp: 2016-01-02T15:04:05Z
 device-key: openpgp WkUDQbqFCKZBPvKbwR...
+nonce: abc123456
 
 openpgp mQINBFaiIK4BEADHpUm...
 ```
@@ -165,6 +148,7 @@ openpgp mQINBFaiIK4BEADHpUm...
 - serial: serial number of the device (string)
 - device-key: the type and public key of the device (string)
 - revision: the revision of the device (integer)
+- nonce: the unique string that is needed to use the signing service (string)
 - signature: the signed data
 
 #### Output message

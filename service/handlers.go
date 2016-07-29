@@ -36,8 +36,6 @@ type VersionResponse struct {
 // NonceResponse is the JSON response from the API Version method
 type NonceResponse struct {
 	Success      bool   `json:"success"`
-	ErrorCode    string `json:"error_code"`
-	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
 	Nonce        string `json:"nonce"`
 }
@@ -127,6 +125,16 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Verify that the nonce is valid and has not expired
+	// TODO: This will be a part of the serial-request
+	// err = Environ.DB.ValidateDeviceNonce("nonce-goes-here")
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	logMessage("SIGN", "invalid-nonce", "Nonce is invalid or expired")
+	// 	formatSignResponse(false, "error-decode-assertion", "error-invalid-nonce", "Nonce is invalid or expired", nil, w)
+	// 	return
+	// }
+
 	// Validate the model by checking that it exists on the database
 	model, err := Environ.DB.FindModel(assertion.Header("brand-id"), assertion.Header("model"), assertion.Revision())
 	if err != nil {
@@ -169,6 +177,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Convert the serial-request into a serial assertion
+
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 
@@ -207,10 +217,10 @@ func NonceHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("NONCE", "generate-nonce", err.Error())
-		formatNonceResponse(false, "error-generate-nonce", "", err.Error(), DeviceNonce{}, w)
+		formatNonceResponse(false, err.Error(), DeviceNonce{}, w)
 		return
 	}
 
 	// Return successful JSON response with the nonce
-	formatNonceResponse(true, "", "", "", nonce, w)
+	formatNonceResponse(true, "", nonce, w)
 }

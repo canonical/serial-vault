@@ -39,7 +39,7 @@ var (
 )
 
 // Set the application version from a constant
-const version = "0.7.0"
+const version = "0.8.0"
 
 // Set the nonce expiry time
 const nonceMaximumAge = 600
@@ -213,8 +213,8 @@ func formatSigningLogResponse(success bool, errorCode, errorSubcode, message str
 	return nil
 }
 
-func formatNonceResponse(success bool, errorCode, errorSubcode, message string, nonce DeviceNonce, w http.ResponseWriter) error {
-	response := NonceResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Nonce: nonce.Nonce}
+func formatNonceResponse(success bool, message string, nonce DeviceNonce, w http.ResponseWriter) error {
+	response := NonceResponse{Success: success, ErrorMessage: message, Nonce: nonce.Nonce}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
