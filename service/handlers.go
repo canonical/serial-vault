@@ -125,15 +125,14 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Verify that the nonce is valid and has not expired
-	// TODO: This will be a part of the serial-request
-	// err = Environ.DB.ValidateDeviceNonce("nonce-goes-here")
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	logMessage("SIGN", "invalid-nonce", "Nonce is invalid or expired")
-	// 	formatSignResponse(false, "error-decode-assertion", "error-invalid-nonce", "Nonce is invalid or expired", nil, w)
-	// 	return
-	// }
+	// Verify that the nonce is valid and has not expired
+	err = Environ.DB.ValidateDeviceNonce(assertion.HeaderString("request-id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		logMessage("SIGN", "invalid-nonce", "Nonce is invalid or expired")
+		formatSignResponse(false, "error-decode-assertion", "error-invalid-nonce", "Nonce is invalid or expired", nil, w)
+		return
+	}
 
 	// Validate the model by checking that it exists on the database
 	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.Revision())
