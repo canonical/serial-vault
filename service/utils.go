@@ -135,7 +135,7 @@ func ReadConfig(config *ConfigSettings) error {
 func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
 	if assertion == nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Signature: ""}
+		response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
 
 		// Encode the response as JSON
 		if err := json.NewEncoder(w).Encode(response); err != nil {

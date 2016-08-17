@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/snapcore/snapd/asserts"
 )
@@ -46,7 +47,6 @@ type SignResponse struct {
 	ErrorCode    string `json:"error_code"`
 	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
-	Signature    string `json:"identity"`
 }
 
 // KeypairsResponse is the JSON response from the API Keypairs method
@@ -118,9 +118,9 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that we have a serial assertion (the details will have been validated by Decode call)
-	if assertion.Type() != asserts.SerialType {
+	if assertion.Type() != asserts.SerialRequestType {
 		w.WriteHeader(http.StatusBadRequest)
-		logMessage("SIGN", "invalid-assertion", "The assertion type must be 'serial'")
+		logMessage("SIGN", "invalid-assertion", "The assertion type must be 'serial-request'")
 		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'serial'", nil, w)
 		return
 	}
@@ -136,7 +136,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// Validate the model by checking that it exists on the database
-	model, err := Environ.DB.FindModel(assertion.Header("brand-id"), assertion.Header("model"), assertion.Revision())
+	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.Revision())
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand, model and revision")
@@ -152,17 +152,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the fingerprint of the assertion device-key
-	publicKey, err := decodePublicKey([]byte(assertion.Header("device-key")))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		logMessage("SIGN", "invalid-assertion", "Invalid device-key")
-		formatSignResponse(false, "error-decode-assertion", "error-device-key", "The device-key is invalid", nil, w)
-		return
-	}
-
 	// Check that we have not already signed this device
-	signingLog := SigningLog{Make: assertion.Header("brand-id"), Model: assertion.Header("model"), SerialNumber: assertion.Header("serial"), Fingerprint: publicKey.Fingerprint()}
+	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), SerialNumber: assertion.HeaderString("serial"), Fingerprint: assertion.SignKeyID()}
 	duplicateExists, err := Environ.DB.CheckForDuplicate(signingLog)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -177,10 +168,13 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Convert the serial-request into a serial assertion
+	// Convert the serial-request headers into a serial assertion
+	headers := assertion.Headers()
+	headers["authority-id"] = model.AuthorityID
+	headers["timestamp"] = time.Now().Format(time.RFC3339)
 
 	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, headers, assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

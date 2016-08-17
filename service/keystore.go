@@ -131,7 +131,7 @@ func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey strin
 }
 
 // SignAssertion signs an assertion using the signing-key from the keypair store
-func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, headers map[string]string, body []byte, authorityID string, keyID string, sealedSigningKey string) (asserts.Assertion, error) {
+func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, headers map[string]interface{}, body []byte, authorityID string, keyID string, sealedSigningKey string) (asserts.Assertion, error) {
 
 	switch kdb.KeyStoreType.Name {
 
