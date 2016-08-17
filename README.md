@@ -122,6 +122,7 @@ npm test
 - message: error message from the request (string)
 - nonce: unique string that is needed for signing requests (string)
 
+The nonce can only be used once and must be used before it expires (typically 600 seconds).
 
 ### /1.0/sign (POST)
 > Clear-sign the device identity details.
@@ -129,27 +130,33 @@ npm test
 Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
-The message must be the serial assertion format and is best generated using the snapd libraries.
+The message must be the serial-request assertion format and is best generated using the snapd libraries.
 ```
-type: serial
-authority-id: System
-brand-id: System Inc.
+type: serial-request
+brand-id: System
 model: Router 3400
+device-key:
+    WkUDQbqFCKZBPvKbwR...
+request-id: abc123456
+body-length: 10
+sign-key-sha3-384: UytTqTvREVhx...
 revision: 12
-serial: A1228M\L
-timestamp: 2016-01-02T15:04:05Z
-device-key: openpgp WkUDQbqFCKZBPvKbwR...
-nonce: abc123456
+serial: A1228ML
 
-openpgp mQINBFaiIK4BEADHpUm...
+HW-DETAILS
+
+AcLBUgQAAQoABgUCV7R2C...
 ```
 - brand-id: the Account ID of the manufacturer (string)
 - model: the name of the device (string)
-- serial: serial number of the device (string)
-- device-key: the type and public key of the device (string)
-- revision: the revision of the device (integer)
-- nonce: the unique string that is needed to use the signing service (string)
+- device-key: the encoded type and public key of the device (string)
+- request-id: the nonce returned from the /1.0/nonce method (string)
 - signature: the signed data
+- serial: serial number of the device (string)
+- revision: the revision of the device (integer)
+
+Though the 'serial' and 'revision' headers are not strictly a part of a serial request, they are needed 
+to return a signed serial assertion.
 
 #### Output message
 The method returns a signed serial assertion using the key from the vault.
