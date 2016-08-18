@@ -23,11 +23,10 @@ footer div {
 	width: auto;
 }
 
-// The public key table has some long content
-table.PublicKey {
+table {
 	table-layout: fixed;
 }
 
-table.PublicKey div.wide {
+table td {
 	word-wrap: break-word;
 }

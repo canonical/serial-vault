@@ -34,7 +34,7 @@ import (
 )
 
 func generatePrivateKey() (asserts.PrivateKey, error) {
-	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
+	signingKey, err := ioutil.ReadFile("../keystore/TestDeviceKey.asc")
 	if err != nil {
 		return nil, err
 	}
@@ -135,6 +135,7 @@ func TestSignHandler(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
+	t.Log(assertions)
 
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
