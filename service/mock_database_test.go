@@ -49,23 +49,23 @@ func (mdb *mockDB) CreateSettingsTable() error {
 func (mdb *mockDB) ListModels() ([]Model, error) {
 
 	var models []Model
-	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "Alder", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "Ash", KeypairID: 1, Revision: 7, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "Basswood", KeypairID: 1, Revision: 23, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "Korina", KeypairID: 1, Revision: 42, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "Mahogany", KeypairID: 1, Revision: 10, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "Maple", KeypairID: 1, Revision: 12, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "Alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "Ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "Basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "Korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "Mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "Maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
 	return models, nil
 }
 
 // FindModel mocks the database response for finding a model
-func (mdb *mockDB) FindModel(brandID, modelName string, revision int) (Model, error) {
-	model := Model{ID: 1, BrandID: "System", Name: "Alder", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+func (mdb *mockDB) FindModel(brandID, modelName string) (Model, error) {
+	model := Model{ID: 1, BrandID: "System", Name: "Alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	if modelName == "Inactive" {
-		model = Model{ID: 1, BrandID: "System", Name: "Inactive", KeypairID: 1, Revision: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
+		model = Model{ID: 1, BrandID: "System", Name: "Inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}
-	if model.BrandID != brandID || model.Name != modelName || model.Revision != revision {
-		return model, errors.New("Cannot find a model for that brand, model and revision")
+	if model.BrandID != brandID || model.Name != modelName {
+		return model, errors.New("Cannot find a model for that brand and model")
 	}
 	return model, nil
 }
@@ -130,7 +130,7 @@ func (mdb *mockDB) DeleteModel(model Model) (string, error) {
 
 // CreateModel mocks creating a new model.
 func (mdb *mockDB) CreateModel(model Model) (Model, string, error) {
-	model = Model{ID: 7, BrandID: "System", Name: "聖誕快樂", KeypairID: 1, Revision: 2, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
+	model = Model{ID: 7, BrandID: "System", Name: "聖誕快樂", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
 
 	return model, "", nil
 }
@@ -255,7 +255,7 @@ func (mdb *errorMockDB) ListModels() ([]Model, error) {
 }
 
 // FindModel mocks the database response for finding a model, returning an invalid signing-key
-func (mdb *errorMockDB) FindModel(brandID, modelName string, revision int) (Model, error) {
+func (mdb *errorMockDB) FindModel(brandID, modelName string) (Model, error) {
 	return Model{}, errors.New("Error finding the model.")
 }
 

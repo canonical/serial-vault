@@ -55,8 +55,8 @@ func TestReadConfigInvalidFile(t *testing.T) {
 
 func TestFormatModelsResponse(t *testing.T) {
 	var models []ModelSerialize
-	models = append(models, ModelSerialize{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂", Revision: 1})
-	models = append(models, ModelSerialize{ID: 2, BrandID: "Vendor", Name: "Ash", Revision: 7})
+	models = append(models, ModelSerialize{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂"})
+	models = append(models, ModelSerialize{ID: 2, BrandID: "Vendor", Name: "Ash"})
 
 	w := httptest.NewRecorder()
 	err := formatModelsResponse(true, "", "", "", models, w)

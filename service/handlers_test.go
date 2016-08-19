@@ -23,9 +23,10 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -44,7 +45,7 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func generateSerialRequestAssertion(model, revision, serial string) (string, error) {
+func generateSerialRequestAssertion(model, serial string) (string, error) {
 	privateKey, _ := generatePrivateKey()
 	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
 
@@ -53,20 +54,17 @@ func generateSerialRequestAssertion(model, revision, serial string) (string, err
 		"device-key": string(encodedPubKey),
 		"request-id": "REQID",
 		"model":      model,
-		"serial":     serial, // additional header: needed for the serial assertion
-	}
-	if revision != "" {
-		// additional header: needed for the serial assertion
-		headers["revision"] = revision
 	}
 
-	sreq, err := asserts.SignWithoutAuthority(asserts.SerialRequestType, headers, []byte("HW-DETAILS"), privateKey)
+	body := fmt.Sprintf("serial: %s", serial)
+
+	sreq, err := asserts.SignWithoutAuthority(asserts.SerialRequestType, headers, []byte(body), privateKey)
 	if err != nil {
 		return "", err
 	}
 
-	body := asserts.Encode(sreq)
-	return string(body), nil
+	assertSR := asserts.Encode(sreq)
+	return string(assertSR), nil
 }
 
 func importKeypairForTests() error {
@@ -107,7 +105,7 @@ func TestSignHandlerInactive(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Inactive", "1", "A123456L")
+	assertions, err := generateSerialRequestAssertion("Inactive", "A123456L")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -131,11 +129,10 @@ func TestSignHandler(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "1", "A123456L")
+	assertions, err := generateSerialRequestAssertion("Alder", "A123456L")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
-	t.Log(assertions)
 
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
@@ -148,19 +145,18 @@ func TestSignHandler(t *testing.T) {
 		t.Errorf("Expected success HTTP status, got: %d", w.Code)
 	}
 	if w.Header().Get("Content-Type") != asserts.MediaType {
-		log.Println(w.Body.String())
+		t.Log(w.Body.String())
 		t.Errorf("Expected content-type %s, got: %s", asserts.MediaType, w.Header().Get("Content-Type"))
 	}
 }
 
-func TestSignHandlerBadAssertion(t *testing.T) {
+func TestSignHandlerBadAssertionNoModel(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	const assertions = `type: serial-request
-revision: this should be numeric
 brand-id: System
 device-key:
     AcbBTQRWhcGAARAAx6VJoV9ZKASKa1pFA0G6hQimQT7ym8EZFN7+SzZhWSWLIwFd06oRQVKetQB6
@@ -173,9 +169,7 @@ device-key:
     v4uu1xFJYk6N14B/ofMoUCzbPtgkNpmV0NmgFeogx+I5yRuF0EF5U+LfMuAE+ROoYHHwiBHeSttr
     YewdunntDyeRUc3CTwsvfq2zARObr5He5z4ldSASuzxbzEEXVd6UERPN+zeJGyctKIYEqvpSNNuu
     4Fs8Ctp6yar9KucAEQEAAQ==
-model: Alder
 request-id: REQID
-serial: A123456L
 body-length: 10
 sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
 
@@ -192,22 +186,6 @@ cwmwjJS6vKEYIIlMwVaHsPd9ZBvyYBwTzfGKtoazjm44mByBG0AEUZrZ7MWnf7lWwU+Ze3g3GNQF
 9EEnrN8E9yYxFgCGaYA7kBFhkhJElafMQNr/EYU3bwLKHa++1iKmNKcGePRZyy9kyUpmgtRaQt/6
 ic2Xx1ds+umMC5AHW9wZAWNPDI/T
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
-
-}
-
-func TestSignHandlerBadAssertionNoRevision(t *testing.T) {
-	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
-	Environ.KeypairDB, _ = GetKeyStore(config)
-
-	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "", "A123456L")
-	if err != nil {
-		t.Errorf("Error creating serial-request: %v", err)
-	}
-
 	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
 }
@@ -248,12 +226,37 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 	}
 }
 
-func TestSignHandlerNonExistentModel(t *testing.T) {
-	// Mock the database, not finding the model
+func TestSignHandlerInvalidNonce(t *testing.T) {
+	// Mock the database, to generate an error for the nonce
 	Environ = &Env{DB: &errorMockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Cannot Find This", "1", "A123456L")
+	assertions, err := generateSerialRequestAssertion("Alder", "A123456L")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+}
+
+func TestSignHandlerEmptySerial(t *testing.T) {
+	Environ = &Env{DB: &mockDB{}}
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("Alder", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+}
+
+func TestSignHandlerNonExistentModel(t *testing.T) {
+	// Mock the database, not finding the model
+	Environ = &Env{DB: &mockDB{}}
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("Cannot Find This", "A123456L")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -268,7 +271,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "1", "Aduplicate")
+	assertions, err := generateSerialRequestAssertion("Alder", "Aduplicate")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -283,7 +286,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "1", "AnError")
+	assertions, err := generateSerialRequestAssertion("Alder", "AnError")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -298,7 +301,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "1", "AsigninglogError")
+	assertions, err := generateSerialRequestAssertion("Alder", "AsigninglogError")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -313,7 +316,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "1", "A1234L")
+	assertions, err := generateSerialRequestAssertion("Alder", "A1234L")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -388,6 +391,7 @@ func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiK
 	}
 	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
 		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
+		return SignResponse{}, errors.New("Expected an error, got success")
 	}
 
 	// Check the JSON response

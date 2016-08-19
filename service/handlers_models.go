@@ -36,7 +36,6 @@ type ModelSerialize struct {
 	Name        string `json:"model"`
 	Type        string `json:"type"`
 	KeypairID   int    `json:"keypair-id"`
-	Revision    int    `json:"revision"`
 	AuthorityID string `json:"authority-id"`
 	KeyID       string `json:"key-id"`
 	KeyActive   bool   `json:"key-active"`
@@ -61,7 +60,7 @@ type ModelResponse struct {
 }
 
 func modelForDisplay(model Model) ModelSerialize {
-	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive}
+	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive}
 }
 
 // ModelsHandler is the API method to list the models
@@ -159,7 +158,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, Revision: mdl.Revision, KeypairID: mdl.KeypairID}
+	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID}
 	errorSubcode, err := Environ.DB.UpdateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -230,7 +229,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new model, linked to the existing signing-key
-	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, Revision: mdlWithKey.Revision}
+	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID}
 	errorSubcode := ""
 	model, errorSubcode, err = Environ.DB.CreateModel(model)
 	if err != nil {

@@ -30,7 +30,7 @@ import (
 // Datastore interface for the database logic
 type Datastore interface {
 	ListModels() ([]Model, error)
-	FindModel(brandID, modelName string, revision int) (Model, error)
+	FindModel(brandID, modelName string) (Model, error)
 	GetModel(modelID int) (Model, error)
 	UpdateModel(model Model) (string, error)
 	DeleteModel(model Model) (string, error)

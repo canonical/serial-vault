@@ -32,27 +32,26 @@ const createModelTableSQL = `
 		brand_id    varchar(200) not null,
 		name        varchar(200) not null,
 		keypair_id  int references keypair not null,
-		revision    int
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, k.active
+	select m.id, brand_id, name, keypair_id, authority_id, key_id, k.active
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, k.active, sealed_key
+	select m.id, brand_id, name, keypair_id, authority_id, key_id, k.active, sealed_key
 	from model m
 	inner join keypair k on k.id = m.keypair_id
-	where brand_id=$1 and name=$2 and revision=$3`
+	where brand_id=$1 and name=$2`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, revision, authority_id, key_id, k.active
+	select m.id, brand_id, name, keypair_id, authority_id, key_id, k.active
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	where m.id=$1`
-const updateModelSQL = "update model set brand_id=$2, name=$3, revision=$4, keypair_id=$5 where id=$1"
-const createModelSQL = "insert into model (brand_id,name,revision,keypair_id) values ($1,$2,$3,$4) RETURNING id"
+const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4 where id=$1"
+const createModelSQL = "insert into model (brand_id,name,keypair_id) values ($1,$2,$3) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 
 // Model holds the model details in the local database
@@ -61,7 +60,6 @@ type Model struct {
 	BrandID     string
 	Name        string
 	KeypairID   int
-	Revision    int
 	AuthorityID string // from the keypair
 	KeyID       string // from the keypair
 	KeyActive   bool   // from the keypair
@@ -87,7 +85,7 @@ func (db *DB) ListModels() ([]Model, error) {
 
 	for rows.Next() {
 		model := Model{}
-		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.KeyActive)
+		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive)
 		if err != nil {
 			return nil, err
 		}
@@ -98,11 +96,11 @@ func (db *DB) ListModels() ([]Model, error) {
 }
 
 // FindModel retrieves the model from the database.
-func (db *DB) FindModel(brandID, modelName string, revision int) (Model, error) {
+func (db *DB) FindModel(brandID, modelName string) (Model, error) {
 	model := Model{}
 
-	err := db.QueryRow(findModelSQL, brandID, modelName, revision).Scan(
-		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey)
+	err := db.QueryRow(findModelSQL, brandID, modelName).Scan(
+		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey)
 	switch {
 	case err == sql.ErrNoRows:
 		return model, err
@@ -118,7 +116,7 @@ func (db *DB) FindModel(brandID, modelName string, revision int) (Model, error) 
 func (db *DB) GetModel(modelID int) (Model, error) {
 	model := Model{}
 
-	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.Revision, &model.AuthorityID, &model.KeyID, &model.KeyActive)
+	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return model, err
@@ -131,14 +129,14 @@ func (db *DB) GetModel(modelID int) (Model, error) {
 func (db *DB) UpdateModel(model Model) (string, error) {
 
 	// Validate the data
-	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.Revision <= 0 {
-		return "error-validate-model", errors.New("The Brand and Model must be supplied and Revision must be greater than zero")
+	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" {
+		return "error-validate-model", errors.New("The Brand and Model must be supplied")
 	}
 	if model.KeypairID <= 0 {
 		return "error-validate-signingkey", errors.New("The Signing Key must be selected")
 	}
 
-	_, err := db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.Revision, model.KeypairID)
+	_, err := db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID)
 	if err != nil {
 		log.Printf("Error updating the database model: %v\n", err)
 		return "", err
@@ -151,19 +149,19 @@ func (db *DB) UpdateModel(model Model) (string, error) {
 func (db *DB) CreateModel(model Model) (Model, string, error) {
 
 	// Validate the data
-	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.Revision <= 0 || model.KeypairID <= 0 {
-		return model, "error-validate-new-model", errors.New("The Brand, Model and Signing-Key must be supplied and Revision must be greater than zero")
+	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.KeypairID <= 0 {
+		return model, "error-validate-new-model", errors.New("The Brand, Model and Signing-Key must be supplied")
 	}
 
 	// Check that the model does not exist
-	_, err := db.FindModel(model.BrandID, model.Name, model.Revision)
+	_, err := db.FindModel(model.BrandID, model.Name)
 	if err == nil {
 		return model, "error-model-exists", errors.New("A device with the same Brand, Model and Revision already exists")
 	}
 
 	// Create the model in the database
 	var createdModelID int
-	err = db.QueryRow(createModelSQL, model.BrandID, model.Name, model.Revision, model.KeypairID).Scan(&createdModelID)
+	err = db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID).Scan(&createdModelID)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)
 		return model, "", err

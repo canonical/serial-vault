@@ -110,13 +110,12 @@ func TestModelUpdateHandler(t *testing.T) {
 	// Update a model
 	data := `
 	{
-	  "id": 1,
-	  "brand-id": "System",
-    "model":"聖誕快樂",
-    "serial":"A1234-L",
-		"revision": 2,
-    "device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
-  }`
+		"id": 1,
+		"brand-id": "System",
+		"model":"聖誕快樂",
+		"serial":"A1234-L",
+		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+	}`
 
 	result, _ := sendRequest(t, "PUT", "/1.0/models/1", bytes.NewBufferString(data))
 
@@ -198,7 +197,7 @@ func TestModelCreateHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
-	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", Revision: 2, KeypairID: 1}
+	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
 	result, _ := sendRequest(t, "POST", "/1.0/models", bytes.NewReader(data))
@@ -216,7 +215,7 @@ func TestModelCreateHandlerWithError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
-	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", Revision: 2, KeypairID: 1}
+	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
 	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewReader(data))
@@ -228,7 +227,7 @@ func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
-	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", Revision: 2, KeypairID: 1}
+	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
 	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewReader(data))

@@ -26,6 +26,8 @@ import (
 	"net/http"
 	"time"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -117,7 +119,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that we have a serial assertion (the details will have been validated by Decode call)
+	// Check that we have a serial-request assertion (the details will have been validated by Decode call)
 	if assertion.Type() != asserts.SerialRequestType {
 		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-assertion", "The assertion type must be 'serial-request'")
@@ -135,7 +137,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate the model by checking that it exists on the database
-	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.Revision())
+	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand, model and revision")
@@ -151,8 +153,17 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that we have not already signed this device
-	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), SerialNumber: assertion.HeaderString("serial"), Fingerprint: assertion.SignKeyID()}
+	// Convert the serial-request headers into a serial assertion
+	serialAssertion, err := serialRequestToSerial(assertion)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		logMessage("SIGN", "convert-assertion", err.Error())
+		formatSignResponse(false, "error-signing-assertions", "convert-assertion", "Error converting the serial-request to a serial assertion (hint: check the body)", nil, w)
+		return
+	}
+
+	// Check that we have not already signed this device (the serial number came from the assertion body)
+	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), SerialNumber: serialAssertion.HeaderString("serial"), Fingerprint: assertion.SignKeyID()}
 	duplicateExists, err := Environ.DB.CheckForDuplicate(signingLog)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -167,14 +178,8 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert the serial-request headers into a serial assertion
-	headers := assertion.Headers()
-	headers["authority-id"] = model.AuthorityID
-	headers["timestamp"] = time.Now().Format(time.RFC3339)
-
 	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, headers, assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
-
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("SIGN", "signing-assertion", err.Error())
@@ -193,6 +198,27 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return successful JSON response with the signed text
 	formatSignResponse(true, "", "", "", signedAssertion, w)
+}
+
+// serialRequestToSerial converts a serial-request to a serial assertion
+func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, error) {
+	headers := assertion.Headers()
+	headers["type"] = asserts.SerialType.Name
+	headers["authority-id"] = headers["brand-id"]
+	headers["timestamp"] = time.Now().Format(time.RFC3339)
+	delete(headers, "request-id")
+
+	// Decode the body which must be YAML, ignore errors
+	body := make(map[string]interface{})
+	yaml.Unmarshal(assertion.Body(), &body)
+
+	// Get the extra headers from the body
+	headers["serial"] = body["serial"]
+
+	// Create a new serial assertion
+	content, signature := assertion.Signature()
+	return asserts.Assemble(headers, assertion.Body(), content, signature)
+
 }
 
 // NonceHandler is the API method to generate a nonce
