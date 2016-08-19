@@ -165,9 +165,9 @@ describe('model list', function() {
    // Check the models table
    var sectionModelRows = section.children[3].children[0].children[1].children;
    expect(sectionModelRows.length).toBe(3);
-   expect(sectionModelRows[1].children.length).toBe(6);
+   expect(sectionModelRows[1].children.length).toBe(5);
    expect(sectionModelRows[1].children[2].textContent).toBe(models[1].model);
-   expect(sectionModelRows[1].children[4].textContent).toBe(models[1]['authority-id'].concat('/', models[1]['key-id']));
+   expect(sectionModelRows[1].children[3].textContent).toBe(models[1]['authority-id'].concat('/', models[1]['key-id']));
 
    // Check the keypairs table
    var sectionKeypairRows = section.children[5].children[0].children[1].children;

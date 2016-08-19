@@ -88,12 +88,6 @@ var ModelEdit = React.createClass({
 		this.setState({model: model});
 	},
 
-	handleChangeRevision: function(e) {
-		var model = this.state.model;
-		model.revision = parseInt(e.target.value);
-		this.setState({model: model});
-	},
-
 	handleChangePrivateKey: function(e) {
 		var self = this;
 		var model = this.state.model;
@@ -161,11 +155,6 @@ var ModelEdit = React.createClass({
 										<label htmlFor="model">{M({id: 'model'})}:</label>
 										<input type="text" id="model" placeholder={M({id: 'model-description'})}
 											value={this.state.model.model} onChange={this.handleChangeModel}/>
-									</li>
-									<li>
-										<label htmlFor="revision">{M({id: 'revision'})}:</label>
-										<input type="number" id="revision" placeholder={M({id: 'revision-description'})}
-											value={this.state.model.revision} onChange={this.handleChangeRevision}/>
 									</li>
 									<li>
 										<label htmlFor="keypair">{M({id: 'private-key'})}:</label>
