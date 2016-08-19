@@ -133,25 +133,14 @@ func ReadConfig(config *ConfigSettings) error {
 }
 
 func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
-	if assertion == nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		response := SignResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
-
-		// Encode the response as JSON
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			log.Println("Error forming the signing response.")
-			return err
-		}
-	} else {
-		w.Header().Set("Content-Type", asserts.MediaType)
-		w.WriteHeader(http.StatusOK)
-		encoder := asserts.NewEncoder(w)
-		err := encoder.Encode(assertion)
-		if err != nil {
-			// Not much we can do if we're here - apart from panic!
-			log.Println("Error encoding the assertion.")
-			return err
-		}
+	w.Header().Set("Content-Type", asserts.MediaType)
+	w.WriteHeader(http.StatusOK)
+	encoder := asserts.NewEncoder(w)
+	err := encoder.Encode(assertion)
+	if err != nil {
+		// Not much we can do if we're here - apart from panic!
+		log.Println("Error encoding the assertion.")
+		return err
 	}
 
 	return nil
@@ -218,7 +207,7 @@ func formatNonceResponse(success bool, message string, nonce DeviceNonce, w http
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the nonce response.")
+		log.Printf("Error forming the nonce response: %v\n", err)
 		return err
 	}
 	return nil

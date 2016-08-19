@@ -20,6 +20,7 @@
 package service
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -37,6 +38,23 @@ func Logger(start time.Time, r *http.Request) {
 
 // Environ contains the parsed config file settings.
 var Environ *Env
+
+// ErrorHandler is a standard error handler middleware that generates the error response
+func ErrorHandler(f func(http.ResponseWriter, *http.Request) ErrorResponse) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Call the handler and it will return a custom error
+		e := f(w, r)
+		if !e.Success {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(e.StatusCode)
+
+			// Encode the response as JSON
+			if err := json.NewEncoder(w).Encode(e); err != nil {
+				log.Printf("Error forming the signing response: %v\n", err)
+			}
+		}
+	}
+}
 
 // Middleware to pre-process web service requests
 func Middleware(inner http.Handler, env *Env) http.Handler {

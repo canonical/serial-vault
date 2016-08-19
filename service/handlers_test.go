@@ -112,8 +112,8 @@ func TestSignHandlerInactive(t *testing.T) {
 
 	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
-	if result.ErrorCode != "error-model-not-active" {
-		t.Errorf("Expected 'error-model-not-active', got %v", result.ErrorCode)
+	if result.ErrorCode != "invalid-model" {
+		t.Errorf("Expected 'invalid-model', got %v", result.ErrorCode)
 	}
 }
 
@@ -138,7 +138,7 @@ func TestSignHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
 	r.Header.Add("api-key", "InbuiltAPIKey")
-	http.HandlerFunc(SignHandler).ServeHTTP(w, r)
+	ErrorHandler(SignHandler).ServeHTTP(w, r)
 
 	// Check that we have a assertion as a response
 	if w.Code != http.StatusOK {
@@ -221,8 +221,8 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 
 	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
-	if result.ErrorSubcode != "error-invalid-type" {
-		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorSubcode)
+	if result.ErrorCode != "invalid-type" {
+		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorCode)
 	}
 }
 
@@ -323,7 +323,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 
 	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
 
-	if result.ErrorCode != "error-signing-assertions" {
+	if result.ErrorCode != "signing-assertion" {
 		t.Errorf("Expected an 'error signing' message, got %s", result.ErrorCode)
 	}
 
