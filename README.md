@@ -1,5 +1,5 @@
 [![Build Status][travis-image]][travis-url]
-# Identity Vault
+# Serial Vault
 
 A Go web service that digitally signs device assertion details.
 
@@ -96,7 +96,7 @@ npm test
 ## API Methods
 
 ### /1.0/version (GET)
-> Return the version of the identity vault service.
+> Return the version of the serial vault service.
 
 #### Output message
 ```json
@@ -104,42 +104,25 @@ npm test
   "version":"0.1.0",
 }
 ```
-- version: the version of the identity vault service (string)
+- version: the version of the serial vault service (string)
 
 
-### /1.0/models (GET)
-> Return the available models from the identity vault.
+### /1.0/nonce (POST)
+> Returns a nonce that is needed for the signing request.
 
 #### Output message
 ```json
 {
+  "nonce": "abc123456",
   "success": true,
-  "message": "",
-  "models": [
-  {
-    "brand-id": "System",
-    "model": "DroidBox 2400",
-    "type": "device",
-    "revision": 2
-  },
-  {
-    "brand-id": "System",
-    "model": "DroidBox 1200",
-    "type": "device",
-    "revision": 1
-  },
-  {
-    "brand-id": "System",
-    "model": "Drone 1000",
-    "type": "device",
-    "revision": 4
-  }]
+  "message": ""
 }
 ```
 - success: whether the request was successful (bool)
 - message: error message from the request (string)
-- models: the list of available models (array)
+- nonce: unique string that is needed for signing requests (string)
 
+The nonce can only be used once and must be used before it expires (typically 600 seconds).
 
 ### /1.0/sign (POST)
 > Clear-sign the device identity details.
@@ -147,25 +130,33 @@ npm test
 Takes the details from the device, formats the data and clear-signs it.
 
 #### Input message
-The message must be the serial assertion format and is best generated using the snapd libraries.
+The message must be the serial-request assertion format and is best generated using the snapd libraries.
 ```
-type: serial
-authority-id: System
-brand-id: System Inc.
+type: serial-request
+brand-id: System
 model: Router 3400
+device-key:
+    WkUDQbqFCKZBPvKbwR...
+request-id: abc123456
+body-length: 10
+sign-key-sha3-384: UytTqTvREVhx...
 revision: 12
-serial: A1228M\L
-timestamp: 2016-01-02T15:04:05Z
-device-key: openpgp WkUDQbqFCKZBPvKbwR...
+serial: A1228ML
 
-openpgp mQINBFaiIK4BEADHpUm...
+HW-DETAILS
+
+AcLBUgQAAQoABgUCV7R2C...
 ```
 - brand-id: the Account ID of the manufacturer (string)
 - model: the name of the device (string)
-- serial: serial number of the device (string)
-- device-key: the type and public key of the device (string)
-- revision: the revision of the device (integer)
+- device-key: the encoded type and public key of the device (string)
+- request-id: the nonce returned from the /1.0/nonce method (string)
 - signature: the signed data
+- serial: serial number of the device (string)
+- revision: the revision of the device (integer)
+
+Though the 'serial' and 'revision' headers are not strictly a part of a serial request, they are needed 
+to return a signed serial assertion.
 
 #### Output message
 The method returns a signed serial assertion using the key from the vault.

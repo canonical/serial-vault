@@ -21,6 +21,7 @@ package service
 
 import (
 	"bytes"
+	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -149,16 +150,19 @@ func privateKeyToAssertsKey(key []byte) (asserts.PrivateKey, string, error) {
 		return nil, errorInvalidKey, err
 	}
 
-	p, err := packet.Read(block.Body)
+	pkt, err := packet.Read(block.Body)
 	if err != nil {
 		return nil, errorInvalidKey, err
 	}
 
-	privateKey, ok := p.(*packet.PrivateKey)
+	privk, ok := pkt.(*packet.PrivateKey)
 	if !ok {
 		return nil, errorInvalidKey, errors.New("Not a private key")
 	}
-	return asserts.OpenPGPPrivateKey(privateKey), "", nil
+	if _, ok := privk.PrivateKey.(*rsa.PrivateKey); !ok {
+		return nil, errorInvalidKey, errors.New("Not an RSA private key")
+	}
+	return asserts.RSAPrivateKey(privk.PrivateKey.(*rsa.PrivateKey)), "", nil
 }
 
 // KeypairDisableHandler disables an existing keypair, which will mean that any

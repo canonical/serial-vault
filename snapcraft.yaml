@@ -1,5 +1,5 @@
 name: serial-vault
-version: 0.7
+version: 0.8
 summary: Serial Vault Service
 description: Service for the Serial Vault that signs serial assertions.
 confinement: strict

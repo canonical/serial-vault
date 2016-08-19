@@ -62,10 +62,9 @@ describe('model edit', function() {
 
    // Check that the form is rendered without data
    var inputs = TestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'input');
-   expect(inputs.length).toBe(3);
+   expect(inputs.length).toBe(2);
    expect(inputs[0].value).toBe('');
    expect(inputs[1].value).toBe('');
-   expect(inputs[2].value).toBe('');
 
  });
 
@@ -82,7 +81,7 @@ describe('model edit', function() {
    ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
    ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.handleSaveClick = handleSaveClick;
 
-   //var MODEL = {id: 1, 'brand-id': 'Brand1', model: 'Name1', revision: 11, 'authority-id': 'Brand1', 'key-id': 'Name1'};
+   //var MODEL = {id: 1, 'brand-id': 'Brand1', model: 'Name1', 'authority-id': 'Brand1', 'key-id': 'Name1'};
 
 	 // Render the component
 	 var modelPage = TestUtils.renderIntoDocument(

@@ -30,7 +30,7 @@ import (
 // Datastore interface for the database logic
 type Datastore interface {
 	ListModels() ([]Model, error)
-	FindModel(brandID, modelName string, revision int) (Model, error)
+	FindModel(brandID, modelName string) (Model, error)
 	GetModel(modelID int) (Model, error)
 	UpdateModel(model Model) (string, error)
 	DeleteModel(model Model) (string, error)
@@ -52,6 +52,10 @@ type Datastore interface {
 	CreateSigningLog(signLog SigningLog) error
 	ListSigningLog(fromID int) ([]SigningLog, error)
 	DeleteSigningLog(signingLog SigningLog) (string, error)
+
+	CreateDeviceNonceTable() error
+	CreateDeviceNonce() (DeviceNonce, error)
+	ValidateDeviceNonce(nonce string) error
 }
 
 // DB local database interface with our custom methods.

@@ -20,9 +20,7 @@
 package service
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -57,8 +55,8 @@ func TestReadConfigInvalidFile(t *testing.T) {
 
 func TestFormatModelsResponse(t *testing.T) {
 	var models []ModelSerialize
-	models = append(models, ModelSerialize{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂", Revision: 1})
-	models = append(models, ModelSerialize{ID: 2, BrandID: "Vendor", Name: "Ash", Revision: 7})
+	models = append(models, ModelSerialize{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂"})
+	models = append(models, ModelSerialize{ID: 2, BrandID: "Vendor", Name: "Ash"})
 
 	w := httptest.NewRecorder()
 	err := formatModelsResponse(true, "", "", "", models, w)
@@ -100,36 +98,6 @@ func TestFormatKeypairsResponse(t *testing.T) {
 	}
 	if result.Keypairs[0].KeyID != keypairs[0].KeyID {
 		t.Errorf("Expected the first key ID '%s', got: %s", keypairs[0].KeyID, result.Keypairs[0].KeyID)
-	}
-}
-
-func TestDecodePublicKeyInvalid(t *testing.T) {
-	_, err := decodePublicKey([]byte(""))
-	if err == nil {
-		t.Error("Expected an error with an invalid public key")
-	}
-
-	_, err = decodePublicKey([]byte("ThisIsAnInvalidKey"))
-	if err == nil {
-		t.Error("Expected an error with an invalid public key")
-	}
-
-	_, err = decodePublicKey([]byte("openpgp ThisIsAnInvalidKey"))
-	if err == nil {
-		t.Error("Expected an error with an invalid public key")
-	}
-
-	base64InvalidKey := base64.StdEncoding.EncodeToString([]byte("ThisIsAnInvalidKey"))
-	unsupportedKey := fmt.Sprintf("unsupported %s", base64InvalidKey)
-	_, err = decodePublicKey([]byte(unsupportedKey))
-	if err == nil {
-		t.Error("Expected an error with an invalid public key")
-	}
-
-	key := fmt.Sprintf("openpgp %s", base64InvalidKey)
-	_, err = decodePublicKey([]byte(key))
-	if err == nil {
-		t.Error("Expected an error with an invalid public key")
 	}
 }
 

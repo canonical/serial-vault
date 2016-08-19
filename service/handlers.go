@@ -22,31 +22,25 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
+	"time"
 
-	"github.com/gorilla/mux"
+	"gopkg.in/yaml.v2"
+
 	"github.com/snapcore/snapd/asserts"
 )
-
-// ModelSerialize is the JSON version of a model, with the signing key ID
-type ModelSerialize struct {
-	ID          int    `json:"id"`
-	BrandID     string `json:"brand-id"`
-	Name        string `json:"model"`
-	Type        string `json:"type"`
-	KeypairID   int    `json:"keypair-id"`
-	Revision    int    `json:"revision"`
-	AuthorityID string `json:"authority-id"`
-	KeyID       string `json:"key-id"`
-	KeyActive   bool   `json:"key-active"`
-}
 
 // VersionResponse is the JSON response from the API Version method
 type VersionResponse struct {
 	Version string `json:"version"`
+}
+
+// NonceResponse is the JSON response from the API Version method
+type NonceResponse struct {
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"message"`
+	Nonce        string `json:"nonce"`
 }
 
 // SignResponse is the JSON response from the API Sign method
@@ -55,25 +49,6 @@ type SignResponse struct {
 	ErrorCode    string `json:"error_code"`
 	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
-	Signature    string `json:"identity"`
-}
-
-// ModelsResponse is the JSON response from the API Models method
-type ModelsResponse struct {
-	Success      bool             `json:"success"`
-	ErrorCode    string           `json:"error_code"`
-	ErrorSubcode string           `json:"error_subcode"`
-	ErrorMessage string           `json:"message"`
-	Models       []ModelSerialize `json:"models"`
-}
-
-// ModelResponse is the JSON response from the API Get Model method
-type ModelResponse struct {
-	Success      bool           `json:"success"`
-	ErrorCode    string         `json:"error_code"`
-	ErrorSubcode string         `json:"error_subcode"`
-	ErrorMessage string         `json:"message"`
-	Model        ModelSerialize `json:"model"`
 }
 
 // KeypairsResponse is the JSON response from the API Keypairs method
@@ -144,16 +119,25 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that we have a serial assertion (the details will have been validated by Decode call)
-	if assertion.Type() != asserts.SerialType {
+	// Check that we have a serial-request assertion (the details will have been validated by Decode call)
+	if assertion.Type() != asserts.SerialRequestType {
 		w.WriteHeader(http.StatusBadRequest)
-		logMessage("SIGN", "invalid-assertion", "The assertion type must be 'serial'")
+		logMessage("SIGN", "invalid-assertion", "The assertion type must be 'serial-request'")
 		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'serial'", nil, w)
 		return
 	}
 
+	// Verify that the nonce is valid and has not expired
+	err = Environ.DB.ValidateDeviceNonce(assertion.HeaderString("request-id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		logMessage("SIGN", "invalid-nonce", "Nonce is invalid or expired")
+		formatSignResponse(false, "error-decode-assertion", "error-invalid-nonce", "Nonce is invalid or expired", nil, w)
+		return
+	}
+
 	// Validate the model by checking that it exists on the database
-	model, err := Environ.DB.FindModel(assertion.Header("brand-id"), assertion.Header("model"), assertion.Revision())
+	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand, model and revision")
@@ -169,17 +153,17 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the fingerprint of the assertion device-key
-	publicKey, err := decodePublicKey([]byte(assertion.Header("device-key")))
+	// Convert the serial-request headers into a serial assertion
+	serialAssertion, err := serialRequestToSerial(assertion)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		logMessage("SIGN", "invalid-assertion", "Invalid device-key")
-		formatSignResponse(false, "error-decode-assertion", "error-device-key", "The device-key is invalid", nil, w)
+		logMessage("SIGN", "convert-assertion", err.Error())
+		formatSignResponse(false, "error-signing-assertions", "convert-assertion", "Error converting the serial-request to a serial assertion (hint: check the body)", nil, w)
 		return
 	}
 
-	// Check that we have not already signed this device
-	signingLog := SigningLog{Make: assertion.Header("brand-id"), Model: assertion.Header("model"), SerialNumber: assertion.Header("serial"), Fingerprint: publicKey.Fingerprint()}
+	// Check that we have not already signed this device (the serial number came from the assertion body)
+	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), SerialNumber: serialAssertion.HeaderString("serial"), Fingerprint: assertion.SignKeyID()}
 	duplicateExists, err := Environ.DB.CheckForDuplicate(signingLog)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -195,8 +179,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, assertion.Headers(), assertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
-
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("SIGN", "signing-assertion", err.Error())
@@ -217,187 +200,46 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	formatSignResponse(true, "", "", "", signedAssertion, w)
 }
 
-func modelForDisplay(model Model) ModelSerialize {
-	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, Revision: model.Revision, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive}
+// serialRequestToSerial converts a serial-request to a serial assertion
+func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, error) {
+	headers := assertion.Headers()
+	headers["type"] = asserts.SerialType.Name
+	headers["authority-id"] = headers["brand-id"]
+	headers["timestamp"] = time.Now().Format(time.RFC3339)
+	delete(headers, "request-id")
+
+	// Decode the body which must be YAML, ignore errors
+	body := make(map[string]interface{})
+	yaml.Unmarshal(assertion.Body(), &body)
+
+	// Get the extra headers from the body
+	headers["serial"] = body["serial"]
+
+	// Create a new serial assertion
+	content, signature := assertion.Signature()
+	return asserts.Assemble(headers, assertion.Body(), content, signature)
+
 }
 
-// ModelsHandler is the API method to list the models
-func ModelsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// NonceHandler is the API method to generate a nonce
+func NonceHandler(w http.ResponseWriter, r *http.Request) {
+	// Check that we have an authorised API key header
+	err := checkAPIKey(r.Header.Get("api-key"))
+	if err != nil {
+		logMessage("NONCE", "invalid-api-key", "Invalid API key used")
+		w.WriteHeader(http.StatusBadRequest)
+		formatSignResponse(false, "error-api-key", "", "Invalid API key used", nil, w)
+		return
+	}
 
-	models := []ModelSerialize{}
-
-	dbModels, err := Environ.DB.ListModels()
+	nonce, err := Environ.DB.CreateDeviceNonce()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelsResponse(false, "error-fetch-models", "", errorMessage, nil, w)
+		logMessage("NONCE", "generate-nonce", err.Error())
+		formatNonceResponse(false, err.Error(), DeviceNonce{}, w)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-
-	// Format the database records for output
-	for _, model := range dbModels {
-		mdl := modelForDisplay(model)
-		models = append(models, mdl)
-	}
-
-	// Return successful JSON response with the list of models
-	formatModelsResponse(true, "", "", "", models, w)
-}
-
-// ModelGetHandler is the API method to get a model by ID.
-func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	vars := mux.Vars(r)
-
-	modelID, err := strconv.Atoi(vars["id"])
-
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("%v", vars)
-		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	model, err := Environ.DB.GetModel(modelID)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
-		formatModelResponse(false, "error-get-model", "", errorMessage, ModelSerialize{ID: modelID}, w)
-		return
-	}
-
-	// Format the model for output and return JSON response
-	w.WriteHeader(http.StatusOK)
-	mdl := modelForDisplay(model)
-	formatModelResponse(true, "", "", "", mdl, w)
-}
-
-// ModelUpdateHandler is the API method to update a model.
-func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// Get the model primary key
-	vars := mux.Vars(r)
-	modelID, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("%v", vars["id"])
-		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	// Check that we have a message body
-	if r.Body == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelSerialize{}, w)
-		return
-	}
-	defer r.Body.Close()
-
-	// Decode the JSON body
-	mdl := ModelSerialize{}
-	err = json.NewDecoder(r.Body).Decode(&mdl)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-model-data", "", "No model data supplied.", ModelSerialize{}, w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	// Update the database
-	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, Revision: mdl.Revision, KeypairID: mdl.KeypairID}
-	errorSubcode, err := Environ.DB.UpdateModel(model)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-updating-model", errorSubcode, errorMessage, mdl, w)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	formatModelResponse(true, "", "", "", mdl, w)
-}
-
-// ModelDeleteHandler is the API method to delete a model.
-func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// Get the model primary key
-	vars := mux.Vars(r)
-	modelID, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("%v", vars["id"])
-		formatModelResponse(false, "error-invalid-model", "", errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	// Update the database
-	model := Model{ID: modelID}
-	errorSubcode, err := Environ.DB.DeleteModel(model)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-deleting-model", errorSubcode, errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	formatModelResponse(true, "", "", "", ModelSerialize{}, w)
-}
-
-// ModelCreateHandler is the API method to create a new model.
-func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// Check that we have a message body
-	if r.Body == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-nil-data", "", "Uninitialized POST data", ModelSerialize{}, w)
-		return
-	}
-	defer r.Body.Close()
-
-	// Decode the JSON body
-	mdlWithKey := ModelSerialize{}
-	err := json.NewDecoder(r.Body).Decode(&mdlWithKey)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-model-data", "", "No model data supplied", ModelSerialize{}, w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	// Create a new model, linked to the existing signing-key
-	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, Revision: mdlWithKey.Revision}
-	errorSubcode := ""
-	model, errorSubcode, err = Environ.DB.CreateModel(model)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-creating-model", errorSubcode, errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	// Format the model for output and return JSON response
-	w.WriteHeader(http.StatusOK)
-	formatModelResponse(true, "", "", "", modelForDisplay(model), w)
+	// Return successful JSON response with the nonce
+	formatNonceResponse(true, "", nonce, w)
 }
