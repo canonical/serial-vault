@@ -202,12 +202,12 @@ func formatSigningLogResponse(success bool, errorCode, errorSubcode, message str
 	return nil
 }
 
-func formatNonceResponse(success bool, message string, nonce DeviceNonce, w http.ResponseWriter) error {
-	response := NonceResponse{Success: success, ErrorMessage: message, Nonce: nonce.Nonce}
+func formatRequestIDResponse(success bool, message string, nonce DeviceNonce, w http.ResponseWriter) error {
+	response := RequestIDResponse{Success: success, ErrorMessage: message, RequestID: nonce.Nonce}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Printf("Error forming the nonce response: %v\n", err)
+		log.Printf("Error forming the request-id response: %v\n", err)
 		return err
 	}
 	return nil

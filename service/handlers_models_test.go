@@ -34,7 +34,7 @@ func TestModelsHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/models", nil)
+	r, _ := http.NewRequest("GET", "/v1/models", nil)
 	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -57,7 +57,7 @@ func TestModelsHandlerWithError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/models", nil)
+	r, _ := http.NewRequest("GET", "/v1/models", nil)
 	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -77,7 +77,7 @@ func TestModelGetHandler(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &mockDB{}}
 
-	result, _ := sendRequest(t, "GET", "/1.0/models/1", nil)
+	result, _ := sendRequest(t, "GET", "/v1/models/1", nil)
 
 	if result.Model.ID != 1 {
 		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
@@ -92,7 +92,7 @@ func TestModelGetHandlerWithError(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &mockDB{}}
 
-	sendRequestExpectError(t, "GET", "/1.0/models/999999", nil)
+	sendRequestExpectError(t, "GET", "/v1/models/999999", nil)
 }
 
 func TestModelGetHandlerWithBadID(t *testing.T) {
@@ -100,7 +100,7 @@ func TestModelGetHandlerWithBadID(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &mockDB{}}
 
-	sendRequestExpectError(t, "GET", "/1.0/models/999999999999999999999999999999", nil)
+	sendRequestExpectError(t, "GET", "/v1/models/999999999999999999999999999999", nil)
 }
 
 func TestModelUpdateHandler(t *testing.T) {
@@ -117,7 +117,7 @@ func TestModelUpdateHandler(t *testing.T) {
 		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
 	}`
 
-	result, _ := sendRequest(t, "PUT", "/1.0/models/1", bytes.NewBufferString(data))
+	result, _ := sendRequest(t, "PUT", "/v1/models/1", bytes.NewBufferString(data))
 
 	if result.Model.ID != 1 {
 		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
@@ -134,35 +134,35 @@ func TestModelUpdateHandlerWithErrors(t *testing.T) {
 	// Update a model
 	data := `{}`
 
-	sendRequestExpectError(t, "PUT", "/1.0/models/1", bytes.NewBufferString(data))
+	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString(data))
 }
 
 func TestModelUpdateHandlerWithNilData(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "PUT", "/1.0/models/1", nil)
+	sendRequestExpectError(t, "PUT", "/v1/models/1", nil)
 }
 
 func TestModelUpdateHandlerWithEmptyData(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "PUT", "/1.0/models/1", bytes.NewBufferString(""))
+	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString(""))
 }
 
 func TestModelUpdateHandlerWithBadData(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "PUT", "/1.0/models/1", bytes.NewBufferString("bad"))
+	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString("bad"))
 }
 
 func TestModelUpdateHandlerWithBadID(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "PUT", "/1.0/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
+	sendRequestExpectError(t, "PUT", "/v1/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
 func TestModelDeleteHandler(t *testing.T) {
@@ -171,7 +171,7 @@ func TestModelDeleteHandler(t *testing.T) {
 
 	// Delete a model
 	data := "{}"
-	sendRequest(t, "DELETE", "/1.0/models/1", bytes.NewBufferString(data))
+	sendRequest(t, "DELETE", "/v1/models/1", bytes.NewBufferString(data))
 }
 
 func TestModelDeleteHandlerWithErrors(t *testing.T) {
@@ -181,14 +181,14 @@ func TestModelDeleteHandlerWithErrors(t *testing.T) {
 	// Delete a model
 	data := `{}`
 
-	sendRequestExpectError(t, "DELETE", "/1.0/models/1", bytes.NewBufferString(data))
+	sendRequestExpectError(t, "DELETE", "/v1/models/1", bytes.NewBufferString(data))
 }
 
 func TestModelDeleteHandlerWithBadID(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "DELETE", "/1.0/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
+	sendRequestExpectError(t, "DELETE", "/v1/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
 func TestModelCreateHandler(t *testing.T) {
@@ -200,7 +200,7 @@ func TestModelCreateHandler(t *testing.T) {
 	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
-	result, _ := sendRequest(t, "POST", "/1.0/models", bytes.NewReader(data))
+	result, _ := sendRequest(t, "POST", "/v1/models", bytes.NewReader(data))
 	if result.Model.ID != 7 {
 		t.Errorf("Expected model with ID 7, got %d", result.Model.ID)
 	}
@@ -218,7 +218,7 @@ func TestModelCreateHandlerWithError(t *testing.T) {
 	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
-	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewReader(data))
+	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewReader(data))
 }
 
 func TestModelCreateHandlerWithBase64Error(t *testing.T) {
@@ -230,28 +230,28 @@ func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
-	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewReader(data))
+	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewReader(data))
 }
 
 func TestModelCreateHandlerWithNilData(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "POST", "/1.0/models", nil)
+	sendRequestExpectError(t, "POST", "/v1/models", nil)
 }
 
 func TestModelCreateHandlerWithEmptyData(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewBufferString(""))
+	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewBufferString(""))
 }
 
 func TestModelCreateHandlerWithBadData(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendRequestExpectError(t, "POST", "/1.0/models", bytes.NewBufferString("bad"))
+	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewBufferString("bad"))
 }
 
 func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {

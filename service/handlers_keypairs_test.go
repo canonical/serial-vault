@@ -35,7 +35,7 @@ func TestKeypairListHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/keypairs", nil)
+	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
 	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -57,7 +57,7 @@ func TestKeypairListHandlerWithError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/keypairs", nil)
+	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
 	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -73,7 +73,7 @@ func TestKeypairListHandlerWithError(t *testing.T) {
 
 func TestKeypairHandlerNilData(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", nil)
+	r, _ := http.NewRequest("POST", "/v1/keypairs", nil)
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -92,7 +92,7 @@ func TestKeypairHandlerNilData(t *testing.T) {
 
 func TestKeypairHandlerNoData(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", new(bytes.Buffer))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", new(bytes.Buffer))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -111,7 +111,7 @@ func TestKeypairHandlerNoData(t *testing.T) {
 
 func TestKeypairHandlerBadData(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewBufferString("bad"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewBufferString("bad"))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -130,7 +130,7 @@ func TestKeypairHandlerBadData(t *testing.T) {
 
 func TestKeypairHandlerNoAuthorityID(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewBufferString("{}"))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -157,7 +157,7 @@ func TestKeypairHandlerBadPrivateKeyNotEncoded(t *testing.T) {
 	data, _ := json.Marshal(keypair)
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewReader(data))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -185,7 +185,7 @@ func TestKeypairHandlerBadPrivateKeyEncoded(t *testing.T) {
 	data, _ := json.Marshal(keypair)
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewReader(data))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -218,7 +218,7 @@ func TestKeypairHandlerValidPrivateKey(t *testing.T) {
 	data, _ := json.Marshal(keypair)
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewReader(data))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -248,7 +248,7 @@ func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 	data, _ := json.Marshal(keypair)
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewReader(data))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -278,7 +278,7 @@ func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 	data, _ := json.Marshal(keypair)
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs", bytes.NewReader(data))
+	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -294,7 +294,7 @@ func TestKeypairDisableHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/disable", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
 	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -313,7 +313,7 @@ func TestKeypairDisableHandlerError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/disable", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
 	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -335,7 +335,7 @@ func TestKeypairDisableHandlerBadID(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs/9999999999999999999999999/disable", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs/9999999999999999999999999/disable", bytes.NewBufferString("{}"))
 	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -357,7 +357,7 @@ func TestKeypairEnableHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/enable", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
 	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -376,7 +376,7 @@ func TestKeypairEnableHandlerError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs/1/enable", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
 	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -398,7 +398,7 @@ func TestKeypairEnableHandlerBadID(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/keypairs/9999999999999999999999999/enable", bytes.NewBufferString("{}"))
+	r, _ := http.NewRequest("POST", "/v1/keypairs/9999999999999999999999999/enable", bytes.NewBufferString("{}"))
 	AdminRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response

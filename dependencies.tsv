@@ -1,6 +1,6 @@
 github.com/gorilla/context	git	aed02d124ae4a0e94fea4541c8effd05bf0c8296	2016-05-25T20:33:19Z
 github.com/gorilla/mux	git	327d4b684c13f926b0984fff1087fb8305368948	2016-07-30T23:45:59Z
 github.com/lib/pq	git	4dd446efc17690bc53e154025146f73203b18309	2016-06-23T22:06:37Z
-github.com/snapcore/snapd	git	6d68d201f92e8faaeb00fb00f85281d8c51022c2	2016-08-15T13:25:52Z
+github.com/snapcore/snapd	git	1ca41156a83dabbfa09217a9689e3172b6e42d6e	2016-09-05T06:21:45Z
 golang.org/x/crypto	git	60052bd85f2d91293457e8811b0cf26b773de469	2015-06-22T23:34:07Z
 gopkg.in/yaml.v2	git	e4d366fc3c7938e2958e662b4258c7a89e1f0e3e	2016-07-15T03:37:55Z

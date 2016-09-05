@@ -16,7 +16,7 @@
  */
 'use strict'
 var request =require('then-request');
-var API_VERSION = '/1.0/';
+var API_VERSION = '/v1/';
 
 var Ajax = {
 	get: function(url, qs) {

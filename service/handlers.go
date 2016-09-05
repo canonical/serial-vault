@@ -36,11 +36,11 @@ type VersionResponse struct {
 	Version string `json:"version"`
 }
 
-// NonceResponse is the JSON response from the API Version method
-type NonceResponse struct {
+// RequestIDResponse is the JSON response from the API Version method
+type RequestIDResponse struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"message"`
-	Nonce        string `json:"nonce"`
+	RequestID    string `json:"request-id"`
 }
 
 // SignResponse is the JSON response from the API Sign method
@@ -125,7 +125,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	// Validate the model by checking that it exists on the database
 	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
 	if err != nil {
-		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand, model and revision")
+		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand and model")
 		return ErrorInvalidModel
 	}
 
@@ -175,11 +175,20 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 
 // serialRequestToSerial converts a serial-request to a serial assertion
 func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, error) {
-	headers := assertion.Headers()
-	headers["type"] = asserts.SerialType.Name
-	headers["authority-id"] = headers["brand-id"]
-	headers["timestamp"] = time.Now().Format(time.RFC3339)
-	delete(headers, "request-id")
+
+	// Create the serial assertion header from the serial-request headers
+	serialHeaders := assertion.Headers()
+	headers := map[string]interface{}{
+		"type":                asserts.SerialType.Name,
+		"authority-id":        serialHeaders["brand-id"],
+		"brand-id":            serialHeaders["brand-id"],
+		"device-key":          serialHeaders["device-key"],
+		"sign-key-sha3-384":   serialHeaders["sign-key-sha3-384"],
+		"device-key-sha3-384": serialHeaders["sign-key-sha3-384"],
+		"model":               serialHeaders["model"],
+		"timestamp":           time.Now().Format(time.RFC3339),
+		"body-length":         serialHeaders["body-length"],
+	}
 
 	// Decode the body which must be YAML, ignore errors
 	body := make(map[string]interface{})
@@ -194,22 +203,22 @@ func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, erro
 
 }
 
-// NonceHandler is the API method to generate a nonce
-func NonceHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
+// RequestIDHandler is the API method to generate a nonce
+func RequestIDHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	// Check that we have an authorised API key header
 	err := checkAPIKey(r.Header.Get("api-key"))
 	if err != nil {
-		logMessage("NONCE", "invalid-api-key", "Invalid API key used")
+		logMessage("REQUESTID", "invalid-api-key", "Invalid API key used")
 		return ErrorInvalidAPIKey
 	}
 
 	nonce, err := Environ.DB.CreateDeviceNonce()
 	if err != nil {
-		logMessage("NONCE", "generate-nonce", err.Error())
+		logMessage("REQUESTID", "generate-request-id", err.Error())
 		return ErrorGenerateNonce
 	}
 
 	// Return successful JSON response with the nonce
-	formatNonceResponse(true, "", nonce, w)
+	formatRequestIDResponse(true, "", nonce, w)
 	return ErrorResponse{Success: true}
 }

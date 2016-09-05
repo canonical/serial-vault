@@ -156,7 +156,7 @@ func (db *DB) CreateModel(model Model) (Model, string, error) {
 	// Check that the model does not exist
 	_, err := db.FindModel(model.BrandID, model.Name)
 	if err == nil {
-		return model, "error-model-exists", errors.New("A device with the same Brand, Model and Revision already exists")
+		return model, "error-model-exists", errors.New("A device with the same Brand and Model already exists")
 	}
 
 	// Create the model in the database

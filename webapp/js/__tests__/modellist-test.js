@@ -80,9 +80,9 @@ describe('model list', function() {
 
    // Set up a fixture for the model data
    var models = [
-     {id: 1, 'brand-id': 'Brand1', model: 'Name1', revision: 11},
-     {id: 2, 'brand-id': 'Brand2', model: 'Name2', revision: 22},
-     {id: 3, 'brand-id': 'Brand3', model: 'Name3', revision: 33}
+     {id: 1, 'brand-id': 'Brand1', model: 'Name1'},
+     {id: 2, 'brand-id': 'Brand2', model: 'Name2'},
+     {id: 3, 'brand-id': 'Brand3', model: 'Name3'}
    ];
 
    // Mock the data retrieval from the API
@@ -125,9 +125,9 @@ describe('model list', function() {
 
    // Set up a fixture for the model data
    var models = [
-     {id: 1, 'brand-id': 'Brand1', model: 'Name1', revision: 11, 'authority-id': 'Brand1', 'key-id': 'Name1'},
-     {id: 2, 'brand-id': 'Brand2', model: 'Name2', revision: 22, 'authority-id': 'Brand1', 'key-id': 'Name1'},
-     {id: 3, 'brand-id': 'Brand3', model: 'Name3', revision: 33, 'authority-id': 'Brand1', 'key-id': 'Name1'}
+     {id: 1, 'brand-id': 'Brand1', model: 'Name1', 'authority-id': 'Brand1', 'key-id': 'Name1'},
+     {id: 2, 'brand-id': 'Brand2', model: 'Name2', 'authority-id': 'Brand1', 'key-id': 'Name1'},
+     {id: 3, 'brand-id': 'Brand3', model: 'Name3', 'authority-id': 'Brand1', 'key-id': 'Name1'}
    ];
 
    // Set up a fixture for the keypair data

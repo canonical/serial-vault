@@ -126,7 +126,7 @@ func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey strin
 
 	default:
 		// Keypairs are handled by the ubuntu-core library, so this is a pass-through to the core library
-		return privateKey, "", kdb.ImportKey(authorityID, privateKey)
+		return privateKey, "", kdb.ImportKey(privateKey)
 	}
 }
 
