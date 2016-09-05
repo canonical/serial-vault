@@ -125,7 +125,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	// Validate the model by checking that it exists on the database
 	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
 	if err != nil {
-		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand, model and revision")
+		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand and model")
 		return ErrorInvalidModel
 	}
 

@@ -140,7 +140,6 @@ device-key:
 request-id: abc123456
 body-length: 10
 sign-key-sha3-384: UytTqTvREVhx...
-revision: 12
 
 HW-DETAILS
 serial: A1228ML
@@ -153,7 +152,6 @@ AcLBUgQAAQoABgUCV7R2C...
 - request-id: the nonce returned from the /v1/nonce method (string)
 - signature: the signed data
 - serial: serial number of the device (string)
-- revision: the revision of the device (integer)
 
 The HW-DETAILS are optional hardware details in YAML format, but must include the 'serial' tag as that is a mandatory 
 part of the serial assertion.
