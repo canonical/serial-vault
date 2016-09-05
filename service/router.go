@@ -33,9 +33,9 @@ func SigningRouter(env *Env) *mux.Router {
 	router := mux.NewRouter()
 
 	// API routes
-	router.Handle("/1.0/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
-	router.Handle("/1.0/sign", Middleware(ErrorHandler(SignHandler), env)).Methods("POST")
-	router.Handle("/1.0/nonce", Middleware(ErrorHandler(NonceHandler), env)).Methods("POST")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
+	router.Handle("/v1/sign", Middleware(ErrorHandler(SignHandler), env)).Methods("POST")
+	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler), env)).Methods("POST")
 
 	return router
 }
@@ -47,22 +47,22 @@ func AdminRouter(env *Env) *mux.Router {
 	router := mux.NewRouter()
 
 	// API routes: models admin
-	router.Handle("/1.0/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
-	router.Handle("/1.0/models", Middleware(http.HandlerFunc(ModelsHandler), env)).Methods("GET")
-	router.Handle("/1.0/models", Middleware(http.HandlerFunc(ModelCreateHandler), env)).Methods("POST")
-	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler), env)).Methods("GET")
-	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler), env)).Methods("PUT")
-	router.Handle("/1.0/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler), env)).Methods("DELETE")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler), env)).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelCreateHandler), env)).Methods("POST")
+	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler), env)).Methods("GET")
+	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler), env)).Methods("PUT")
+	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler), env)).Methods("DELETE")
 
 	// API routes: signing-keys
-	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairListHandler), env)).Methods("GET")
-	router.Handle("/1.0/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler), env)).Methods("POST")
-	router.Handle("/1.0/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
-	router.Handle("/1.0/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")
+	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairListHandler), env)).Methods("GET")
+	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler), env)).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")
 
 	// API routes: signing log
-	router.Handle("/1.0/signinglog", Middleware(http.HandlerFunc(SigningLogHandler), env)).Methods("GET")
-	router.Handle("/1.0/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler), env)).Methods("DELETE")
+	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler), env)).Methods("GET")
+	router.Handle("/v1/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler), env)).Methods("DELETE")
 
 	// Web application routes
 	path := []string{env.Config.DocRoot, "/static/"}

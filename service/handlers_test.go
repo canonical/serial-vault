@@ -78,11 +78,11 @@ func importKeypairForTests() error {
 }
 
 func TestSignHandlerNilData(t *testing.T) {
-	sendRequestSignError(t, "POST", "/1.0/sign", nil, "")
+	sendRequestSignError(t, "POST", "/v1/sign", nil, "")
 }
 
 func TestSignHandlerNoData(t *testing.T) {
-	sendRequestSignError(t, "POST", "/1.0/sign", new(bytes.Buffer), "")
+	sendRequestSignError(t, "POST", "/v1/sign", new(bytes.Buffer), "")
 }
 
 func TestSignHandlerInvalidAPIKey(t *testing.T) {
@@ -95,7 +95,7 @@ func TestSignHandlerInvalidAPIKey(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	sendRequestSignError(t, "POST", "/1.0/sign", new(bytes.Buffer), "InvalidAPIKey")
+	sendRequestSignError(t, "POST", "/v1/sign", new(bytes.Buffer), "InvalidAPIKey")
 }
 
 func TestSignHandlerInactive(t *testing.T) {
@@ -110,7 +110,7 @@ func TestSignHandlerInactive(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	result, _ := sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "invalid-model" {
 		t.Errorf("Expected 'invalid-model', got %v", result.ErrorCode)
@@ -136,7 +136,7 @@ func TestSignHandler(t *testing.T) {
 
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/sign", bytes.NewBufferString(assertions))
+	r, _ := http.NewRequest("POST", "/v1/sign", bytes.NewBufferString(assertions))
 	r.Header.Add("api-key", "InbuiltAPIKey")
 	ErrorHandler(SignHandler).ServeHTTP(w, r)
 
@@ -186,7 +186,7 @@ cwmwjJS6vKEYIIlMwVaHsPd9ZBvyYBwTzfGKtoazjm44mByBG0AEUZrZ7MWnf7lWwU+Ze3g3GNQF
 9EEnrN8E9yYxFgCGaYA7kBFhkhJElafMQNr/EYU3bwLKHa++1iKmNKcGePRZyy9kyUpmgtRaQt/6
 ic2Xx1ds+umMC5AHW9wZAWNPDI/T
 `
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 
 }
 
@@ -220,15 +220,15 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
 
-	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	result, _ := sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "invalid-type" {
 		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorCode)
 	}
 }
 
-func TestSignHandlerInvalidNonce(t *testing.T) {
-	// Mock the database, to generate an error for the nonce
+func TestSignHandlerInvalidRequestID(t *testing.T) {
+	// Mock the database, to generate an error for the request-id
 	Environ = &Env{DB: &errorMockDB{}}
 
 	// Generate a test serial-request assertion
@@ -237,7 +237,7 @@ func TestSignHandlerInvalidNonce(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerEmptySerial(t *testing.T) {
@@ -249,7 +249,7 @@ func TestSignHandlerEmptySerial(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerNonExistentModel(t *testing.T) {
@@ -262,7 +262,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerDuplicateSigner(t *testing.T) {
@@ -277,7 +277,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerCheckDuplicateError(t *testing.T) {
@@ -292,7 +292,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerSigningLogError(t *testing.T) {
@@ -307,7 +307,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerErrorKeyStore(t *testing.T) {
@@ -322,7 +322,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	result, _ := sendRequestSignError(t, "POST", "/1.0/sign", bytes.NewBufferString(assertions), "")
+	result, _ := sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "signing-assertion" {
 		t.Errorf("Expected an 'error signing' message, got %s", result.ErrorCode)
@@ -335,7 +335,7 @@ func TestVersionHandler(t *testing.T) {
 	config := ConfigSettings{Version: "1.2.5"}
 	Environ = &Env{Config: config}
 
-	result, _ := sendRequestVersion(t, "GET", "/1.0/version", nil)
+	result, _ := sendRequestVersion(t, "GET", "/v1/version", nil)
 
 	if result.Version != Environ.Config.Version {
 		t.Errorf("Incorrect version returned. Expected '%s' got: %v", Environ.Config.Version, result.Version)
@@ -350,7 +350,7 @@ func TestVersionHandlerNilEnviron(t *testing.T) {
 	Environ = nil
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/1.0/version", nil)
+	r, _ := http.NewRequest("GET", "/v1/version", nil)
 	SigningRouter(env).ServeHTTP(w, r)
 
 	// Check the JSON response
@@ -408,7 +408,7 @@ func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiK
 	return result, err
 }
 
-func TestNonceHandler(t *testing.T) {
+func TestRequestIDHandler(t *testing.T) {
 	// Set up the API key
 	apiKeySlice := []string{"InbuiltAPIKey"}
 	apiKeys := make(map[string]struct{})
@@ -420,20 +420,20 @@ func TestNonceHandler(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/1.0/nonce", nil)
+	r, _ := http.NewRequest("POST", "/v1/request-id", nil)
 	r.Header.Add("api-key", "InbuiltAPIKey")
 	SigningRouter(Environ).ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := NonceResponse{}
+	result := RequestIDResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
-		t.Errorf("Error decoding the nonce response: %v", err)
+		t.Errorf("Error decoding the request-id response: %v", err)
 	}
 
 }
 
-func TestNonceHandlerInvalidAPIKey(t *testing.T) {
+func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
 	// Set up the API key
 	apiKeySlice := []string{"InbuiltAPIKey"}
 	apiKeys := make(map[string]struct{})
@@ -443,10 +443,10 @@ func TestNonceHandlerInvalidAPIKey(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	sendRequestNonceError(t, "POST", "/1.0/nonce", new(bytes.Buffer), "InvalidAPIKey")
+	sendRequestRequestIDError(t, "POST", "/v1/request-id", new(bytes.Buffer), "InvalidAPIKey")
 }
 
-func TestNonceHandlerError(t *testing.T) {
+func TestRequestIDHandlerError(t *testing.T) {
 	// Set up the API key
 	apiKeySlice := []string{"InbuiltAPIKey"}
 	apiKeys := make(map[string]struct{})
@@ -456,10 +456,10 @@ func TestNonceHandlerError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	sendRequestNonceError(t, "POST", "/1.0/nonce", new(bytes.Buffer), "InbuiltAPIKey")
+	sendRequestRequestIDError(t, "POST", "/v1/request-id", new(bytes.Buffer), "InbuiltAPIKey")
 }
 
-func sendRequestNonceError(t *testing.T, method, url string, data io.Reader, apiKey string) (NonceResponse, error) {
+func sendRequestRequestIDError(t *testing.T, method, url string, data io.Reader, apiKey string) (RequestIDResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
 	r.Header.Add("api-key", apiKey)
@@ -470,10 +470,10 @@ func sendRequestNonceError(t *testing.T, method, url string, data io.Reader, api
 	}
 
 	// Check the JSON response
-	result := NonceResponse{}
+	result := RequestIDResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
-		t.Errorf("Error decoding the nonce response: %v", err)
+		t.Errorf("Error decoding the request-id response: %v", err)
 	}
 	if result.Success {
 		t.Error("Expected an error, got success response")

@@ -95,7 +95,7 @@ npm test
 
 ## API Methods
 
-### /1.0/version (GET)
+### /v1/version (GET)
 > Return the version of the serial vault service.
 
 #### Output message
@@ -107,24 +107,24 @@ npm test
 - version: the version of the serial vault service (string)
 
 
-### /1.0/nonce (POST)
+### /v1/request-id (POST)
 > Returns a nonce that is needed for the signing request.
 
 #### Output message
 ```json
 {
-  "nonce": "abc123456",
+  "request-id": "abc123456",
   "success": true,
   "message": ""
 }
 ```
 - success: whether the request was successful (bool)
 - message: error message from the request (string)
-- nonce: unique string that is needed for signing requests (string)
+- request-id: unique string that is needed for signing requests (string)
 
-The nonce can only be used once and must be used before it expires (typically 600 seconds).
+The request-id is a nonce that can only be used once and must be used before it expires (typically 600 seconds).
 
-### /1.0/sign (POST)
+### /v1/sign (POST)
 > Clear-sign the device identity details.
 
 Takes the details from the device, formats the data and clear-signs it.
@@ -141,22 +141,22 @@ request-id: abc123456
 body-length: 10
 sign-key-sha3-384: UytTqTvREVhx...
 revision: 12
-serial: A1228ML
 
 HW-DETAILS
+serial: A1228ML
 
 AcLBUgQAAQoABgUCV7R2C...
 ```
 - brand-id: the Account ID of the manufacturer (string)
 - model: the name of the device (string)
 - device-key: the encoded type and public key of the device (string)
-- request-id: the nonce returned from the /1.0/nonce method (string)
+- request-id: the nonce returned from the /v1/nonce method (string)
 - signature: the signed data
 - serial: serial number of the device (string)
 - revision: the revision of the device (integer)
 
-Though the 'serial' and 'revision' headers are not strictly a part of a serial request, they are needed 
-to return a signed serial assertion.
+The HW-DETAILS are optional hardware details in YAML format, but must include the 'serial' tag as that is a mandatory 
+part of the serial assertion.
 
 #### Output message
 The method returns a signed serial assertion using the key from the vault.

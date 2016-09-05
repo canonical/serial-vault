@@ -32,7 +32,7 @@ func TestSigningLogListHandler(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &mockDB{}}
 
-	response, _ := sendSigningLogRequest(t, "GET", "/1.0/signinglog", nil)
+	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
 	if len(response.SigningLog) != 10 {
 		t.Errorf("Expected 10 signing logs, got: %d", len(response.SigningLog))
 	}
@@ -42,7 +42,7 @@ func TestSigningLogListHandlerWithParam(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &mockDB{}}
 
-	response, _ := sendSigningLogRequest(t, "GET", "/1.0/signinglog?fromID=5", nil)
+	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog?fromID=5", nil)
 	if len(response.SigningLog) != 4 {
 		t.Errorf("Expected 4 signing logs, got: %d", len(response.SigningLog))
 	}
@@ -52,7 +52,7 @@ func TestSigningLogListHandlerBadParam(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &mockDB{}}
 
-	response, _ := sendSigningLogRequest(t, "GET", "/1.0/signinglog?fromID=bad", nil)
+	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog?fromID=bad", nil)
 	if len(response.SigningLog) != 10 {
 		t.Errorf("Expected 10 signing logs, got: %d", len(response.SigningLog))
 	}
@@ -62,7 +62,7 @@ func TestSigningLogListHandlerError(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
 
-	sendSigningLogRequestExpectError(t, "GET", "/1.0/signinglog", nil)
+	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
 }
 
 func TestSigningLogDeleteHandler(t *testing.T) {
@@ -71,7 +71,7 @@ func TestSigningLogDeleteHandler(t *testing.T) {
 
 	// Delete a signing log
 	data := "{}"
-	sendSigningLogRequest(t, "DELETE", "/1.0/signinglog/1", bytes.NewBufferString(data))
+	sendSigningLogRequest(t, "DELETE", "/v1/signinglog/1", bytes.NewBufferString(data))
 }
 
 func TestSigningLogDeleteHandlerWrongID(t *testing.T) {
@@ -80,7 +80,7 @@ func TestSigningLogDeleteHandlerWrongID(t *testing.T) {
 
 	// Delete a signing log
 	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/1.0/signinglog/22", bytes.NewBufferString(data))
+	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/22", bytes.NewBufferString(data))
 }
 
 func TestSigningLogDeleteHandlerError(t *testing.T) {
@@ -89,7 +89,7 @@ func TestSigningLogDeleteHandlerError(t *testing.T) {
 
 	// Delete a signing log
 	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/1.0/signinglog/1", bytes.NewBufferString(data))
+	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/1", bytes.NewBufferString(data))
 }
 
 func TestSigningLogDeleteHandlerBadID(t *testing.T) {
@@ -98,7 +98,7 @@ func TestSigningLogDeleteHandlerBadID(t *testing.T) {
 
 	// Delete a signing log
 	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/1.0/signinglog/99999999999999999999999999999999999999999999999", bytes.NewBufferString(data))
+	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/99999999999999999999999999999999999999999999999", bytes.NewBufferString(data))
 }
 
 func sendSigningLogRequest(t *testing.T, method, url string, data io.Reader) (SigningLogResponse, error) {
