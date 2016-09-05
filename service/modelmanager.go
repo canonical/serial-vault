@@ -31,7 +31,7 @@ const createModelTableSQL = `
 		id          serial primary key not null,
 		brand_id    varchar(200) not null,
 		name        varchar(200) not null,
-		keypair_id  int references keypair not null,
+		keypair_id  int references keypair not null
 	)
 `
 const listModelsSQL = `
