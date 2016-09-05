@@ -75,37 +75,29 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // SignHandler is the API method to sign assertions from the device
-func SignHandler(w http.ResponseWriter, r *http.Request) {
+func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 
 	// Check that we have an authorised API key header
 	err := checkAPIKey(r.Header.Get("api-key"))
 	if err != nil {
 		logMessage("SIGN", "invalid-api-key", "Invalid API key used")
-		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-api-key", "", "Invalid API key used", nil, w)
-		return
+		return ErrorInvalidAPIKey
 	}
 
 	if r.Body == nil {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-assertion", "Uninitialized POST data")
-		formatSignResponse(false, "error-nil-data", "", "Uninitialized POST data", nil, w)
-		return
+		return ErrorNilData
 	}
 
 	// Read the full request body
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-assertion", err.Error())
-		formatSignResponse(false, "error-sign-read", "", err.Error(), nil, w)
-		return
+		return ErrorResponse{false, "error-sign-read", "", err.Error(), http.StatusBadRequest}
 	}
 	if len(data) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-assertion", "No data supplied for signing")
-		formatSignResponse(false, "error-sign-empty", "", "No data supplied for signing", nil, w)
-		return
+		return ErrorEmptyData
 	}
 
 	defer r.Body.Close()
@@ -113,91 +105,72 @@ func SignHandler(w http.ResponseWriter, r *http.Request) {
 	// Use the snapd assertions module to decode the body and validate
 	assertion, err := asserts.Decode(data)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-assertion", err.Error())
-		formatSignResponse(false, "error-decode-assertion", "", err.Error(), nil, w)
-		return
+		return ErrorResponse{false, "decode-assertion", "", err.Error(), http.StatusBadRequest}
 	}
 
 	// Check that we have a serial-request assertion (the details will have been validated by Decode call)
 	if assertion.Type() != asserts.SerialRequestType {
-		w.WriteHeader(http.StatusBadRequest)
-		logMessage("SIGN", "invalid-assertion", "The assertion type must be 'serial-request'")
-		formatSignResponse(false, "error-decode-assertion", "error-invalid-type", "The assertion type must be 'serial'", nil, w)
-		return
+		logMessage("SIGN", "invalid-type", "The assertion type must be 'serial-request'")
+		return ErrorInvalidType
 	}
 
 	// Verify that the nonce is valid and has not expired
 	err = Environ.DB.ValidateDeviceNonce(assertion.HeaderString("request-id"))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-nonce", "Nonce is invalid or expired")
-		formatSignResponse(false, "error-decode-assertion", "error-invalid-nonce", "Nonce is invalid or expired", nil, w)
-		return
+		return ErrorInvalidNonce
 	}
 
 	// Validate the model by checking that it exists on the database
 	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
 		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand, model and revision")
-		formatSignResponse(false, "error-model-not-found", "", "Cannot find model with the matching brand, model and revision", nil, w)
-		return
+		return ErrorInvalidModel
 	}
 
 	// Check that the model has an active keypair
 	if !model.KeyActive {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "invalid-model", "The model is linked with an inactive signing-key")
-		formatSignResponse(false, "error-model-not-active", "", "The model is linked with an inactive signing-key", nil, w)
-		return
+		return ErrorInactiveModel
 	}
 
 	// Convert the serial-request headers into a serial assertion
 	serialAssertion, err := serialRequestToSerial(assertion)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		logMessage("SIGN", "convert-assertion", err.Error())
-		formatSignResponse(false, "error-signing-assertions", "convert-assertion", "Error converting the serial-request to a serial assertion (hint: check the body)", nil, w)
-		return
+		logMessage("SIGN", "create-assertion", err.Error())
+		return ErrorCreateAssertion
 	}
 
 	// Check that we have not already signed this device (the serial number came from the assertion body)
 	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), SerialNumber: serialAssertion.HeaderString("serial"), Fingerprint: assertion.SignKeyID()}
 	duplicateExists, err := Environ.DB.CheckForDuplicate(signingLog)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("SIGN", "duplicate-assertion", err.Error())
-		formatSignResponse(false, "error-signing-assertions", "", err.Error(), nil, w)
-		return
+		return ErrorDuplicateAssertion
 	}
 	if duplicateExists {
-		w.WriteHeader(http.StatusBadRequest)
 		logMessage("SIGN", "duplicate-assertion", "The serial number and/or device-key have already been used to sign a device")
-		formatSignResponse(false, "error-signing-assertions", "error-duplicate", "The serial number and/or device-key have already been used to sign a device", nil, w)
-		return
+		return ErrorDuplicateAssertion
 	}
 
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("SIGN", "signing-assertion", err.Error())
-		formatSignResponse(false, "error-signing-assertions", "", err.Error(), nil, w)
-		return
+		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusInternalServerError}
 	}
 
 	// Store the serial number and device-key fingerprint in the database
 	err = Environ.DB.CreateSigningLog(signingLog)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("SIGN", "logging-assertion", err.Error())
-		formatSignResponse(false, "error-signing-assertions", "", err.Error(), nil, w)
-		return
+		return ErrorResponse{false, "logging-assertion", "", err.Error(), http.StatusInternalServerError}
 	}
 
 	// Return successful JSON response with the signed text
 	formatSignResponse(true, "", "", "", signedAssertion, w)
+	return ErrorResponse{Success: true}
 }
 
 // serialRequestToSerial converts a serial-request to a serial assertion
@@ -222,24 +195,21 @@ func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, erro
 }
 
 // NonceHandler is the API method to generate a nonce
-func NonceHandler(w http.ResponseWriter, r *http.Request) {
+func NonceHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	// Check that we have an authorised API key header
 	err := checkAPIKey(r.Header.Get("api-key"))
 	if err != nil {
 		logMessage("NONCE", "invalid-api-key", "Invalid API key used")
-		w.WriteHeader(http.StatusBadRequest)
-		formatSignResponse(false, "error-api-key", "", "Invalid API key used", nil, w)
-		return
+		return ErrorInvalidAPIKey
 	}
 
 	nonce, err := Environ.DB.CreateDeviceNonce()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		logMessage("NONCE", "generate-nonce", err.Error())
-		formatNonceResponse(false, err.Error(), DeviceNonce{}, w)
-		return
+		return ErrorGenerateNonce
 	}
 
 	// Return successful JSON response with the nonce
 	formatNonceResponse(true, "", nonce, w)
+	return ErrorResponse{Success: true}
 }
