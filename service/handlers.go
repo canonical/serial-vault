@@ -40,7 +40,7 @@ type VersionResponse struct {
 type NonceResponse struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"message"`
-	Nonce        string `json:"nonce"`
+	Nonce        string `json:"request-id"`
 }
 
 // SignResponse is the JSON response from the API Sign method
@@ -175,11 +175,20 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 
 // serialRequestToSerial converts a serial-request to a serial assertion
 func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, error) {
-	headers := assertion.Headers()
-	headers["type"] = asserts.SerialType.Name
-	headers["authority-id"] = headers["brand-id"]
-	headers["timestamp"] = time.Now().Format(time.RFC3339)
-	delete(headers, "request-id")
+
+	// Create the serial assertion header from the serial-request headers
+	serialHeaders := assertion.Headers()
+	headers := map[string]interface{}{
+		"type":                asserts.SerialType.Name,
+		"authority-id":        serialHeaders["brand-id"],
+		"brand-id":            serialHeaders["brand-id"],
+		"device-key":          serialHeaders["device-key"],
+		"sign-key-sha3-384":   serialHeaders["sign-key-sha3-384"],
+		"device-key-sha3-384": serialHeaders["sign-key-sha3-384"],
+		"model":               serialHeaders["model"],
+		"timestamp":           time.Now().Format(time.RFC3339),
+		"body-length":         serialHeaders["body-length"],
+	}
 
 	// Decode the body which must be YAML, ignore errors
 	body := make(map[string]interface{})

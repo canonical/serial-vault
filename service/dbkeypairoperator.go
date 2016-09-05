@@ -82,7 +82,7 @@ func (dbStore *DatabaseKeypairOperator) UnsealKeypair(authorityID string, keyID 
 func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey string) error {
 
 	// Check if we have already unsealed the key into the memory store
-	_, err := keypairDB.PublicKey(authorityID, keyID)
+	_, err := keypairDB.PublicKey(keyID)
 
 	if err != nil {
 		// The key has not been unsealed and stored in the memory store
@@ -128,7 +128,7 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 		}
 
 		// Add the private-key to the memory keypair store
-		err = keypairDB.ImportKey(authorityID, privateKey)
+		err = keypairDB.ImportKey(privateKey)
 		if err != nil {
 			log.Println("Error importing the private-key to memory store")
 			return err

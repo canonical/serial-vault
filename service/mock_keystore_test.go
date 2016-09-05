@@ -35,11 +35,11 @@ func getMemoryKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 	return &kdb, err
 }
 
-func (emkdb *errorMockKeypairManager) Get(authorityID, keyID string) (asserts.PrivateKey, error) {
+func (emkdb *errorMockKeypairManager) Get(keyID string) (asserts.PrivateKey, error) {
 	return nil, errors.New("MOCK error fetching the private key")
 }
 
-func (emkdb *errorMockKeypairManager) Put(authorityID string, privKey asserts.PrivateKey) error {
+func (emkdb *errorMockKeypairManager) Put(privKey asserts.PrivateKey) error {
 	return errors.New("MOCK error saving the private key")
 }
 
