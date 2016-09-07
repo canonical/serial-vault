@@ -39,7 +39,7 @@ var (
 )
 
 // Set the application version from a constant
-const version = "0.8.0"
+const version = "0.9.0"
 
 // Set the nonce expiry time
 const nonceMaximumAge = 600

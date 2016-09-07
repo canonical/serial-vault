@@ -108,7 +108,7 @@ npm test
 
 
 ### /v1/request-id (POST)
-> Returns a nonce that is needed for the signing request.
+> Returns a nonce that is needed for the 'serial' request.
 
 #### Output message
 ```json
@@ -120,14 +120,14 @@ npm test
 ```
 - success: whether the request was successful (bool)
 - message: error message from the request (string)
-- request-id: unique string that is needed for signing requests (string)
+- request-id: unique string that is needed for serial requests (string)
 
 The request-id is a nonce that can only be used once and must be used before it expires (typically 600 seconds).
 
-### /v1/sign (POST)
-> Clear-sign the device identity details.
+### /v1/serial (POST)
+> Generate a serial assertion signed by the brand key.
 
-Takes the details from the device, formats the data and clear-signs it.
+Takes the details from the device as a serial-request assertion and generates a signed serial assertion. 
 
 #### Input message
 The message must be the serial-request assertion format and is best generated using the snapd libraries.

@@ -34,7 +34,7 @@ func SigningRouter(env *Env) *mux.Router {
 
 	// API routes
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
-	router.Handle("/v1/sign", Middleware(ErrorHandler(SignHandler), env)).Methods("POST")
+	router.Handle("/v1/serial", Middleware(ErrorHandler(SignHandler), env)).Methods("POST")
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler), env)).Methods("POST")
 
 	return router
