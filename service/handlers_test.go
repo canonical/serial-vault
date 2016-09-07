@@ -78,11 +78,11 @@ func importKeypairForTests() error {
 }
 
 func TestSignHandlerNilData(t *testing.T) {
-	sendRequestSignError(t, "POST", "/v1/sign", nil, "")
+	sendRequestSignError(t, "POST", "/v1/serial", nil, "")
 }
 
 func TestSignHandlerNoData(t *testing.T) {
-	sendRequestSignError(t, "POST", "/v1/sign", new(bytes.Buffer), "")
+	sendRequestSignError(t, "POST", "/v1/serial", new(bytes.Buffer), "")
 }
 
 func TestSignHandlerInvalidAPIKey(t *testing.T) {
@@ -95,7 +95,7 @@ func TestSignHandlerInvalidAPIKey(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	sendRequestSignError(t, "POST", "/v1/sign", new(bytes.Buffer), "InvalidAPIKey")
+	sendRequestSignError(t, "POST", "/v1/serial", new(bytes.Buffer), "InvalidAPIKey")
 }
 
 func TestSignHandlerInactive(t *testing.T) {
@@ -110,7 +110,7 @@ func TestSignHandlerInactive(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	result, _ := sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	result, _ := sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "invalid-model" {
 		t.Errorf("Expected 'invalid-model', got %v", result.ErrorCode)
@@ -136,7 +136,7 @@ func TestSignHandler(t *testing.T) {
 
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/sign", bytes.NewBufferString(assertions))
+	r, _ := http.NewRequest("POST", "/v1/serial", bytes.NewBufferString(assertions))
 	r.Header.Add("api-key", "InbuiltAPIKey")
 	ErrorHandler(SignHandler).ServeHTTP(w, r)
 
@@ -186,7 +186,7 @@ cwmwjJS6vKEYIIlMwVaHsPd9ZBvyYBwTzfGKtoazjm44mByBG0AEUZrZ7MWnf7lWwU+Ze3g3GNQF
 9EEnrN8E9yYxFgCGaYA7kBFhkhJElafMQNr/EYU3bwLKHa++1iKmNKcGePRZyy9kyUpmgtRaQt/6
 ic2Xx1ds+umMC5AHW9wZAWNPDI/T
 `
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 
 }
 
@@ -220,7 +220,7 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
 
-	result, _ := sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	result, _ := sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "invalid-type" {
 		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorCode)
@@ -237,7 +237,7 @@ func TestSignHandlerInvalidRequestID(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerEmptySerial(t *testing.T) {
@@ -249,7 +249,7 @@ func TestSignHandlerEmptySerial(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerNonExistentModel(t *testing.T) {
@@ -262,7 +262,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerDuplicateSigner(t *testing.T) {
@@ -277,7 +277,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerCheckDuplicateError(t *testing.T) {
@@ -292,7 +292,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerSigningLogError(t *testing.T) {
@@ -307,7 +307,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
 func TestSignHandlerErrorKeyStore(t *testing.T) {
@@ -322,7 +322,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	result, _ := sendRequestSignError(t, "POST", "/v1/sign", bytes.NewBufferString(assertions), "")
+	result, _ := sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "signing-assertion" {
 		t.Errorf("Expected an 'error signing' message, got %s", result.ErrorCode)

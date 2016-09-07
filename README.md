@@ -124,8 +124,8 @@ npm test
 
 The request-id is a nonce that can only be used once and must be used before it expires (typically 600 seconds).
 
-### /v1/sign (POST)
-> Clear-sign the device identity details.
+### /v1/serial (POST)
+> Generate a serial assertion signed by the brand key.
 
 Takes the details from the device, formats the data and clear-signs it.
 
