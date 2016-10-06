@@ -182,20 +182,28 @@ func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, erro
 		"type":                asserts.SerialType.Name,
 		"authority-id":        serialHeaders["brand-id"],
 		"brand-id":            serialHeaders["brand-id"],
+		"serial":              serialHeaders["serial"],
 		"device-key":          serialHeaders["device-key"],
 		"sign-key-sha3-384":   serialHeaders["sign-key-sha3-384"],
 		"device-key-sha3-384": serialHeaders["sign-key-sha3-384"],
 		"model":               serialHeaders["model"],
 		"timestamp":           time.Now().Format(time.RFC3339),
-		"body-length":         serialHeaders["body-length"],
 	}
 
-	// Decode the body which must be YAML, ignore errors
-	body := make(map[string]interface{})
-	yaml.Unmarshal(assertion.Body(), &body)
+	// Get the serial-number from the header, but fallback to the body if it is not there
+	if headers["serial"] == nil || headers["serial"].(string) == "" {
+		// Decode the body which must be YAML, ignore errors
+		body := make(map[string]interface{})
+		yaml.Unmarshal(assertion.Body(), &body)
 
-	// Get the extra headers from the body
-	headers["serial"] = body["serial"]
+		// Get the extra headers from the body
+		headers["serial"] = body["serial"]
+	}
+
+	// If we have a body, set the body length
+	if len(assertion.Body()) > 0 {
+		headers["body-length"] = serialHeaders["body-length"]
+	}
 
 	// Create a new serial assertion
 	content, signature := assertion.Signature()
