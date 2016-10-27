@@ -106,7 +106,7 @@ func TestSignHandlerInactive(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Inactive", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("inactive", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestSignHandler(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -163,7 +163,7 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "", "serial: A123456L")
+	assertions, err := generateSerialRequestAssertion("alder", "", "serial: A123456L")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -233,7 +233,7 @@ func TestSignHandlerBadAssertionWrongType(t *testing.T) {
 	const assertions = `type: model
 authority-id: System
 brand-id: System
-model: Alder
+model: alder
 serial: A1234-L
 series: Alder
 revision: 1
@@ -266,7 +266,7 @@ func TestSignHandlerInvalidRequestID(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -278,7 +278,7 @@ func TestSignHandlerEmptySerial(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "", "")
+	assertions, err := generateSerialRequestAssertion("alder", "", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -291,7 +291,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Cannot Find This", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("cannot-find-this", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -307,7 +307,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "Aduplicate", "")
+	assertions, err := generateSerialRequestAssertion("alder", "Aduplicate", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -336,7 +336,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "AnError", "")
+	assertions, err := generateSerialRequestAssertion("alder", "AnError", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -351,7 +351,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "AsigninglogError", "")
+	assertions, err := generateSerialRequestAssertion("alder", "AsigninglogError", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -366,7 +366,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("Alder", "A1234L", "")
+	assertions, err := generateSerialRequestAssertion("alder", "A1234L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
