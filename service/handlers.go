@@ -151,7 +151,6 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	}
 	if duplicateExists {
 		logMessage("SIGN", "duplicate-assertion", "The serial number and/or device-key have already been used to sign a device")
-		return ErrorDuplicateAssertion
 	}
 
 	// Sign the assertion with the snapd assertions module

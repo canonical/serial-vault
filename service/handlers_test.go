@@ -299,6 +299,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
+// TestSignHandlerDuplicateSigner checks that duplicates are allowed through
 func TestSignHandlerDuplicateSigner(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
@@ -311,7 +312,21 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
 
-	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
+	// Submit the serial-request assertion for signing
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/serial", bytes.NewBufferString(assertions))
+	//r.Header.Add("api-key", "InbuiltAPIKey")
+	ErrorHandler(SignHandler).ServeHTTP(w, r)
+
+	// Check that we have a assertion as a response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected success HTTP status 200, got: %d", w.Code)
+	}
+	if w.Header().Get("Content-Type") != asserts.MediaType {
+		t.Log(w.Body.String())
+		t.Errorf("Expected content-type %s, got: %s", asserts.MediaType, w.Header().Get("Content-Type"))
+	}
+
 }
 
 func TestSignHandlerCheckDuplicateError(t *testing.T) {
