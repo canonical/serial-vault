@@ -49,18 +49,18 @@ func (mdb *mockDB) CreateSettingsTable() error {
 func (mdb *mockDB) ListModels() ([]Model, error) {
 
 	var models []Model
-	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "Alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "Ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "Basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "Korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "Mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
-	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "Maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
+	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: ""})
 	return models, nil
 }
 
 // FindModel mocks the database response for finding a model
 func (mdb *mockDB) FindModel(brandID, modelName string) (Model, error) {
-	model := Model{ID: 1, BrandID: "System", Name: "Alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	model := Model{ID: 1, BrandID: "System", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	if modelName == "Inactive" {
 		model = Model{ID: 1, BrandID: "System", Name: "Inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}

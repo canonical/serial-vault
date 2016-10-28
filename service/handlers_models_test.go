@@ -46,8 +46,8 @@ func TestModelsHandler(t *testing.T) {
 	if len(result.Models) != 6 {
 		t.Errorf("Expected 6 models, got %d", len(result.Models))
 	}
-	if result.Models[0].Name != "Alder" {
-		t.Errorf("Expected model name 'Alder', got %s", result.Models[0].Name)
+	if result.Models[0].Name != "alder" {
+		t.Errorf("Expected model name 'alder', got %s", result.Models[0].Name)
 	}
 }
 
@@ -82,8 +82,8 @@ func TestModelGetHandler(t *testing.T) {
 	if result.Model.ID != 1 {
 		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
 	}
-	if result.Model.Name != "Alder" {
-		t.Errorf("Expected model name 'Alder', got %s", result.Model.Name)
+	if result.Model.Name != "alder" {
+		t.Errorf("Expected model name 'alder', got %s", result.Model.Name)
 	}
 }
 
