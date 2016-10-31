@@ -51,7 +51,7 @@ const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx 
 // Queries
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
 const findMaxRevisionSigningLogSQL = "SELECT MAX(revision) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
-const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint) VALUES ($1, $2, $3, $4)"
+const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 
@@ -64,6 +64,7 @@ type SigningLog struct {
 	SerialNumber string    `json:"serialnumber"`
 	Fingerprint  string    `json:"fingerprint"`
 	Created      time.Time `json:"created"`
+	Revision     int       `json:"revision"`
 }
 
 // CreateSigningLogTable creates the database table for a signing log with its indexes.
@@ -93,7 +94,7 @@ func (db *DB) CreateSigningLogTable() error {
 
 // CheckForDuplicate verifies that the serial number and the device-key fingerprint have not be used previously.
 // If a duplicate serial number does exist, it returns the maximum revision number for the serial number.
-func (db *DB) CheckForDuplicate(signLog SigningLog) (bool, int, error) {
+func (db *DB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	var duplicateExists bool
 	var maxRevision int
 	err := db.QueryRow(findExistingSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint).Scan(&duplicateExists)
@@ -121,7 +122,7 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	}
 
 	// Create the log in the database
-	_, err := db.Exec(createSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint)
+	_, err := db.Exec(createSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint, signLog.Revision)
 	if err != nil {
 		log.Printf("Error creating the signing log: %v\n", err)
 		return err
@@ -144,7 +145,7 @@ func (db *DB) ListSigningLog(fromID int) ([]SigningLog, error) {
 
 	for rows.Next() {
 		signingLog := SigningLog{}
-		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created)
+		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created, &signingLog.Revision)
 		if err != nil {
 			return nil, err
 		}

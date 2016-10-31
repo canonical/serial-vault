@@ -183,7 +183,7 @@ func (mdb *mockDB) CreateSigningLogTable() error {
 	return nil
 }
 
-func (mdb *mockDB) CheckForDuplicate(signLog SigningLog) (bool, int, error) {
+func (mdb *mockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	switch signLog.SerialNumber {
 	case "Aduplicate":
 		return true, 3, nil
@@ -305,7 +305,7 @@ func (mdb *errorMockDB) PutSetting(setting Setting) error {
 	return nil
 }
 
-func (mdb *errorMockDB) CheckForDuplicate(signLog SigningLog) (bool, int, error) {
+func (mdb *errorMockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	return false, 0, nil
 }
 

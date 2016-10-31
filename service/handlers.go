@@ -140,12 +140,11 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), Fingerprint: assertion.SignKeyID()}
 
 	// Convert the serial-request headers into a serial assertion
-	serialAssertion, err := serialRequestToSerial(assertion, signingLog)
+	serialAssertion, err := serialRequestToSerial(assertion, &signingLog)
 	if err != nil {
 		logMessage("SIGN", "create-assertion", err.Error())
 		return ErrorCreateAssertion
 	}
-	signingLog.SerialNumber = serialAssertion.HeaderString("serial")
 
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
@@ -167,7 +166,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 }
 
 // serialRequestToSerial converts a serial-request to a serial assertion
-func serialRequestToSerial(assertion asserts.Assertion, signingLog SigningLog) (asserts.Assertion, error) {
+func serialRequestToSerial(assertion asserts.Assertion, signingLog *SigningLog) (asserts.Assertion, error) {
 
 	// Create the serial assertion header from the serial-request headers
 	serialHeaders := assertion.Headers()
@@ -211,7 +210,8 @@ func serialRequestToSerial(assertion asserts.Assertion, signingLog SigningLog) (
 	}
 
 	// Set the revision number, incrementing the previously used one
-	headers["revision"] = fmt.Sprintf("%d", maxRevision+1)
+	signingLog.Revision = maxRevision + 1
+	headers["revision"] = fmt.Sprintf("%d", signingLog.Revision)
 
 	// If we have a body, set the body length
 	if len(assertion.Body()) > 0 {

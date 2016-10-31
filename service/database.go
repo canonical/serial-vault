@@ -48,7 +48,7 @@ type Datastore interface {
 	GetSetting(code string) (Setting, error)
 
 	CreateSigningLogTable() error
-	CheckForDuplicate(signLog SigningLog) (bool, int, error)
+	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
 	ListSigningLog(fromID int) ([]SigningLog, error)
 	DeleteSigningLog(signingLog SigningLog) (string, error)
