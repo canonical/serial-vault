@@ -37,6 +37,9 @@ const createSigningLogTableSQL = `
 	)
 `
 
+// Additional columns
+const alterSigningLogAddRevisionSQL = "ALTER TABLE signinglog ADD COLUMN revision int default 1"
+
 // MaxFromID is the maximum ID value
 const MaxFromID = 2147483647
 
@@ -47,6 +50,7 @@ const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx 
 
 // Queries
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
+const findMaxRevisionSigningLogSQL = "SELECT MAX(revision) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint) VALUES ($1, $2, $3, $4)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
@@ -77,19 +81,35 @@ func (db *DB) CreateSigningLogTable() error {
 		return err
 	}
 	_, err = db.Exec(createSigningLogFingerprintIndexSQL)
+	if err != nil {
+		return err
+	}
 
-	return err
+	// Ignoring the error when adding the column
+	db.Exec(alterSigningLogAddRevisionSQL)
+
+	return nil
 }
 
-// CheckForDuplicate verifies that the serial number and the device-key fingerprint have not be used previously
-func (db *DB) CheckForDuplicate(signLog SigningLog) (bool, error) {
+// CheckForDuplicate verifies that the serial number and the device-key fingerprint have not be used previously.
+// If a duplicate serial number does exist, it returns the maximum revision number for the serial number.
+func (db *DB) CheckForDuplicate(signLog SigningLog) (bool, int, error) {
 	var duplicateExists bool
+	var maxRevision int
 	err := db.QueryRow(findExistingSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint).Scan(&duplicateExists)
 	if err != nil {
 		log.Printf("Error checking signinglog for duplicate: %v\n", err)
-		return false, errors.New("Error communicating with the database")
+		return false, 0, errors.New("Error communicating with the database")
 	}
-	return duplicateExists, nil
+
+	// If we do have a duplicate, we need to find the maximum revision number
+	err = db.QueryRow(findMaxRevisionSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber).Scan(&maxRevision)
+	if err != nil {
+		log.Printf("Error checking signinglog for maximum revision number of the serial: %v\n", err)
+		return false, 0, errors.New("Error communicating with the database")
+	}
+
+	return duplicateExists, maxRevision, nil
 }
 
 // CreateSigningLog logs that a specific serial number has been used, along with the device-key fingerprint.

@@ -374,6 +374,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 	result, _ := sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 
 	if result.ErrorCode != "signing-assertion" {
+		t.Error(result.ErrorMessage)
 		t.Errorf("Expected an 'error signing' message, got %s", result.ErrorCode)
 	}
 

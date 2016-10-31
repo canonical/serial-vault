@@ -21,6 +21,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -135,23 +136,16 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 		return ErrorInactiveModel
 	}
 
+	// Create a basic signing log entry (without the serial number)
+	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), Fingerprint: assertion.SignKeyID()}
+
 	// Convert the serial-request headers into a serial assertion
-	serialAssertion, err := serialRequestToSerial(assertion)
+	serialAssertion, err := serialRequestToSerial(assertion, signingLog)
 	if err != nil {
 		logMessage("SIGN", "create-assertion", err.Error())
 		return ErrorCreateAssertion
 	}
-
-	// Check that we have not already signed this device (the serial number came from the assertion body)
-	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), SerialNumber: serialAssertion.HeaderString("serial"), Fingerprint: assertion.SignKeyID()}
-	duplicateExists, err := Environ.DB.CheckForDuplicate(signingLog)
-	if err != nil {
-		logMessage("SIGN", "duplicate-assertion", err.Error())
-		return ErrorDuplicateAssertion
-	}
-	if duplicateExists {
-		logMessage("SIGN", "duplicate-assertion", "The serial number and/or device-key have already been used to sign a device")
-	}
+	signingLog.SerialNumber = serialAssertion.HeaderString("serial")
 
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
@@ -173,7 +167,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 }
 
 // serialRequestToSerial converts a serial-request to a serial assertion
-func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, error) {
+func serialRequestToSerial(assertion asserts.Assertion, signingLog SigningLog) (asserts.Assertion, error) {
 
 	// Create the serial assertion header from the serial-request headers
 	serialHeaders := assertion.Headers()
@@ -198,6 +192,26 @@ func serialRequestToSerial(assertion asserts.Assertion) (asserts.Assertion, erro
 		// Get the extra headers from the body
 		headers["serial"] = body["serial"]
 	}
+
+	// Check that we have a serial
+	if headers["serial"] == nil {
+		logMessage("SIGN", "create-assertion", ErrorEmptySerial.Message)
+		return nil, errors.New(ErrorEmptySerial.Message)
+	}
+
+	// Check that we have not already signed this device, and get the max. revision number for the serial number
+	signingLog.SerialNumber = headers["serial"].(string)
+	duplicateExists, maxRevision, err := Environ.DB.CheckForDuplicate(signingLog)
+	if err != nil {
+		logMessage("SIGN", "duplicate-assertion", err.Error())
+		return nil, errors.New(ErrorDuplicateAssertion.Message)
+	}
+	if duplicateExists {
+		logMessage("SIGN", "duplicate-assertion", "The serial number and/or device-key have already been used to sign a device")
+	}
+
+	// Set the revision number, incrementing the previously used one
+	headers["revision"] = fmt.Sprintf("%d", maxRevision+1)
 
 	// If we have a body, set the body length
 	if len(assertion.Body()) > 0 {

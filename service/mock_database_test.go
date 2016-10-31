@@ -61,8 +61,8 @@ func (mdb *mockDB) ListModels() ([]Model, error) {
 // FindModel mocks the database response for finding a model
 func (mdb *mockDB) FindModel(brandID, modelName string) (Model, error) {
 	model := Model{ID: 1, BrandID: "System", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
-	if modelName == "Inactive" {
-		model = Model{ID: 1, BrandID: "System", Name: "Inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
+	if modelName == "inactive" {
+		model = Model{ID: 1, BrandID: "System", Name: "inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}
 	if model.BrandID != brandID || model.Name != modelName {
 		return model, errors.New("Cannot find a model for that brand and model")
@@ -183,14 +183,14 @@ func (mdb *mockDB) CreateSigningLogTable() error {
 	return nil
 }
 
-func (mdb *mockDB) CheckForDuplicate(signLog SigningLog) (bool, error) {
+func (mdb *mockDB) CheckForDuplicate(signLog SigningLog) (bool, int, error) {
 	switch signLog.SerialNumber {
 	case "Aduplicate":
-		return true, nil
+		return true, 3, nil
 	case "AnError":
-		return false, errors.New("Error in check for duplicate")
+		return false, 0, errors.New("Error in check for duplicate")
 	}
-	return false, nil
+	return false, 0, nil
 }
 
 func (mdb *mockDB) CreateSigningLog(signLog SigningLog) error {
@@ -305,8 +305,8 @@ func (mdb *errorMockDB) PutSetting(setting Setting) error {
 	return nil
 }
 
-func (mdb *errorMockDB) CheckForDuplicate(signLog SigningLog) (bool, error) {
-	return false, nil
+func (mdb *errorMockDB) CheckForDuplicate(signLog SigningLog) (bool, int, error) {
+	return false, 0, nil
 }
 
 func (mdb *errorMockDB) CreateSigningLog(signLog SigningLog) error {
