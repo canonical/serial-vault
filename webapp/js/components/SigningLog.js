@@ -94,7 +94,7 @@ var SigningLogList = React.createClass({
           <table>
             <thead>
               <tr>
-                <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
+                <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'revision'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
               </tr>
             </thead>
             <tbody>

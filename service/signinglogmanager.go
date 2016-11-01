@@ -50,7 +50,7 @@ const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx 
 
 // Queries
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
-const findMaxRevisionSigningLogSQL = "SELECT MAX(revision) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
+const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
