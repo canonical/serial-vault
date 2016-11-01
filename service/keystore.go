@@ -110,7 +110,7 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 
 // ImportSigningKey adds a new signing-key for an authority into the keypair store
 func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey string) (asserts.PrivateKey, string, error) {
-	privateKey, _, err := deserializePrivateKey(base64PrivateKey)
+	privateKey, _, err := DeserializePrivateKey(base64PrivateKey)
 	if err != nil {
 		return nil, "", err
 	}

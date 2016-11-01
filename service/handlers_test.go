@@ -40,7 +40,7 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 	}
 	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
 
-	privateKey, _, err := deserializePrivateKey(encodedSigningKey)
+	privateKey, _, err := DeserializePrivateKey(encodedSigningKey)
 	return privateKey, nil
 }
 
