@@ -14,7 +14,7 @@ apps:
     config:
       command: bin/set-config
     vaultclient:
-      command: bin/vaultclient
+      command: bin/snap-run-vaultclient
       plugs:
         - network
 parts:
@@ -30,6 +30,7 @@ parts:
           bin/snap-run-service: bin/snap-run-service
           bin/snap-run-admin-service: bin/snap-run-admin-service
           bin/snap-run-signing-service: bin/snap-run-signing-service
+          bin/snap-run-vaultclient: bin/snap-run-vaultclient
           settings.yaml: data/settings.yaml
-          keystore/TestDeviceKey.asc: bin/keystore/TestDeviceKey.asc
+          keystore/TestDeviceKey.asc: keystore/TestDeviceKey.asc
           static: static
