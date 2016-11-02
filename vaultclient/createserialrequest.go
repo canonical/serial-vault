@@ -91,8 +91,14 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 }
 
 func generateSerialRequestAssertion() (string, error) {
-	privateKey, _ := generatePrivateKey()
-	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
+	privateKey, err := generatePrivateKey()
+	if err != nil {
+		return "", err
+	}
+	encodedPubKey, err := asserts.EncodePublicKey(privateKey.PublicKey())
+	if err != nil {
+		return "", err
+	}
 
 	// Generate a request-id
 	r, _ := getRequestID()
