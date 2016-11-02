@@ -121,7 +121,7 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 		}
 
 		// Convert the byte array to an asserts key
-		privateKey, errorCode, err := deserializePrivateKey(string(base64SigningKey[:]))
+		privateKey, errorCode, err := DeserializePrivateKey(string(base64SigningKey[:]))
 		if err != nil {
 			log.Printf("Error generating the asserts private-key: %v", errorCode)
 			return err

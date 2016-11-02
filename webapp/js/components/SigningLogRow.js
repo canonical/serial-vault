@@ -47,6 +47,7 @@ var SigningLogRow = React.createClass({
 				<td>{this.props.log.make}</td>
 				<td>{this.props.log.model}</td>
 				<td>{this.props.log.serialnumber}</td>
+				<td>{this.props.log.revision}</td>
 				<td>{this.props.log.fingerprint}</td>
 				<td>{moment(this.props.log.created).format("YYYY-MM-DD HH:mm")}</td>
 			</tr>
