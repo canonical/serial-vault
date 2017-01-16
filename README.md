@@ -30,10 +30,10 @@ The application has an admin service that can be run by using mode=admin.
 ## Try with docker
   ```bash
   $ git clone https://github.com/ubuntu-core/identity-vault
-  $ cd identity-vault/
+  $ cd identity-vault/docker-compose
   $ docker-compose up
   # remove containers after try
-  $ docker-compose rm
+  $ docker-compose kill && docker-compose rm
   ```
 
 ## Development Environment
@@ -127,7 +127,7 @@ The request-id is a nonce that can only be used once and must be used before it 
 ### /v1/serial (POST)
 > Generate a serial assertion signed by the brand key.
 
-Takes the details from the device as a serial-request assertion and generates a signed serial assertion. 
+Takes the details from the device as a serial-request assertion and generates a signed serial assertion.
 
 #### Input message
 The message must be the serial-request assertion format and is best generated using the snapd libraries.
@@ -153,7 +153,7 @@ AcLBUgQAAQoABgUCV7R2C...
 - signature: the signed data
 - serial: serial number of the device (string)
 
-The HW-DETAILS are optional hardware details in YAML format, but must include the 'serial' tag as that is a mandatory 
+The HW-DETAILS are optional hardware details in YAML format, but must include the 'serial' tag as that is a mandatory
 part of the serial assertion.
 
 #### Output message
