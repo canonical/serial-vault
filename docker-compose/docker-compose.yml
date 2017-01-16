@@ -1,13 +1,15 @@
-db:
-  image: postgres
-  volumes:
-      - ./db/postgres-setup.sql:/docker-entrypoint-initdb.d/setup.sql
-  environment:
-      POSTGRES_PASSWORD: ubuntu
-web:
-  build: ..
-  ports:
-    - "8080:8080"
-    - "8081:8081"
-  links:
-    - db
+version: '2'
+services:
+  db:
+    image: postgres
+    env_file:
+      - ./env
+  web:
+    build: ..
+    depends_on:
+      - db
+    env_file:
+      - ./env
+    ports:
+      - "8080:8080"
+      - "8081:8081"

@@ -7,6 +7,7 @@ WORKDIR /go/src/github.com/ubuntu-core/identity-vault
 # get dependency
 RUN sh -c "go get launchpad.net/godeps; godeps -t -u dependencies.tsv"
 
+COPY ./docker-compose/settings.yaml /go/src/github.com/ubuntu-core/identity-vault
 COPY ./docker-compose/docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
