@@ -6,15 +6,15 @@ docRoot: "."
 
 # Backend database details
 driver: "postgres"
-datasource: "postgres://postgres:ubuntu@db:5432/identityvault?sslmode=disable"
+datasource: "postgres://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/POSTGRES_DB?sslmode=disable"
 
 # Signing Key Store
-keystore: "filesystem"
-keystorePath: "./keystore"
+# keystore: "filesystem"
+# keystorePath: "./keystore"
 
 # For Database
-#keystore: "database"
-#keystoreSecret: "secret code to encrypt the auth-key hash"
+keystore: "database"
+keystoreSecret: "KEYSTORE_SECRET"
 
 # For TPM 2.0
 #keystore: "tpm2.0"
@@ -23,4 +23,4 @@ keystorePath: "./keystore"
 
 # Valid API keys
 apiKeys:
-    - U2VyaWFsIFZhdWx0Cg
+    - API_KEY
