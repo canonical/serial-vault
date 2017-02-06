@@ -20,10 +20,13 @@
 package service
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const createSigningLogTableSQL = `
@@ -54,6 +57,11 @@ const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM sig
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
+const filterValuesMakeSigningLogSQL = "SELECT DISTINCT make FROM signinglog ORDER BY make"
+const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
+const filterMakesSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1)"
+const filterModelsSigningLogSQL = "SELECT * FROM signinglog WHERE model = ANY($1)"
+const filterMakesModelsSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1) AND model = ANY($2)"
 
 // SigningLog holds the details of the serial number and public key fingerprint that were supplied
 // in a serial assertion for signing. The details are stored in the local database,
@@ -65,6 +73,12 @@ type SigningLog struct {
 	Fingerprint  string    `json:"fingerprint"`
 	Created      time.Time `json:"created"`
 	Revision     int       `json:"revision"`
+}
+
+// SigningLogFilters holds the values of the filters for the searchable columns
+type SigningLogFilters struct {
+	Makes  []string `json:"makes"`
+	Models []string `json:"models"`
 }
 
 // CreateSigningLogTable creates the database table for a signing log with its indexes.
@@ -133,10 +147,26 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 
 // ListSigningLog returns a list of signing log records from a specific date/time.
 // The fromId parameter is used enables the use of indexes for more efficient pagination.
-func (db *DB) ListSigningLog(fromID int) ([]SigningLog, error) {
+func (db *DB) ListSigningLog(params SigningLogRequest) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
-	rows, err := db.Query(listSigningLogSQL, fromID)
+	var rows *sql.Rows
+	var err error
+
+	switch {
+	case len(params.Makes) > 0 && len(params.Models) == 0:
+		log.Println("makes")
+		rows, err = db.Query(filterMakesSigningLogSQL, pq.Array(params.Makes))
+	case len(params.Makes) == 0 && len(params.Models) > 0:
+		log.Println("models")
+		rows, err = db.Query(filterModelsSigningLogSQL, pq.Array(params.Models))
+	case len(params.Makes) > 0 && len(params.Models) > 0:
+		log.Println("makes/models")
+		rows, err = db.Query(filterMakesModelsSigningLogSQL, pq.Array(params.Makes), pq.Array(params.Models))
+	default:
+		rows, err = db.Query(listSigningLogSQL, params.FromID)
+	}
+
 	if err != nil {
 		log.Printf("Error retrieving database models: %v\n", err)
 		return nil, err
@@ -165,4 +195,48 @@ func (db *DB) DeleteSigningLog(signingLog SigningLog) (string, error) {
 	}
 
 	return "", nil
+}
+
+// SigningLogFilterValues returns the unique values of the main filterable columns
+func (db *DB) SigningLogFilterValues() (SigningLogFilters, error) {
+	filters := SigningLogFilters{}
+
+	err := db.filterValuesForField(filterValuesMakeSigningLogSQL, &filters.Makes)
+	if err != nil {
+		log.Printf("Error retrieving filter values: %v\n", err)
+		return filters, err
+	}
+
+	err = db.filterValuesForField(filterValuesModelSigningLogSQL, &filters.Models)
+	if err != nil {
+		log.Printf("Error retrieving filter values: %v\n", err)
+		return filters, err
+	}
+
+	return filters, nil
+}
+
+func (db *DB) filterValuesForField(sql string, fieldValues *[]string) error {
+
+	values := []string{}
+
+	rows, err := db.Query(sql)
+	if err != nil {
+		log.Printf("Error retrieving filter values: %v\n", err)
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var fieldValue string
+		err := rows.Scan(&fieldValue)
+		if err != nil {
+			return err
+		}
+		values = append(values, fieldValue)
+	}
+
+	*fieldValues = values
+
+	return nil
 }

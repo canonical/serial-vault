@@ -22,36 +22,83 @@ var SigningLogRow = require('./SigningLogRow');
 var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
+import SigningLogFilter from './SigningLogFilter'
 var injectIntl = require('react-intl').injectIntl;
 
 const PAGINATION_SIZE = 50;
 
 var SigningLogList = React.createClass({
   getInitialState: function() {
-    return {logs: this.props.logs || [], confirmDelete: null, message: null, fromID: null, showMore: true};
+    return {
+        logs: this.props.logs || [],
+        confirmDelete: null,
+        message: null,
+        fromID: null, 
+        showMore: true,
+        makes: [],
+        models: [],
+        expanded: {},
+    };
   },
 
   componentDidMount: function () {
     this.getLogs();
+    this.getFilters();
   },
 
   getLogs: function () {
     var self = this;
 
-    SigningLogModel.list(this.state.fromID).then(function(response) {
+    // Get the filters that have been selected, if any
+    var makes = [];
+    var models = [];
+    this.state.makes.filter((m) => {
+      if (m.selected) {
+        makes.push(m.name);
+      }
+      return;
+    });
+    this.state.models.filter((m) => {
+      if (m.selected) {
+        models.push(m.name);
+      }
+      return;
+    })
+
+    SigningLogModel.list(this.state.fromID, makes, models).then(function(response) {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
         message = data.message;
       }
       var showMore = data.logs.length == PAGINATION_SIZE;
-      self.setState({logs: self.state.logs.concat(data.logs), message: message, showMore: showMore});
+      self.setState({logs: data.logs, message: message, showMore: showMore});
+    });
+  },
+
+  getFilters: function () {
+    var self = this;
+
+    SigningLogModel.filters().then(function(response) {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+
+      var makes = data.makes.map(function(item) {
+            return {name: item, selected: false};
+      });
+      var models = data.models.map(function(item) {
+            return {name: item, selected: false};
+      });
+
+      self.setState({makes: makes, models: models, message: message});
     });
   },
 
   getMoreLogs: function() {
     var fromID = this.state.logs[this.state.logs.length-1].id
-    console.log(fromID);
     this.setState({fromID: fromID}, this.getLogs);
   },
 
@@ -83,6 +130,18 @@ var SigningLogList = React.createClass({
   handleDeleteLogCancel: function(e) {
     e.preventDefault();
     this.setState({confirmDelete: null});
+  },
+
+  handleExpansionClick: function(value) {
+    var expanded = this.state.expanded;
+    expanded[value] = !expanded[value]
+    this.setState({expanded: expanded})
+  },
+
+  handleItemClick: function(index, key) {
+    var items = this.state[key];
+    items[index].selected = !items[index].selected;
+    this.setState({key: items, fromID: null}, this.getLogs);
   },
 
   renderTable: function(M) {
@@ -132,8 +191,32 @@ var SigningLogList = React.createClass({
             <div className="twelve-col">
               <AlertBox message={this.state.message} />
             </div>
-            <div className="twelve-col">
-              {this.renderTable(M)}
+
+            <div className="full">
+              <div className="col three-col">
+                <div className="box filter">
+                  <div className="filter-section">
+                      <h3>Filter By</h3>
+                      <SigningLogFilter
+                          name={'Makes'} items={this.state.makes}
+                          keyName={'makes'}
+                          handleItemClick={this.handleItemClick}
+                          expanded={this.state.expanded.makes}
+                          expansionClick={this.handleExpansionClick}
+                      />
+                      <SigningLogFilter
+                          name={'Models'} items={this.state.models}
+                          keyName={'models'}
+                          handleItemClick={this.handleItemClick}
+                          expanded={this.state.expanded.models}
+                          expansionClick={this.handleExpansionClick}
+                      />
+                  </div>
+                </div>
+              </div>
+              <div className="col nine-col last-col">
+                {this.renderTable(M)}
+              </div>
             </div>
 
           </section>
