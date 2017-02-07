@@ -38,40 +38,39 @@ type SigningLogResponse struct {
 	SigningLog   []SigningLog `json:"logs"`
 }
 
-type SigningLogRequest struct {
-	FromID int      `json:"fromID"`
-	Makes  []string `json:"makes"`
-	Models []string `json:"models"`
-}
+// // SigningLogRequest is the JSON message expected for fetching signing logs
+// type SigningLogRequest struct {
+// 	FromID int `json:"fromID"`
+// }
 
 // SigningLogHandler is the API method to fetch the log records from signing
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Check that we have a message body
-	if r.Body == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatSigningLogResponse(false, "error-fetch-signinglog", "", "Uninitialized POST data", nil, w)
-		return
-	}
-	defer r.Body.Close()
+	// // Check that we have a message body
+	// if r.Body == nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	formatSigningLogResponse(false, "error-fetch-signinglog", "", "Uninitialized POST data", nil, w)
+	// 	return
+	// }
+	// defer r.Body.Close()
 
-	// Decode the JSON body
-	request := SigningLogRequest{}
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
-		return
-	}
-	log.Println(request.FromID)
-	log.Println(request.Makes)
-	log.Println(request.Models)
-	if request.FromID == 0 {
-		request.FromID = MaxFromID
-	}
+	// // Decode the JSON body
+	// request := SigningLogRequest{}
+	// err := json.NewDecoder(r.Body).Decode(&request)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
+	// 	return
+	// }
+	// log.Println(request.FromID)
+	// log.Println(request.Makes)
+	// log.Println(request.Models)
+	// if request.FromID == 0 {
+	// 	request.FromID = MaxFromID
+	// }
 
-	logs, err := Environ.DB.ListSigningLog(request)
+	logs, err := Environ.DB.ListSigningLog()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)

@@ -23,6 +23,7 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
 import SigningLogFilter from './SigningLogFilter'
+import Pagination from './Pagination'
 var injectIntl = require('react-intl').injectIntl;
 
 const PAGINATION_SIZE = 50;
@@ -33,11 +34,13 @@ var SigningLogList = React.createClass({
         logs: this.props.logs || [],
         confirmDelete: null,
         message: null,
-        fromID: null, 
-        showMore: true,
         makes: [],
         models: [],
         expanded: {},
+        query: '',
+        page: 1,
+        startRow: 0,
+        endRow: PAGINATION_SIZE,
     };
   },
 
@@ -49,30 +52,14 @@ var SigningLogList = React.createClass({
   getLogs: function () {
     var self = this;
 
-    // Get the filters that have been selected, if any
-    var makes = [];
-    var models = [];
-    this.state.makes.filter((m) => {
-      if (m.selected) {
-        makes.push(m.name);
-      }
-      return;
-    });
-    this.state.models.filter((m) => {
-      if (m.selected) {
-        models.push(m.name);
-      }
-      return;
-    })
-
-    SigningLogModel.list(this.state.fromID, makes, models).then(function(response) {
+    SigningLogModel.list().then(function(response) {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
         message = data.message;
       }
-      var showMore = data.logs.length == PAGINATION_SIZE;
-      self.setState({logs: data.logs, message: message, showMore: showMore});
+
+      self.setState({logs: data.logs, message: message});
     });
   },
 
@@ -95,11 +82,6 @@ var SigningLogList = React.createClass({
 
       self.setState({makes: makes, models: models, message: message});
     });
-  },
-
-  getMoreLogs: function() {
-    var fromID = this.state.logs[this.state.logs.length-1].id
-    this.setState({fromID: fromID}, this.getLogs);
   },
 
   handleDelete: function(e) {
@@ -141,10 +123,58 @@ var SigningLogList = React.createClass({
   handleItemClick: function(index, key) {
     var items = this.state[key];
     items[index].selected = !items[index].selected;
-    this.setState({key: items, fromID: null}, this.getLogs);
+    this.setState({key: items, startRow: 0, endRow: PAGINATION_SIZE, page: 1});
   },
 
-  renderTable: function(M) {
+  handleRecordsForPage: function(startRow, endRow) {
+    this.setState({startRow: startRow, endRow: endRow});
+  },
+
+  handleSearchChange: function(e) {
+    this.setState({query: e.target.value});
+  },
+
+  filterRow: function(l, makes, models) {
+
+    // See if it passes the text search test
+    if (this.state.query.length > 0) {
+      if (l.serialnumber.toLowerCase().indexOf(this.state.query.toLowerCase()) < 0) return false
+    }
+
+    // If no filters are applied, then the row can be displayed
+    if ((makes.length === 0) && (models.length === 0)) return true;
+
+    // See if it passes the makes test
+    if ((makes.length > 0) && (makes.indexOf(l.make) < 0)) return false
+
+    // See if it passes the models test
+    if ((models.length > 0) && (models.indexOf(l.model) < 0)) return false
+
+    return true;
+  },
+
+  selectedFilters: function(name) {
+    var items = [];
+    name.map(function(n) {
+      if(n.selected) {
+        items.push(n.name);
+      }
+    });
+    return items;
+  },
+
+  displayRows: function() {
+    var self = this;
+    var makes = this.selectedFilters(this.state.makes);
+    var models = this.selectedFilters(this.state.models);
+
+    return this.state.logs.filter(function(l) {
+      // Check if the row is filtered
+      return self.filterRow(l, makes, models);
+    })
+  },
+
+  renderTable: function(M, items) {
     var self = this;
 
     if (this.state.logs.length > 0) {
@@ -153,19 +183,13 @@ var SigningLogList = React.createClass({
           <table>
             <thead>
               <tr>
-                <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'revision'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
+                <th className="small"></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'revision'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
               </tr>
             </thead>
             <tbody>
-              {this.state.logs.map(function(l) {
-                return (
-                  <SigningLogRow key={l.id} log={l} delete={self.handleDelete} confirmDelete={self.state.confirmDelete}
-                    deleteLog={self.handleDeleteLog} cancelDelete={self.handleDeleteLogCancel} />
-                );
-              })}
+              {this.renderRows(items)}
             </tbody>
           </table>
-          {this.state.showMore? <button onClick={self.getMoreLogs}>{M({id:'more'})}</button> : ''}
         </div>
       );
     } else {
@@ -173,11 +197,21 @@ var SigningLogList = React.createClass({
         <p>No models signed.</p>
       );
     }
+  },
 
+  renderRows: function(items) {
+    return items.map((l) => {
+      return (
+        <SigningLogRow key={l.id} log={l} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
+          deleteLog={this.handleDeleteLog} cancelDelete={this.handleDeleteLogCancel} />
+      );
+    });
   },
 
   render: function() {
     var M = this.props.intl.formatMessage;
+
+    var displayRows = this.displayRows();
 
     return (
         <div className="inner-wrapper">
@@ -215,7 +249,11 @@ var SigningLogList = React.createClass({
                 </div>
               </div>
               <div className="col nine-col last-col">
-                {this.renderTable(M)}
+                <Pagination rows={this.state.logs.length} displayRows={displayRows}
+                            page={this.state.page} searchText={M({id:'find-serialnumber'})}
+                            pageChange={this.handleRecordsForPage}
+                            onSearchChange={this.handleSearchChange} />
+                {this.renderTable(M, displayRows.slice(this.state.startRow, this.state.endRow))}
               </div>
             </div>
 

@@ -63,8 +63,9 @@ var App = React.createClass({
 				    </div>
 						<div>
 							<form id="language-form" className="header-search">
+									{/* Add more languages here */}
 									{this.renderLanguage('en')}
-									{this.renderLanguage('zh')}
+									{/* this.renderLanguage('en') */}
 							</form>
 						</div>
 				  </nav>

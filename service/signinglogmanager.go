@@ -20,13 +20,10 @@
 package service
 
 import (
-	"database/sql"
 	"errors"
 	"log"
 	"strings"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 const createSigningLogTableSQL = `
@@ -55,13 +52,14 @@ const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx 
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
 const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
-const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 50"
+const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 10000"
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 const filterValuesMakeSigningLogSQL = "SELECT DISTINCT make FROM signinglog ORDER BY make"
 const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
-const filterMakesSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1)"
-const filterModelsSigningLogSQL = "SELECT * FROM signinglog WHERE model = ANY($1)"
-const filterMakesModelsSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1) AND model = ANY($2)"
+
+// const filterMakesSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1)"
+// const filterModelsSigningLogSQL = "SELECT * FROM signinglog WHERE model = ANY($1)"
+// const filterMakesModelsSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1) AND model = ANY($2)"
 
 // SigningLog holds the details of the serial number and public key fingerprint that were supplied
 // in a serial assertion for signing. The details are stored in the local database,
@@ -147,26 +145,27 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 
 // ListSigningLog returns a list of signing log records from a specific date/time.
 // The fromId parameter is used enables the use of indexes for more efficient pagination.
-func (db *DB) ListSigningLog(params SigningLogRequest) ([]SigningLog, error) {
+func (db *DB) ListSigningLog() ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
-	var rows *sql.Rows
-	var err error
+	// var rows *sql.Rows
+	// var err error
 
-	switch {
-	case len(params.Makes) > 0 && len(params.Models) == 0:
-		log.Println("makes")
-		rows, err = db.Query(filterMakesSigningLogSQL, pq.Array(params.Makes))
-	case len(params.Makes) == 0 && len(params.Models) > 0:
-		log.Println("models")
-		rows, err = db.Query(filterModelsSigningLogSQL, pq.Array(params.Models))
-	case len(params.Makes) > 0 && len(params.Models) > 0:
-		log.Println("makes/models")
-		rows, err = db.Query(filterMakesModelsSigningLogSQL, pq.Array(params.Makes), pq.Array(params.Models))
-	default:
-		rows, err = db.Query(listSigningLogSQL, params.FromID)
-	}
+	// switch {
+	// case len(params.Makes) > 0 && len(params.Models) == 0:
+	// 	log.Println("makes")
+	// 	rows, err = db.Query(filterMakesSigningLogSQL, pq.Array(params.Makes))
+	// case len(params.Makes) == 0 && len(params.Models) > 0:
+	// 	log.Println("models")
+	// 	rows, err = db.Query(filterModelsSigningLogSQL, pq.Array(params.Models))
+	// case len(params.Makes) > 0 && len(params.Models) > 0:
+	// 	log.Println("makes/models")
+	// 	rows, err = db.Query(filterMakesModelsSigningLogSQL, pq.Array(params.Makes), pq.Array(params.Models))
+	// default:
+	// 	rows, err = db.Query(listSigningLogSQL, params.FromID)
+	// }
 
+	rows, err := db.Query(listSigningLogSQL, MaxFromID)
 	if err != nil {
 		log.Printf("Error retrieving database models: %v\n", err)
 		return nil, err

@@ -20,12 +20,12 @@ var Ajax = require('./Ajax');
 var SigningLog = {
     url: 'signinglog',
 
-	list: function (fromID, makes, models) {
-		var data = {makes: makes, models: models}
+	list: function (fromID) {
+		var data = {};
 		if (fromID) {
 			data.fromID = fromID;
 		}
-		return Ajax.put(this.url, data);
+		return Ajax.get(this.url, data);
 	},
 
 	filters: function() {

@@ -27,8 +27,17 @@ table {
 	table-layout: fixed;
 }
 
-table td {
+table th.small {
+	width: 10%;
+}
+
+table td.wrap {
 	word-wrap: break-word;
+}
+
+table td.overflow {
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .filter {

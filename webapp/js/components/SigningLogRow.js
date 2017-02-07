@@ -44,12 +44,12 @@ var SigningLogRow = React.createClass({
 				<td>
 					{this.renderActions(M)}
 				</td>
-				<td>{this.props.log.make}</td>
-				<td>{this.props.log.model}</td>
-				<td>{this.props.log.serialnumber}</td>
+				<td className="wrap">{this.props.log.make}</td>
+				<td className="wrap">{this.props.log.model}</td>
+				<td className="wrap">{this.props.log.serialnumber}</td>
 				<td>{this.props.log.revision}</td>
-				<td>{this.props.log.fingerprint}</td>
-				<td>{moment(this.props.log.created).format("YYYY-MM-DD HH:mm")}</td>
+				<td className="overflow" title={this.props.log.fingerprint}>{this.props.log.fingerprint}</td>
+				<td className="wrap">{moment(this.props.log.created).format("YYYY-MM-DD HH:mm")}</td>
 			</tr>
 		)
 	}
