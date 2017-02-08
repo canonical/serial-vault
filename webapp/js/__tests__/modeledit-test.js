@@ -19,22 +19,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-
+import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/ModelEdit');
 jest.dontMock('../components/Navigation');
+jest.dontMock('../components/Utils');
 
 describe('model edit', function() {
  it('displays the model edit page for create', function() {
 	 var ModelEdit = require('../components/ModelEdit');
-	 var IntlProvider = require('react-intl').IntlProvider;
 	 var Messages = require('../components/messages').en;
 
 	 // Mock the data retrieval from the API
    var getModel = jest.genMockFunction();
    var getKeypairs = jest.genMockFunction();
-   ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.getModel = getModel;
-   ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
+   ModelEdit.prototype.__reactAutoBindMap.getModel = getModel;
+   ModelEdit.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
+   window.AppState = {getLocale: function() {return 'en'}};
 
 	 // Render the component
 	 var modelPage = TestUtils.renderIntoDocument(
@@ -70,18 +71,16 @@ describe('model edit', function() {
 
  it('displays the model edit page for an existing model', function() {
    var ModelEdit = require('../components/ModelEdit');
-	 var IntlProvider = require('react-intl').IntlProvider;
 	 var Messages = require('../components/messages').en;
 
 	 // Mock the data retrieval from the API
    var getModel = jest.genMockFunction();
    var getKeypairs = jest.genMockFunction();
    var handleSaveClick = jest.genMockFunction();
-   ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.getModel = getModel;
-   ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
-   ModelEdit.WrappedComponent.prototype.__reactAutoBindMap.handleSaveClick = handleSaveClick;
-
-   //var MODEL = {id: 1, 'brand-id': 'Brand1', model: 'Name1', 'authority-id': 'Brand1', 'key-id': 'Name1'};
+   ModelEdit.prototype.__reactAutoBindMap.getModel = getModel;
+   ModelEdit.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
+   ModelEdit.prototype.__reactAutoBindMap.handleSaveClick = handleSaveClick;
+   window.AppState = {getLocale: function() {return 'en'}};
 
 	 // Render the component
 	 var modelPage = TestUtils.renderIntoDocument(

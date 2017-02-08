@@ -20,9 +20,7 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -38,37 +36,18 @@ type SigningLogResponse struct {
 	SigningLog   []SigningLog `json:"logs"`
 }
 
-// // SigningLogRequest is the JSON message expected for fetching signing logs
-// type SigningLogRequest struct {
-// 	FromID int `json:"fromID"`
-// }
+// SigningLogFiltersResponse is the JSON response from the API Signing Log Filters method
+type SigningLogFiltersResponse struct {
+	Success           bool              `json:"success"`
+	ErrorCode         string            `json:"error_code"`
+	ErrorSubcode      string            `json:"error_subcode"`
+	ErrorMessage      string            `json:"message"`
+	SigningLogFilters SigningLogFilters `json:"filters"`
+}
 
 // SigningLogHandler is the API method to fetch the log records from signing
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// // Check that we have a message body
-	// if r.Body == nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	formatSigningLogResponse(false, "error-fetch-signinglog", "", "Uninitialized POST data", nil, w)
-	// 	return
-	// }
-	// defer r.Body.Close()
-
-	// // Decode the JSON body
-	// request := SigningLogRequest{}
-	// err := json.NewDecoder(r.Body).Decode(&request)
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
-	// 	return
-	// }
-	// log.Println(request.FromID)
-	// log.Println(request.Makes)
-	// log.Println(request.Models)
-	// if request.FromID == 0 {
-	// 	request.FromID = MaxFromID
-	// }
 
 	logs, err := Environ.DB.ListSigningLog()
 	if err != nil {
@@ -89,15 +68,13 @@ func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	filters, err := Environ.DB.SigningLogFilterValues()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		formatSigningLogResponse(false, "error-fetch-signinglogfilters", "", err.Error(), nil, w)
+		formatSigningLogFiltersResponse(false, "error-fetch-signinglogfilters", "", err.Error(), filters, w)
 		return
 	}
 
 	// Encode the response as JSON
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(filters); err != nil {
-		log.Println("Error forming the signing log filters response.")
-	}
+	formatSigningLogFiltersResponse(true, "", "", "", filters, w)
 }
 
 // SigningLogDeleteHandler is the API method to delete a signing log entry

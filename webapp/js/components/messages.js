@@ -69,6 +69,8 @@ var intlData = {
       "add-new-signing-key": "<Add a new signing key>",
       "more": "<More>",
       "find-serialnumber": "<find serial number>",
+      "makes": "<Makes>",
+      "models": "<Models>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -153,6 +155,8 @@ var intlData = {
       "add-new-signing-key": "Add a new signing key",
       "more": "More",
       "find-serialnumber": "find serial number",
+      "makes": "Makes",
+      "models": "Models",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",

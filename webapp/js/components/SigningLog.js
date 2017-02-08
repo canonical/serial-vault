@@ -24,7 +24,7 @@ var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
 import SigningLogFilter from './SigningLogFilter'
 import Pagination from './Pagination'
-var injectIntl = require('react-intl').injectIntl;
+import {T} from './Utils'
 
 const PAGINATION_SIZE = 50;
 
@@ -73,10 +73,10 @@ var SigningLogList = React.createClass({
         message = data.message;
       }
 
-      var makes = data.makes.map(function(item) {
+      var makes = data.filters.makes.map(function(item) {
             return {name: item, selected: false};
       });
-      var models = data.models.map(function(item) {
+      var models = data.filters.models.map(function(item) {
             return {name: item, selected: false};
       });
 
@@ -174,7 +174,7 @@ var SigningLogList = React.createClass({
     })
   },
 
-  renderTable: function(M, items) {
+  renderTable: function(items) {
     var self = this;
 
     if (this.state.logs.length > 0) {
@@ -183,7 +183,7 @@ var SigningLogList = React.createClass({
           <table>
             <thead>
               <tr>
-                <th className="small"></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'serial-number'})}</th><th>{M({id:'revision'})}</th><th>{M({id:'fingerprint'})}</th><th>{M({id:'date'})}</th>
+                <th className="small"></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('serial-number')}</th><th>{T('revision')}</th><th>{T('fingerprint')}</th><th>{T('date')}</th>
               </tr>
             </thead>
             <tbody>
@@ -209,8 +209,6 @@ var SigningLogList = React.createClass({
   },
 
   render: function() {
-    var M = this.props.intl.formatMessage;
-
     var displayRows = this.displayRows();
 
     return (
@@ -218,9 +216,9 @@ var SigningLogList = React.createClass({
           <Navigation active="signinglog" />
 
           <section className="row no-border">
-            <h2>{M({id:'signinglog'})}</h2>
+            <h2>{T('signinglog')}</h2>
             <div className="twelve-col">
-              <p>{M({id:'signinglog-description'})}</p>
+              <p>{T('signinglog-description')}</p>
             </div>
             <div className="twelve-col">
               <AlertBox message={this.state.message} />
@@ -232,14 +230,14 @@ var SigningLogList = React.createClass({
                   <div className="filter-section">
                       <h3>Filter By</h3>
                       <SigningLogFilter
-                          name={'Makes'} items={this.state.makes}
+                          name={T('makes')} items={this.state.makes}
                           keyName={'makes'}
                           handleItemClick={this.handleItemClick}
                           expanded={this.state.expanded.makes}
                           expansionClick={this.handleExpansionClick}
                       />
                       <SigningLogFilter
-                          name={'Models'} items={this.state.models}
+                          name={T('models')} items={this.state.models}
                           keyName={'models'}
                           handleItemClick={this.handleItemClick}
                           expanded={this.state.expanded.models}
@@ -250,10 +248,10 @@ var SigningLogList = React.createClass({
               </div>
               <div className="col nine-col last-col">
                 <Pagination rows={this.state.logs.length} displayRows={displayRows}
-                            page={this.state.page} searchText={M({id:'find-serialnumber'})}
+                            page={this.state.page} searchText={T('find-serialnumber')}
                             pageChange={this.handleRecordsForPage}
                             onSearchChange={this.handleSearchChange} />
-                {this.renderTable(M, displayRows.slice(this.state.startRow, this.state.endRow))}
+                {this.renderTable(displayRows.slice(this.state.startRow, this.state.endRow))}
               </div>
             </div>
 
@@ -267,4 +265,4 @@ var SigningLogList = React.createClass({
 
 });
 
-module.exports = injectIntl(SigningLogList);
+module.exports = SigningLogList;

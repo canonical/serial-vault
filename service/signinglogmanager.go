@@ -57,10 +57,6 @@ const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 const filterValuesMakeSigningLogSQL = "SELECT DISTINCT make FROM signinglog ORDER BY make"
 const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
 
-// const filterMakesSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1)"
-// const filterModelsSigningLogSQL = "SELECT * FROM signinglog WHERE model = ANY($1)"
-// const filterMakesModelsSigningLogSQL = "SELECT * FROM signinglog WHERE make = ANY($1) AND model = ANY($2)"
-
 // SigningLog holds the details of the serial number and public key fingerprint that were supplied
 // in a serial assertion for signing. The details are stored in the local database,
 type SigningLog struct {
@@ -147,23 +143,6 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 // The fromId parameter is used enables the use of indexes for more efficient pagination.
 func (db *DB) ListSigningLog() ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
-
-	// var rows *sql.Rows
-	// var err error
-
-	// switch {
-	// case len(params.Makes) > 0 && len(params.Models) == 0:
-	// 	log.Println("makes")
-	// 	rows, err = db.Query(filterMakesSigningLogSQL, pq.Array(params.Makes))
-	// case len(params.Makes) == 0 && len(params.Models) > 0:
-	// 	log.Println("models")
-	// 	rows, err = db.Query(filterModelsSigningLogSQL, pq.Array(params.Models))
-	// case len(params.Makes) > 0 && len(params.Models) > 0:
-	// 	log.Println("makes/models")
-	// 	rows, err = db.Query(filterMakesModelsSigningLogSQL, pq.Array(params.Makes), pq.Array(params.Models))
-	// default:
-	// 	rows, err = db.Query(listSigningLogSQL, params.FromID)
-	// }
 
 	rows, err := db.Query(listSigningLogSQL, MaxFromID)
 	if err != nil {

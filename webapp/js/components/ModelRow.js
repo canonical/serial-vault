@@ -17,41 +17,41 @@
 'use strict'
 
 var React = require('react');
-var injectIntl = require('react-intl').injectIntl;
 var DialogBox = require('./DialogBox');
+import {T} from './Utils'
 
 var ModelRow = React.createClass({
-	renderActions: function(M) {
+	renderActions: function() {
 		if (this.props.model.id !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--primary" title={M({id: 'edit-model'})}><i className="fa fa-pencil"></i></a>
+					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--primary" title={T('edit-model')}><i className="fa fa-pencil"></i></a>
 					&nbsp;
-					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="button--secondary" title={M({id: 'delete-model'})}>
+					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="button--secondary" title={T('delete-model')}>
 						<i className="fa fa-trash" data-key={this.props.model.id}></i></a>
 				</div>
 			);
 		} else {
 			return (
-				<DialogBox message={M({id: 'confirm-model-delete'})} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} />
+				<DialogBox message={T('confirm-model-delete')} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} />
 			);
 		}
 	},
 
 	render: function() {
-		var M = this.props.intl.formatMessage;
+		var fingerprint = this.props.model['authority-id'] + '/' + this.props.model['key-id'];
 		return (
 			<tr>
 			  <td>
-					{this.renderActions(M)}
+					{this.renderActions()}
 				</td>
 				<td>{this.props.model['brand-id']}</td>
 				<td>{this.props.model.model}</td>
-				<td>{this.props.model['authority-id']}/{this.props.model['key-id']}</td>
+				<td className="overflow" title={fingerprint} >{fingerprint}</td>
 				<td>{this.props.model['key-active'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
 			</tr>
 		)
 	}
 });
 
-module.exports = injectIntl(ModelRow);
+module.exports = ModelRow;

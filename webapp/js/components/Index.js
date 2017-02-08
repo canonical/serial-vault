@@ -19,21 +19,20 @@
 var React = require('react');
 var Navigation = require('./Navigation');
 var Footer = require('./Footer');
-var injectIntl = require('react-intl').injectIntl;
+import {FormattedMessage} from 'react-intl'
 
 var Index = React.createClass({
 
   render: function() {
-    var M = this.props.intl.formatMessage;
     return (
         <div className="inner-wrapper">
           <Navigation active="home" />
 
           <section className="row no-border">
-            <h2>{M({id: 'title'})}</h2>
+            <h2><FormattedMessage id="title" /></h2>
             <div>
               <div className="box">
-                {M({id: 'description'})}
+                <FormattedMessage id="description" />
               </div>
             </div>
           </section>
@@ -44,4 +43,4 @@ var Index = React.createClass({
   }
 });
 
-module.exports = injectIntl(Index);
+module.exports = Index;

@@ -27,7 +27,6 @@ jest.dontMock('../components/AlertBox');
 describe('alert box', function() {
  it('displays the alert box with a message', function() {
 	 var AlertBox = require('../components/AlertBox');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    var handleYesClick = jest.genMockFunction();
@@ -35,9 +34,7 @@ describe('alert box', function() {
 
 	 // Render the component
 	 var page = TestUtils.renderIntoDocument(
-     <IntlProvider locale="en" messages={Messages}>
 			 <AlertBox message={'The message goes here'} />
-     </IntlProvider>
 	 );
 
 	 expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
@@ -51,14 +48,11 @@ describe('alert box', function() {
 
  it('displays no box when there is no message', function() {
 	 var AlertBox = require('../components/AlertBox');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    // Render the component
 	 var page = TestUtils.renderIntoDocument(
-     <IntlProvider locale="en" messages={Messages}>
-			 <AlertBox message={null} />
-     </IntlProvider>
+     <AlertBox message={null} />
 	 );
 
    expect(TestUtils.isCompositeComponent(page)).toBeTruthy();

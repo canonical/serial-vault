@@ -202,6 +202,17 @@ func formatSigningLogResponse(success bool, errorCode, errorSubcode, message str
 	return nil
 }
 
+func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters SigningLogFilters, w http.ResponseWriter) error {
+	response := SigningLogFiltersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLogFilters: filters}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the signing log response.")
+		return err
+	}
+	return nil
+}
+
 func formatRequestIDResponse(success bool, message string, nonce DeviceNonce, w http.ResponseWriter) error {
 	response := RequestIDResponse{Success: success, ErrorMessage: message, RequestID: nonce.Nonce}
 

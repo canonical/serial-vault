@@ -23,7 +23,7 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-var injectIntl = require('react-intl').injectIntl;
+import {T} from './Utils';
 
 var ModelEdit = React.createClass({
 	getInitialState: function() {
@@ -31,19 +31,18 @@ var ModelEdit = React.createClass({
 	},
 
 	componentDidMount: function() {
-		var M = this.props.intl.formatMessage;
 		this.getKeypairs();
 
 		if (this.props.params.id) {
-			this.setTitle(M, 'edit-model');
+			this.setTitle('edit-model');
 			this.getModel(this.props.params.id);
 		} else {
-			this.setTitle(M, 'new-model');
+			this.setTitle('new-model');
 		}
 	},
 
-	setTitle: function(M, title) {
-		this.setState({title: M({id: title})});
+	setTitle: function(title) {
+		this.setState({title: T(title)});
 	},
 
 	getModel: function(modelId) {
@@ -67,9 +66,9 @@ var ModelEdit = React.createClass({
 	},
 
 	formatError: function(data) {
-		var message = this.props.intl.formatMessage({id: data.error_code});
+		var message = T(data.error_code);
 		if (data.error_subcode) {
-			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+			message += ': ' + T(data.error_subcode);
 		} else if (data.message) {
 			message += ': ' + data.message;
 		}
@@ -131,7 +130,6 @@ var ModelEdit = React.createClass({
 	},
 
 	render: function() {
-		var M = this.props.intl.formatMessage;
 		var self = this;
 
 		return (
@@ -147,24 +145,24 @@ var ModelEdit = React.createClass({
 							<fieldset>
 								<ul>
 									<li>
-										<label htmlFor="brand">{M({id: 'brand'})}:</label>
-										<input type="text" id="brand" placeholder={M({id: 'brand-description'})}
+										<label htmlFor="brand">{T('brand')}:</label>
+										<input type="text" id="brand" placeholder={T('brand-description')}
 											value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
 									</li>
 									<li>
-										<label htmlFor="model">{M({id: 'model'})}:</label>
-										<input type="text" id="model" placeholder={M({id: 'model-description'})}
+										<label htmlFor="model">{T('model')}:</label>
+										<input type="text" id="model" placeholder={T('model-description')}
 											value={this.state.model.model} onChange={this.handleChangeModel}/>
 									</li>
 									<li>
-										<label htmlFor="keypair">{M({id: 'private-key'})}:</label>
+										<label htmlFor="keypair">{T('private-key')}:</label>
 										<select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
 											<option></option>
 											{this.state.keypairs.map(function(kpr) {
 												if (kpr.Active) {
 													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
 												} else {
-													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({(M({id: 'inactive'}))})</option>;
+													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
 												}
 											})}
 										</select>
@@ -174,9 +172,9 @@ var ModelEdit = React.createClass({
 						</form>
 
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{M({id: 'save'})}</a>
+							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{T('save')}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">{M({id: 'cancel'})}</a>
+							<a href='/models' className="button--secondary">{T('cancel')}</a>
 						</div>
 				</section>
 
@@ -186,4 +184,4 @@ var ModelEdit = React.createClass({
 	}
 });
 
-module.exports = injectIntl(ModelEdit);
+module.exports = ModelEdit;
