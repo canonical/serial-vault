@@ -68,7 +68,7 @@ func (db *DB) CreateSettingsTable() error {
 func (db *DB) PutSetting(setting Setting) error {
 	// Validate the data
 	if strings.TrimSpace(setting.Code) == "" {
-		return errors.New("The code must be entered to store a Setting.")
+		return errors.New("The code must be entered to store a Setting")
 	}
 
 	_, err := db.Exec(upsertSettingsSQL, setting.Code, setting.Data)

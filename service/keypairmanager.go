@@ -103,7 +103,7 @@ func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 	// Validate the data
 	if strings.TrimSpace(keypair.AuthorityID) == "" || strings.TrimSpace(keypair.KeyID) == "" {
-		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered.")
+		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered")
 	}
 
 	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey)
