@@ -71,6 +71,7 @@ var intlData = {
       "find-serialnumber": "<find serial number>",
       "makes": "<Makes>",
       "models": "<Models>",
+      "download": "<Download>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -157,6 +158,7 @@ var intlData = {
       "find-serialnumber": "find serial number",
       "makes": "Makes",
       "models": "Models",
+      "download": "Download",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",

@@ -15,6 +15,7 @@
  *
  */
 import React, { Component } from 'react'
+import {T} from './Utils'
 
 class Pagination extends React.Component {
 
@@ -84,13 +85,18 @@ class Pagination extends React.Component {
   render() {
     return (
         <div className="nine-col pagination">
-            <div className="six-col">
-                <div>
-                    <input type="search" placeholder={this.props.searchText} onChange={this.props.onSearchChange}
-                            value={this.props.query} />
+            <div>
+                <div className="six-col">
+                    <div>
+                        <input type="search" placeholder={this.props.searchText} onChange={this.props.onSearchChange}
+                                value={this.props.query} />
+                    </div>
                 </div>
+                {this.renderPaging()}
             </div>
-            {this.renderPaging()}
+            <div>
+                <button className="button--secondary" onClick={this.props.onDownload}>{T('download')}</button>
+            </div>
         </div>
     );
   }

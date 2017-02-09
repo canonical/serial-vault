@@ -19,7 +19,7 @@ import Messages from './messages'
 
 export function T(message) {
     const lang = window.AppState.getLocale()
-    const msg = Messages[lang][message]
+    const msg = Messages[lang][message] || message;
     return msg
 }
 

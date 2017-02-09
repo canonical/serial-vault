@@ -134,6 +134,10 @@ var SigningLogList = React.createClass({
     this.setState({query: e.target.value});
   },
 
+  handleDownload: function() {
+    SigningLogModel.download(this.displayRows());
+  },
+
   filterRow: function(l, makes, models) {
 
     // See if it passes the text search test
@@ -250,6 +254,7 @@ var SigningLogList = React.createClass({
                 <Pagination rows={this.state.logs.length} displayRows={displayRows}
                             page={this.state.page} searchText={T('find-serialnumber')}
                             pageChange={this.handleRecordsForPage}
+                            onDownload={this.handleDownload}
                             onSearchChange={this.handleSearchChange} />
                 {this.renderTable(displayRows.slice(this.state.startRow, this.state.endRow))}
               </div>
