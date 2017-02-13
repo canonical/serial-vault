@@ -14,33 +14,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-'use strict'
+import Messages from './messages'
 
-var React = require('react');
-import {T} from './Utils';
 
-var DialogBox = React.createClass({
-	render: function() {
+export function T(message) {
+    const lang = window.AppState.getLocale()
+    const msg = Messages[lang][message] || message;
+    return msg
+}
 
-		if (this.props.message) {
-			return (
-				<div className="box warning">
-					<p>{this.props.message}</p>
-					<div>
-						<a href="" onClick={this.props.handleYesClick} className="button--primary small">
-							{T('yes')}
-						</a>
-						&nbsp;
-						<a href="" onClick={this.props.handleCancelClick} className="button--secondary small">
-							{T('cancel')}
-						</a>
-					</div>
-				</div>
-			);
-		} else {
-			return <span />;
-		}
-	}
-});
-
-module.exports = DialogBox;

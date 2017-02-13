@@ -18,41 +18,47 @@
 
 var React = require('react');
 var moment = require('moment');
-var injectIntl = require('react-intl').injectIntl;
 var DialogBox = require('./DialogBox');
+import {T} from './Utils';
+
 
 var SigningLogRow = React.createClass({
-	renderActions: function(M) {
+	renderActions: function(msg) {
+
 		if (this.props.log.id !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="button--secondary small" title={M({id: 'delete-log'})}>
+					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="button--secondary small" title={msg.delete}>
 						<i className="fa fa-trash" data-key={this.props.log.id}></i></a>
 				</div>
 			);
 		} else {
 			return (
-				<DialogBox message={M({id: 'confirm-log-delete'})} handleYesClick={this.props.deleteLog} handleCancelClick={this.props.cancelDelete} />
+				<DialogBox message={msg.confirmDelete} handleYesClick={this.props.deleteLog} handleCancelClick={this.props.cancelDelete} />
 			);
 		}
 	},
 
 	render: function() {
-		var M = this.props.intl.formatMessage;
+		const msg = {
+			delete: T('delete-log'),
+			confirmDelete: T('confirm-log-delete'),
+		}
+
 		return (
 			<tr>
 				<td>
-					{this.renderActions(M)}
+					{this.renderActions(msg)}
 				</td>
-				<td>{this.props.log.make}</td>
-				<td>{this.props.log.model}</td>
-				<td>{this.props.log.serialnumber}</td>
+				<td className="wrap">{this.props.log.make}</td>
+				<td className="wrap">{this.props.log.model}</td>
+				<td className="wrap">{this.props.log.serialnumber}</td>
 				<td>{this.props.log.revision}</td>
-				<td>{this.props.log.fingerprint}</td>
-				<td>{moment(this.props.log.created).format("YYYY-MM-DD HH:mm")}</td>
+				<td className="overflow" title={this.props.log.fingerprint}>{this.props.log.fingerprint}</td>
+				<td className="wrap">{moment(this.props.log.created).format("YYYY-MM-DD HH:mm")}</td>
 			</tr>
 		)
 	}
 });
 
-module.exports = injectIntl(SigningLogRow);
+module.exports = SigningLogRow;

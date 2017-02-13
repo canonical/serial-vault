@@ -19,16 +19,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/KeypairAdd');
 jest.dontMock('../components/Navigation');
 jest.dontMock('../components/AlertBox');
+jest.dontMock('../components/Utils');
+
+// Mock the AppState method for locale
+window.AppState = {getLocale: function() {return 'en'}};
+
 
 describe('keypair add', function() {
 	it('displays the new keypair page', function() {
-		var IntlProvider = require('react-intl').IntlProvider;
 		var Messages = require('../components/messages').en;
 		var KeypairAdd = require('../components/KeypairAdd');
+
+		// Mock the AppState method for locale
+		window.AppState = {getLocale: function() {return 'en'}};
 
 		// Render the component
 		var keysPage = TestUtils.renderIntoDocument(
@@ -51,16 +59,17 @@ describe('keypair add', function() {
 	});
 
 	it('stores updates to the form', function() {
-		var IntlProvider = require('react-intl').IntlProvider;
 		var Messages = require('../components/messages').en;
 		var KeypairAdd = require('../components/KeypairAdd');
+
+		// Mock the AppState method for locale
+		window.AppState = {getLocale: function() {return 'en'}};
 
 		// Mock the onChange handler
 		var handleChangeKey = jest.genMockFunction();
 		var handleChangeAuthorityId = jest.genMockFunction();
-		KeypairAdd.WrappedComponent.prototype.__reactAutoBindMap.handleChangeKey = handleChangeKey;
-		KeypairAdd.WrappedComponent.prototype.__reactAutoBindMap.handleChangeAuthorityId = handleChangeAuthorityId;
-
+		KeypairAdd.prototype.__reactAutoBindMap.handleChangeKey = handleChangeKey;
+		KeypairAdd.prototype.__reactAutoBindMap.handleChangeAuthorityId = handleChangeAuthorityId;
 
 		// Render the component
 		var keysPage = TestUtils.renderIntoDocument(
@@ -86,9 +95,11 @@ describe('keypair add', function() {
 	});
 
 	it('displays the alert box on error', function() {
-		var IntlProvider = require('react-intl').IntlProvider;
 		var Messages = require('../components/messages').en;
 		var KeypairAdd = require('../components/KeypairAdd');
+
+		// Mock the AppState method for locale
+		window.AppState = {getLocale: function() {return 'en'}};
 
 		const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
 		const {intl} = intlProvider.getChildContext();
@@ -96,7 +107,7 @@ describe('keypair add', function() {
 
 		// Render the component
 		shallowRenderer.render(
-			<KeypairAdd.WrappedComponent intl={intl} error={'Critical: run out of sushi'} />
+			<KeypairAdd intl={intl} error={'Critical: run out of sushi'} />
 		);
 		var keysPage = shallowRenderer.getRenderOutput();
 

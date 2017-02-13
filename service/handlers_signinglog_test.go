@@ -38,26 +38,6 @@ func TestSigningLogListHandler(t *testing.T) {
 	}
 }
 
-func TestSigningLogListHandlerWithParam(t *testing.T) {
-	// Mock the database
-	Environ = &Env{DB: &mockDB{}}
-
-	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog?fromID=5", nil)
-	if len(response.SigningLog) != 4 {
-		t.Errorf("Expected 4 signing logs, got: %d", len(response.SigningLog))
-	}
-}
-
-func TestSigningLogListHandlerBadParam(t *testing.T) {
-	// Mock the database
-	Environ = &Env{DB: &mockDB{}}
-
-	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog?fromID=bad", nil)
-	if len(response.SigningLog) != 10 {
-		t.Errorf("Expected 10 signing logs, got: %d", len(response.SigningLog))
-	}
-}
-
 func TestSigningLogListHandlerError(t *testing.T) {
 	// Mock the database
 	Environ = &Env{DB: &errorMockDB{}}
@@ -99,6 +79,44 @@ func TestSigningLogDeleteHandlerBadID(t *testing.T) {
 	// Delete a signing log
 	data := "{}"
 	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/99999999999999999999999999999999999999999999999", bytes.NewBufferString(data))
+}
+
+func TestSigningLogFilterValues(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &mockDB{}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
+	AdminRouter(Environ).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SigningLogFiltersResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log filters response: %v", err)
+	}
+	if !result.Success {
+		t.Error("Expected success, got error")
+	}
+}
+
+func TestSigningLogFilterValuesError(t *testing.T) {
+	// Mock the database
+	Environ = &Env{DB: &errorMockDB{}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
+	AdminRouter(Environ).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SigningLogFiltersResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log filters response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success")
+	}
 }
 
 func sendSigningLogRequest(t *testing.T, method, url string, data io.Reader) (SigningLogResponse, error) {

@@ -17,11 +17,11 @@
 'use strict'
 
 var React = require('react');
-var injectIntl = require('react-intl').injectIntl;
 var Keypairs = require('../models/keypairs');
 var Navigation = require('./Navigation');
 var AlertBox = require('./AlertBox');
 var Footer = require('./Footer');
+import {T} from './Utils';
 
 var KeypairAdd = React.createClass({
 	getInitialState: function() {
@@ -65,9 +65,9 @@ var KeypairAdd = React.createClass({
 	},
 
 	formatError: function(data) {
-		var message = this.props.intl.formatMessage({id: data.error_code});
+		var message = T(data.error_code);
 		if (data.error_subcode) {
-			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+			message += ': ' + T(data.error_subcode);
 		} else if (data.message) {
 			message += ': ' + data.message;
 		}
@@ -75,14 +75,13 @@ var KeypairAdd = React.createClass({
 	},
 
 	render: function() {
-		var M = this.props.intl.formatMessage;
 
 		return (
 			<div>
 				<Navigation active="models" />
 
 				<section className="row no-border">
-					<h2>{M({id: 'new-signing-key'})}</h2>
+					<h2>{T('new-signing-key')}</h2>
 					<div className="twelve-col">
 						<AlertBox message={this.state.error} />
 
@@ -90,13 +89,13 @@ var KeypairAdd = React.createClass({
 							<fieldset>
 								<ul>
 									<li>
-										<label htmlFor="authority-id">{M({id: 'authority-id'})}:</label>
-										<input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={M({id: 'authority-id-description'})} />
+										<label htmlFor="authority-id">{T('authority-id')}:</label>
+										<input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
 									</li>
 									<li>
-										<label htmlFor="key">{M({id: 'signing-key'})}:</label>
+										<label htmlFor="key">{T('signing-key')}:</label>
 										<textarea onChange={this.handleChangeKey} defaultValue={this.state.key} id="key"
-												placeholder={M({id: 'new-signing-key-description'})}>
+												placeholder={T('new-signing-key-description')}>
 										</textarea>
 									</li>
 									<li>
@@ -106,9 +105,9 @@ var KeypairAdd = React.createClass({
 							</fieldset>
 						</form>
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{M({id: 'save'})}</a>
+							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{T('save')}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">{M({id: 'cancel'})}</a>
+							<a href='/models' className="button--secondary">{T('cancel')}</a>
 						</div>
 					</div>
 				</section>
@@ -119,4 +118,4 @@ var KeypairAdd = React.createClass({
 	}
 });
 
-module.exports = injectIntl(KeypairAdd);
+module.exports = KeypairAdd;

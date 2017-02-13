@@ -19,25 +19,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-
+import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/ModelList');
 jest.dontMock('../components/KeypairList');
 jest.dontMock('../components/ModelRow');
 jest.dontMock('../components/Navigation');
+jest.dontMock('../components/Utils');
+
+// Mock the AppState method for locale
+window.AppState = {getLocale: function() {return 'en'}};
 
 
 describe('model list', function() {
  it('displays the models page with no models', function() {
 	 var ModelList = require('../components/ModelList');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    // Mock the data retrieval from the API
    var getModels = jest.genMockFunction();
    var getKeypairs = jest.genMockFunction();
-   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getModels = getModels;
-   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
+   ModelList.prototype.__reactAutoBindMap.getModels = getModels;
+   ModelList.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
 
 	 // Render the component
 	 var modelsPage = TestUtils.renderIntoDocument(
@@ -70,7 +73,6 @@ describe('model list', function() {
 
  it('displays the models page with some models', function() {
 	 var ModelList = require('../components/ModelList');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    // Shallow render the component with the translations
@@ -87,11 +89,11 @@ describe('model list', function() {
 
    // Mock the data retrieval from the API
    var getModels = jest.genMockFunction();
-   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getModels = getModels;
+   ModelList.prototype.__reactAutoBindMap.getModels = getModels;
 
 	 // Render the component
 	 shallowRenderer.render(
-			 <ModelList.WrappedComponent intl={intl} models={models} />
+			 <ModelList intl={intl} models={models} />
 	 );
    var modelsPage = shallowRenderer.getRenderOutput();
 
@@ -105,17 +107,16 @@ describe('model list', function() {
    expect(tbody.props.children.length).toBe(3); // data rows
    var row1 = tbody.props.children[0];
 
-   expect(row1.type.WrappedComponent.displayName).toBe('ModelRow')
+   expect(row1.type.displayName).toBe('ModelRow')
    expect(row1.props.model).toBe(models[0])
 
    // Check the keypair section
    var keypairs = section.props.children[5].props.children;
-   expect(keypairs.type.WrappedComponent.displayName).toBe('KeypairList');
+   expect(keypairs.type.displayName).toBe('KeypairList');
  });
 
  it('displays the models page with some keypairs', function() {
    var ModelList = require('../components/ModelList');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    // Shallow render the component with the translations
@@ -140,8 +141,8 @@ describe('model list', function() {
    // Mock the data retrieval from the API
    var getModels = jest.genMockFunction();
    var getKeypairs = jest.genMockFunction();
-   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getModels = getModels;
-   ModelList.WrappedComponent.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
+   ModelList.prototype.__reactAutoBindMap.getModels = getModels;
+   ModelList.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
 
    // Render the component
    var modelsPage = TestUtils.renderIntoDocument(

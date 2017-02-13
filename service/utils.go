@@ -39,7 +39,7 @@ var (
 )
 
 // Set the application version from a constant
-const version = "1.2.0"
+const version = "1.3.0"
 
 // Set the nonce expiry time
 const nonceMaximumAge = 600
@@ -193,6 +193,17 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 
 func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []SigningLog, w http.ResponseWriter) error {
 	response := SigningLogResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the signing log response.")
+		return err
+	}
+	return nil
+}
+
+func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters SigningLogFilters, w http.ResponseWriter) error {
+	response := SigningLogFiltersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLogFilters: filters}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {

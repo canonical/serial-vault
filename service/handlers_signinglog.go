@@ -36,24 +36,20 @@ type SigningLogResponse struct {
 	SigningLog   []SigningLog `json:"logs"`
 }
 
+// SigningLogFiltersResponse is the JSON response from the API Signing Log Filters method
+type SigningLogFiltersResponse struct {
+	Success           bool              `json:"success"`
+	ErrorCode         string            `json:"error_code"`
+	ErrorSubcode      string            `json:"error_subcode"`
+	ErrorMessage      string            `json:"message"`
+	SigningLogFilters SigningLogFilters `json:"filters"`
+}
+
 // SigningLogHandler is the API method to fetch the log records from signing
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Check if we have a from ID in the query params
-	var fromID int
-	var err error
-	fromIDParam := r.FormValue("fromID")
-	if len(fromIDParam) == 0 {
-		fromID = MaxFromID
-	} else {
-		fromID, err = strconv.Atoi(fromIDParam)
-		if err != nil {
-			fromID = MaxFromID
-		}
-	}
-
-	logs, err := Environ.DB.ListSigningLog(fromID)
+	logs, err := Environ.DB.ListSigningLog()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
@@ -63,6 +59,22 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
 	formatSigningLogResponse(true, "", "", "", logs, w)
+}
+
+// SigningLogFiltersHandler is the API method to fetch the log filter values
+func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	filters, err := Environ.DB.SigningLogFilterValues()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formatSigningLogFiltersResponse(false, "error-fetch-signinglogfilters", "", err.Error(), filters, w)
+		return
+	}
+
+	// Encode the response as JSON
+	w.WriteHeader(http.StatusOK)
+	formatSigningLogFiltersResponse(true, "", "", "", filters, w)
 }
 
 // SigningLogDeleteHandler is the API method to delete a signing log entry

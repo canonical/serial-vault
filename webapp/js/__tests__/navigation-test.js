@@ -19,15 +19,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-
+import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/Navigation');
+jest.dontMock('../components/Utils');
+
+// Mock the AppState method for locale
+window.AppState = {getLocale: function() {return 'en'}};
 
 
 describe('navigation', function() {
  it('displays the navigation menu with home active', function() {
 	 var Navigation = require('../components/Navigation');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    var handleYesClick = jest.genMockFunction();
@@ -53,7 +56,6 @@ describe('navigation', function() {
 
  it('displays the navigation menu with models active', function() {
 	 var Navigation = require('../components/Navigation');
-   var IntlProvider = require('react-intl').IntlProvider;
    var Messages = require('../components/messages').en;
 
    var handleYesClick = jest.genMockFunction();

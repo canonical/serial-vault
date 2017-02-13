@@ -86,7 +86,7 @@ func (mdb *mockDB) GetModel(modelID int) (Model, error) {
 	}
 
 	if !found {
-		return model, errors.New("Cannot find the model.")
+		return model, errors.New("Cannot find the model")
 	}
 
 	return model, nil
@@ -105,7 +105,7 @@ func (mdb *mockDB) UpdateModel(model Model) (string, error) {
 	}
 
 	if !found {
-		return "", errors.New("Cannot find the model.")
+		return "", errors.New("Cannot find the model")
 	}
 	return "", nil
 }
@@ -123,7 +123,7 @@ func (mdb *mockDB) DeleteModel(model Model) (string, error) {
 	}
 
 	if !found {
-		return "", errors.New("Cannot find the model.")
+		return "", errors.New("Cannot find the model")
 	}
 	return "", nil
 }
@@ -201,22 +201,25 @@ func (mdb *mockDB) CreateSigningLog(signLog SigningLog) error {
 }
 
 func (mdb *mockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-	logs, _ := mdb.ListSigningLog(100)
+	logs, _ := mdb.ListSigningLog()
 	if signingLog.ID > len(logs)+1 {
 		return "", errors.New("Cannot find the signing log")
 	}
 	return "", nil
 }
 
-func (mdb *mockDB) ListSigningLog(fromID int) ([]SigningLog, error) {
+func (mdb *mockDB) ListSigningLog() ([]SigningLog, error) {
+	const fromID = 11
 	signingLog := []SigningLog{}
-	if fromID > 11 {
-		fromID = 11
-	}
+
 	for i := 1; i < fromID; i++ {
 		signingLog = append(signingLog, SigningLog{ID: i, Make: "System", Model: "Router 3400", SerialNumber: fmt.Sprintf("A%d", i), Fingerprint: fmt.Sprintf("a%d", i), Created: time.Now()})
 	}
 	return signingLog, nil
+}
+
+func (mdb *mockDB) SigningLogFilterValues() (SigningLogFilters, error) {
+	return SigningLogFilters{Makes: []string{"System"}, Models: []string{"Router 3400"}}, nil
 }
 
 func (mdb *mockDB) CreateDeviceNonceTable() error {
@@ -236,7 +239,7 @@ type errorMockDB struct{}
 
 // CreateModelTable mock for the create model table method
 func (mdb *errorMockDB) CreateModelTable() error {
-	return errors.New("Error creating the model table.")
+	return errors.New("Error creating the model table")
 }
 
 // CreateKeypairTable mock for the create keypair table method
@@ -251,50 +254,50 @@ func (mdb *errorMockDB) CreateSettingsTable() error {
 
 // ModelsList Mock the database response for a list of models
 func (mdb *errorMockDB) ListModels() ([]Model, error) {
-	return nil, errors.New("Error getting the models.")
+	return nil, errors.New("Error getting the models")
 }
 
 // FindModel mocks the database response for finding a model, returning an invalid signing-key
 func (mdb *errorMockDB) FindModel(brandID, modelName string) (Model, error) {
-	return Model{}, errors.New("Error finding the model.")
+	return Model{}, errors.New("Error finding the model")
 }
 
 // GetModel mocks the model from the database by ID, returning an error.
 func (mdb *errorMockDB) GetModel(modelID int) (Model, error) {
-	return Model{}, errors.New("Error retrieving the model.")
+	return Model{}, errors.New("Error retrieving the model")
 }
 
 // UpdateModel mocks the model update, returning an error.
 func (mdb *errorMockDB) UpdateModel(model Model) (string, error) {
-	return "", errors.New("Error updating the database model.")
+	return "", errors.New("Error updating the database model")
 }
 
 // DeleteModel mocks the model deletion, returning an error.
 func (mdb *errorMockDB) DeleteModel(model Model) (string, error) {
-	return "", errors.New("Error deleting the database model.")
+	return "", errors.New("Error deleting the database model")
 }
 
 // CreateModel mocks creating a new model, returning an error.
 func (mdb *errorMockDB) CreateModel(model Model) (Model, string, error) {
-	return Model{}, "", errors.New("Error creating the database model.")
+	return Model{}, "", errors.New("Error creating the database model")
 }
 
 func (mdb *errorMockDB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
-	return keypair, errors.New("Error fetching from the database.")
+	return keypair, errors.New("Error fetching from the database")
 }
 
 func (mdb *errorMockDB) ListKeypairs() ([]Keypair, error) {
 	var keypairs []Keypair
-	return keypairs, errors.New("Error fetching from the database.")
+	return keypairs, errors.New("Error fetching from the database")
 }
 
 func (mdb *errorMockDB) PutKeypair(keypair Keypair) (string, error) {
-	return "", errors.New("Error updating the database.")
+	return "", errors.New("Error updating the database")
 }
 
 func (mdb *errorMockDB) UpdateKeypairActive(keypairID int, active bool) error {
-	return errors.New("Error updating the database.")
+	return errors.New("Error updating the database")
 }
 
 func (mdb *errorMockDB) GetSetting(code string) (Setting, error) {
@@ -319,12 +322,16 @@ func (mdb *errorMockDB) CreateSigningLogTable() error {
 
 func (mdb *errorMockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
 
-	return "", errors.New("Error deleting the database signing log.")
+	return "", errors.New("Error deleting the database signing log")
 }
 
-func (mdb *errorMockDB) ListSigningLog(fromID int) ([]SigningLog, error) {
+func (mdb *errorMockDB) ListSigningLog() ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
+}
+
+func (mdb *errorMockDB) SigningLogFilterValues() (SigningLogFilters, error) {
+	return SigningLogFilters{}, errors.New("Error retrieving the signing log filters")
 }
 
 func (mdb *errorMockDB) CreateDeviceNonceTable() error {

@@ -50,8 +50,9 @@ type Datastore interface {
 	CreateSigningLogTable() error
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
-	ListSigningLog(fromID int) ([]SigningLog, error)
+	ListSigningLog() ([]SigningLog, error)
 	DeleteSigningLog(signingLog SigningLog) (string, error)
+	SigningLogFilterValues() (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error
 	CreateDeviceNonce() (DeviceNonce, error)

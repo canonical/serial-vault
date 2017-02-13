@@ -17,8 +17,8 @@
 'use strict'
 
 var React = require('react');
-var injectIntl = require('react-intl').injectIntl;
 var Keypairs = require('../models/keypairs');
+import {T} from './Utils'
 
 
 var KeypairList = React.createClass({
@@ -33,18 +33,19 @@ var KeypairList = React.createClass({
 		Keypairs.enable(e.target.getAttribute('data-key')).then(self.props.refresh);
 	},
 
-	renderRow: function(keypr, M) {
+	renderRow: function(keypr) {
 		return (
 			<tr key={keypr.ID}>
-				<td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="button--secondary">{M({id:'deactivate'})}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="button--secondary">{M({id:'activate'})}</button>}</td>
+				<td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="button--secondary">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="button--secondary">{T('activate')}</button>}</td>
 				<td>{keypr.AuthorityID}</td>
-				<td>{keypr.KeyID}</td>
+				<td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
 				<td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
 			</tr>
 		);
 	},
 
-	renderTable: function(M) {
+	render: function() {
+
     var self = this;
 
     if (this.props.keypairs.length > 0) {
@@ -52,28 +53,23 @@ var KeypairList = React.createClass({
         <table>
           <thead>
             <tr>
-              <th></th><th>{M({id:'authority-id'})}</th><th>{M({id:'key-id'})}</th><th>{M({id:'active'})}</th>
+              <th></th><th>{T('authority-id')}</th><th>{T('key-id')}</th><th>{T('active')}</th>
             </tr>
           </thead>
           <tbody>
             {this.props.keypairs.map(function(keypr) {
-              return self.renderRow(keypr, M);
+              return self.renderRow(keypr);
             })}
           </tbody>
         </table>
       );
     } else {
       return (
-        <p>{M({id:'no-signing-keys-found'})}</p>
+        <p>{T('no-signing-keys-found')}</p>
       );
     }
-  },
-
-	render: function() {
-		var M = this.props.intl.formatMessage;
-		return this.renderTable(M);
 	}
 
 });
 
-module.exports = injectIntl(KeypairList);
+module.exports = KeypairList;

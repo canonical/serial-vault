@@ -22,30 +22,34 @@ import TestUtils from 'react-addons-test-utils';
 
 
 jest.dontMock('../components/Footer');
+jest.dontMock('../components/Utils');
 
 
 describe('footer', function() {
  it('displays the footer', function() {
-	 var Footer = require('../components/Footer');
-   var IntlProvider = require('react-intl').IntlProvider;
-   var Messages = require('../components/messages').en;
+	var Footer = require('../components/Footer');
+	var IntlProvider = require('react-intl').IntlProvider;
+	var Messages = require('../components/messages').en;
 
-   var getVersion = jest.genMockFunction();
-   Footer.WrappedComponent.prototype.__reactAutoBindMap.getVersion = getVersion;
+	// Shallow render the component with the translations
+	const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
+	const {intl} = intlProvider.getChildContext();
+	var shallowRenderer = TestUtils.createRenderer();
 
-	 // Render the component
-	 var page = TestUtils.renderIntoDocument(
-     <IntlProvider locale="en" messages={Messages}>
-			 <Footer />
-     </IntlProvider>
-	 );
+	// Mock the data retrieval from the API
+	var getVersion = jest.genMockFunction();
+	Footer.prototype.__reactAutoBindMap.getVersion = getVersion;
+	window.AppState = {getLocale: function() {return 'en'}};
 
-	 expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+	shallowRenderer.render(
+		<Footer intl={intl} />
+	);
 
-	 // Check all the expected elements are rendered
-	 var footer = TestUtils.findRenderedDOMComponentWithTag(page, 'footer');
-	 var div = TestUtils.findRenderedDOMComponentWithTag(page, 'div');
-   expect(div.textContent).toContain('Version');
+	var page = shallowRenderer.getRenderOutput();
+
+	var para = page.props.children.props.children;
+	expect(para.props.children.length).toBe(3)
+	expect(para.props.children[0]).toBe('Version');
 
  });
 

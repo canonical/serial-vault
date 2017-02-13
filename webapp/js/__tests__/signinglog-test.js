@@ -19,51 +19,52 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/SigningLog');
 jest.dontMock('../components/SigningLogRow');
+jest.dontMock('../components/Navigation');
+jest.dontMock('../components/AlertBox');
+jest.dontMock('../components/SigningLogFilter');
+jest.dontMock('../components/SigningLogRow');
+jest.dontMock('../components/Pagination');
+jest.dontMock('../components/Utils');
 
+// Mock the AppState method for locale
+window.AppState = {getLocale: function() {return 'en'}};
 
 describe('signing-log list', function() {
     it('displays the signing logs page with no logs', function() {
         var SigningLog = require('../components/SigningLog');
-        var IntlProvider = require('react-intl').IntlProvider;
         var Messages = require('../components/messages').en;
 
         // Mock the data retrieval from the API
         var getLogs = jest.genMockFunction();
-        SigningLog.WrappedComponent.prototype.__reactAutoBindMap.getLogs = getLogs;
+        var getFilters = jest.genMockFunction();
+        SigningLog.prototype.__reactAutoBindMap.getLogs = getLogs;
+        SigningLog.prototype.__reactAutoBindMap.getFilters = getFilters;
 
-        // Render the component
-        var logsPage = TestUtils.renderIntoDocument(
-            <IntlProvider locale="en" messages={Messages}>
-                <SigningLog />
-            </IntlProvider>
+        // Shallow render the component
+        var shallowRenderer = TestUtils.createRenderer();
+
+        shallowRenderer.render(
+            <SigningLog />
         );
 
-        expect(TestUtils.isCompositeComponent(logsPage)).toBeTruthy();
-
-        // Check all the expected elements are rendered
-        var section = TestUtils.findRenderedDOMComponentWithTag(logsPage, 'section');
-        var h2s = TestUtils.scryRenderedDOMComponentsWithTag(logsPage, 'h2');
-        expect(h2s.length).toBe(1);
-
-        // Check the getLogs was called
-        expect(getLogs.mock.calls.length).toBe(1);
-
-        // Check the 'no models' message is rendered
-        expect(section.children.length).toBe(4);
-        expect(section.children[3].textContent).toBe('No models signed.');
+        var logsPage = shallowRenderer.getRenderOutput();
+        expect(logsPage.props.children.length).toBe(3);
+        var section = logsPage.props.children[1];
+        expect(section.props.children.length).toBe(4);
+        var div = section.props.children[3];
+        var para = div.props.children[1].props.children[1];
+        expect(para.props.children).toBe('No models signed.')
     });
 
     it('displays the signing logs page with some logs', function() {
         var SigningLog = require('../components/SigningLog');
-        var IntlProvider = require('react-intl').IntlProvider;
         var Messages = require('../components/messages').en;
 
-        // Shallow render the component with the translations
-        const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
-        const {intl} = intlProvider.getChildContext();
+        // Shallow render the component
         var shallowRenderer = TestUtils.createRenderer();
 
         // Set up a fixture for the model data
@@ -75,11 +76,13 @@ describe('signing-log list', function() {
 
         // Mock the data retrieval from the API
         var getLogs = jest.genMockFunction();
-        SigningLog.WrappedComponent.prototype.__reactAutoBindMap.getLogs = getLogs;
+        var getFilters = jest.genMockFunction();
+        SigningLog.prototype.__reactAutoBindMap.getLogs = getLogs;
+        SigningLog.prototype.__reactAutoBindMap.getFilters = getFilters;
 
         // Render the component
         shallowRenderer.render(
-            <SigningLog.WrappedComponent intl={intl} logs={logs} />
+            <SigningLog logs={logs} />
         );
         var logsPage = shallowRenderer.getRenderOutput();
         expect(logsPage.props.children.length).toBe(3);
@@ -87,14 +90,14 @@ describe('signing-log list', function() {
         expect(section.props.children.length).toBe(4);
 
         // Check that the logs table is rendered correctly
-        var tableDiv = section.props.children[3].props.children;
-        var table = tableDiv.props.children[0];
+        var div = section.props.children[3];
+        var tableDiv = div.props.children[1];
+        var table = tableDiv.props.children[1].props.children;
         var tbody = table.props.children[1]
         expect(tbody.props.children.length).toBe(3); // data rows
         var row1 = tbody.props.children[0];
 
-        expect(row1.type.WrappedComponent.displayName).toBe('SigningLogRow')
+        expect(row1.type.displayName).toBe('SigningLogRow')
         expect(row1.props.log).toBe(logs[0])
-
     });
 });

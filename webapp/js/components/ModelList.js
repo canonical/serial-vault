@@ -26,7 +26,7 @@ var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-var injectIntl = require('react-intl').injectIntl;
+import {T} from './Utils'
 
 var ModelList = React.createClass({
 
@@ -68,9 +68,9 @@ var ModelList = React.createClass({
   },
 
   formatError: function(data) {
-		var message = this.props.intl.formatMessage({id: data.error_code});
+		var message = T(data.error_code);
 		if (data.error_subcode) {
-			message += ': ' + this.props.intl.formatMessage({id: data.error_subcode});
+			message += ': ' + T(data.error_subcode);
 		} else if (data.message) {
 			message += ': ' + data.message;
 		}
@@ -107,7 +107,7 @@ var ModelList = React.createClass({
     this.setState({confirmDelete: null});
   },
 
-  renderTable: function(M) {
+  renderTable: function() {
     var self = this;
 
     if (this.state.models.length > 0) {
@@ -115,8 +115,8 @@ var ModelList = React.createClass({
         <table>
           <thead>
             <tr>
-              <th></th><th>{M({id:'brand'})}</th><th>{M({id:'model'})}</th><th>{M({id:'signing-key'})}</th>
-              <th>{M({id:'active'})}</th>
+              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('signing-key')}</th>
+              <th>{T('active')}</th>
             </tr>
           </thead>
           <tbody>
@@ -137,30 +137,29 @@ var ModelList = React.createClass({
   },
 
   render: function() {
-    var M = this.props.intl.formatMessage;
 
     return (
         <div className="inner-wrapper">
           <Navigation active="models" />
 
           <section className="row no-border">
-            <h2>{M({id:'models'})} <a href="/models/new" className="button--primary small" title={M({id:'add-new-model'})}>
+            <h2>{T('models')} <a href="/models/new" className="button--primary small" title={T('add-new-model')}>
                         <i className="fa fa-plus"></i>
                       </a>
             </h2>
             <div className="twelve-col">
-              <p>{M({id:'models_available'})}:</p>
+              <p>{T('models_available')}:</p>
             </div>
             <div className="twelve-col">
               <AlertBox message={this.state.message} />
             </div>
             <div className="twelve-col">
-              {this.renderTable(M)}
+              {this.renderTable()}
             </div>
 
             <h2>
-              {M({id:'signing-keys'})}&nbsp;
-              <a href="/models/keypairs/new" className="button--primary small" title={M({id:'add-new-signing-key'})}>
+              {T('signing-keys')}&nbsp;
+              <a href="/models/keypairs/new" className="button--primary small" title={T('add-new-signing-key')}>
                 <i className="fa fa-plus"></i>
               </a>
             </h2>
@@ -175,4 +174,4 @@ var ModelList = React.createClass({
   }
 });
 
-module.exports = injectIntl(ModelList);
+module.exports = ModelList;

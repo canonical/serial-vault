@@ -27,6 +27,72 @@ table {
 	table-layout: fixed;
 }
 
-table td {
+table th.small {
+	width: 10%;
+}
+
+table td.wrap {
 	word-wrap: break-word;
+}
+
+table td.overflow {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.filter {
+    padding: 0.5em 5px;
+}
+
+.filter h3 {
+    font-weight: bold;
+    color: #888;
+}
+
+.filter-section {
+    border-bottom: 1px dotted #ccc;
+    padding: 5px 0;
+}
+
+div.filter-section:last-of-type {
+    border: None;
+}
+
+.filter-section h4 {
+    padding-bottom: 5px; 
+    font-size: 15px;
+    font-weight: normal;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: right top;
+}
+
+.filter-section h4.expanded {
+    background-image: url(../images/chevron-up.png);
+}
+.filter-section h4.collapsed {
+    background-image: url(../images/chevron-down.png);
+}
+
+.filter-section li {
+    width: 100%;
+    list-style-type: none;
+}
+.filter-section li span.checked {
+    background-repeat: no-repeat;
+    background-image: url(../images/checkbox_checked_16.png);
+    width: 20px;
+    height: 20px;
+    display: inline-block; 
+    vertical-align: middle;
+    position:relative;
+}
+.filter-section li span.unchecked {
+    background-repeat: no-repeat;
+    background-image: url(../images/checkbox_unchecked_16.png);
+    width: 20px;
+    height: 20px;
+    display: inline-block; 
+    vertical-align: middle;
+    position:relative;
 }
