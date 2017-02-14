@@ -132,7 +132,7 @@ func TestRandomGeneration(t *testing.T) {
 		// generate minimum amount of random data to verify it is enough random
 		token, err := GenerateRandomString(1)
 		if err != nil {
-			t.Error("Error generating random string: %v", err)
+			t.Errorf("Error generating random string: %v", err)
 		}
 		tokens[i] = token
 	}
