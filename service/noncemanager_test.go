@@ -25,7 +25,10 @@ func TestNonceGeneration(t *testing.T) {
 	// Generate some nonces
 	var nonces [10]DeviceNonce
 	for i := 0; i < 10; i++ {
-		nonce := generateNonce()
+		nonce, err := generateNonce()
+		if err != nil {
+			t.Error("Error generating nonce")
+		}
 		nonces[i] = nonce
 	}
 

@@ -124,3 +124,23 @@ func TestFormatSigningLogResponse(t *testing.T) {
 		t.Errorf("Expected the first fingerprint '%s', got: %s", signingLog[0].Fingerprint, result.SigningLog[0].Fingerprint)
 	}
 }
+
+func TestRandomGeneration(t *testing.T) {
+	// search for random strings enough smalls as to see if they are random
+	var tokens [10]string
+	for i := 0; i < 10; i++ {
+		// generate minimum amount of random data to verify it is enough random
+		token, err := GenerateRandomString(1)
+		if err != nil {
+			t.Error("Error generating random string: %v", err)
+		}
+		tokens[i] = token
+	}
+
+	// Check that the random strings look unique and valid
+	for i := 1; i < 10; i++ {
+		if tokens[i] == tokens[i-1] {
+			t.Error("Generated random numbers are not unique")
+		}
+	}
+}

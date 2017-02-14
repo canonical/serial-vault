@@ -122,18 +122,6 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 	return nil
 }
 
-/*
-func generateNonce() DeviceNonce {
-	h := sha1.New()
-	timestamp := time.Now().Unix()
-	io.WriteString(h, strconv.FormatInt(rand.Int63(), 10))
-	io.WriteString(h, strconv.FormatInt(timestamp, 10))
-	nonce := fmt.Sprintf("%x", h.Sum(nil))
-
-	return DeviceNonce{Nonce: nonce, TimeStamp: timestamp}
-}
-*/
-
 func generateNonce() (DeviceNonce, error) {
 	token, err := GenerateRandomString(64)
 	if err != nil {
