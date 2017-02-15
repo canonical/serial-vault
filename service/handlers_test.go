@@ -44,14 +44,14 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func generateSerialRequestAssertion(model, serial, body string) (string, error) {
+func generateSerialRequestAssertion(requestID, model, serial, body string) (string, error) {
 	privateKey, _ := generatePrivateKey()
 	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
 
 	headers := map[string]interface{}{
 		"brand-id":   "System",
 		"device-key": string(encodedPubKey),
-		"request-id": "REQID",
+		"request-id": requestID,
 		"model":      model,
 	}
 
@@ -106,7 +106,7 @@ func TestSignHandlerInactive(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("inactive", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "inactive", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestSignHandler(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -163,7 +163,7 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "", "serial: A123456L")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "", "serial: A123456L")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -266,7 +266,7 @@ func TestSignHandlerInvalidRequestID(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -274,11 +274,36 @@ func TestSignHandlerInvalidRequestID(t *testing.T) {
 	sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "")
 }
 
+func TestSignHandlerExpiredNonce(t *testing.T) {
+	// Set up the API key
+	apiKeySlice := []string{"InbuiltAPIKey"}
+	apiKeys := make(map[string]struct{})
+	apiKeys["InbuiltAPIKey"] = struct{}{}
+
+	// Mock the database
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("REQID-expired", "alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Submit the serial-request assertion for signing
+	result, _ := sendRequestSignError(t, "POST", "/v1/serial", bytes.NewBufferString(assertions), "InbuiltAPIKey")
+	// Check that we have a assertion as a response
+	if result.ErrorCode != "invalid-nonce" {
+		t.Errorf("Expected an 'invalid nonce' message, got %s", result.ErrorCode)
+	}
+}
+
 func TestSignHandlerEmptySerial(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -291,7 +316,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}}
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("cannot-find-this", "A123456L", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "cannot-find-this", "A123456L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -307,7 +332,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "Aduplicate", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "Aduplicate", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -336,7 +361,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "AnError", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "AnError", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -351,7 +376,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "AsigninglogError", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "AsigninglogError", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}
@@ -366,7 +391,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
 	// Generate a test serial-request assertion
-	assertions, err := generateSerialRequestAssertion("alder", "A1234L", "")
+	assertions, err := generateSerialRequestAssertion("REQID", "alder", "A1234L", "")
 	if err != nil {
 		t.Errorf("Error creating serial-request: %v", err)
 	}

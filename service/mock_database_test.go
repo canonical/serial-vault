@@ -234,7 +234,35 @@ func (mdb *mockDB) CreateDeviceNonce() (DeviceNonce, error) {
 	return DeviceNonce{Nonce: "1234567890", TimeStamp: 1234567890}, nil
 }
 
+func (mdb *mockDB) listDeviceNonces() ([]DeviceNonce, error) {
+
+	now := time.Now().Unix()
+	expired := now - nonceMaximumAge - 1
+
+	var nonces []DeviceNonce
+	nonces = append(nonces, DeviceNonce{ID: 1, Nonce: "REQID", TimeStamp: now})
+	nonces = append(nonces, DeviceNonce{ID: 2, Nonce: "REQID-expired", TimeStamp: expired})
+
+	return nonces, nil
+}
+
 func (mdb *mockDB) ValidateDeviceNonce(nonce string) error {
+
+	nonces, _ := mdb.listDeviceNonces()
+	found := false
+
+	expirationTime := time.Now().Unix() - nonceMaximumAge
+
+	for _, element := range nonces {
+		if element.Nonce == nonce && element.TimeStamp > expirationTime {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return errors.New("Cannot find the nonce in database")
+	}
 	return nil
 }
 
