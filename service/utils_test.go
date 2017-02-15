@@ -126,21 +126,20 @@ func TestFormatSigningLogResponse(t *testing.T) {
 }
 
 func TestRandomGeneration(t *testing.T) {
+	n := 10
 	// search for random strings enough smalls as to see if they are random
-	var tokens [10]string
-	for i := 0; i < 10; i++ {
+	tokens := make(map[string]string)
+	for i := 0; i < n; i++ {
 		// generate minimum amount of random data to verify it is enough random
 		token, err := GenerateRandomString(1)
 		if err != nil {
 			t.Errorf("Error generating random string: %v", err)
 		}
-		tokens[i] = token
+		tokens[token] = token
 	}
 
-	// Check that the random strings look unique and valid
-	for i := 1; i < 10; i++ {
-		if tokens[i] == tokens[i-1] {
-			t.Error("Generated random numbers are not unique")
-		}
+	// Check that we have n different tokens stored in the map
+	if len(tokens) < n {
+		t.Error("Generated random numbers are not unique")
 	}
 }
