@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
 	"strconv"
 	"time"
 )
@@ -76,10 +75,14 @@ func (db *DB) CreateDeviceNonceTable() error {
 // CreateDeviceNonce stores a new nonce entry
 func (db *DB) CreateDeviceNonce() (DeviceNonce, error) {
 	// Generate a nonce with a timestamp and random string
-	nonce := generateNonce()
+	nonce, err := generateNonce()
+	if err != nil {
+		log.Printf("Error creating the nonce: %v\n", err)
+		return DeviceNonce{}, err
+	}
 
 	// Create the nonce in the database
-	_, err := db.Exec(createDeviceNonceSQL, nonce.Nonce, nonce.TimeStamp)
+	_, err = db.Exec(createDeviceNonceSQL, nonce.Nonce, nonce.TimeStamp)
 	if err != nil {
 		log.Printf("Error creating the nonce: %v\n", err)
 		return DeviceNonce{}, err
@@ -119,12 +122,18 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 	return nil
 }
 
-func generateNonce() DeviceNonce {
+func generateNonce() (DeviceNonce, error) {
+	token, err := GenerateRandomString(64)
+	if err != nil {
+		log.Printf("Could not generate random string for nonce")
+		return DeviceNonce{}, errors.New("Error generating nonce")
+	}
+
 	h := sha1.New()
 	timestamp := time.Now().Unix()
-	io.WriteString(h, strconv.FormatInt(rand.Int63(), 10))
+	io.WriteString(h, token)
 	io.WriteString(h, strconv.FormatInt(timestamp, 10))
 	nonce := fmt.Sprintf("%x", h.Sum(nil))
 
-	return DeviceNonce{Nonce: nonce, TimeStamp: timestamp}
+	return DeviceNonce{Nonce: nonce, TimeStamp: timestamp}, nil
 }
