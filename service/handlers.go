@@ -233,6 +233,12 @@ func RequestIDHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 		return ErrorInvalidAPIKey
 	}
 
+	err = Environ.DB.DeleteExpiredDeviceNonces()
+	if err != nil {
+		logMessage("REQUESTID", "delete-expired-nonces", err.Error())
+		return ErrorGenerateNonce
+	}
+
 	nonce, err := Environ.DB.CreateDeviceNonce()
 	if err != nil {
 		logMessage("REQUESTID", "generate-request-id", err.Error())

@@ -88,8 +88,8 @@ func (db *DB) CreateDeviceNonce() (DeviceNonce, error) {
 	return nonce, nil
 }
 
-// ValidateDeviceNonce checks that a device nonce is valid and has not expired
-func (db *DB) ValidateDeviceNonce(nonce string) error {
+// DeleteExpiredDeviceNonces removes nonces with timestamp older than max allowed lifetime
+func (db *DB) DeleteExpiredDeviceNonces() error {
 	// Remove expired nonces from the table
 	timestamp := time.Now().Unix() - nonceMaximumAge
 	_, err := db.Exec(deleteExpiredDeviceNonceSQL, timestamp)
@@ -98,6 +98,12 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 		return errors.New("Error communicating with the database")
 	}
 
+	return nil
+}
+
+// ValidateDeviceNonce checks that a device nonce is valid and has not expired
+func (db *DB) ValidateDeviceNonce(nonce string) error {
+	db.DeleteExpiredDeviceNonces()
 	// Find the nonce in the database to check that it is valid (we already deleted expired nonces)
 	// Here we attempt to delete the nonce and check the number of rows affected. This makes sure that
 	// we do not allow a nonce to be re-used.

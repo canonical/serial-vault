@@ -55,6 +55,7 @@ type Datastore interface {
 	SigningLogFilterValues() (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error
+	DeleteExpiredDeviceNonces() error
 	CreateDeviceNonce() (DeviceNonce, error)
 	ValidateDeviceNonce(nonce string) error
 }
