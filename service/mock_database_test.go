@@ -226,6 +226,10 @@ func (mdb *mockDB) CreateDeviceNonceTable() error {
 	return nil
 }
 
+func (mdb *mockDB) DeleteExpiredDeviceNonces() error {
+	return nil
+}
+
 func (mdb *mockDB) CreateDeviceNonce() (DeviceNonce, error) {
 	return DeviceNonce{Nonce: "1234567890", TimeStamp: 1234567890}, nil
 }
@@ -335,6 +339,10 @@ func (mdb *errorMockDB) SigningLogFilterValues() (SigningLogFilters, error) {
 }
 
 func (mdb *errorMockDB) CreateDeviceNonceTable() error {
+	return nil
+}
+
+func (mdb *errorMockDB) DeleteExpiredDeviceNonces() error {
 	return nil
 }
 
