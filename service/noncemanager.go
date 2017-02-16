@@ -108,7 +108,7 @@ func (db *DB) DeleteExpiredDeviceNonces() error {
 func (db *DB) ValidateDeviceNonce(nonce string) error {
 	err := db.DeleteExpiredDeviceNonces()
 	if err != nil {
-		log.Print("Error checking expired nonces: %v\n", err)
+		log.Printf("Error checking expired nonces: %v\n", err)
 		return err
 	}
 	// Find the nonce in the database to check that it is valid (we already deleted expired nonces)
