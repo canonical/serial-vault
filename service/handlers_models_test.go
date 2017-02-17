@@ -197,15 +197,15 @@ func TestModelCreateHandler(t *testing.T) {
 	Environ = &Env{DB: &mockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
-	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
+	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
 	result, _ := sendRequest(t, "POST", "/v1/models", bytes.NewReader(data))
 	if result.Model.ID != 7 {
 		t.Errorf("Expected model with ID 7, got %d", result.Model.ID)
 	}
-	if result.Model.Name != "聖誕快樂" {
-		t.Errorf("Expected model name '聖誕快樂', got %s", result.Model.Name)
+	if result.Model.Name != "the-model" {
+		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
 	}
 }
 
@@ -215,7 +215,7 @@ func TestModelCreateHandlerWithError(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
-	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
+	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
 	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewReader(data))
@@ -227,7 +227,7 @@ func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 	Environ = &Env{DB: &errorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
-	model := ModelSerialize{BrandID: "System", Name: "聖誕快樂", KeypairID: 1}
+	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
 	data, _ := json.Marshal(model)
 
 	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewReader(data))

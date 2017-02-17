@@ -229,7 +229,6 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate model received key; the rule is: lowercase with no spaces
-	// TODO COMPLETE
 	err = validateModelName(mdlWithKey.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

@@ -283,21 +283,23 @@ func GenerateRandomString(s int) (string, error) {
 }
 
 // define pattern for model name validation
-var validModelNamePattern = regexp.MustCompile("^[a-zA-Z0-9](?:-?[a-zA-Z0-9])*$")
+const validModelAllowed = "^[a-zA-Z0-9](?:-?[a-zA-Z0-9])*$"
+
+var validModelNamePattern = regexp.MustCompile(validModelAllowed)
 
 // validateModelName validates
 func validateModelName(name string) error {
 	if len(name) == 0 {
-		return errors.New("model name cannot be empty")
+		return errors.New("Name must not be empty")
 	}
 
 	if !validModelNamePattern.MatchString(name) {
-		return fmt.Errorf("model name contains invalid characters: %q", name)
+		return fmt.Errorf("Name contains invalid characters, allowed %q", validModelAllowed)
 	}
 
 	// TODO: support the concept of case insensitive/preserving string headers
 	if strings.ToLower(name) != name {
-		return errors.New("model name cannot contain uppercase characters")
+		return errors.New("Name must not contain uppercase characters")
 	}
 	return nil
 }
