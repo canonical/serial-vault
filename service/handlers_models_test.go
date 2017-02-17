@@ -112,7 +112,7 @@ func TestModelUpdateHandler(t *testing.T) {
 	{
 		"id": 1,
 		"brand-id": "System",
-		"model":"聖誕快樂",
+		"model":"the-model",
 		"serial":"A1234-L",
 		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
 	}`
@@ -122,8 +122,8 @@ func TestModelUpdateHandler(t *testing.T) {
 	if result.Model.ID != 1 {
 		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
 	}
-	if result.Model.Name != "聖誕快樂" {
-		t.Errorf("Expected model name '聖誕快樂', got %s", result.Model.Name)
+	if result.Model.Name != "the-model" {
+		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
 	}
 }
 

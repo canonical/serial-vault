@@ -157,6 +157,14 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate model received key; the rule is: lowercase with no spaces
+	err = validateModelName(mdl.Name)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatModelResponse(false, "error-updating-model", "", err.Error(), ModelSerialize{}, w)
+		return
+	}
+
 	// Update the database
 	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID}
 	errorSubcode, err := Environ.DB.UpdateModel(model)
@@ -232,8 +240,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	err = validateModelName(mdlWithKey.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-creating-model", "", errorMessage, ModelSerialize{}, w)
+		formatModelResponse(false, "error-creating-model", "", err.Error(), ModelSerialize{}, w)
 		return
 	}
 
