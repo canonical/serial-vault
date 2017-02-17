@@ -59,5 +59,11 @@ func main() {
 		address = ":8080"
 	}
 
+	// trigger deletion of old device nodes
+	err = env.DB.DeleteExpiredDeviceNonces()
+	if err != nil {
+		log.Fatalf("Error deleting expired nonces: %v\n", err)
+	}
+
 	log.Fatal(http.ListenAndServe(address, router))
 }
