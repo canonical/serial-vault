@@ -228,6 +228,16 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate model received key; the rule is: lowercase with no spaces
+	// TODO COMPLETE
+	err = validateModelName(mdlWithKey.Name)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		errorMessage := fmt.Sprintf("%v", err)
+		formatModelResponse(false, "error-creating-model", "", errorMessage, ModelSerialize{}, w)
+		return
+	}
+
 	// Create a new model, linked to the existing signing-key
 	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID}
 	errorSubcode := ""

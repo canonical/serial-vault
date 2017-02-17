@@ -25,9 +25,12 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/snapcore/snapd/asserts"
 
@@ -277,4 +280,24 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 func GenerateRandomString(s int) (string, error) {
 	b, err := GenerateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
+}
+
+// define pattern for model name validation
+var validModelNamePattern = regexp.MustCompile("^[a-zA-Z0-9](?:-?[a-zA-Z0-9])*$")
+
+// validateModelName validates
+func validateModelName(name string) error {
+	if len(name) == 0 {
+		return errors.New("model name cannot be empty")
+	}
+
+	if !validModelNamePattern.MatchString(name) {
+		return fmt.Errorf("model name contains invalid characters: %q", name)
+	}
+
+	// TODO: support the concept of case insensitive/preserving string headers
+	if strings.ToLower(name) != name {
+		return errors.New("model name cannot contain uppercase characters")
+	}
+	return nil
 }

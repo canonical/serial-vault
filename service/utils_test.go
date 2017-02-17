@@ -22,6 +22,7 @@ package service
 import (
 	"encoding/json"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -141,5 +142,46 @@ func TestRandomGeneration(t *testing.T) {
 	// Check that we have n different tokens stored in the map
 	if len(tokens) < n {
 		t.Error("Generated random numbers are not unique")
+	}
+}
+
+func TestModelName(t *testing.T) {
+	name := "my-model-01"
+	err := validateModelName(name)
+	if err != nil {
+		t.Errorf("Not a valid model name: %v", err)
+	}
+}
+
+func TestModelNameEmpty(t *testing.T) {
+	name := ""
+	err := validateModelName(name)
+	if err == nil {
+		t.Error("Expected name not to be valid, but it is")
+	}
+	if err.Error() != "model name cannot be empty" {
+		t.Error("Error happening is not the one searched for")
+	}
+}
+
+func TestModelNameInvalidChar(t *testing.T) {
+	name := "my-model-01_"
+	err := validateModelName(name)
+	if err == nil {
+		t.Error("Expected name not to be valid, but it is")
+	}
+	if !strings.Contains(err.Error(), "model name contains invalid characters") {
+		t.Error("Error happening is not the one searched for")
+	}
+}
+
+func TestModelNameUpperChar(t *testing.T) {
+	name := "my-Model-01"
+	err := validateModelName(name)
+	if err == nil {
+		t.Error("Expected name not to be valid, but it is")
+	}
+	if err.Error() != "model name cannot contain uppercase characters" {
+		t.Error("Error happening is not the one searched for")
 	}
 }
