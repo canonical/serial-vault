@@ -130,7 +130,7 @@ func (mdb *mockDB) DeleteModel(model Model) (string, error) {
 
 // CreateModel mocks creating a new model.
 func (mdb *mockDB) CreateModel(model Model) (Model, string, error) {
-	model = Model{ID: 7, BrandID: "System", Name: "聖誕快樂", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
+	model = Model{ID: 7, BrandID: "System", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
 
 	return model, "", nil
 }

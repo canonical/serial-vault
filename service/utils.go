@@ -25,9 +25,12 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/snapcore/snapd/asserts"
 
@@ -277,4 +280,26 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 func GenerateRandomString(s int) (string, error) {
 	b, err := GenerateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
+}
+
+// define pattern for model name validation
+const validModelAllowed = "^[a-z0-9](?:-?[a-z0-9])*$"
+
+var validModelNamePattern = regexp.MustCompile(validModelAllowed)
+
+// validateModelName validates
+func validateModelName(name string) error {
+	if len(name) == 0 {
+		return errors.New("Name must not be empty")
+	}
+
+	if strings.ToLower(name) != name {
+		return errors.New("Name must not contain uppercase characters")
+	}
+
+	if !validModelNamePattern.MatchString(name) {
+		return fmt.Errorf("Name contains invalid characters, allowed %q", validModelAllowed)
+	}
+
+	return nil
 }
