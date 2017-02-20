@@ -3,14 +3,50 @@
 
 A Go web service that digitally signs device assertion details.
 
-## Install
-Go get it:
+The application can be run in two modes: signing service or admin service. Both the web services
+operate under unencrypted HTTP connections, so these should not be exposed to a public network
+as-is. The services should be protected by web server front-end services, such as Apache, that
+provide secure HTTPS connections. Also, the admin service does not include authentication nor
+authorisation, so this service will typically be made available on a restricted network with some
+authentication front-end on the web server e.g. SSO. Typically, the services will only be available
+on a restricted network at a factory, though, with additional security measures, the signing service
+could be made available on a public network.
+
+Some deployment recommendations are [provided](docs/Deployment.md)
+
+## Install using the snap package
+Are you using one of the many systems that support [snaps](https://snapcraft.io/)?
+A pre-built snap is available from the [Snap store](https://uappexplorer.com/app/serial-vault.james).
+
+```bash
+$ sudo snap install serial-vault
+```
+
+The service needs a PostgreSQL database to run, so:
+- Install PostgreSQL and create a database.
+- Set up the config file, using ```settings.yaml``` as a guide.
+- Configure the snap using the ```settings.yaml``` file:
+
+```bash
+$ cat /path/to/settings.yaml | sudo /snap/bin/serial-vault.config
+$ sudo systemctl restart snap.serial-vault.serial-vault.service
+```
+
+The snap will create the tables in the database on restart, as soon as it has a valid database connection.
+
+The service mode (signing or admin) is defined in the settings.yaml file. The
+selected service should be accessible on port :8080 or :8081:
+ - Signing Service: http://localhost:8080/v1/version
+ - Admin Service: http://localhost:8081/
+
+## Install from Source
+If you have a Go development environment set up, Go get it:
 
   ```bash
   $ go get github.com/ubuntu-core/identity-vault
   ```
 
-Configure it:
+### Configure it:
 - Install PostgreSQL and create a database.
 - Set up the config file, using ```settings.yaml``` as a guide.
 - Create the database tables:
@@ -19,13 +55,23 @@ Configure it:
   $ go run tools/createdb.go
   ```
 
-Run it:
+### Run it:
   ```bash
   $ cd identity-vault
   $ go run server.go -config=/path/to/settings.yaml -mode=signing
   ```
 
 The application has an admin service that can be run by using mode=admin.
+
+## Deploy it with Juju
+Juju greatly simplifies the deployment of the Serial Vault. A charm bundle is available
+at the [charm store](https://jujucharms.com/u/jamesj/serial-vault-bundle/), which deploys
+everything apart from the Apache front-end units.
+```bash
+juju deploy serial-vault-bundle
+```
+
+The Juju charm uses a snap that is available at the [Snap store](https://uappexplorer.com/app/serial-vault.james)
 
 ## Try with docker
   ```bash
@@ -46,7 +92,7 @@ Follow the instructions to [install Go](https://golang.org/doc/install).
 - Install the build packages
 ```bash
 sudo apt-get install build-essential libssl-dev
-# For TPM2.0
+# For TPM2.0 (optional)
 sudo apt-get install tpm2-tools
 ```
 
@@ -66,9 +112,6 @@ nvm install v4.4.3
 # Select the version to use
 nvm ls
 nvm use v4.4.3
-
-# Install gulp globally
-npm install -g gulp
 ```
 
 - Install the nodejs dependencies
@@ -84,7 +127,7 @@ npm install
 # Select the version to use
 nvm ls
 nvm use v4.4.3
-gulp
+npm run build
 ```
 
 #### Run the tests
