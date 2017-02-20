@@ -34,13 +34,19 @@ to the Apache Admin front-end e.g. Single Sign-on authentication, to ensure that
 
 ```bash
 # Deploy the bundle
-juju deploy serial-vault-bundle
+juju deploy cs:~jamesj/bundle/serial-vault-bundle
 
 # Configure the signing service
+#   keystore_secret: part of the key used that is used to encrypt the stored data
+#   api_keys: the key that must be provided in the header of the web service requests
+#   (The keystore_secret and API key must be the same for the two services)
 juju set serial-vault keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
 juju set serial-vault api_keys=Heib2vah2aen3ai
 
 # Configure the admin service
+#   keystore_secret: part of the key used that is used to encrypt the stored data
+#   api_keys: the key that must be provided in the header of the web service requests
+#   (The keystore_secret and API key must be the same for the two services)
 juju set serial-vault-admin keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
 juju set serial-vault-admin api_keys=Heib2vah2aen3aid
 
@@ -49,10 +55,14 @@ juju deploy apache2 apache-sign
 juju deploy apache2 apache-admin
 
 # Configure the apache front-ends
-juju set apache-sign ...
-juju set apache-admin ...
+juju config apache-sign ...
+juju config apache-admin ...
 
 # Connect the apache front-ends
 juju add-relation apache-sign:balancer haproxy:website
 juju add-relation apache-admin:balancer haproxy:website
+
+# Expose the Apache front-end services
+juju expose apache-sign
+juju expose apache-admin
 ```

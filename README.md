@@ -66,10 +66,8 @@ The application has an admin service that can be run by using mode=admin.
 ## Deploy it with Juju
 Juju greatly simplifies the deployment of the Serial Vault. A charm bundle is available
 at the [charm store](https://jujucharms.com/u/jamesj/serial-vault-bundle/), which deploys
-everything apart from the Apache front-end units.
-```bash
-juju deploy serial-vault-bundle
-```
+everything apart from the Apache front-end units. There is an example of using Juju in the
+[Deployment Guidelines](docs/Deployment.md).
 
 The Juju charm uses a snap that is available at the [Snap store](https://uappexplorer.com/app/serial-vault.james)
 
