@@ -3,6 +3,13 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- 
+	gorilla.csrf.Token meta headers stores generated tokens to prevent cross site request forgery 
+	until they are used in a POST, PUT or DELETE request. Every time this frontend template is
+	update also the token is.
+	-->
+	<meta name="gorilla.csrf.Token" content="{{.CsrfToken}}">
+
 	<title>{{.Title}}</title>
 
 	<link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css" />
