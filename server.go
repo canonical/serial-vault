@@ -23,6 +23,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/ubuntu-core/identity-vault/service"
 )
@@ -59,5 +60,14 @@ func main() {
 		address = ":8080"
 	}
 
-	log.Fatal(http.ListenAndServe(address, router))
+	CSRF := csrf.Protect(
+		[]byte("32-byte-long-auth-key"),
+		// XXX temporal parameter, needed in devmode as gorilla csrf library doesn't send
+		// csrf cookies if not set to false. In production this must be removed, as it is
+		// supposed to use https, and with https the cookies are sent.
+		// (see https://github.com/gorilla/csrf#html-forms comments)
+		csrf.Secure(false),
+	)
+
+	log.Fatal(http.ListenAndServe(address, CSRF(router)))
 }

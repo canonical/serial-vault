@@ -31,21 +31,27 @@ var Ajax = {
 
 	post: function(url, data) {
 			return request('POST', API_VERSION + url, {
-					headers: {},
+					headers: {
+						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
+					},
 					json: data
 			});
 	},
 
 	put: function(url, data) {
 			return request('PUT', API_VERSION + url, {
-					headers: {},
+					headers: {
+						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
+					},
 					json: data
 			});
 	},
 
 	delete: function(url, data) {
 			return request('DELETE', API_VERSION + url, {
-					headers: {},
+					headers: {
+						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
+					},
 					json: data
 			});
 	}
