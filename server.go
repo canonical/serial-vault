@@ -24,7 +24,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/csrf"
-	"github.com/gorilla/mux"
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
@@ -46,30 +45,29 @@ func main() {
 		log.Fatalf("Error initializing the signing-key database: %v", err)
 	}
 
-	var router *mux.Router
+	var handler http.Handler
 	var address string
 
 	switch service.ServiceMode {
 	case "admin":
+		CSRF := csrf.Protect(
+			[]byte(env.Config.CSRFAuthKey),
+			// UNCOMMENT next line if not working in https. This is a temporal parameter, needed
+			// in devmode as gorilla csrf library doesn't send csrf cookies if not set to false.
+			// In production this must be removed, as it is supposed to use https, and with https
+			// the cookies are sent.
+			// (see https://github.com/gorilla/csrf#html-forms comments):
+			//
+			// csrf.Secure(false),
+		)
 		// Create the admin web service router
-		router = service.AdminRouter(&env)
+		handler = CSRF(service.AdminRouter(&env))
 		address = ":8081"
 	default:
 		// Create the user web service router
-		router = service.SigningRouter(&env)
+		handler = service.SigningRouter(&env)
 		address = ":8080"
 	}
 
-	CSRF := csrf.Protect(
-		[]byte(env.Config.CSRFAuthKey),
-		// UNCOMMENT next line if not working in https. This is a temporal parameter, needed
-		// in devmode as gorilla csrf library doesn't send csrf cookies if not set to false.
-		// In production this must be removed, as it is supposed to use https, and with https
-		// the cookies are sent.
-		// (see https://github.com/gorilla/csrf#html-forms comments):
-		//
-		// csrf.Secure(false),
-	)
-
-	log.Fatal(http.ListenAndServe(address, CSRF(router)))
+	log.Fatal(http.ListenAndServe(address, handler))
 }
