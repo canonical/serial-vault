@@ -40,15 +40,15 @@ juju deploy cs:~jamesj/bundle/serial-vault-bundle
 #   keystore_secret: part of the key used that is used to encrypt the stored data
 #   api_keys: the key that must be provided in the header of the web service requests
 #   (The keystore_secret and API key must be the same for the two services)
-juju set serial-vault keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
-juju set serial-vault api_keys=Heib2vah2aen3ai
+juju config serial-vault keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
+juju config serial-vault api_keys=Heib2vah2aen3ai
 
 # Configure the admin service
 #   keystore_secret: part of the key used that is used to encrypt the stored data
 #   api_keys: the key that must be provided in the header of the web service requests
 #   (The keystore_secret and API key must be the same for the two services)
-juju set serial-vault-admin keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
-juju set serial-vault-admin api_keys=Heib2vah2aen3aid
+juju config serial-vault-admin keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
+juju config serial-vault-admin api_keys=Heib2vah2aen3aid
 
 # Deploy the apache front-ends
 juju deploy apache2 apache-sign
