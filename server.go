@@ -61,7 +61,7 @@ func main() {
 	}
 
 	CSRF := csrf.Protect(
-		[]byte("32-byte-long-auth-key"),
+		[]byte(env.Config.CSRFAuthKey),
 		// UNCOMMENT next line if not working in https. This is a temporal parameter, needed
 		// in devmode as gorilla csrf library doesn't send csrf cookies if not set to false.
 		// In production this must be removed, as it is supposed to use https, and with https
