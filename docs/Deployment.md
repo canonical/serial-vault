@@ -23,7 +23,9 @@ The HA Proxy service provides the load balancing for the additional units.
 
 The Juju bundle does not provide secure system, as all operations are under unencrypted HTTP connections and the Admin service does not providing any authentication.
 The secure connections and authentication need to be handled outside the bundled services. Typically, this will be done by adding front-end web servers that will provide SSL connections
-and authentication for the Admin service. A typical approach would be to use two Apache web servers that provide the SSL connections and authentication for the Admin service.
+and authentication for the Admin service. A typical approach would be to use two Apache web servers that provide the SSL connections and authentication for the Admin service. 
+
+The Admin service is protected against cross site request forgery attacks. That means it needs to be accessed through front-end web servers providing the SSL using a valid domain name certificate. It is important accessing the service not using the host IP but the domain name, otherwise requests modifying data will not be allowed
 
 When Apache servers are deployed to provide front-end SSL services, it is important to consider the network availability of the servers. The Signing service can
 deployed as a public service that is available on the Internet, but it may be useful to lock the service down so it is only available on a private network e.g. a factory LAN.
@@ -46,9 +48,11 @@ juju config serial-vault api_keys=Heib2vah2aen3ai
 # Configure the admin service
 #   keystore_secret: part of the key used that is used to encrypt the stored data
 #   api_keys: the key that must be provided in the header of the web service requests
+#	csrf_auth_key: 32 bytes long key to protect server from cross site request forgery attacks
 #   (The keystore_secret and API key must be the same for the two services)
 juju config serial-vault-admin keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
 juju config serial-vault-admin api_keys=Heib2vah2aen3aid
+juju config serial-vault-admin csrf_auth_key="2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
 
 # Deploy the apache front-ends
 juju deploy apache2 apache-sign

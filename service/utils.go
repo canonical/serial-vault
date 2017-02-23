@@ -63,6 +63,7 @@ type ConfigSettings struct {
 	Mode           string   `yaml:"mode"`
 	APIKeys        []string `yaml:"apiKeys"`
 	APIKeysMap     map[string]struct{}
+	CSRFAuthKey    string `yaml:"csrfAuthKey"`
 }
 
 // DeviceAssertion defines the device identity.

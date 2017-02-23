@@ -22,8 +22,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/gorilla/csrf"
 	"github.com/ubuntu-core/identity-vault/service"
 )
 
@@ -45,19 +46,31 @@ func main() {
 		log.Fatalf("Error initializing the signing-key database: %v", err)
 	}
 
-	var router *mux.Router
+	var handler http.Handler
 	var address string
 
 	switch service.ServiceMode {
 	case "admin":
+		// configure request forgery protection
+		csrfSecure := true
+		csrfSecureEnv := os.Getenv("CSRF_SECURE")
+		if csrfSecureEnv == "disable" {
+			csrfSecure = false
+		}
+
+		CSRF := csrf.Protect(
+			[]byte(env.Config.CSRFAuthKey),
+			csrf.Secure(csrfSecure),
+		)
+
 		// Create the admin web service router
-		router = service.AdminRouter(&env)
+		handler = CSRF(service.AdminRouter(&env))
 		address = ":8081"
 	default:
 		// Create the user web service router
-		router = service.SigningRouter(&env)
+		handler = service.SigningRouter(&env)
 		address = ":8080"
 	}
 
-	log.Fatal(http.ListenAndServe(address, router))
+	log.Fatal(http.ListenAndServe(address, handler))
 }

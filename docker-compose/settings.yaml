@@ -24,3 +24,6 @@ keystoreSecret: "KEYSTORE_SECRET"
 # Valid API keys
 apiKeys:
     - API_KEY
+
+# 32 bytes long key to protect server from cross site request forgery attacks
+csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
