@@ -22,6 +22,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/csrf"
 	"github.com/ubuntu-core/identity-vault/service"
@@ -50,16 +51,18 @@ func main() {
 
 	switch service.ServiceMode {
 	case "admin":
+		// configure request forgery protection
+		csrfSecure := true
+		csrfSecureEnv := os.Getenv("CSRF_SECURE")
+		if csrfSecureEnv == "disable" {
+			csrfSecure = false
+		}
+
 		CSRF := csrf.Protect(
 			[]byte(env.Config.CSRFAuthKey),
-			// UNCOMMENT next line if not working in https. This is a temporal parameter, needed
-			// in devmode as gorilla csrf library doesn't send csrf cookies if not set to false.
-			// In production this must be removed, as it is supposed to use https, and with https
-			// the cookies are sent.
-			// (see https://github.com/gorilla/csrf#html-forms comments):
-			//
-			// csrf.Secure(false),
+			csrf.Secure(csrfSecure),
 		)
+
 		// Create the admin web service router
 		handler = CSRF(service.AdminRouter(&env))
 		address = ":8081"

@@ -6,11 +6,12 @@ A Go web service that digitally signs device assertion details.
 The application can be run in two modes: signing service or admin service. Both the web services
 operate under unencrypted HTTP connections, so these should not be exposed to a public network
 as-is. The services should be protected by web server front-end services, such as Apache, that
-provide secure HTTPS connections. Also, the admin service does not include authentication nor
-authorisation, so this service will typically be made available on a restricted network with some
-authentication front-end on the web server e.g. SSO. Typically, the services will only be available
-on a restricted network at a factory, though, with additional security measures, the signing service
-could be made available on a public network.
+provide secure HTTPS connections. Actually, admin service csrf protection forces to be accessed
+by default through HTTPS and using a valid domain name. Also, the admin service does not include 
+authentication nor authorisation, so this service will typically be made available on a restricted 
+network with some authentication front-end on the web server e.g. SSO. Typically, the services will 
+only be available on a restricted network at a factory, though, with additional security measures, 
+the signing service could be made available on a public network.
 
 Some deployment recommendations are [provided](docs/Deployment.md)
 
@@ -38,6 +39,16 @@ The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
  - Signing Service: http://localhost:8080/v1/version
  - Admin Service: http://localhost:8081/
+
+NOTE: Admin service csrf protection enforces accessing the service through HTTPS and using a valid
+domain name, otherwise any create, update or delete operations will work. In development environments 
+you can skip this enforcement by setting an env var:
+```bash
+$ export CSRF_SECURE=disable
+```
+When modified that environment var value, consider that current web session must be invalidated
+in order to changes take effect. That could require restart browser.
+NEVER use set this configuration in production environments.
 
 ## Install from Source
 If you have a Go development environment set up, Go get it:
