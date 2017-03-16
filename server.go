@@ -66,6 +66,22 @@ func main() {
 		// Create the admin web service router
 		handler = CSRF(service.AdminRouter(&env))
 		address = ":8081"
+	case "system-user":
+		// configure request forgery protection
+		csrfSecure := true
+		csrfSecureEnv := os.Getenv("CSRF_SECURE")
+		if csrfSecureEnv == "disable" {
+			csrfSecure = false
+		}
+
+		CSRF := csrf.Protect(
+			[]byte(env.Config.CSRFAuthKey),
+			csrf.Secure(csrfSecure),
+		)
+
+		// Create the admin web service router
+		handler = CSRF(service.SystemUserRouter(&env))
+		address = ":8082"
 	default:
 		// Create the user web service router
 		handler = service.SigningRouter(&env)

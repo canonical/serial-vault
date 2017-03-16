@@ -1,7 +1,7 @@
 title: "Serial Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
 
-# Service mode: signing or admin
+# Service mode: signing or admin or system-user
 mode: signing
 
 # Path to the assets (${docRoot}/static)

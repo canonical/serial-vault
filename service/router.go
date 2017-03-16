@@ -26,7 +26,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// SigningRouter returns the application route handler for the user methods
+// SigningRouter returns the application route handler for the signing service methods
 func SigningRouter(env *Env) *mux.Router {
 
 	// Start the web service router
@@ -72,6 +72,26 @@ func AdminRouter(env *Env) *mux.Router {
 	router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
 	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler), env)).Methods("GET")
+
+	return router
+}
+
+// SystemUserRouter returns the application route handler for the system-user service methods
+func SystemUserRouter(env *Env) *mux.Router {
+
+	// Start the web service router
+	router := mux.NewRouter()
+
+	// API routes
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
+
+	// Web application routes
+	path := []string{env.Config.DocRoot, "/static/"}
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
+	router.PathPrefix("/static/").Handler(fs)
+	// router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
+	// router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
+	router.Handle("/", Middleware(http.HandlerFunc(UserIndexHandler), env)).Methods("GET")
 
 	return router
 }
