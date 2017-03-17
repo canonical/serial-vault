@@ -14,11 +14,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('root')
-);
+// Main theme changes
+$color-brand: #E95420;
+$color-link: #E95420;
+
+$button-text-color: #fff;
+
+@import 'node_modules/vanilla-framework/scss/build';
+
+
+.App {
+  padding: 0;
+  margin: 0;
+}
+
+.nav_logo {
+  font-size: smaller;
+}
+
+// Customise theme
+.p-button--brand {
+    color: $button-text-color;
+
+    &:visited {
+        color: $button-text-color;
+    }
+}
