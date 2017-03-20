@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 )
 
@@ -66,6 +67,8 @@ func modelForDisplay(model Model) ModelSerialize {
 // ModelsHandler is the API method to list the models
 func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	models := []ModelSerialize{}
 
@@ -92,7 +95,8 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 // ModelGetHandler is the API method to get a model by ID.
 func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 	vars := mux.Vars(r)
 
 	modelID, err := strconv.Atoi(vars["id"])
@@ -121,6 +125,8 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 // ModelUpdateHandler is the API method to update a model.
 func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	// Get the model primary key
 	vars := mux.Vars(r)
@@ -182,6 +188,8 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 // ModelDeleteHandler is the API method to delete a model.
 func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	// Get the model primary key
 	vars := mux.Vars(r)
@@ -210,6 +218,8 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 // ModelCreateHandler is the API method to create a new model.
 func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	// Check that we have a message body
 	if r.Body == nil {

@@ -23,6 +23,7 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
+var Vault = require('../models/vault')
 import {T} from './Utils';
 
 var ModelEdit = React.createClass({
@@ -49,6 +50,7 @@ var ModelEdit = React.createClass({
 		var self = this;
 		Models.get(modelId).then(function(response) {
 			var data = JSON.parse(response.body);
+			self.updateCsrfToken(response);
 			self.setState({model: data.model});
 		});
 	},
@@ -61,8 +63,13 @@ var ModelEdit = React.createClass({
 			if (!data.success) {
 				message = data.message;
 			}
+			self.updateCsrfToken(response);
 			self.setState({keypairs: data.keypairs, message: message});
 		});
+	},
+
+	updateCsrfToken: function(response) {
+		document.getElementsByTagName("meta")["gorilla.csrf.Token"].setAttribute("content", response.headers['x-csrf-token']);
 	},
 
 	formatError: function(data) {
@@ -103,6 +110,7 @@ var ModelEdit = React.createClass({
 			Models.update(this.state.model).then(function(response) {
 				var data = JSON.parse(response.body);
 				if (response.statusCode >= 300) {
+					self.updateCsrfToken(response);
 					self.setState({error: self.formatError(data)});
 				} else {
 					window.location = '/models';
@@ -113,6 +121,7 @@ var ModelEdit = React.createClass({
 			Models.create(this.state.model).then(function(response) {
 				var data = JSON.parse(response.body);
 				if (response.statusCode >= 300) {
+					self.updateCsrfToken(response);
 					self.setState({error: self.formatError(data)});
 				} else {
 					window.location = '/models';

@@ -18,10 +18,25 @@
 
 var React = require('react');
 var Keypairs = require('../models/keypairs');
+var Vault = require('../models/vault')
 import {T} from './Utils'
 
 
 var KeypairList = React.createClass({
+
+  componentDidMount: function() {
+		this.getVersion();
+	},
+
+	getVersion: function() {
+		Vault.version().then(function(response) {
+		  this.updateCsrfToken(response);
+		});
+	},
+
+	updateCsrfToken: function(response) {
+		document.getElementsByTagName("meta")["gorilla.csrf.Token"].setAttribute("content", response.headers['x-csrf-token']);
+	},
 
 	handleDeactivate: function(e) {
 		var self = this;

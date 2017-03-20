@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/snapcore/snapd/asserts"
 
@@ -49,6 +50,8 @@ type KeypairWithPrivateKey struct {
 // Only viewable reference data is stored in the database, not the restricted private key.
 func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	keypairs, err := Environ.DB.ListKeypairs()
 	if err != nil {
@@ -68,6 +71,8 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 // linked to one of the existing signing-keys.
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	// Check that we have a message body
 	if r.Body == nil {

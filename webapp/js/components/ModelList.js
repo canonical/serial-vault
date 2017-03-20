@@ -51,6 +51,7 @@ var ModelList = React.createClass({
       if (!data.success) {
         message = data.message;
       }
+      self.updateCsrfToken(response);
       self.setState({models: data.models, message: message});
     });
   },
@@ -63,8 +64,13 @@ var ModelList = React.createClass({
       if (!data.success) {
         message = data.message;
       }
+      self.updateCsrfToken(response);
       self.setState({keypairs: data.keypairs, message: message});
     });
+  },
+
+  updateCsrfToken: function(response) {
+    document.getElementsByTagName("meta")["gorilla.csrf.Token"].setAttribute("content", response.headers['x-csrf-token']);
   },
 
   formatError: function(data) {
@@ -95,6 +101,7 @@ var ModelList = React.createClass({
     Models.delete(models[0]).then(function(response) {
       var data = JSON.parse(response.body);
       if ((response.statusCode >= 300) || (!data.success)) {
+        self.updateCsrfToken(response);
         self.setState({message: self.formatError(data)});
       } else {
         window.location = '/models';
