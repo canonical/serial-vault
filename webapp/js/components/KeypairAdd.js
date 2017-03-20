@@ -21,12 +21,28 @@ var Keypairs = require('../models/keypairs');
 var Navigation = require('./Navigation');
 var AlertBox = require('./AlertBox');
 var Footer = require('./Footer');
+var Vault = require('../models/vault')
 import {T} from './Utils';
 
 var KeypairAdd = React.createClass({
+	
 	getInitialState: function() {
-    return {authorityId: null, key: null, error: this.props.error};
-  },
+		return {authorityId: null, key: null, error: this.props.error};
+	},
+
+	componentDidMount: function() {
+		this.getVersion();
+	},
+
+	getVersion: function() {
+		Vault.version().then(function(response) {
+			this.updateCsrfToken(response);
+		});
+	},
+
+	updateCsrfToken: function(response) {
+		document.getElementsByTagName("meta")["gorilla.csrf.Token"].setAttribute("content", response.headers['x-csrf-token']);
+	},
 
 	handleChangeAuthorityId: function(e) {
 		this.setState({authorityId: e.target.value});
@@ -57,10 +73,11 @@ var KeypairAdd = React.createClass({
 		Keypairs.create(this.state.authorityId, this.state.key).then(function(response) {
 			var data = JSON.parse(response.body);
 			if ((response.statusCode >= 300) || (!data.success)) {
-        self.setState({error: self.formatError(data)});
-      } else {
-        window.location = '/models';
-      }
+				self.updateCsrfToken(response);
+				self.setState({error: self.formatError(data)});
+			} else {
+				window.location = '/models';
+			}
 		});
 	},
 

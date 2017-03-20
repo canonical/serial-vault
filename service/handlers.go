@@ -29,6 +29,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/gorilla/csrf"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -64,6 +65,8 @@ type KeypairsResponse struct {
 // VersionHandler is the API method to return the version of the service
 func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// generate new token and include in response to protect server against CSRF attacks
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 	w.WriteHeader(http.StatusOK)
 
 	response := VersionResponse{Version: Environ.Config.Version}
