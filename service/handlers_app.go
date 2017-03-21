@@ -24,22 +24,19 @@ import (
 	"net/http"
 	"strings"
 	"text/template"
-
-	"github.com/gorilla/csrf"
 )
 
 var indexTemplate = "/static/app.html"
 
 // Page is the page details for the web application
 type Page struct {
-	Title     string
-	Logo      string
-	CsrfToken string
+	Title string
+	Logo  string
 }
 
 // IndexHandler is the front page of the web application
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	page := Page{Title: Environ.Config.Title, Logo: Environ.Config.Logo, CsrfToken: csrf.Token(r)}
+	page := Page{Title: Environ.Config.Title, Logo: Environ.Config.Logo}
 
 	path := []string{Environ.Config.DocRoot, indexTemplate}
 	t, err := template.ParseFiles(strings.Join(path, ""))
