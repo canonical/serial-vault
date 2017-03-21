@@ -21,7 +21,7 @@ var API_VERSION = '/v1/';
 var Ajax = {
 
 	getToken: function() {
-		return request('GET', API_VERSION + '/csrf');
+		return this.get('csrf')
 	},
 
 	get: function(url, qs) {
