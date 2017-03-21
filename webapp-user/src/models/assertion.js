@@ -17,6 +17,8 @@
 var Ajax = require('./Ajax');
 
 var Assertion = {
+	url: 'assertions',
+
 	create:  function(assert) {
 		return Ajax.post(this.url, assert);
 	}

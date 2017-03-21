@@ -14,43 +14,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-'use strict'
 var request =require('then-request');
-var API_VERSION = '/v1/';
+import axios from 'axios'
+
+var  BASE_URL = '/v1/'
+
+if (location.port === '3000') {
+	// We're in dev mode so use the localhost:8082 for the backend
+	BASE_URL = 'http://localhost:8082/v1/'
+}
+
+const config = {baseURL: BASE_URL,
+				xsrfHeaderName: 'X-CSRF-Token',
+				xsrfCookieName: 'XSRF-TOKEN',
+			}
 
 var Ajax = {
+
+	getToken: function() {
+		return axios.get('token', config)
+	},
+
 	get: function(url, qs) {
-			if (!qs) {
-				qs = {};
-			}
-			return request('GET', API_VERSION + url, {
-					headers: {},
-					qs: qs
-			});
+		return axios.get(url, config)
 	},
 
 	post: function(url, data) {
-			return request('POST', API_VERSION + url, {
+		// Get an updated CSRF token before a POST
+		return this.getToken().then((response) => {
+			// Set the CSRF token in the header
+			return axios.post(BASE_URL + url, data,{
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
+			});
+		})
+
+	},
+
+	put: function(url, data, token) {
+			return request('PUT', BASE_URL + url, {
 					headers: {
-						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
+						'X-CSRF-Token': token
 					},
 					json: data
 			});
 	},
 
-	put: function(url, data) {
-			return request('PUT', API_VERSION + url, {
+	delete: function(url, data, token) {
+			return request('DELETE', BASE_URL + url, {
 					headers: {
-						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
-					},
-					json: data
-			});
-	},
-
-	delete: function(url, data) {
-			return request('DELETE', API_VERSION + url, {
-					headers: {
-						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
+						'X-CSRF-Token': token
 					},
 					json: data
 			});

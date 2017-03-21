@@ -16,6 +16,8 @@
  */
 import React, {Component} from 'react'
 import moment from 'moment'
+import AlertBox from './AlertBox'
+import If from './If'
 
 
 class SystemUserForm extends Component {
@@ -30,6 +32,7 @@ class SystemUserForm extends Component {
             name: '',
             model: '',
             since: moment.utc(),
+            message: '',
         }
     }
 
@@ -50,7 +53,7 @@ class SystemUserForm extends Component {
     }
 
     handleChangeModel = (e) => {
-        this.setState({mode: e.target.value});
+        this.setState({model: e.target.value});
     }
 
     handleChangeSinceDate = (e) => {
@@ -86,17 +89,41 @@ class SystemUserForm extends Component {
             model:    this.state.model,
             since:    this.state.since.format('YYYY-MM-DDThh:mm:ss'),
         }
-        this.props.onSubmit(form)
+        if (this.validate(form)) {
+            this.props.onSubmit(form)
+        }
+    }
+
+    validate(form) {
+        // Check the mandatory fields
+        if ((!form.email) || (!form.username) || (!form.password) || (!form.name) || (!form.model) || (form.model === 0)) {
+            this.setState({message: 'All the fields must be entered'});
+            return false;
+        }
+
+        // Check the email
+        if (! /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(form.email)) {
+            this.setState({message: 'The email is not valid'});
+            return false
+        }
+
+        this.setState({message: ''})
+        return true;
     }
 
     render() {
 
         return (
             <div className="row">
+
+                <If cond={this.state.message}>
+                    <AlertBox message={this.state.message} type={'negative'} />
+                </If>
+
                 <form>
                     <fieldset>
                         <label htmlFor="email">Email:
-                            <input type="text" name="email" placeholder="email address" onChange={this.handleChangeEmail} value={this.state.email} />
+                            <input type="email" name="email" required placeholder="email address" onChange={this.handleChangeEmail} value={this.state.email} />
                         </label>
                         <label htmlFor="username">Username:
                             <input type="text" name="username" placeholder="system-user name" onChange={this.handleChangeUsername} value={this.state.username} />
@@ -108,7 +135,14 @@ class SystemUserForm extends Component {
                             <input type="text" name="name" placeholder="name of the user" onChange={this.handleChangeName} value={this.state.name} />
                         </label>
                         <label htmlFor="name">Model:
-                            <input type="text" name="model" placeholder="FIX: select the model" onChange={this.handleChangeModel} value={this.state.model} />
+                            <select onChange={this.handleChangeModel} value={this.state.model.id}>
+                                <option value={0}>--</option>
+                            {this.props.models.map((m) => {
+                                return (
+                                    <option key={m.id} value={m.id}>{m['brand-id']} {m.model}</option>
+                                )
+                            })}
+                            </select>
                         </label>
                         <label htmlFor="since">Since (UTC):
                             <div className="row">

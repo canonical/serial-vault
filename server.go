@@ -71,16 +71,23 @@ func main() {
 		csrfSecure := true
 		csrfSecureEnv := os.Getenv("CSRF_SECURE")
 		if csrfSecureEnv == "disable" {
+			log.Println("Disable secure flag")
 			csrfSecure = false
 		}
 
 		CSRF := csrf.Protect(
 			[]byte(env.Config.CSRFAuthKey),
 			csrf.Secure(csrfSecure),
+			csrf.CookieName("XSRF-TOKEN"),
 		)
 
 		// Create the admin web service router
-		handler = CSRF(service.SystemUserRouter(&env))
+		if csrfSecure {
+			handler = CSRF(service.SystemUserRouter(&env))
+		} else {
+			// Allow cross-origin access for local development
+			handler = service.CORSMiddleware()(CSRF(service.SystemUserRouter(&env)))
+		}
 		address = ":8082"
 	default:
 		// Create the user web service router

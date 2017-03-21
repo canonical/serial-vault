@@ -84,13 +84,17 @@ func SystemUserRouter(env *Env) *mux.Router {
 
 	// API routes
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
+	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler), env)).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler), env)).Methods("GET")
+	//router.Handle("/v1/assertions", Middleware(http.HandlerFunc(setCORSHeader), env)).Methods("OPTIONS")
+	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler), env)).Methods("POST")
 
 	// Web application routes
 	path := []string{env.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
-	// router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
-	// router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
+	// router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(UserIndexHandler), env))
+	// router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(UserIndexHandler), env))
 	router.Handle("/", Middleware(http.HandlerFunc(UserIndexHandler), env)).Methods("GET")
 
 	return router

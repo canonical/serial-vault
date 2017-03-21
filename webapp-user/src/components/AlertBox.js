@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,15 +14,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-var Ajax = require('./Ajax');
+import React from 'react'
 
-var Model = {
-	url: 'models',
+var AlertBox = React.createClass({
+	render: function() {
+		if (this.props.message) {
+			var style = 'p-notification';
+			if (this.props.type) {
+				style = 'p-notification--' + this.props.type;
+			}
 
-	list: function () {
-		return Ajax.get(this.url);
-	},
+			return (
+				<div className={style}>
+					<p className="p-notification__response">
+						<span className="p-notification__status"></span>{this.props.message}
+					</p>
+				</div>
+			);
+		} else {
+			return <span />;
+		}
+	}
+});
 
-}
-
-module.exports = Model;
+module.exports = AlertBox;

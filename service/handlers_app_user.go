@@ -30,6 +30,14 @@ import (
 
 var userIndexTemplate = "/static/app_user.html"
 
+// TokenHandler returns the CSRF token in the header
+func TokenHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the token and pass it in the CSRF header. Our JSON-speaking client
+	// or JavaScript framework can now read the header and return the token in
+	// in its own "X-CSRF-Token" request header on the subsequent POST.
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
+}
+
 // UserIndexHandler is the front page of the web application
 func UserIndexHandler(w http.ResponseWriter, r *http.Request) {
 	page := Page{Title: Environ.Config.Title, Logo: Environ.Config.Logo, CsrfToken: csrf.Token(r)}
@@ -45,4 +53,9 @@ func UserIndexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+// SystemUserAssertionHandler is the API method to generate a signed system-user assertion for a device
+func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("System User", r.Method)
 }

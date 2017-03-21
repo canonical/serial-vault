@@ -24,6 +24,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/handlers"
 )
 
 // Logger Handle logging for the web service
@@ -70,4 +72,17 @@ func Middleware(inner http.Handler, env *Env) http.Handler {
 
 		inner.ServeHTTP(w, r)
 	})
+}
+
+// CORSMiddleware handles the header options for cross-origin requests (used in development only)
+func CORSMiddleware() func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		headers := handlers.AllowedHeaders([]string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "X-Requested-With", "Origin"})
+		origins := handlers.AllowedOrigins([]string{"http://localhost:3000"})
+		methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+		exposed := handlers.ExposedHeaders([]string{"X-CSRF-Token"})
+		credentials := handlers.AllowCredentials()
+
+		return handlers.CORS(headers, origins, methods, exposed, credentials)(h)
+	}
 }

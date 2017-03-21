@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,15 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-var Ajax = require('./Ajax');
+import React from 'react'
 
-var Model = {
-	url: 'models',
-
-	list: function () {
-		return Ajax.get(this.url);
-	},
-
+export default function If({ cond, children }) {
+  if (!cond) return null
+  return (
+    Array.isArray(children)
+      ? ( <div>{children}</div> )
+      : children
+  )
 }
-
-module.exports = Model;
