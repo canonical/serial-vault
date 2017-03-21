@@ -29,8 +29,8 @@ var Ajax = {
 				qs = {};
 			}
 			return request('GET', API_VERSION + url, {
-					headers: {},
-					qs: qs
+				headers: {},
+				qs: qs
 			});
 	},
 
@@ -50,10 +50,10 @@ var Ajax = {
 		// Get updated CSRF token before PUT
 		return this.getToken().then(function(response) {
 			return request('PUT', API_VERSION + url, {
-					headers: {
-						'X-CSRF-Token': response.headers['x-csrf-token'],
-					},
-					json: data
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
+				json: data
 			});
 		});
 	},
@@ -62,10 +62,10 @@ var Ajax = {
 		// Get updated CSRF token before PUT
 		return this.getToken().then(function(response) {
 			return request('DELETE', API_VERSION + url, {
-					headers: {
-						'X-CSRF-Token': response.headers['x-csrf-token'],
-					},
-					json: data
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
+				json: data
 			});
 		});
 	}
