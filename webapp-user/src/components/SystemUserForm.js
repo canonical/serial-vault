@@ -30,7 +30,7 @@ class SystemUserForm extends Component {
             username: '',
             password: '',
             name: '',
-            model: '',
+            model: 0,
             since: moment.utc(),
             message: '',
         }
@@ -53,7 +53,7 @@ class SystemUserForm extends Component {
     }
 
     handleChangeModel = (e) => {
-        this.setState({model: e.target.value});
+        this.setState({model: parseInt(e.target.value)});
     }
 
     handleChangeSinceDate = (e) => {

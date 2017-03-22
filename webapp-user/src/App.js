@@ -17,19 +17,33 @@
 import React, { Component } from 'react';
 import Header from './components/Header'
 import SystemUserForm from './components/SystemUserForm'
+import If from './components/If'
 import Models from './models/models'
 import Assertion from './models/assertion'
+import {sectionFromHash} from './models/Utils'
+import createHistory from 'history/createBrowserHistory'
 import './sass/App.css';
+
+const history = createHistory()
 
 class App extends Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      models: []
+      models: [],
+      assertion: '',
+      location: history.location,
     }
 
+    history.listen(this.handleNavigation.bind(this))
+
     this.getModels()
+  }
+
+  handleNavigation(location) {
+    this.setState({ location: location })
+    window.scrollTo(0, 0)
   }
 
   getModels() {
@@ -44,8 +58,7 @@ class App extends Component {
     })
   }
 
-  onSubmitForm(form) {
-    console.log(form)
+  onSubmitForm = (form) => {
     Assertion.create(form).then((response) => {
       var data = response.data;
       var message = "";
@@ -54,10 +67,23 @@ class App extends Component {
       }
       console.log(data)
       console.log(message)
+
+      if (data.success) {
+        this.setState({assertion: data.assertion})
+        location = '#assertion';
+      }
+
     })
   }
 
+  downloadAssertion () {
+    return 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(this.state.assertion)
+  }
+
   render() {
+
+    var currentSection = sectionFromHash(location.hash);
+
     return (
       <div className="App">
         <Header />
@@ -72,9 +98,19 @@ class App extends Component {
           </div>
 
           <br />
-          <h3>Create System User Assertion</h3>
+          <If cond={currentSection==='home'}>
+            <h3>Create System User Assertion</h3>
 
-          <SystemUserForm onSubmit={this.onSubmitForm} models={this.state.models} />
+            <SystemUserForm onSubmit={this.onSubmitForm} models={this.state.models} />
+          </If>
+
+          <If cond={currentSection==='assertion'}>
+            <a href="#">&laquo; Back to the form</a>
+            <h3>System User Assertion</h3>
+
+            <pre>{this.state.assertion}</pre>
+            <a className="p-button--brand" href={this.downloadAssertion()} download="auto-import.assert">Download</a>
+          </If>
 
         </div>
       </div>
