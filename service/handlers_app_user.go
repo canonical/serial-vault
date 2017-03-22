@@ -32,7 +32,6 @@ import (
 
 	"fmt"
 
-	"github.com/gorilla/csrf"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -55,14 +54,6 @@ type SystemUserResponse struct {
 	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
 	Assertion    string `json:"assertion"`
-}
-
-// TokenHandler returns the CSRF token in the header
-func TokenHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the token and pass it in the CSRF header. Our JSON-speaking client
-	// or JavaScript framework can now read the header and return the token in
-	// in its own "X-CSRF-Token" request header on the subsequent POST.
-	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 }
 
 // UserIndexHandler is the front page of the web application

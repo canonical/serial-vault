@@ -43,7 +43,7 @@ var Ajax = {
 		// Get an updated CSRF token before a POST
 		return this.getToken().then((response) => {
 			// Set the CSRF token in the header
-			return axios.post(BASE_URL + url, data,{
+			return axios.post(BASE_URL + url, data, {
 				headers: {
 					'X-CSRF-Token': response.headers['x-csrf-token'],
 				},
@@ -52,22 +52,26 @@ var Ajax = {
 
 	},
 
-	put: function(url, data, token) {
-			return request('PUT', BASE_URL + url, {
-					headers: {
-						'X-CSRF-Token': token
-					},
-					json: data
+	put: function(url, data) {
+		// Get updated CSRF token before PUT
+		return this.getToken().then((response) => {
+			return axios.put(BASE_URL + url, data, {
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
 			});
+		});
 	},
 
-	delete: function(url, data, token) {
-			return request('DELETE', BASE_URL + url, {
-					headers: {
-						'X-CSRF-Token': token
-					},
-					json: data
+	delete: function(url, data) {
+		// Get updated CSRF token before DELETE
+		return this.getToken().then((response) => {
+			return axios.delete(BASE_URL + url, data, {
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
 			});
+		});
 	}
 }
 

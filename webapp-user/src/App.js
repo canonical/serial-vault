@@ -48,7 +48,6 @@ class App extends Component {
 
   getModels() {
     Models.list().then((response) => {
-      //var data = JSON.parse(response.body);
       var data = response.data;
       var message = "";
       if (!data.success) {

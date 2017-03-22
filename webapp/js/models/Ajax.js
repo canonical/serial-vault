@@ -59,7 +59,7 @@ var Ajax = {
 	},
 
 	delete: function(url, data) {
-		// Get updated CSRF token before PUT
+		// Get updated CSRF token before DELETE
 		return this.getToken().then(function(response) {
 			return request('DELETE', API_VERSION + url, {
 				headers: {
