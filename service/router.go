@@ -47,7 +47,7 @@ func AdminRouter(env *Env) *mux.Router {
 	router := mux.NewRouter()
 
 	// API routes: csrf token
-	router.Handle("/v1/csrf", Middleware(http.HandlerFunc(TokenHandler), env)).Methods("GET")
+	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler), env)).Methods("GET")
 
 	// API routes: models admin
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
