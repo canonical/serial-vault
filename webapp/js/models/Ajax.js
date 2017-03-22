@@ -15,45 +15,59 @@
  *
  */
 'use strict'
-var request =require('then-request');
+var request = require('then-request');
 var API_VERSION = '/v1/';
 
 var Ajax = {
+
+	getToken: function() {
+		return this.get('token')
+	},
+
 	get: function(url, qs) {
 			if (!qs) {
 				qs = {};
 			}
 			return request('GET', API_VERSION + url, {
-					headers: {},
-					qs: qs
+				headers: {},
+				qs: qs
 			});
 	},
 
 	post: function(url, data) {
+		// Get updated CSRF token before POST
+		return this.getToken().then(function(response) {
 			return request('POST', API_VERSION + url, {
-					headers: {
-						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
-					},
-					json: data
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
+				json: data
 			});
+		});
 	},
 
 	put: function(url, data) {
+		// Get updated CSRF token before PUT
+		return this.getToken().then(function(response) {
 			return request('PUT', API_VERSION + url, {
-					headers: {
-						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
-					},
-					json: data
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
+				json: data
 			});
+		});
 	},
 
 	delete: function(url, data) {
+		// Get updated CSRF token before PUT
+		return this.getToken().then(function(response) {
 			return request('DELETE', API_VERSION + url, {
-					headers: {
-						'X-CSRF-Token': document.getElementsByTagName("meta")["gorilla.csrf.Token"].getAttribute("content")
-					},
-					json: data
+				headers: {
+					'X-CSRF-Token': response.headers['x-csrf-token'],
+				},
+				json: data
 			});
+		});
 	}
 }
 
