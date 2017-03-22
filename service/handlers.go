@@ -29,6 +29,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/gorilla/csrf"
+
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -73,6 +75,11 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 		message := fmt.Sprintf("Error encoding the version response: %v", err)
 		logMessage("VERSION", "get-version", message)
 	}
+}
+
+// TokenHandler returns CSRF protection new token in a X-CSRF-Token response header
+func TokenHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 }
 
 // SignHandler is the API method to sign assertions from the device
