@@ -108,13 +108,8 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create the system-user assertion
-	assertionHeaders, err := userRequestToAssertion(user, model)
-	if err != nil {
-		logMessage("USER", "invalid-assertion", err.Error())
-		formatBooleanResponse(false, "invalid-assertion", "", err.Error(), w)
-		return
-	}
+	// Create the system-user assertion headers from the request
+	assertionHeaders := userRequestToAssertion(user, model)
 
 	// Sign the system-user assertion
 	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityID, model.KeyID, model.SealedKey)
@@ -133,7 +128,7 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func userRequestToAssertion(user SystemUserRequest, model Model) (map[string]interface{}, error) {
+func userRequestToAssertion(user SystemUserRequest, model Model) map[string]interface{} {
 
 	// Create the salt from the keystore secret
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
@@ -167,5 +162,5 @@ func userRequestToAssertion(user SystemUserRequest, model Model) (map[string]int
 	}
 
 	// Create a new serial assertion
-	return headers, nil
+	return headers
 }

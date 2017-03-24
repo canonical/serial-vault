@@ -33,3 +33,11 @@ export function routeFromHash(path) {
 export function isError(response) {
   return ((response.statusCode >= 300) || (response.statusCode === 0));
 }
+
+export function handleError(err) {
+  if (err.response) {
+    this.setState({message: err.response.data.message})
+  } else {
+    this.setState({message: err.message})
+  }
+}

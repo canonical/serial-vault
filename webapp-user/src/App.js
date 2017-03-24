@@ -18,9 +18,10 @@ import React, { Component } from 'react';
 import Header from './components/Header'
 import SystemUserForm from './components/SystemUserForm'
 import If from './components/If'
+import AlertBox from './components/AlertBox'
 import Models from './models/models'
 import Assertion from './models/assertion'
-import {sectionFromHash} from './models/Utils'
+import {sectionFromHash, handleError} from './models/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css';
 
@@ -49,30 +50,29 @@ class App extends Component {
   getModels() {
     Models.list().then((response) => {
       var data = response.data;
-      var message = "";
+      var message = null;
       if (!data.success) {
         message = data.message;
       }
       this.setState({models: data.models, message: message});
-    })
+    }).catch(handleError.bind(this))
   }
 
   onSubmitForm = (form) => {
     Assertion.create(form).then((response) => {
       var data = response.data;
-      var message = "";
+      var message = null;
       if (!data.success) {
         message = data.message;
       }
-      console.log(data)
-      console.log(message)
 
+      this.setState({assertion: data.assertion, message: message})
       if (data.success) {
-        this.setState({assertion: data.assertion})
+        // Display the assertion
         location = '#assertion';
       }
 
-    })
+    }).catch(handleError.bind(this))
   }
 
   downloadAssertion () {
@@ -99,6 +99,10 @@ class App extends Component {
           <br />
           <If cond={currentSection==='home'}>
             <h3>Create System User Assertion</h3>
+
+            <If cond={this.state.message}>
+              <AlertBox message={this.state.message} type="negative" />
+            </If>
 
             <SystemUserForm onSubmit={this.onSubmitForm} models={this.state.models} />
           </If>

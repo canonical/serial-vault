@@ -11,8 +11,10 @@
     "then-request": "^2.2.0"
   },
   "devDependencies": {
+    "enzyme": "^2.7.1",
     "node-sass": "^4.5.0",
     "npm-run-all": "^4.0.2",
+    "react-addons-test-utils": "^15.4.2",
     "react-scripts": "0.9.5",
     "vanilla-framework": "^1.1.9"
   },
