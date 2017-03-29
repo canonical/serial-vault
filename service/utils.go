@@ -103,7 +103,7 @@ type BooleanResponse struct {
 // ParseArgs checks the command line arguments
 func ParseArgs() {
 	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
-	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing service or admin service")
+	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing, admin or system-user service ")
 	flag.Parse()
 }
 

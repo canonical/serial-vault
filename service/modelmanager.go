@@ -46,7 +46,7 @@ const findModelSQL = `
 	inner join keypair k on k.id = m.keypair_id
 	where brand_id=$1 and name=$2`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, authority_id, key_id, k.active
+	select m.id, brand_id, name, keypair_id, authority_id, key_id, k.active, sealed_key
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	where m.id=$1`
@@ -116,7 +116,7 @@ func (db *DB) FindModel(brandID, modelName string) (Model, error) {
 func (db *DB) GetModel(modelID int) (Model, error) {
 	model := Model{}
 
-	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive)
+	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return model, err
