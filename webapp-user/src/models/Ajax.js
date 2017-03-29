@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-var request =require('then-request');
 import axios from 'axios'
 
 var  BASE_URL = '/v1/'

@@ -25,21 +25,21 @@ nvm use lts/*
 
 - Install the nodejs dependencies
 ```bash
-cd webapp-user
+cd webapp-user # Make sure you are in the webapp-user directory
 npm install
 ```
 
 ## Testing
 To run the tests for an app:
 ```bash
-cd webapp-user
+cd webapp-user # Make sure you are in the webapp-user directory
 npm test
 ```
 
 ## Building
 To run a full build:
 ```bash
-cd webapp-user
+cd webapp-user  # Make sure you are in the webapp-user directory
 ./build.sh
 ```
 
@@ -49,7 +49,7 @@ relevant files to the static directories.
 Create React App also has a handy development mode that loads the view in the browser and
 refreshes it on every save - no extra build step required:
 ```bash
-cd webapp-user
+cd webapp-user  # Make sure you are in the webapp-user directory
 npm start
 ```
 

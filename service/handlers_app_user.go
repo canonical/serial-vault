@@ -37,6 +37,9 @@ import (
 
 var userIndexTemplate = "/static/app_user.html"
 
+const oneYearDuration = time.Duration(24*365) * time.Hour
+const userAssertionRevision = "1"
+
 // SystemUserRequest is the JSON version of the request to create a system-user assertion
 type SystemUserRequest struct {
 	Email    string `json:"email"`
@@ -130,9 +133,14 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 
 func userRequestToAssertion(user SystemUserRequest, model Model) map[string]interface{} {
 
-	// Create the salt from the keystore secret
+	// Create the salt from a random string
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
-	baseSalt := reg.ReplaceAllString(Environ.Config.KeyStoreSecret, "")
+	randomText, err := GenerateRandomString(32)
+	if err != nil {
+		logMessage("USER", "generate-assertion", err.Error())
+		return map[string]interface{}{}
+	}
+	baseSalt := reg.ReplaceAllString(randomText, "")
 
 	// Encrypt the password
 	salt := fmt.Sprintf("$6$%s$", baseSalt)
@@ -143,12 +151,12 @@ func userRequestToAssertion(user SystemUserRequest, model Model) map[string]inte
 	if err != nil {
 		since = time.Now().UTC()
 	}
-	until := since.Add(time.Duration(24*365) * time.Hour)
+	until := since.Add(oneYearDuration)
 
 	// Create the serial assertion header from the serial-request headers
 	headers := map[string]interface{}{
 		"type":              asserts.SystemUserType.Name,
-		"revision":          "1",
+		"revision":          userAssertionRevision,
 		"authority-id":      model.AuthorityID,
 		"brand-id":          model.AuthorityID,
 		"email":             user.Email,

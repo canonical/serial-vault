@@ -118,7 +118,7 @@ func TestSystemUserAssertionHandler(t *testing.T) {
 
 	for _, test := range tests {
 		statusCode, result, message := sendSystemUserAssertion(test.data, t)
-		if result != test.expected {
+		if statusCode != test.statusCode {
 			t.Errorf("Unexpected status code from request '%v': %d", test.data, statusCode)
 		}
 		if result != test.expected {
