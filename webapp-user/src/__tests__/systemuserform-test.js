@@ -33,7 +33,7 @@ describe('system-user form', function() {
 
         expect(component.find('form')).toHaveLength(1)
         expect(component.find('fieldset')).toHaveLength(1)
-        expect(component.find('input')).toHaveLength(6)
+        expect(component.find('input')).toHaveLength(5)
         expect(component.find('select')).toHaveLength(1)
         expect(component.find('button')).toHaveLength(1)
     })

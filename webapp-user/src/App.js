@@ -69,7 +69,7 @@ class App extends Component {
       this.setState({assertion: data.assertion, message: message})
       if (data.success) {
         // Display the assertion
-        location = '#assertion';
+        location.href = '#assertion';
       }
 
     }).catch(handleError.bind(this))

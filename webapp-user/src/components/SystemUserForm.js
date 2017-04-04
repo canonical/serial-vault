@@ -18,7 +18,8 @@ import React, {Component} from 'react'
 import moment from 'moment'
 import AlertBox from './AlertBox'
 import If from './If'
-
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 class SystemUserForm extends Component {
 
@@ -53,13 +54,10 @@ class SystemUserForm extends Component {
     }
 
     handleChangeModel = (e) => {
-        this.setState({model: parseInt(e.target.value)});
+        this.setState({model: parseInt(e.target.value, 10)});
     }
 
-    handleChangeSinceDate = (e) => {
-        // Get the date from the form field
-        var date = moment.utc(e.target.value)
-
+    handleChangeSinceDate = (date) => {
         // Get the time from the current setting
         date.hours(this.state.since.hours())
         date.minutes(this.state.since.minutes())
@@ -146,10 +144,10 @@ class SystemUserForm extends Component {
                         </label>
                         <label htmlFor="since">Since (UTC):
                             <div className="row">
-                                <div className="col-6">
-                                    <input type="date" name="since_date" title="the date the assertion is valid from (UTC)" onChange={this.handleChangeSinceDate} value={this.state.since.format('YYYY-MM-DD')} />
+                                <div className="col-3">
+                                    <DatePicker selected={this.state.since} onChange={this.handleChangeSinceDate} />
                                 </div>
-                                <div className="col-6">
+                                <div className="col-3">
                                     <input type="time" name="since_time" title="the time the assertion is valid from (UTC)" onChange={this.handleChangeSinceTime} value={this.state.since.format('hh:mm')} />
                                 </div>
                             </div>
