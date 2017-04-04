@@ -28,10 +28,11 @@ import (
 
 const createModelTableSQL = `
 	CREATE TABLE IF NOT EXISTS model (
-		id          serial primary key not null,
-		brand_id    varchar(200) not null,
-		name        varchar(200) not null,
-		keypair_id  int references keypair not null
+		id               serial primary key not null,
+		brand_id         varchar(200) not null,
+		name             varchar(200) not null,
+		keypair_id       int references keypair not null,
+		user_keypair_id  int references keypair not null
 	)
 `
 const listModelsSQL = `
@@ -54,6 +55,13 @@ const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4 whe
 const createModelSQL = "insert into model (brand_id,name,keypair_id) values ($1,$2,$3) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 
+// Add the user keypair to the models table (nullable)
+const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
+
+// Populate the user keypair and make it not-nullable
+const populateModelUserKeypair = "update model set user_keypair_id=keypair_id where user_keypair_id is null"
+const alterModelUserKeypairNotNullable = "alter table model alter column user_keypair_id set not null"
+
 // Model holds the model details in the local database
 type Model struct {
 	ID          int
@@ -70,6 +78,29 @@ type Model struct {
 func (db *DB) CreateModelTable() error {
 	_, err := db.Exec(createModelTableSQL)
 	return err
+}
+
+// AlterModelTable adds the user keypair link to an existing model table.
+func (db *DB) AlterModelTable() error {
+	_, err := db.Exec(alterModelUserKeypairNullable)
+	if err != nil {
+		// Field already exists so skip
+		return nil
+	}
+
+	// Default the user keypair
+	_, err = db.Exec(populateModelUserKeypair)
+	if err != nil {
+		log.Println("Error defaulting the user keypair")
+		return err
+	}
+
+	_, err = db.Exec(alterModelUserKeypairNotNullable)
+	if err != nil {
+		log.Println("Error in making the user keypair not null")
+		return err
+	}
+	return nil
 }
 
 // ListModels fetches the full catalogue of models from the database.

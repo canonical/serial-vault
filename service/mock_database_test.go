@@ -35,6 +35,11 @@ func (mdb *mockDB) CreateModelTable() error {
 	return nil
 }
 
+// AlterModelTable mock for the alter model table method
+func (mdb *mockDB) AlterModelTable() error {
+	return nil
+}
+
 // CreateKeypairTable mock for the create keypair table method
 func (mdb *mockDB) CreateKeypairTable() error {
 	return nil
@@ -244,6 +249,11 @@ type errorMockDB struct{}
 // CreateModelTable mock for the create model table method
 func (mdb *errorMockDB) CreateModelTable() error {
 	return errors.New("Error creating the model table")
+}
+
+// AlterModelTable mock for the alter model table method
+func (mdb *errorMockDB) AlterModelTable() error {
+	return nil
 }
 
 // CreateKeypairTable mock for the create keypair table method
