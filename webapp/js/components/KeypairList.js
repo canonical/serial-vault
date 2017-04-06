@@ -50,7 +50,7 @@ var KeypairList = React.createClass({
 
     if (this.props.keypairs.length > 0) {
       return (
-        <table className="p-card">
+        <table>
           <thead>
             <tr>
               <th></th><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small">{T('active')}</th>

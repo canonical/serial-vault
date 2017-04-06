@@ -111,7 +111,7 @@ var ModelList = React.createClass({
 
     if (this.state.models.length > 0) {
       return (
-        <table className="p-card">
+        <table>
           <thead>
             <tr>
               <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('signing-key')}</th><th>{T('user-key')}</th>
@@ -142,9 +142,9 @@ var ModelList = React.createClass({
 
           <section className="row">
             <div className="u-equal-height">
-              <h2>{T('models')}</h2>
+              <h2 className="col-3">{T('models')}</h2>
               &nbsp;
-              <div><a href="/models/new" className="p-button--brand" title={T('add-new-model')}>
+              <div className="col-1"><a href="/models/new" className="p-button--brand" title={T('add-new-model')}>
                 <i className="fa fa-plus"></i>
               </a></div>
             </div>
@@ -161,9 +161,9 @@ var ModelList = React.createClass({
 
           <section className="row">
             <div className="u-equal-height spacer">
-              <h2>{T('signing-keys')}</h2>
+              <h2 className="col-3">{T('signing-keys')}</h2>
               &nbsp;
-              <div>
+              <div className="col-1">
                 <a href="/models/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
                   <i className="fa fa-plus"></i>
                 </a>
