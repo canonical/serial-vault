@@ -36,6 +36,7 @@ type Datastore interface {
 	DeleteModel(model Model) (string, error)
 	CreateModel(model Model) (Model, string, error)
 	CreateModelTable() error
+	AlterModelTable() error
 
 	ListKeypairs() ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)

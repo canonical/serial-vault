@@ -33,6 +33,9 @@ import (
 	"fmt"
 
 	"github.com/snapcore/snapd/asserts"
+	"github.com/snapcore/snapd/overlord/auth"
+	"github.com/snapcore/snapd/release"
+	"github.com/snapcore/snapd/store"
 )
 
 var userIndexTemplate = "/static/app_user.html"
@@ -111,6 +114,14 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Fetch the account assertions from the store
+	accountAssertions, err := fetchAccountAssertions(model)
+	if err != nil {
+		logMessage("USER", "account-assertions", err.Error())
+		formatBooleanResponse(false, "account-assertions", "", "Error retrieving the account assertions from the store", w)
+		return
+	}
+
 	// Create the system-user assertion headers from the request
 	assertionHeaders := userRequestToAssertion(user, model)
 
@@ -122,13 +133,41 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return the signed assertion
+	// Get the signed assertion
 	serializedAssertion := asserts.Encode(signedAssertion)
 
-	response := SystemUserResponse{Success: true, Assertion: string(serializedAssertion)}
+	// Format the composite assertion
+	composite := fmt.Sprintf("%s\n%s\n%s", asserts.Encode(accountAssertions[0]), asserts.Encode(accountAssertions[1]), serializedAssertion)
+
+	response := SystemUserResponse{Success: true, Assertion: composite}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		logMessage("USER", "signing-assertion", err.Error())
 	}
+}
+
+func fetchAccountAssertions(model Model) ([]asserts.Assertion, error) {
+
+	// Get the account-key assertion from the store
+	accountKeyAssert, err := fetchAssertionFromStore(asserts.AccountKeyType, []string{model.KeyID})
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the account assertion from the store
+	accountAssert, err := fetchAssertionFromStore(asserts.AccountType, []string{model.AuthorityID})
+	if err != nil {
+		return nil, err
+	}
+
+	return []asserts.Assertion{accountAssert, accountKeyAssert}, nil
+}
+
+var fetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
+	var user *auth.UserState
+	var authContext auth.AuthContext
+	sto := store.New(nil, authContext)
+
+	return sto.Assertion(modelType, headers, user)
 }
 
 func userRequestToAssertion(user SystemUserRequest, model Model) map[string]interface{} {
@@ -164,6 +203,7 @@ func userRequestToAssertion(user SystemUserRequest, model Model) map[string]inte
 		"username":          user.Username,
 		"password":          password,
 		"models":            []interface{}{model.Name},
+		"series":            []interface{}{release.Series},
 		"since":             since.Format(time.RFC3339),
 		"until":             until.Format(time.RFC3339),
 		"sign-key-sha3-384": model.KeyID,

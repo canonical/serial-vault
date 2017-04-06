@@ -80,6 +80,14 @@ func main() {
 		log.Println("Created the 'nonce' table.")
 	}
 
+	// Update the model table, adding the new user-keypair field
+	err = env.DB.AlterModelTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Updated the 'model' table.")
+	}
+
 	// Initalize the TPM store, authenticating with the TPM 2.0 module
 	if env.Config.KeyStoreType == service.TPM20Store.Name {
 		log.Println("Initialize the TPM2.0 store")
