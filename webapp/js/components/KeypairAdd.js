@@ -78,11 +78,10 @@ var KeypairAdd = React.createClass({
 
 		return (
 			<div>
-				<Navigation active="models" />
 
 				<section className="row no-border">
 					<h2>{T('new-signing-key')}</h2>
-					<div className="twelve-col">
+					<div className="col-12">
 						<AlertBox message={this.state.error} />
 
 						<form>
@@ -105,14 +104,13 @@ var KeypairAdd = React.createClass({
 							</fieldset>
 						</form>
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{T('save')}</a>
+							<a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">{T('cancel')}</a>
+							<a href='/models' className="p-button--neutral">{T('cancel')}</a>
 						</div>
 					</div>
 				</section>
 
-				<Footer />
 			</div>
 		);
 	}

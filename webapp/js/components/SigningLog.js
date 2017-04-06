@@ -187,7 +187,7 @@ var SigningLogList = React.createClass({
           <table>
             <thead>
               <tr>
-                <th className="small"></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('serial-number')}</th><th>{T('revision')}</th><th>{T('fingerprint')}</th><th>{T('date')}</th>
+                <th>{T('brand')}</th><th>{T('model')}</th><th>{T('serial-number')}</th><th>{T('revision')}</th><th>{T('fingerprint')}</th><th>{T('date')}</th>
               </tr>
             </thead>
             <tbody>
@@ -216,23 +216,22 @@ var SigningLogList = React.createClass({
     var displayRows = this.displayRows();
 
     return (
-        <div className="inner-wrapper">
-          <Navigation active="signinglog" />
+        <div className="row">
 
-          <section className="row no-border">
+          <section className="row">
             <h2>{T('signinglog')}</h2>
-            <div className="twelve-col">
+            <div className="col-12">
               <p>{T('signinglog-description')}</p>
             </div>
-            <div className="twelve-col">
+            <div className="col-12">
               <AlertBox message={this.state.message} />
             </div>
 
-            <div className="full">
-              <div className="col three-col">
-                <div className="box filter">
+            <div className="row">
+              <div className="col-3">
+                <div className="p-card filter">
                   <div className="filter-section">
-                      <h3>Filter By</h3>
+                      <h4>Filter By</h4>
                       <SigningLogFilter
                           name={T('makes')} items={this.state.makes}
                           keyName={'makes'}
@@ -250,7 +249,7 @@ var SigningLogList = React.createClass({
                   </div>
                 </div>
               </div>
-              <div className="col nine-col last-col">
+              <div className="col-9">
                 <Pagination rows={this.state.logs.length} displayRows={displayRows}
                             page={this.state.page} searchText={T('find-serialnumber')}
                             pageChange={this.handleRecordsForPage}
@@ -262,7 +261,6 @@ var SigningLogList = React.createClass({
 
           </section>
 
-          <Footer />
         </div>
     );
 

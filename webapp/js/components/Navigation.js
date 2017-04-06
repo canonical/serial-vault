@@ -23,32 +23,29 @@ import {T} from './Utils';
 var Navigation = React.createClass({
     render: function() {
 
-			var activeHome = '';
-			var activeModels = '';
-			var activeKeys = '';
-			var activeSigningLog = '';
+			var activeHome = 'p-navigation__link';
+			var activeModels = 'p-navigation__link';
+			var activeKeys = 'p-navigation__link';
+			var activeSigningLog = 'p-navigation__link';
 			if (this.props.active === 'home') {
-				activeHome = 'active';
+				activeHome = 'p-navigation__link active';
 			}
 			if (this.props.active === 'models') {
-				activeModels = 'active';
+				activeModels = 'p-navigation__link active';
 			}
       if (this.props.active === 'keys') {
-				activeKeys = 'active';
+				activeKeys = 'p-navigation__link active';
 			}
       if (this.props.active === 'signinglog') {
-				activeSigningLog = 'active';
+				activeSigningLog = 'p-navigation__link active';
 			}
 
       return (
-
-        <nav id="navigation" role="navigation" className="nav-secondary clearfix open">
-          <ul className="second-level-nav">
-            <li><a className={activeHome} href="/">{T('home')}</a></li>
-            <li><a className={activeModels} href="/models">{T('models')}</a></li>
-            <li><a className={activeSigningLog} href="/signinglog">{T('signinglog')}</a></li>
-          </ul>
-        </nav>
+				<ul className="p-navigation__links">
+					<li className={activeHome}><a href="/">{T('home')}</a></li>
+					<li className={activeModels}><a href="/models">{T('models')}</a></li>
+					<li className={activeSigningLog}><a href="/signinglog">{T('signinglog')}</a></li>
+				</ul>
       );
     }
 });

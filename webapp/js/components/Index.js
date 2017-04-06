@@ -18,26 +18,23 @@
 
 var React = require('react');
 var Navigation = require('./Navigation');
-var Footer = require('./Footer');
 import {FormattedMessage} from 'react-intl'
 
 var Index = React.createClass({
 
   render: function() {
     return (
-        <div className="inner-wrapper">
-          <Navigation active="home" />
+        <div className="row">
 
-          <section className="row no-border">
+          <section className="row">
             <h2><FormattedMessage id="title" /></h2>
             <div>
-              <div className="box">
+              <div className="p-card">
                 <FormattedMessage id="description" />
               </div>
             </div>
           </section>
 
-          <Footer />
         </div>
     );
   }

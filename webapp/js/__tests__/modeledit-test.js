@@ -19,7 +19,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/ModelEdit');
 jest.dontMock('../components/Navigation');
@@ -28,7 +27,6 @@ jest.dontMock('../components/Utils');
 describe('model edit', function() {
  it('displays the model edit page for create', function() {
 	 var ModelEdit = require('../components/ModelEdit');
-	 var Messages = require('../components/messages').en;
 
 	 // Mock the data retrieval from the API
    var getModel = jest.genMockFunction();
@@ -39,9 +37,7 @@ describe('model edit', function() {
 
 	 // Render the component
 	 var modelPage = TestUtils.renderIntoDocument(
-			<IntlProvider locale="en" messages={Messages}>
 			 <ModelEdit params={{}} />
-		 </IntlProvider>
 	 );
 
 	 expect(TestUtils.isCompositeComponent(modelPage)).toBeTruthy();
@@ -50,12 +46,6 @@ describe('model edit', function() {
 	 var section = TestUtils.findRenderedDOMComponentWithTag(modelPage, 'section');
 	 var h2 = TestUtils.findRenderedDOMComponentWithTag(modelPage, 'h2');
    expect(h2.textContent).toBe('New Model');
-   var nav = TestUtils.findRenderedDOMComponentWithTag(modelPage, 'nav');
-
-   // Check that the navigation tag is set correctly
-	 expect(nav.firstChild.children.length).toBe(3);
-	 expect(nav.firstChild.children[1].firstChild.className).toBe('active');
-	 expect(nav.firstChild.children[1].firstChild.textContent).toBe('Models');
 
    // Check the data retrieval calls
    expect(getModel.mock.calls.length).toBe(0);
@@ -71,7 +61,6 @@ describe('model edit', function() {
 
  it('displays the model edit page for an existing model', function() {
    var ModelEdit = require('../components/ModelEdit');
-	 var Messages = require('../components/messages').en;
 
 	 // Mock the data retrieval from the API
    var getModel = jest.genMockFunction();
@@ -84,9 +73,7 @@ describe('model edit', function() {
 
 	 // Render the component
 	 var modelPage = TestUtils.renderIntoDocument(
-			<IntlProvider locale="en" messages={Messages}>
 			 <ModelEdit params={{id: 1}} />
-		 </IntlProvider>
 	 );
 
 	 expect(TestUtils.isCompositeComponent(modelPage)).toBeTruthy();
@@ -97,9 +84,9 @@ describe('model edit', function() {
 
    // Get the save link
    var anchors = TestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'a');
-   expect(anchors.length).toBe(5);
-   expect(anchors[3].textContent).toBe('Save');
-   TestUtils.Simulate.click(anchors[3]);
+   expect(anchors.length).toBe(2);
+   expect(anchors[1].textContent).toBe('Save');
+   TestUtils.Simulate.click(anchors[1]);
    expect(handleSaveClick.mock.calls.length).toBe(1);
  });
 

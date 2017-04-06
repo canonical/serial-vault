@@ -39,9 +39,9 @@ var Footer = React.createClass({
 
 	render: function() {
 		return (
-			<footer className="global">
-				<div>
-					<p>{T('version')}: {this.state.version}</p>
+			<footer>
+				<div className="row">
+					<p><small>{T('version')}: {this.state.version}</small></p>
 				</div>
 			</footer>
 		);

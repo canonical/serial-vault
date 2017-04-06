@@ -31,14 +31,18 @@ import (
 
 // ModelSerialize is the JSON version of a model, with the signing key ID
 type ModelSerialize struct {
-	ID          int    `json:"id"`
-	BrandID     string `json:"brand-id"`
-	Name        string `json:"model"`
-	Type        string `json:"type"`
-	KeypairID   int    `json:"keypair-id"`
-	AuthorityID string `json:"authority-id"`
-	KeyID       string `json:"key-id"`
-	KeyActive   bool   `json:"key-active"`
+	ID              int    `json:"id"`
+	BrandID         string `json:"brand-id"`
+	Name            string `json:"model"`
+	Type            string `json:"type"`
+	KeypairID       int    `json:"keypair-id"`
+	AuthorityID     string `json:"authority-id"`
+	KeyID           string `json:"key-id"`
+	KeyActive       bool   `json:"key-active"`
+	KeypairIDUser   int    `json:"keypair-id-user"`
+	AuthorityIDUser string `json:"authority-id-user"`
+	KeyIDUser       string `json:"key-id-user"`
+	KeyActiveUser   bool   `json:"key-active-user"`
 }
 
 // ModelsResponse is the JSON response from the API Models method
@@ -60,7 +64,11 @@ type ModelResponse struct {
 }
 
 func modelForDisplay(model Model) ModelSerialize {
-	return ModelSerialize{ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType, KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive}
+	return ModelSerialize{
+		ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType,
+		KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive,
+		KeypairIDUser: model.KeypairIDUser, AuthorityIDUser: model.AuthorityIDUser, KeyIDUser: model.KeyIDUser, KeyActiveUser: model.KeyActiveUser,
+	}
 }
 
 // ModelsHandler is the API method to list the models

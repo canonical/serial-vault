@@ -133,9 +133,7 @@ var ModelEdit = React.createClass({
 		var self = this;
 
 		return (
-			<div className="inner-wrapper">
-				<Navigation active="models" />
-
+			<div className="row">
 				<section className="row">
 					  <h2>{this.state.title}</h2>
 
@@ -172,13 +170,12 @@ var ModelEdit = React.createClass({
 						</form>
 
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{T('save')}</a>
+							<a href='/models' className="p-button--neutral">{T('cancel')}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">{T('cancel')}</a>
+							<a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
 						</div>
 				</section>
 
-				<Footer />
 			</div>
 		)
 	}

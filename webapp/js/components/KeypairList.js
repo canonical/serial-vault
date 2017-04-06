@@ -36,8 +36,8 @@ var KeypairList = React.createClass({
 	renderRow: function(keypr) {
 		return (
 			<tr key={keypr.ID}>
-				<td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="button--secondary">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="button--secondary">{T('activate')}</button>}</td>
-				<td>{keypr.AuthorityID}</td>
+				<td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral">{T('activate')}</button>}</td>
+				<td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
 				<td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
 				<td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
 			</tr>
@@ -50,10 +50,10 @@ var KeypairList = React.createClass({
 
     if (this.props.keypairs.length > 0) {
       return (
-        <table>
+        <table className="p-card">
           <thead>
             <tr>
-              <th></th><th>{T('authority-id')}</th><th>{T('key-id')}</th><th>{T('active')}</th>
+              <th></th><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small">{T('active')}</th>
             </tr>
           </thead>
           <tbody>

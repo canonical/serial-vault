@@ -28,7 +28,7 @@ var SigningLogRow = React.createClass({
 		if (this.props.log.id !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="button--secondary small" title={msg.delete}>
+					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="p-button--neutral" title={msg.delete}>
 						<i className="fa fa-trash" data-key={this.props.log.id}></i></a>
 				</div>
 			);
@@ -47,9 +47,6 @@ var SigningLogRow = React.createClass({
 
 		return (
 			<tr>
-				<td>
-					{this.renderActions(msg)}
-				</td>
 				<td className="wrap">{this.props.log.make}</td>
 				<td className="wrap">{this.props.log.model}</td>
 				<td className="wrap">{this.props.log.serialnumber}</td>

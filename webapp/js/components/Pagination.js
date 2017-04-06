@@ -71,31 +71,31 @@ class Pagination extends React.Component {
     var pages = this.calculatePages();
     if (pages > 1) {
         return (
-            <div className="three-col last-col right">
-                <button className="button--secondary small" href="" onClick={this.pageDown}>&laquo;</button>
+            <div className="u-float--right">
+                <button className="p-button--neutral" href="" onClick={this.pageDown}>&laquo;</button>
                 &nbsp;{this.state.page} of {pages}&nbsp;
-                <button className="button--secondary small" href="" onClick={this.pageUp}>&raquo;</button>
+                <button className="p-button--neutral" href="" onClick={this.pageUp}>&raquo;</button>
             </div>
         );
     } else {
-        return <div className="three-col last-col right"></div>;
+        return <div className="col-3"></div>;
     }
   }
 
   render() {
     return (
-        <div className="nine-col pagination">
-            <div>
-                <div className="six-col">
-                    <div>
-                        <input type="search" placeholder={this.props.searchText} onChange={this.props.onSearchChange}
+        <div className="col-12">
+            <div className="row">
+                <div className="col-9">
+                    <input type="search" placeholder={this.props.searchText} onChange={this.props.onSearchChange}
                                 value={this.props.query} />
-                    </div>
                 </div>
                 {this.renderPaging()}
             </div>
-            <div>
-                <button className="button--secondary" onClick={this.props.onDownload}>{T('download')}</button>
+            <div className="row spacer">
+                <div className="col-6">
+                    <button className="p-button--brand" onClick={this.props.onDownload}>{T('download')}</button>
+                </div>
             </div>
         </div>
     );

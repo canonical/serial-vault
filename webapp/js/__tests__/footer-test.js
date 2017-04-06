@@ -24,16 +24,12 @@ import TestUtils from 'react-addons-test-utils';
 jest.dontMock('../components/Footer');
 jest.dontMock('../components/Utils');
 
-
 describe('footer', function() {
  it('displays the footer', function() {
 	var Footer = require('../components/Footer');
-	var IntlProvider = require('react-intl').IntlProvider;
 	var Messages = require('../components/messages').en;
 
-	// Shallow render the component with the translations
-	const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
-	const {intl} = intlProvider.getChildContext();
+	// Shallow render the component
 	var shallowRenderer = TestUtils.createRenderer();
 
 	// Mock the data retrieval from the API
@@ -42,12 +38,12 @@ describe('footer', function() {
 	window.AppState = {getLocale: function() {return 'en'}};
 
 	shallowRenderer.render(
-		<Footer intl={intl} />
+		<Footer  />
 	);
 
 	var page = shallowRenderer.getRenderOutput();
 
-	var para = page.props.children.props.children;
+	var para = page.props.children.props.children.props.children;
 	expect(para.props.children.length).toBe(3)
 	expect(para.props.children[0]).toBe('Version');
 

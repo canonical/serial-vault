@@ -19,7 +19,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/SigningLog');
 jest.dontMock('../components/SigningLogRow');
@@ -36,7 +35,6 @@ window.AppState = {getLocale: function() {return 'en'}};
 describe('signing-log list', function() {
     it('displays the signing logs page with no logs', function() {
         var SigningLog = require('../components/SigningLog');
-        var Messages = require('../components/messages').en;
 
         // Mock the data retrieval from the API
         var getLogs = jest.genMockFunction();
@@ -52,8 +50,7 @@ describe('signing-log list', function() {
         );
 
         var logsPage = shallowRenderer.getRenderOutput();
-        expect(logsPage.props.children.length).toBe(3);
-        var section = logsPage.props.children[1];
+        var section = logsPage.props.children;
         expect(section.props.children.length).toBe(4);
         var div = section.props.children[3];
         var para = div.props.children[1].props.children[1];
@@ -62,7 +59,6 @@ describe('signing-log list', function() {
 
     it('displays the signing logs page with some logs', function() {
         var SigningLog = require('../components/SigningLog');
-        var Messages = require('../components/messages').en;
 
         // Shallow render the component
         var shallowRenderer = TestUtils.createRenderer();
@@ -85,8 +81,8 @@ describe('signing-log list', function() {
             <SigningLog logs={logs} />
         );
         var logsPage = shallowRenderer.getRenderOutput();
-        expect(logsPage.props.children.length).toBe(3);
-        var section = logsPage.props.children[1];
+
+        var section = logsPage.props.children;
         expect(section.props.children.length).toBe(4);
 
         // Check that the logs table is rendered correctly
