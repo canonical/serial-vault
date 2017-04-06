@@ -88,7 +88,7 @@ describe('keypair add', function() {
 		);
 		var keysPage = shallowRenderer.getRenderOutput();
 
-		var section = keysPage.props.children;
+		var section = keysPage.props.children[0];
 		expect(section.props.children.length).toBe(2);
 		expect(section.props.children[1].props.children[0].props.message).toBe('Critical: run out of sushi');
 	});

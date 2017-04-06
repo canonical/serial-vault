@@ -48,11 +48,11 @@ describe('dialog box', function() {
   expect(handleNoClick.mock.calls.length).toBe(0);
 
   // Click each button and check the callback
-  TestUtils.Simulate.click(anchors[0]);
+  TestUtils.Simulate.click(anchors[1]);
   expect(handleYesClick.mock.calls.length).toBe(1);
 
   // Click each button and check the callback
-  TestUtils.Simulate.click(anchors[1]);
+  TestUtils.Simulate.click(anchors[0]);
   expect(handleNoClick.mock.calls.length).toBe(1);
  });
 
