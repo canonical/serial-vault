@@ -20,7 +20,6 @@
 
 var React = require('react');
 var Navigation = require('./Navigation');
-var Footer = require('./Footer');
 var ModelRow = require('./ModelRow');
 var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
@@ -115,8 +114,8 @@ var ModelList = React.createClass({
         <table>
           <thead>
             <tr>
-              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('signing-key')}</th>
-              <th>{T('active')}</th>
+              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('signing-key')}</th><th>{T('user-key')}</th>
+              <th className="small">{T('active')}</th>
             </tr>
           </thead>
           <tbody>
@@ -139,36 +138,42 @@ var ModelList = React.createClass({
   render: function() {
 
     return (
-        <div className="inner-wrapper">
-          <Navigation active="models" />
+        <div className="row">
 
-          <section className="row no-border">
-            <h2>{T('models')} <a href="/models/new" className="button--primary small" title={T('add-new-model')}>
-                        <i className="fa fa-plus"></i>
-                      </a>
-            </h2>
-            <div className="twelve-col">
+          <section className="row">
+            <div className="u-equal-height">
+              <h2 className="col-3">{T('models')}</h2>
+              &nbsp;
+              <div className="col-1"><a href="/models/new" className="p-button--brand" title={T('add-new-model')}>
+                <i className="fa fa-plus"></i>
+              </a></div>
+            </div>
+            <div className="col-12">
               <p>{T('models_available')}:</p>
             </div>
-            <div className="twelve-col">
+            <div className="col-12">
               <AlertBox message={this.state.message} />
             </div>
-            <div className="twelve-col">
+            <div className="col-12">
               {this.renderTable()}
             </div>
+          </section>
 
-            <h2>
-              {T('signing-keys')}&nbsp;
-              <a href="/models/keypairs/new" className="button--primary small" title={T('add-new-signing-key')}>
-                <i className="fa fa-plus"></i>
-              </a>
-            </h2>
-            <div className="twelve-col">
+          <section className="row">
+            <div className="u-equal-height spacer">
+              <h2 className="col-3">{T('signing-keys')}</h2>
+              &nbsp;
+              <div className="col-1">
+                <a href="/models/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
+                  <i className="fa fa-plus"></i>
+                </a>
+              </div>
+            </div>
+            <div className="col-12">
               <KeypairList keypairs={this.state.keypairs} refresh={this.refresh} />
             </div>
           </section>
 
-          <Footer />
         </div>
     );
   }

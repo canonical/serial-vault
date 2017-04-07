@@ -17,6 +17,9 @@
 'use strict'
 var React = require('react');
 var injectIntl = require('react-intl').injectIntl;
+import Navigation from './Navigation'
+import Footer from './Footer'
+
 
 const LANGUAGES = {
 	en: 'English',
@@ -38,7 +41,7 @@ var App = React.createClass({
 	renderLanguage: function(lang) {
 		if (this.state.language === lang) {
 			return (
-				<button onClick={this.handleLanguageChange} value={lang} className="button--secondary">{LANGUAGES[lang]}</button>
+				<button onClick={this.handleLanguageChange} value={lang} className="p-button--neutral">{LANGUAGES[lang]}</button>
 			);
 		} else {
 			return (
@@ -52,23 +55,26 @@ var App = React.createClass({
 
     return (
       <div>
-				<header className="banner global" role="banner">
-				  <nav role="navigation" className="nav-primary">
-				    <span id="main-navigation-link"><a href="#navigation">Jump to site nav</a></span>
-				    <div className="logo">
-				      <a className="logo-ubuntu" href="/">
-				        <img width="106" height="25" src={LOGO} alt="" />
-				        <span>{M({id:"title"})}</span>
-				      </a>
-				    </div>
-						<div>
-							<form id="language-form" className="header-search">
-									{/* Add more languages here */}
-									{this.renderLanguage('en')}
-									{/* this.renderLanguage('zh') */}
-							</form>
+				<header className="p-navigation" role="banner">
+					<div className="row">
+						<div className="p-navigation__logo">
+								<div className="nav_logo">
+										<img src="/static/images/logo-ubuntu-white.svg" alt="Ubuntu" />
+										<span>{M({id:"title"})}</span>
+								</div>
 						</div>
-				  </nav>
+
+						<nav role="navigation" className="p-navigation__nav">
+							<span className="u-off-screen"><a href="#navigation">Jump to site nav</a></span>
+							<Navigation />
+								{/*<form id="language-form" className="header-search">*/}
+										{/* Add more languages here */}
+										{/* this.renderLanguage('en') */}
+										{/* this.renderLanguage('zh') */}
+								{/*</form>*/}
+
+						</nav>
+					</div>
 				</header>
 
 
@@ -77,6 +83,7 @@ var App = React.createClass({
 					{this.props.children}
 				</div>
 
+				<Footer />
       </div>
     )
   }

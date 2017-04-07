@@ -30,7 +30,7 @@
     "moment": "^2.14.1",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
-    "react-intl": "^2.1.2",
+    "react-intl": "^2.2.3",
     "react-router": "^2.0.0",
     "then-request": "^2.1.1"
   },
@@ -44,11 +44,12 @@
     "gulp-babel": "^6.1.2",
     "gulp-browserify": "^0.5.1",
     "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.2.0",
+    "gulp-sass": "^3.1.0",
     "gulp-uglify": "^1.5.2",
     "gulp-uglifycss": "^1.0.5",
+    "intl": "^1.2.5",
     "jest-cli": "^0.8.2",
     "react-addons-test-utils": "^0.14.7",
-    "ubuntu-vanilla-theme": "0.0.13"
+    "vanilla-framework": "^1.1.11"
   }
 }

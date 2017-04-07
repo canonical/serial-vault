@@ -133,9 +133,7 @@ var ModelEdit = React.createClass({
 		var self = this;
 
 		return (
-			<div className="inner-wrapper">
-				<Navigation active="models" />
-
+			<div className="row">
 				<section className="row">
 					  <h2>{this.state.title}</h2>
 
@@ -143,42 +141,36 @@ var ModelEdit = React.createClass({
 
 						<form>
 							<fieldset>
-								<ul>
-									<li>
-										<label htmlFor="brand">{T('brand')}:</label>
-										<input type="text" id="brand" placeholder={T('brand-description')}
-											value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
-									</li>
-									<li>
-										<label htmlFor="model">{T('model')}:</label>
-										<input type="text" id="model" placeholder={T('model-description')}
-											value={this.state.model.model} onChange={this.handleChangeModel}/>
-									</li>
-									<li>
-										<label htmlFor="keypair">{T('private-key')}:</label>
-										<select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
-											<option></option>
-											{this.state.keypairs.map(function(kpr) {
-												if (kpr.Active) {
-													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
-												} else {
-													return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
-												}
-											})}
-										</select>
-									</li>
-								</ul>
+								<label htmlFor="brand">{T('brand')}:
+									<input type="text" id="brand" placeholder={T('brand-description')}
+										value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
+								</label>
+								<label htmlFor="model">{T('model')}:
+									<input type="text" id="model" placeholder={T('model-description')}
+										value={this.state.model.model} onChange={this.handleChangeModel}/>
+								</label>
+								<label htmlFor="keypair">{T('private-key')}:
+									<select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
+										<option></option>
+										{this.state.keypairs.map(function(kpr) {
+											if (kpr.Active) {
+												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+											} else {
+												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+											}
+										})}
+									</select>
+								</label>
 							</fieldset>
 						</form>
 
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{T('save')}</a>
+							<a href='/models' className="p-button--neutral">{T('cancel')}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">{T('cancel')}</a>
+							<a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
 						</div>
 				</section>
-
-				<Footer />
+				<br />
 			</div>
 		)
 	}

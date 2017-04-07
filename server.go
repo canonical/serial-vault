@@ -55,6 +55,7 @@ func main() {
 		csrfSecure := true
 		csrfSecureEnv := os.Getenv("CSRF_SECURE")
 		if csrfSecureEnv == "disable" {
+			log.Println("Disable secure flag")
 			csrfSecure = false
 		}
 

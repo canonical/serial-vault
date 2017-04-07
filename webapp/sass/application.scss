@@ -1,17 +1,50 @@
-// Import the theme
-@import "../../node_modules/ubuntu-vanilla-theme/scss/theme";
-// Run the theme
-@include ubuntu-vanilla-theme;
+/*
+ * Copyright (C) 2017-2018 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+// Main theme changes
+$color-brand: #E95420;
+$color-link: #E95420;
+
+$button-text-color: #fff;
+
+@import 'node_modules/vanilla-framework/scss/build';
 
 
 // Customise theme
+
+.p-button--brand {
+    color: $button-text-color;
+
+    &:visited {
+        color: $button-text-color;
+    }
+}
+
 div.alert {
-	color: $error;
-	border-color: $error;
+	color: $color-negative;
+	border-color: $color-negative;
 }
 
 div.warning {
-	border-color: $warning;
+	border-color: $color-warning;
+}
+
+footer {
+    border-top: 1px solid $color-mid-light;
 }
 
 footer div {
@@ -40,17 +73,18 @@ table td.overflow {
     overflow: hidden;
 }
 
+// Filter box
 .filter {
     padding: 0.5em 5px;
 }
 
-.filter h3 {
+.filter h4 {
     font-weight: bold;
-    color: #888;
+    color: $color-mid-dark;
 }
 
 .filter-section {
-    border-bottom: 1px dotted #ccc;
+    border-bottom: 1px dotted $color-mid-light;
     padding: 5px 0;
 }
 
@@ -58,25 +92,26 @@ div.filter-section:last-of-type {
     border: None;
 }
 
-.filter-section h4 {
-    padding-bottom: 5px; 
-    font-size: 15px;
+.filter-section h5 {
+    padding-bottom: 5px;
     font-weight: normal;
     width: 100%;
     background-repeat: no-repeat;
     background-position: right top;
+    color: $color-mid-dark;
+    opacity: 0.8;
 }
 
-.filter-section h4.expanded {
+.filter-section h5.expanded {
     background-image: url(../images/chevron-up.png);
 }
-.filter-section h4.collapsed {
+.filter-section h5.collapsed {
     background-image: url(../images/chevron-down.png);
 }
 
 .filter-section li {
     width: 100%;
-    list-style-type: none;
+    list-style: none;
 }
 .filter-section li span.checked {
     background-repeat: no-repeat;
@@ -95,4 +130,13 @@ div.filter-section:last-of-type {
     display: inline-block; 
     vertical-align: middle;
     position:relative;
+}
+
+.p-card .label {
+    font-weight: bold;
+    color: $color-mid-dark;
+}
+
+.spacer {
+    margin-top: 1em;
 }

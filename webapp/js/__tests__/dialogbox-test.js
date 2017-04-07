@@ -26,54 +26,46 @@ jest.dontMock('../components/DialogBox');
 
 describe('dialog box', function() {
  it('displays the dialog box with a message', function() {
-	 var DialogBox = require('../components/DialogBox');
-   var IntlProvider = require('react-intl').IntlProvider;
-   var Messages = require('../components/messages').en;
+  var DialogBox = require('../components/DialogBox');
 
-   var handleYesClick = jest.genMockFunction();
-   var handleNoClick = jest.genMockFunction();
+  var handleYesClick = jest.genMockFunction();
+  var handleNoClick = jest.genMockFunction();
 
-	 // Render the component
-	 var page = TestUtils.renderIntoDocument(
-     <IntlProvider locale="en" messages={Messages}>
-			 <DialogBox message={'The message goes here'} handleYesClick={handleYesClick} handleCancelClick={handleNoClick} />
-     </IntlProvider>
-	 );
+  // Render the component
+  var page = TestUtils.renderIntoDocument(
+      <DialogBox message={'The message goes here'} handleYesClick={handleYesClick} handleCancelClick={handleNoClick} />
+  );
 
-	 expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+  expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
 
-	 // Check all the expected elements are rendered
-	 var divs = TestUtils.scryRenderedDOMComponentsWithTag(page, 'div');
-   expect(divs.length).toBe(2);
-   var anchors = TestUtils.scryRenderedDOMComponentsWithTag(page, 'a');
-   expect(anchors.length).toBe(2);
+  // Check all the expected elements are rendered
+  var divs = TestUtils.scryRenderedDOMComponentsWithTag(page, 'div');
+  expect(divs.length).toBe(2);
+  var anchors = TestUtils.scryRenderedDOMComponentsWithTag(page, 'a');
+  expect(anchors.length).toBe(2);
 
-   expect(handleYesClick.mock.calls.length).toBe(0);
-   expect(handleNoClick.mock.calls.length).toBe(0);
+  expect(handleYesClick.mock.calls.length).toBe(0);
+  expect(handleNoClick.mock.calls.length).toBe(0);
 
-   // Click each button and check the callback
-   TestUtils.Simulate.click(anchors[0]);
-   expect(handleYesClick.mock.calls.length).toBe(1);
+  // Click each button and check the callback
+  TestUtils.Simulate.click(anchors[1]);
+  expect(handleYesClick.mock.calls.length).toBe(1);
 
-   // Click each button and check the callback
-   TestUtils.Simulate.click(anchors[1]);
-   expect(handleNoClick.mock.calls.length).toBe(1);
+  // Click each button and check the callback
+  TestUtils.Simulate.click(anchors[0]);
+  expect(handleNoClick.mock.calls.length).toBe(1);
  });
 
  it('displays no box when there is no message', function() {
-	 var DialogBox = require('../components/DialogBox');
-   var IntlProvider = require('react-intl').IntlProvider;
-   var Messages = require('../components/messages').en;
+  var DialogBox = require('../components/DialogBox');
 
-   // Render the component
-	 var page = TestUtils.renderIntoDocument(
-     <IntlProvider locale="en" messages={Messages}>
-			 <DialogBox message={null} />
-     </IntlProvider>
-	 );
+  // Render the component
+  var page = TestUtils.renderIntoDocument(
+      <DialogBox message={null} />
+  );
 
-   expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
-   var span = TestUtils.scryRenderedDOMComponentsWithTag(page, 'span');
+  expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+  var span = TestUtils.scryRenderedDOMComponentsWithTag(page, 'span');
  });
 
 });

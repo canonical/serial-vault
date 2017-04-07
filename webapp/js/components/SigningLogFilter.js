@@ -23,14 +23,14 @@ class SigningLogFilter extends Component {
         if (!this.props.expanded) {
             return (
                 <div className="filter-section">
-                <h4 className='collapsed' onClick={this.props.expansionClick.bind(this, this.props.keyName)}>{this.props.name}</h4>
+                <h5 className='collapsed' onClick={this.props.expansionClick.bind(this, this.props.keyName)}>{this.props.name}</h5>
                 </div>
             );
         }
 
         return (
             <div className="filter-section">
-            <h4 onClick={this.props.expansionClick.bind(this, this.props.keyName)} className="expanded">{this.props.name}</h4>
+            <h5 onClick={this.props.expansionClick.bind(this, this.props.keyName)} className="expanded">{this.props.name}</h5>
             <ul>
                 {this.props.items.map(function(item, i) {
                     return (

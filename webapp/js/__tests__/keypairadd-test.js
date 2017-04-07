@@ -19,7 +19,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import {IntlProvider} from 'react-intl';
 
 jest.dontMock('../components/KeypairAdd');
 jest.dontMock('../components/Navigation');
@@ -35,14 +34,9 @@ describe('keypair add', function() {
 		var Messages = require('../components/messages').en;
 		var KeypairAdd = require('../components/KeypairAdd');
 
-		// Mock the AppState method for locale
-		window.AppState = {getLocale: function() {return 'en'}};
-
 		// Render the component
 		var keysPage = TestUtils.renderIntoDocument(
-			<IntlProvider locale="en" messages={Messages}>
 			 <KeypairAdd />
-			</IntlProvider>
 		);
 
 		expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
@@ -50,20 +44,11 @@ describe('keypair add', function() {
 		// Check all the expected elements are rendered
 		var section = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'section');
 		var h2 = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'h2');
-		var nav = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'nav');
-
-		// Check that the navigation tag is set correctly
-		expect(nav.firstChild.children.length).toBe(3);
-		expect(nav.firstChild.children[1].firstChild.className).toBe('active');
-		expect(nav.firstChild.children[1].firstChild.textContent).toBe('Models');
 	});
 
 	it('stores updates to the form', function() {
 		var Messages = require('../components/messages').en;
 		var KeypairAdd = require('../components/KeypairAdd');
-
-		// Mock the AppState method for locale
-		window.AppState = {getLocale: function() {return 'en'}};
 
 		// Mock the onChange handler
 		var handleChangeKey = jest.genMockFunction();
@@ -73,9 +58,7 @@ describe('keypair add', function() {
 
 		// Render the component
 		var keysPage = TestUtils.renderIntoDocument(
-			<IntlProvider locale="en" messages={Messages}>
 			 <KeypairAdd />
-			</IntlProvider>
 		);
 
 		expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
@@ -95,25 +78,17 @@ describe('keypair add', function() {
 	});
 
 	it('displays the alert box on error', function() {
-		var Messages = require('../components/messages').en;
 		var KeypairAdd = require('../components/KeypairAdd');
 
-		// Mock the AppState method for locale
-		window.AppState = {getLocale: function() {return 'en'}};
-
-		const intlProvider = new IntlProvider({locale: 'en', messages: Messages}, {});
-		const {intl} = intlProvider.getChildContext();
 		var shallowRenderer = TestUtils.createRenderer();
 
 		// Render the component
 		shallowRenderer.render(
-			<KeypairAdd intl={intl} error={'Critical: run out of sushi'} />
+			<KeypairAdd error={'Critical: run out of sushi'} />
 		);
 		var keysPage = shallowRenderer.getRenderOutput();
 
-		expect(keysPage.props.children.length).toBe(3);
-		var section = keysPage.props.children[1];
-
+		var section = keysPage.props.children[0];
 		expect(section.props.children.length).toBe(2);
 		expect(section.props.children[1].props.children[0].props.message).toBe('Critical: run out of sushi');
 	});

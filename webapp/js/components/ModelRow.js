@@ -25,9 +25,9 @@ var ModelRow = React.createClass({
 		if (this.props.model.id !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="button--primary" title={T('edit-model')}><i className="fa fa-pencil"></i></a>
+					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="p-button--brand" title={T('edit-model')}><i className="fa fa-pencil"></i></a>
 					&nbsp;
-					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="button--secondary" title={T('delete-model')}>
+					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="p-button--neutral" title={T('delete-model')}>
 						<i className="fa fa-trash" data-key={this.props.model.id}></i></a>
 				</div>
 			);
@@ -40,15 +40,17 @@ var ModelRow = React.createClass({
 
 	render: function() {
 		var fingerprint = this.props.model['authority-id'] + '/' + this.props.model['key-id'];
+		var fingerprintUser = this.props.model['authority-id-user'] + '/' + this.props.model['key-id-user'];
 		return (
 			<tr>
-			  <td>
+				<td>
 					{this.renderActions()}
 				</td>
-				<td>{this.props.model['brand-id']}</td>
+				<td className="overflow" title={this.props.model['brand-id']}>{this.props.model['brand-id']}</td>
 				<td>{this.props.model.model}</td>
 				<td className="overflow" title={fingerprint} >{fingerprint}</td>
-				<td>{this.props.model['key-active'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
+				<td className="overflow" title={fingerprintUser} >{fingerprintUser}</td>
+				<td>{this.props.model['key-active'] && this.props.model['key-active-user'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
 			</tr>
 		)
 	}

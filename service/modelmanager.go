@@ -36,9 +36,10 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, authority_id, key_id, k.active
+	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active
 	from model m
 	inner join keypair k on k.id = m.keypair_id
+	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
 const findModelSQL = `
@@ -64,14 +65,19 @@ const alterModelUserKeypairNotNullable = "alter table model alter column user_ke
 
 // Model holds the model details in the local database
 type Model struct {
-	ID          int
-	BrandID     string
-	Name        string
-	KeypairID   int
-	AuthorityID string // from the keypair
-	KeyID       string // from the keypair
-	KeyActive   bool   // from the keypair
-	SealedKey   string // from the keypair
+	ID              int
+	BrandID         string
+	Name            string
+	KeypairID       int
+	AuthorityID     string // from the signing keypair
+	KeyID           string // from the signing keypair
+	KeyActive       bool   // from the signing keypair
+	SealedKey       string // from the signing keypair
+	KeypairIDUser   int    // from the system-user keypair
+	AuthorityIDUser string // from the system-user keypair
+	KeyIDUser       string // from the system-user keypair
+	KeyActiveUser   bool   // from the system-user keypair
+	SealedKeyUser   string // from the system-user keypair
 }
 
 // CreateModelTable creates the database table for a model.
@@ -116,7 +122,8 @@ func (db *DB) ListModels() ([]Model, error) {
 
 	for rows.Next() {
 		model := Model{}
-		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive)
+		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive,
+			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser)
 		if err != nil {
 			return nil, err
 		}

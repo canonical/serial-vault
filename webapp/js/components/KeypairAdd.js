@@ -78,41 +78,33 @@ var KeypairAdd = React.createClass({
 
 		return (
 			<div>
-				<Navigation active="models" />
 
 				<section className="row no-border">
 					<h2>{T('new-signing-key')}</h2>
-					<div className="twelve-col">
+					<div className="col-12">
 						<AlertBox message={this.state.error} />
 
 						<form>
 							<fieldset>
-								<ul>
-									<li>
-										<label htmlFor="authority-id">{T('authority-id')}:</label>
-										<input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
-									</li>
-									<li>
-										<label htmlFor="key">{T('signing-key')}:</label>
-										<textarea onChange={this.handleChangeKey} defaultValue={this.state.key} id="key"
-												placeholder={T('new-signing-key-description')}>
-										</textarea>
-									</li>
-									<li>
-										<input type="file" onChange={this.handleFileUpload} />
-									</li>
-								</ul>
+								<label htmlFor="authority-id">{T('authority-id')}:
+									<input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
+								</label>
+								<label htmlFor="key">{T('signing-key')}:
+									<textarea onChange={this.handleChangeKey} defaultValue={this.state.key} id="key"
+											placeholder={T('new-signing-key-description')}>
+									</textarea>
+									<input type="file" onChange={this.handleFileUpload} />
+								</label>
 							</fieldset>
 						</form>
 						<div>
-							<a href='/models' onClick={this.handleSaveClick} className="button--primary">{T('save')}</a>
+							<a href='/models' className="p-button--neutral">{T('cancel')}</a>
 							&nbsp;
-							<a href='/models' className="button--secondary">{T('cancel')}</a>
+							<a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
 						</div>
 					</div>
 				</section>
-
-				<Footer />
+				<br />
 			</div>
 		);
 	}

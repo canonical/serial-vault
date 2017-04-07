@@ -8,10 +8,10 @@ var rename = require('gulp-rename');
 var del = require('del');
 
 var path = {
-  BASE: 'webapp/',
-  SRC: 'webapp/js/',
-  BUILD: 'webapp/build/',
-	DIST: 'static/'
+  BASE: './',
+  SRC: './js/',
+  BUILD: './build/',
+  DIST: '../static/'
 };
 
 // Use production mode to omit debug code from modules
@@ -23,7 +23,7 @@ gulp.task('set-prod-node-env', function() {
 gulp.task('sass', function () {
     gulp.src(path.BASE + 'sass/*.scss')
         .pipe(sass().on('error', sass.logError))
-				.pipe(uglifycss())
+        .pipe(uglifycss())
         .pipe(gulp.dest(path.DIST + 'css'));
 });
 
