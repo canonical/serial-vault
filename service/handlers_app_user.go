@@ -107,8 +107,8 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that the model has an active keypair
-	if !model.KeyActive {
+	// Check that the model has an active system-user keypair
+	if !model.KeyActiveUser {
 		logMessage("USER", "invalid-model", "The model is linked with an inactive signing-key")
 		formatBooleanResponse(false, "invalid-model", "", "The model is linked with an inactive signing-key", w)
 		return
@@ -125,8 +125,8 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	// Create the system-user assertion headers from the request
 	assertionHeaders := userRequestToAssertion(user, model)
 
-	// Sign the system-user assertion
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityID, model.KeyID, model.SealedKey)
+	// Sign the system-user assertion using the system-user key
+	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
 		logMessage("USER", "signing-assertion", err.Error())
 		formatBooleanResponse(false, "signing-assertion", "", err.Error(), w)
