@@ -94,6 +94,13 @@ var ModelEdit = React.createClass({
 		this.setState({model: model});
 	},
 
+	handleChangePrivateKeyUser: function(e) {
+		var self = this;
+		var model = this.state.model;
+		model['keypair-id-user'] = parseInt(e.target.value);
+		this.setState({model: model});
+	},
+
 	handleSaveClick: function(e) {
 		e.preventDefault();
 		var self = this;
@@ -151,6 +158,18 @@ var ModelEdit = React.createClass({
 								</label>
 								<label htmlFor="keypair">{T('private-key')}:
 									<select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
+										<option></option>
+										{this.state.keypairs.map(function(kpr) {
+											if (kpr.Active) {
+												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+											} else {
+												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+											}
+										})}
+									</select>
+								</label>
+								<label htmlFor="keypair-user">{T('private-key-user')}:
+									<select value={this.state.model['keypair-id-user']} id="keypair-user" onChange={this.handleChangePrivateKeyUser}>
 										<option></option>
 										{this.state.keypairs.map(function(kpr) {
 											if (kpr.Active) {

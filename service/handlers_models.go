@@ -174,7 +174,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID}
+	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
 	errorSubcode, err := Environ.DB.UpdateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -253,7 +253,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new model, linked to the existing signing-key
-	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID}
+	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
 	model, errorSubcode, err = Environ.DB.CreateModel(model)
 	if err != nil {
