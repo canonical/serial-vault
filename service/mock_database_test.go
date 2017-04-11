@@ -54,7 +54,7 @@ func (mdb *mockDB) CreateSettingsTable() error {
 func (mdb *mockDB) ListModels() ([]Model, error) {
 
 	var models []Model
-	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
 	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: false})
 	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
 	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})

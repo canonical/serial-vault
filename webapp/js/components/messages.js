@@ -54,6 +54,8 @@ var intlData = {
       "inactive": "<Inactive>",
       "private-key": "私钥签名",
       "private-key-description": "将用于签署设备标识的签署密钥",
+      "private-key-user": "<Private Key for System-User>",
+      "private-key-user-description": "<The signing-key that will be used to sign the system-user assertion>",
       "new-public-key": "新的公用密钥",
       "public-key": "公钥",
       "new-public-key-description": "粘贴需要访问身份库的计算机的公钥",
@@ -102,7 +104,8 @@ var intlData = {
       "error-key-exists": "SSH公用密钥已经存在",
       "error-key-not-found": "SSH公用密钥无法找到",
       "error-validate-signingkey": "<The Signing Key must be selected>",
-      "error-keypair-store": "Error storing the signing key"
+      "error-validate-userkey": "<The System-User Key must be selected>",
+      "error-keypair-store": "<Error storing the signing key>"
 
     },
 
@@ -142,6 +145,8 @@ var intlData = {
       "inactive": "Inactive",
       "private-key": "Private Key for Signing",
       "private-key-description": "The signing-key that will be used to sign the device identity",
+      "private-key-user": "Private Key for System-User",
+      "private-key-user-description": "The signing-key that will be used to sign the system-user assertion",
       "new-public-key": "New Public Key",
       "public-key": "Public Key",
       "new-public-key-description": "Paste the public key of the machine that needs access to the Serial Vault",
@@ -182,7 +187,7 @@ var intlData = {
       "error-model-exists": "A device with the same Brand and Model already exists",
       "error-invalid-key": "The Signing-key is invalid",
       "error-created-model": "Cannot find the created model",
-      "error-validate-new-model": "The Brand, Model and Signing-Key must be supplied",
+      "error-validate-new-model": "The Brand, Model and Signing-Keys must be supplied",
       "error-adding-key": "Error adding a public key",
       "error-deleting-key": "Error deleting a public key",
       "error-key-data": "No data supplied for the public key",
@@ -190,6 +195,7 @@ var intlData = {
       "error-key-exists": 'The ssh public key already exists',
       "error-key-not-found": "The ssh public key cannot be found",
       "error-validate-signingkey": "The Signing Key must be selected",
+      "error-validate-userkey": "The System-User Key must be selected",
       "error-keypair-store": "Error storing the signing key"
 		}
 };
