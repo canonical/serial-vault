@@ -148,13 +148,13 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 func fetchAccountAssertions(model Model) ([]asserts.Assertion, error) {
 
 	// Get the account-key assertion from the store
-	accountKeyAssert, err := fetchAssertionFromStore(asserts.AccountKeyType, []string{model.KeyID})
+	accountKeyAssert, err := fetchAssertionFromStore(asserts.AccountKeyType, []string{model.KeyIDUser})
 	if err != nil {
 		return nil, err
 	}
 
 	// Get the account assertion from the store
-	accountAssert, err := fetchAssertionFromStore(asserts.AccountType, []string{model.AuthorityID})
+	accountAssert, err := fetchAssertionFromStore(asserts.AccountType, []string{model.AuthorityIDUser})
 	if err != nil {
 		return nil, err
 	}
@@ -196,8 +196,8 @@ func userRequestToAssertion(user SystemUserRequest, model Model) map[string]inte
 	headers := map[string]interface{}{
 		"type":              asserts.SystemUserType.Name,
 		"revision":          userAssertionRevision,
-		"authority-id":      model.AuthorityID,
-		"brand-id":          model.AuthorityID,
+		"authority-id":      model.AuthorityIDUser,
+		"brand-id":          model.AuthorityIDUser,
 		"email":             user.Email,
 		"name":              user.Name,
 		"username":          user.Username,
@@ -206,7 +206,7 @@ func userRequestToAssertion(user SystemUserRequest, model Model) map[string]inte
 		"series":            []interface{}{release.Series},
 		"since":             since.Format(time.RFC3339),
 		"until":             until.Format(time.RFC3339),
-		"sign-key-sha3-384": model.KeyID,
+		"sign-key-sha3-384": model.KeyIDUser,
 	}
 
 	// Create a new serial assertion

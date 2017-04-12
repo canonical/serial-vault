@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2018 Canonical Ltd
+ * Copyright (C) 2016-2017 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,39 +14,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+'use strict'
+var Ajax = require('./Ajax');
 
-// Main theme changes
-$color-brand: #E95420;
-$color-link: #E95420;
+var Vault = {
 
-$button-text-color: #fff;
-
-@import 'node_modules/vanilla-framework/scss/build';
-
-
-.App {
-  padding: 0;
-  margin: 0;
+	version: function () {
+			return Ajax.get('version');
+	}
 }
 
-.nav_logo {
-  font-size: smaller;
-}
-
-// Customise theme
-.p-button--brand {
-    color: $button-text-color;
-
-    &:visited {
-        color: $button-text-color;
-    }
-}
-
-footer {
-    border-top: 1px solid $color-mid-light;
-    margin-top: 1em;
-}
-
-footer div {
-	padding-left: 10px;
-}
+module.exports = Vault;
