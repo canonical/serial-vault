@@ -28,27 +28,24 @@ import (
 )
 
 func TestReadConfig(t *testing.T) {
-	settingsFile = "../settings.yaml"
 	config := ConfigSettings{}
-	err := ReadConfig(&config)
+	err := ReadConfig(&config, "../settings.yaml")
 	if err != nil {
 		t.Errorf("Error reading config file: %v", err)
 	}
 }
 
 func TestReadConfigInvalidPath(t *testing.T) {
-	settingsFile = "not a good path"
 	config := ConfigSettings{}
-	err := ReadConfig(&config)
+	err := ReadConfig(&config, "not a good path")
 	if err == nil {
 		t.Error("Expected an error with an invalid config file.")
 	}
 }
 
 func TestReadConfigInvalidFile(t *testing.T) {
-	settingsFile = "../README.md"
 	config := ConfigSettings{}
-	err := ReadConfig(&config)
+	err := ReadConfig(&config, "../README.md")
 	if err == nil {
 		t.Error("Expected an error with an invalid config file.")
 	}

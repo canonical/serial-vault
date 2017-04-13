@@ -136,7 +136,7 @@ func sendSystemUserAssertion(request string, t *testing.T) (int, bool, string) {
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Mock the retrieval of the assertion from the store (using a fixed assertion)
-	fetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
+	FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
 		headersMap := map[string]interface{}{
 			"type":              "account",
 			"authority-id":      "canonical",

@@ -29,7 +29,7 @@ func main() {
 	env := service.Env{}
 	// Parse the command line arguments
 	service.ParseArgs()
-	service.ReadConfig(&env.Config)
+	service.ReadConfig(&env.Config, service.SettingsFile)
 
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)

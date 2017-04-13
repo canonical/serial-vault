@@ -148,13 +148,13 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 func fetchAccountAssertions(model Model) ([]asserts.Assertion, error) {
 
 	// Get the account-key assertion from the store
-	accountKeyAssert, err := fetchAssertionFromStore(asserts.AccountKeyType, []string{model.KeyIDUser})
+	accountKeyAssert, err := FetchAssertionFromStore(asserts.AccountKeyType, []string{model.KeyIDUser})
 	if err != nil {
 		return nil, err
 	}
 
 	// Get the account assertion from the store
-	accountAssert, err := fetchAssertionFromStore(asserts.AccountType, []string{model.AuthorityIDUser})
+	accountAssert, err := FetchAssertionFromStore(asserts.AccountType, []string{model.AuthorityIDUser})
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,8 @@ func fetchAccountAssertions(model Model) ([]asserts.Assertion, error) {
 	return []asserts.Assertion{accountAssert, accountKeyAssert}, nil
 }
 
-var fetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
+// FetchAssertionFromStore retrieves an assertion from the store
+var FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
 	var user *auth.UserState
 	var authContext auth.AuthContext
 	sto := store.New(nil, authContext)

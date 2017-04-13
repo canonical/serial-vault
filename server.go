@@ -32,7 +32,7 @@ func main() {
 	env := service.Env{}
 	// Parse the command line arguments
 	service.ParseArgs()
-	err := service.ReadConfig(&env.Config)
+	err := service.ReadConfig(&env.Config, service.SettingsFile)
 	if err != nil {
 		log.Fatalf("Error parsing the config file: %v", err)
 	}
