@@ -31,22 +31,26 @@ const createKeypairTableSQL = `
 		authority_id  varchar(200) not null,
 		key_id        varchar(200) not null,
 		active        boolean default true,
-		sealed_key    text
+		sealed_key    text,
+		assertion     text default ''
 	)
 `
-const listKeypairsSQL = "select id, authority_id, key_id, active from keypair order by authority_id, key_id"
-const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key from keypair where id=$1"
+const listKeypairsSQL = "select id, authority_id, key_id, active, assertion from keypair order by authority_id, key_id"
+const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const upsertKeypairSQL = `
 	WITH upsert AS (
-		update keypair set authority_id=$1, key_id=$2, sealed_key=$3
+		update keypair set authority_id=$1, key_id=$2, sealed_key=$3, assertion=$4
 		where authority_id=$1 and key_id=$2
 		RETURNING *
 	)
-	insert into keypair (authority_id,key_id,sealed_key)
-	select $1, $2, $3
+	insert into keypair (authority_id,key_id,sealed_key,assertion)
+	select $1, $2, $3, $4
 	where not exists (select * from upsert)
 `
+
+// Add the assertion field to store the assertion for the account key to the table
+const alterKeypairAddAssertion = "alter table keypair add column assertion text default ''"
 
 // Keypair holds the keypair reference details in the local database
 type Keypair struct {
@@ -55,11 +59,22 @@ type Keypair struct {
 	KeyID       string
 	Active      bool
 	SealedKey   string
+	Assertion   string
 }
 
 // CreateKeypairTable creates the database table for a keypair.
 func (db *DB) CreateKeypairTable() error {
 	_, err := db.Exec(createKeypairTableSQL)
+	return err
+}
+
+// AlterKeypairTable adds extra fields to an existing keypair database table
+func (db *DB) AlterKeypairTable() error {
+	_, err := db.Exec(alterKeypairAddAssertion)
+	if err != nil {
+		// Ignore error as the field may already be added
+		return nil
+	}
 	return err
 }
 
@@ -76,7 +91,7 @@ func (db *DB) ListKeypairs() ([]Keypair, error) {
 
 	for rows.Next() {
 		keypair := Keypair{}
-		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active)
+		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.Assertion)
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +105,7 @@ func (db *DB) ListKeypairs() ([]Keypair, error) {
 func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{}
 
-	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey)
+	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
 		return keypair, err
@@ -106,7 +121,7 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered")
 	}
 
-	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey)
+	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion)
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
 		return "", err

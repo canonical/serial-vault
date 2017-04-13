@@ -48,20 +48,32 @@ func main() {
 
 	// Get the account assertions from the snap store and cache them locally
 	for _, k := range keypairs {
+		log.Printf("-- Processing keypair - %s\n", k.KeyID)
 		if !k.Active {
 			// Ignore disabled keys
+			log.Println("Disabled, so skipping")
 			continue
 		}
 
 		// Get the account assertion from the store
 		accountAssert, err := service.FetchAssertionFromStore(asserts.AccountKeyType, []string{k.KeyID})
 		if err != nil {
-			log.Printf("Error fetching the assertion from the store '%s': %v\n", k.AuthorityID, err)
+			log.Printf("Error fetching the assertion from the store: %v\n", err)
 			continue
 		}
-		log.Printf("%s\n", asserts.Encode(accountAssert))
 
-		// Store account keys in the database
+		// Store account key assertion in the database
+		accountKey := string(asserts.Encode(accountAssert))
+		if accountKey == k.Assertion {
+			// We already have the up-to-date account key assertion
+			log.Println("Already up-to-date")
+			continue
+		}
+		k.Assertion = accountKey
+		code, err := env.DB.PutKeypair(k)
+		if err != nil {
+			log.Printf("Error on saving the account key assertion to the database: (%s) %v\n", code, err)
+		}
 	}
 
 }

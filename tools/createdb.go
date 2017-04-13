@@ -88,6 +88,14 @@ func main() {
 		log.Println("Updated the 'model' table.")
 	}
 
+	// Update the keypair table, adding the new fields
+	err = env.DB.AlterKeypairTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Updated the 'keypair' table.")
+	}
+
 	// Initalize the TPM store, authenticating with the TPM 2.0 module
 	if env.Config.KeyStoreType == service.TPM20Store.Name {
 		log.Println("Initialize the TPM2.0 store")

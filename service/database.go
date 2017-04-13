@@ -43,6 +43,7 @@ type Datastore interface {
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateKeypairActive(keypairID int, active bool) error
 	CreateKeypairTable() error
+	AlterKeypairTable() error
 
 	CreateSettingsTable() error
 	PutSetting(setting Setting) error
