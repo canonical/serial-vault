@@ -80,6 +80,14 @@ func main() {
 		log.Println("Created the 'nonce' table.")
 	}
 
+	// Create the account table, if it does not exist
+	err = env.DB.CreateAccountTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Created the 'account' table.")
+	}
+
 	// Update the model table, adding the new user-keypair field
 	err = env.DB.AlterModelTable()
 	if err != nil {

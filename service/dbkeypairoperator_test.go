@@ -28,7 +28,7 @@ import (
 func getDatabaseKeyStore() (*KeypairDatabase, error) {
 	// Set up the environment variables
 	config := ConfigSettings{KeyStoreType: "database", KeyStoreSecret: "this needs to be something secure"}
-	Environ = &Env{Config: config, DB: &mockDB{}}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	return GetKeyStore(config)
 }
@@ -46,7 +46,7 @@ func TestDatabaseGetKeyStore(t *testing.T) {
 func TestDatabaseGenerateEncryptionKey(t *testing.T) {
 	// Set up the environment variables
 	config := ConfigSettings{KeyStoreType: "database", KeyStoreSecret: "this needs to be something secure"}
-	Environ = &Env{Config: config, DB: &mockDB{}}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	dbOperator := DatabaseKeypairOperator{}
 

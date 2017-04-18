@@ -24,7 +24,7 @@ import "testing"
 func TestTPM2InitializeKeystore(t *testing.T) {
 	// Set up the environment variables
 	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	env := Env{Config: config, DB: &mockDB{}}
+	env := Env{Config: config, DB: &MockDB{}}
 
 	err := TPM2InitializeKeystore(env, &mockTPM20Command{})
 	if err != nil {

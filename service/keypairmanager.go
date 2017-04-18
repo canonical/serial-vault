@@ -48,6 +48,7 @@ const upsertKeypairSQL = `
 	select $1, $2, $3, $4
 	where not exists (select * from upsert)
 `
+const updateKeypairSQL = "update keypair set assertion=$2 where id=$1"
 
 // Add the assertion field to store the assertion for the account key to the table
 const alterKeypairAddAssertion = "alter table keypair add column assertion text default ''"
@@ -135,6 +136,17 @@ func (db *DB) UpdateKeypairActive(keypairID int, active bool) error {
 	_, err := db.Exec(toggleKeypairSQL, keypairID, active)
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+// UpdateKeypairAssertion sets the account-key assertion of a keypair
+func (db *DB) UpdateKeypairAssertion(keypairID int, assertion string) error {
+	_, err := db.Exec(updateKeypairSQL, keypairID, assertion)
+	if err != nil {
+		log.Printf("Error updating the database keypair assertion: %v\n", err)
 		return err
 	}
 

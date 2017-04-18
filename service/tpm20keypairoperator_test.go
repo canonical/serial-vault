@@ -38,7 +38,7 @@ func getTPMKeyStore() (*KeypairDatabase, error) {
 func getTPMKeyStoreWithMockCommand() *KeypairDatabase {
 	// Set up the environment variables
 	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	Environ = &Env{Config: config, DB: &mockDB{}}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 
@@ -94,7 +94,7 @@ func TestGenerateAuthKey(t *testing.T) {
 func TestTPMCreateKey(t *testing.T) {
 	// Set up the environment variables
 	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	Environ = &Env{Config: config, DB: &mockDB{}}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 
@@ -107,7 +107,7 @@ func TestTPMCreateKey(t *testing.T) {
 func TestTPMGenerateEncryptionKey(t *testing.T) {
 	// Set up the environment variables
 	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	Environ = &Env{Config: config, DB: &mockDB{}}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 

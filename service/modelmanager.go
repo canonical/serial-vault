@@ -36,20 +36,20 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active
+	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key
+	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where brand_id=$1 and name=$2`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key
+	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -80,6 +80,7 @@ type Model struct {
 	KeyIDUser       string // from the system-user keypair
 	KeyActiveUser   bool   // from the system-user keypair
 	SealedKeyUser   string // from the system-user keypair
+	AssertionUser   string // from the system-user keypair
 }
 
 // CreateModelTable creates the database table for a model.
@@ -125,7 +126,7 @@ func (db *DB) ListModels() ([]Model, error) {
 	for rows.Next() {
 		model := Model{}
 		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive,
-			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser)
+			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser)
 		if err != nil {
 			return nil, err
 		}
@@ -141,7 +142,7 @@ func (db *DB) FindModel(brandID, modelName string) (Model, error) {
 
 	err := db.QueryRow(findModelSQL, brandID, modelName).Scan(
 		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
-		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser)
+		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	switch {
 	case err == sql.ErrNoRows:
 		return model, err
@@ -158,7 +159,7 @@ func (db *DB) GetModel(modelID int) (Model, error) {
 	model := Model{}
 
 	err := db.QueryRow(getModelSQL, modelID).Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
-		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser)
+		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return model, err
