@@ -16,6 +16,7 @@
  */
 import React, { Component } from 'react';
 import Header from './components/Header'
+import Footer from './components/Footer'
 import SystemUserForm from './components/SystemUserForm'
 import If from './components/If'
 import AlertBox from './components/AlertBox'
@@ -116,6 +117,7 @@ class App extends Component {
           </If>
 
         </div>
+        <Footer />
       </div>
     );
   }

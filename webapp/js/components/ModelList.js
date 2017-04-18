@@ -114,7 +114,7 @@ var ModelList = React.createClass({
         <table>
           <thead>
             <tr>
-              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('signing-key')}</th><th>{T('user-key')}</th>
+              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('private-key-short')}</th><th>{T('private-key-user-short')}</th>
               <th className="small">{T('active')}</th>
             </tr>
           </thead>
