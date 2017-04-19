@@ -33,9 +33,7 @@ import (
 	"fmt"
 
 	"github.com/snapcore/snapd/asserts"
-	"github.com/snapcore/snapd/overlord/auth"
 	"github.com/snapcore/snapd/release"
-	"github.com/snapcore/snapd/store"
 )
 
 var userIndexTemplate = "/static/app_user.html"
@@ -114,11 +112,11 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch the account assertions from the store
-	accountAssertions, err := fetchAccountAssertions(model)
+	// Fetch the account assertion from the database
+	account, err := Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
 		logMessage("USER", "account-assertions", err.Error())
-		formatBooleanResponse(false, "account-assertions", "", "Error retrieving the account assertions from the store", w)
+		formatBooleanResponse(false, "account-assertions", "", "Error retrieving the account assertion from the database", w)
 		return
 	}
 
@@ -137,37 +135,12 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	serializedAssertion := asserts.Encode(signedAssertion)
 
 	// Format the composite assertion
-	composite := fmt.Sprintf("%s\n%s\n%s", asserts.Encode(accountAssertions[0]), asserts.Encode(accountAssertions[1]), serializedAssertion)
+	composite := fmt.Sprintf("%s\n%s\n%s", account.Assertion, model.AssertionUser, serializedAssertion)
 
 	response := SystemUserResponse{Success: true, Assertion: composite}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		logMessage("USER", "signing-assertion", err.Error())
 	}
-}
-
-func fetchAccountAssertions(model Model) ([]asserts.Assertion, error) {
-
-	// Get the account-key assertion from the store
-	accountKeyAssert, err := fetchAssertionFromStore(asserts.AccountKeyType, []string{model.KeyIDUser})
-	if err != nil {
-		return nil, err
-	}
-
-	// Get the account assertion from the store
-	accountAssert, err := fetchAssertionFromStore(asserts.AccountType, []string{model.AuthorityIDUser})
-	if err != nil {
-		return nil, err
-	}
-
-	return []asserts.Assertion{accountAssert, accountKeyAssert}, nil
-}
-
-var fetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
-	var user *auth.UserState
-	var authContext auth.AuthContext
-	sto := store.New(nil, authContext)
-
-	return sto.Assertion(modelType, headers, user)
 }
 
 func userRequestToAssertion(user SystemUserRequest, model Model) map[string]interface{} {

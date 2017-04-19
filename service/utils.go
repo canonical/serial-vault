@@ -87,7 +87,8 @@ type Env struct {
 	KeypairDB *KeypairDatabase
 }
 
-var settingsFile string
+// SettingsFile is the path to the YAML configuration file
+var SettingsFile string
 
 // ServiceMode is whether we are running the user or admin service
 var ServiceMode string
@@ -102,14 +103,14 @@ type BooleanResponse struct {
 
 // ParseArgs checks the command line arguments
 func ParseArgs() {
-	flag.StringVar(&settingsFile, "config", "./settings.yaml", "Path to the config file")
+	flag.StringVar(&SettingsFile, "config", "./settings.yaml", "Path to the config file")
 	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing, admin or system-user service ")
 	flag.Parse()
 }
 
 // ReadConfig parses the config file
-func ReadConfig(config *ConfigSettings) error {
-	source, err := ioutil.ReadFile(settingsFile)
+func ReadConfig(config *ConfigSettings, filePath string) error {
+	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Println("Error opening the config file.")
 		return err

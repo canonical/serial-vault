@@ -42,7 +42,9 @@ type Datastore interface {
 	GetKeypair(keypairID int) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateKeypairActive(keypairID int, active bool) error
+	UpdateKeypairAssertion(keypairID int, assertion string) error
 	CreateKeypairTable() error
+	AlterKeypairTable() error
 
 	CreateSettingsTable() error
 	PutSetting(setting Setting) error
@@ -59,6 +61,12 @@ type Datastore interface {
 	DeleteExpiredDeviceNonces() error
 	CreateDeviceNonce() (DeviceNonce, error)
 	ValidateDeviceNonce(nonce string) error
+
+	CreateAccountTable() error
+	ListAccounts() ([]Account, error)
+	GetAccount(authorityID string) (Account, error)
+	UpdateAccountAssertion(authorityID, assertion string) error
+	PutAccount(account Account) (string, error)
 }
 
 // DB local database interface with our custom methods.

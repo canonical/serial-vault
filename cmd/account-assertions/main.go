@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,17 +17,28 @@
  *
  */
 
-package service
+package main
 
-import "testing"
+import (
+	"log"
 
-func TestTPM2InitializeKeystore(t *testing.T) {
-	// Set up the environment variables
-	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	env := Env{Config: config, DB: &MockDB{}}
+	"github.com/ubuntu-core/identity-vault/account"
+	"github.com/ubuntu-core/identity-vault/service"
+)
 
-	err := TPM2InitializeKeystore(env, &mockTPM20Command{})
+func main() {
+	env := service.Env{}
+
+	// Parse the command line arguments
+	account.ParseArgs()
+	err := service.ReadConfig(&env.Config, account.SettingsFile)
 	if err != nil {
-		t.Errorf("Error initializing the TPM keystore: %v", err)
+		log.Fatalf("Error parsing the config file: %v\n", err)
 	}
+
+	// Open the connection to the local database
+	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
+
+	// Cache the account assertions from the store in the database
+	account.CacheAccountAssertions(&env)
 }

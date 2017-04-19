@@ -93,7 +93,7 @@ func TestSignHandlerInvalidAPIKey(t *testing.T) {
 	apiKeys["InbuiltAPIKey"] = struct{}{}
 
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	sendRequestSignError(t, "POST", "/v1/serial", new(bytes.Buffer), "InvalidAPIKey")
@@ -102,7 +102,7 @@ func TestSignHandlerInvalidAPIKey(t *testing.T) {
 func TestSignHandlerInactive(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -126,7 +126,7 @@ func TestSignHandler(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -159,7 +159,7 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -187,7 +187,7 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 func TestSignHandlerBadAssertionNoModel(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	const assertions = `type: serial-request
@@ -227,7 +227,7 @@ ic2Xx1ds+umMC5AHW9wZAWNPDI/T
 func TestSignHandlerBadAssertionWrongType(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	const assertions = `type: model
@@ -263,7 +263,7 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 
 func TestSignHandlerInvalidRequestID(t *testing.T) {
 	// Mock the database, to generate an error for the request-id
-	Environ = &Env{DB: &errorMockDB{}}
+	Environ = &Env{DB: &ErrorMockDB{}}
 
 	// Generate a test serial-request assertion
 	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
@@ -275,7 +275,7 @@ func TestSignHandlerInvalidRequestID(t *testing.T) {
 }
 
 func TestSignHandlerEmptySerial(t *testing.T) {
-	Environ = &Env{DB: &mockDB{}}
+	Environ = &Env{DB: &MockDB{}}
 
 	// Generate a test serial-request assertion
 	assertions, err := generateSerialRequestAssertion("alder", "", "")
@@ -288,7 +288,7 @@ func TestSignHandlerEmptySerial(t *testing.T) {
 
 func TestSignHandlerNonExistentModel(t *testing.T) {
 	// Mock the database, not finding the model
-	Environ = &Env{DB: &mockDB{}}
+	Environ = &Env{DB: &MockDB{}}
 
 	// Generate a test serial-request assertion
 	assertions, err := generateSerialRequestAssertion("cannot-find-this", "A123456L", "")
@@ -303,7 +303,7 @@ func TestSignHandlerNonExistentModel(t *testing.T) {
 func TestSignHandlerDuplicateSigner(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -332,7 +332,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 func TestSignHandlerCheckDuplicateError(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -347,7 +347,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 func TestSignHandlerSigningLogError(t *testing.T) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -362,7 +362,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 func TestSignHandlerErrorKeyStore(t *testing.T) {
 	// Mock the database and the keystore
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
 	// Generate a test serial-request assertion
@@ -466,7 +466,7 @@ func TestRequestIDHandler(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	w := httptest.NewRecorder()
@@ -490,7 +490,7 @@ func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
 	apiKeys["InbuiltAPIKey"] = struct{}{}
 
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
-	Environ = &Env{DB: &mockDB{}, Config: config}
+	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	sendRequestRequestIDError(t, "POST", "/v1/request-id", new(bytes.Buffer), "InvalidAPIKey")
@@ -503,7 +503,7 @@ func TestRequestIDHandlerError(t *testing.T) {
 	apiKeys["InbuiltAPIKey"] = struct{}{}
 
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
-	Environ = &Env{DB: &errorMockDB{}, Config: config}
+	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	sendRequestRequestIDError(t, "POST", "/v1/request-id", new(bytes.Buffer), "InbuiltAPIKey")

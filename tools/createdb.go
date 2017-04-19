@@ -29,7 +29,7 @@ func main() {
 	env := service.Env{}
 	// Parse the command line arguments
 	service.ParseArgs()
-	service.ReadConfig(&env.Config)
+	service.ReadConfig(&env.Config, service.SettingsFile)
 
 	// Open the connection to the local database
 	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
@@ -80,12 +80,28 @@ func main() {
 		log.Println("Created the 'nonce' table.")
 	}
 
+	// Create the account table, if it does not exist
+	err = env.DB.CreateAccountTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Created the 'account' table.")
+	}
+
 	// Update the model table, adding the new user-keypair field
 	err = env.DB.AlterModelTable()
 	if err != nil {
 		log.Fatal(err)
 	} else {
 		log.Println("Updated the 'model' table.")
+	}
+
+	// Update the keypair table, adding the new fields
+	err = env.DB.AlterKeypairTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Updated the 'keypair' table.")
 	}
 
 	// Initalize the TPM store, authenticating with the TPM 2.0 module
