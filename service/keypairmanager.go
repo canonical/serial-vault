@@ -71,12 +71,9 @@ func (db *DB) CreateKeypairTable() error {
 
 // AlterKeypairTable adds extra fields to an existing keypair database table
 func (db *DB) AlterKeypairTable() error {
-	_, err := db.Exec(alterKeypairAddAssertion)
-	if err != nil {
-		// Ignore error as the field may already be added
-		return nil
-	}
-	return err
+	db.Exec(alterKeypairAddAssertion)
+	// Ignore errors as the field may already be added
+	return nil
 }
 
 // ListKeypairs fetches the available keypairs from the database.
