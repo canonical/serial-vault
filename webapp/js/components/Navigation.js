@@ -27,16 +27,20 @@ var Navigation = React.createClass({
 			var activeModels = 'p-navigation__link';
 			var activeKeys = 'p-navigation__link';
 			var activeSigningLog = 'p-navigation__link';
+			var activeAccounts = 'p-navigation__link';
 			if (this.props.active === 'home') {
 				activeHome = 'p-navigation__link active';
 			}
 			if (this.props.active === 'models') {
 				activeModels = 'p-navigation__link active';
 			}
-      if (this.props.active === 'keys') {
+			if (this.props.active === 'keys') {
 				activeKeys = 'p-navigation__link active';
 			}
-      if (this.props.active === 'signinglog') {
+			if (this.props.active === 'accounts') {
+				activeAccounts = 'p-navigation__link active';
+			}
+			if (this.props.active === 'signinglog') {
 				activeSigningLog = 'p-navigation__link active';
 			}
 
@@ -44,6 +48,7 @@ var Navigation = React.createClass({
 				<ul className="p-navigation__links">
 					<li className={activeHome}><a href="/">{T('home')}</a></li>
 					<li className={activeModels}><a href="/models">{T('models')}</a></li>
+					<li className={activeAccounts}><a href="/accounts">{T('accounts')}</a></li>
 					<li className={activeSigningLog}><a href="/signinglog">{T('signinglog')}</a></li>
 				</ul>
       );
