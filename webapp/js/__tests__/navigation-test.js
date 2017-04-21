@@ -43,7 +43,7 @@ describe('navigation', function() {
 
 	 // Check all the expected elements are rendered
    var ul = TestUtils.findRenderedDOMComponentWithTag(page, 'ul');
-   expect(ul.children.length).toBe(3);
+   expect(ul.children.length).toBe(4);
    expect(ul.children[0].firstChild.textContent).toBe('Home');
    expect(ul.children[0].firstChild.className).toBe('');
    expect(ul.children[1].firstChild.className).toBe('');
@@ -64,7 +64,7 @@ describe('navigation', function() {
 
 	 // Check all the expected elements are rendered
    var ul = TestUtils.findRenderedDOMComponentWithTag(page, 'ul');
-   expect(ul.children.length).toBe(3);
+   expect(ul.children.length).toBe(4);
    expect(ul.children[1].firstChild.textContent).toBe('Models');
    expect(ul.children[1].firstChild.className).toBe('');
    expect(ul.children[0].firstChild.className).toBe('');

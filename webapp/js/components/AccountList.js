@@ -17,6 +17,7 @@
 import React, {Component} from 'react'
 import Accounts from '../models/accounts'
 import Keypairs from '../models/keypairs'
+import Models from '../models/models'
 import {T} from './Utils'
 
 class AccountList extends Component {
@@ -25,11 +26,13 @@ class AccountList extends Component {
         super(props);
 
         this.state = {
-            accounts: [],
-            keypairs: [],
+            accounts: props.accounts || [],
+            keypairs: props.keypairs || [],
+            models: props.models || [],
             message: '',
         }
 
+        this.getModels()
         this.getAccounts()
         this.getKeypairs()
     }
@@ -37,7 +40,6 @@ class AccountList extends Component {
     getAccounts() {
         Accounts.list().then((response) => {
             var data = JSON.parse(response.body);
-            console.log(data)
             var message = "";
             if (!data.success) {
                 message = data.message;
@@ -49,13 +51,60 @@ class AccountList extends Component {
     getKeypairs() {
         Keypairs.list().then((response) => {
             var data = JSON.parse(response.body);
-            console.log(data)
             var message = "";
             if (!data.success) {
                 message = data.message;
             }
             this.setState({keypairs: data.keypairs, message: message});
         });
+    }
+
+    getModels() {
+        Models.list().then((response) => {
+            var data = JSON.parse(response.body);
+            var message = "";
+            if (!data.success) {
+                message = data.message;
+            }
+            this.setState({models: data.models, message: message});
+        });
+    }
+
+    // Indicates whether the key has everything uploaded for it
+    renderKeyStatus(acc) {
+        // Check if the key is used for signing system-users on any models
+        if (!this.state.models.find(m => (m['authority-id-user'] === acc.AuthorityID) & (m['key-id-user'] === acc.KeyID))) {
+            return <p>{T('not-used-signing')}</p>
+        }
+
+        // Check that we have an account assertion
+        var messages = []
+        if (!this.state.accounts.find(a => a.AuthorityID === acc.AuthorityID)) {
+            messages.push(T('no-assertion'))
+        }
+
+        // Check if we have an account key assertion
+        if ((!acc.Assertion) || (acc.Assertion.length === 0)) {
+            messages.push(T('no-assertion-key'))
+        }
+        
+        if (messages.length === 0) {
+            return (
+                <div>
+                    <pre className="code">{acc.Assertion}</pre>
+                </div>
+            )
+        }
+
+        return (
+            <div>
+                {messages.map((m, index, array) => {
+                    return (
+                        <p key={index}><i className="fa fa-exclamation-triangle warning"></i> {m}</p>
+                    )
+                })}
+            </div>
+        )
     }
 
     renderAccounts() {
@@ -70,7 +119,7 @@ class AccountList extends Component {
                 <tbody>
                     {this.state.accounts.map((acc) => {
                     return (
-                        <tr>
+                        <tr key={acc.ID}>
                             <td></td>
                             <td>{acc.AuthorityID}</td>
                             <td><pre className="code">{acc.Assertion}</pre></td>
@@ -93,22 +142,18 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                    <th className="small"></th><th>{T('key-id')}</th><th>{T('assertion')}</th>
+                    <th>{T('key-id')}</th><th>{T('status')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {this.state.keypairs.map((acc) => {
                     return (
-                        <tr>
-                            <td></td>
+                        <tr key={acc.ID}>
                             <td className="overflow">
                                 {acc.AuthorityID}<br />{acc.KeyID}
                             </td>
                             <td>
-                                {acc.Assertion ?
-                                <pre className="code">{acc.Assertion}</pre>
-                                : T('no-assertion')
-                                }
+                                {this.renderKeyStatus(acc)}
                             </td>
                         </tr>
                     );

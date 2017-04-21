@@ -80,8 +80,11 @@ var intlData = {
       "download": "<Download>",
       "assertion": "<Assertion>",
       "no-assertions": "<No assertions found>",
-      "no-assertion": "<No assertion found>",
+      "no-assertion": "<No account assertion found>",
+      "no-assertion-key": "<No account key assertion found>",
+      "not-used-signing": "<Not used for signing system-user assertions>",
       "account-keys": "<Account Key Assertions>",
+      "status": "Status",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -178,8 +181,11 @@ var intlData = {
       "download": "Download",
       "assertion": "Assertion",
       "no-assertions": "No assertions found",
-      "no-assertion": "No assertion found",
+      "no-assertion": "No account assertion found",
+      "no-assertion-key": "No account key assertion found",
+      "not-used-signing": "Not used for signing system-user assertions",
       "account-keys": "Account Key Assertions",
+      "status": "Status",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",

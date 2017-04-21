@@ -23,6 +23,9 @@ import TestUtils from 'react-addons-test-utils';
 
 jest.dontMock('../components/DialogBox');
 
+// Mock the AppState method for locale
+window.AppState = {getLocale: function() {return 'en'}};
+
 
 describe('dialog box', function() {
  it('displays the dialog box with a message', function() {
