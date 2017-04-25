@@ -73,7 +73,7 @@ class Pagination extends React.Component {
         return (
             <div className="u-float--right">
                 <button className="p-button--neutral" href="" onClick={this.pageDown}>&laquo;</button>
-                &nbsp;{this.state.page} of {pages}&nbsp;
+                <span>&nbsp;{this.state.page} of {pages}&nbsp;</span>
                 <button className="p-button--neutral" href="" onClick={this.pageUp}>&raquo;</button>
             </div>
         );

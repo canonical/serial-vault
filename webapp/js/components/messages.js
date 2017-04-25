@@ -85,6 +85,7 @@ var intlData = {
       "not-used-signing": "<Not used for signing system-user assertions>",
       "account-keys": "<Account Key Assertions>",
       "status": "Status",
+      "new-account-assertion": "<Add or Replace Account Assertion>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -119,11 +120,11 @@ var intlData = {
 
     },
 
-		en: {
+    en: {
       "title": "Serial Vault",
       "description": "The Serial Vault is a web service that cryptographically signs snappy Ubuntu model assertions.",
       "home": "Home",
-			"brand": "Brand",
+      "brand": "Brand",
       "brand-description": "The name of the device brand",
       "model": "Model",
       "model-description": "The name of the device model",
@@ -186,6 +187,7 @@ var intlData = {
       "not-used-signing": "Not used for signing system-user assertions",
       "account-keys": "Account Key Assertions",
       "status": "Status",
+      "new-account-assertion": "Add or Replace Account Assertion",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",

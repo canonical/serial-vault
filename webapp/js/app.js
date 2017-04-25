@@ -28,6 +28,7 @@ var ModelEdit = require('./components/ModelEdit');
 var KeypairAdd = require('./components/KeypairAdd');
 var SigningLog = require('./components/SigningLog');
 import AccountList from './components/AccountList';
+import AccountForm from './components/AccountForm';
 
 // Imports for i18n
 import {IntlProvider, addLocaleData} from 'react-intl';
@@ -59,6 +60,7 @@ window.AppState = {
             <Route path="models/:id/edit" component={ModelEdit} />
             <Route path="models/keypairs/new" component={KeypairAdd} />
             <Route path="accounts" component={AccountList} />
+            <Route path="accounts/new" component={AccountForm} />
             <Route path="signinglog" component={SigningLog} />
             <Route path="*" component={Index} />
           </Route>

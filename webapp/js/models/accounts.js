@@ -21,7 +21,11 @@ var Account = {
 
     list: function () {
         return Ajax.get(this.url);
-    }
+    },
+
+	create:  function(assertion) {
+		return Ajax.post(this.url, {assertion: assertion});
+	}
 }
 
 export default Account
