@@ -72,8 +72,6 @@ class AccountList extends Component {
 
     // Indicates whether the key has everything uploaded for it
     renderKeyStatus(acc) {
-        console.log(acc)
-        console.log(this.state.accounts)
         // Check if the key is used for signing system-users on any models
         if (!this.state.models.find(m => (m['authority-id-user'] === acc.AuthorityID) & (m['key-id-user'] === acc.KeyID))) {
             return <p>{T('not-used-signing')}</p>
@@ -97,7 +95,6 @@ class AccountList extends Component {
                 </div>
             )
         }
-        console.log(messages)
 
         return (
             <div>
@@ -111,7 +108,6 @@ class AccountList extends Component {
     }
 
     renderAccounts() {
-        console.log(this.state.accounts)
         if (this.state.accounts.length > 0) {
             return (
                 <table>
