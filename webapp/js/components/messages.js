@@ -84,7 +84,6 @@ var intlData = {
       "no-assertion-key": "<No account key assertion found>",
       "not-used-signing": "<Not used for signing system-user assertions>",
       "account-keys": "<Account Key Assertions>",
-      "status": "Status",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -185,7 +184,6 @@ var intlData = {
       "no-assertion-key": "No account key assertion found",
       "not-used-signing": "Not used for signing system-user assertions",
       "account-keys": "Account Key Assertions",
-      "status": "Status",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",
