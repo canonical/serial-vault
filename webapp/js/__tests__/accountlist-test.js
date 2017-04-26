@@ -56,7 +56,7 @@ describe('accounts list', function() {
         expect(component.find('table')).toHaveLength(1)
         // No assertions displayed
         expect(component.find('pre')).toHaveLength(0)
-        expect(component.find('i')).toHaveLength(1)
+        expect(component.find('i')).toHaveLength(2)
     })
 
     it('displays the accounts and keys with assertions', function() {
