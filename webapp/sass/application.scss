@@ -43,6 +43,10 @@ div.warning {
 	border-color: $color-warning;
 }
 
+i.warning {
+    color: $color-warning;
+}
+
 footer {
     border-top: 1px solid $color-mid-light;
 }
@@ -139,4 +143,9 @@ div.filter-section:last-of-type {
 
 .spacer {
     margin-top: 1em;
+}
+
+.code {
+    height: 200px;
+    overflow-y: scroll;
 }

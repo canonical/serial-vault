@@ -19,6 +19,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+import SigningLog from '../components/SigningLog';
 
 jest.dontMock('../components/SigningLog');
 jest.dontMock('../components/SigningLogRow');
@@ -34,7 +35,6 @@ window.AppState = {getLocale: function() {return 'en'}};
 
 describe('signing-log list', function() {
     it('displays the signing logs page with no logs', function() {
-        var SigningLog = require('../components/SigningLog');
 
         // Mock the data retrieval from the API
         var getLogs = jest.genMockFunction();
@@ -58,7 +58,6 @@ describe('signing-log list', function() {
     });
 
     it('displays the signing logs page with some logs', function() {
-        var SigningLog = require('../components/SigningLog');
 
         // Shallow render the component
         var shallowRenderer = TestUtils.createRenderer();

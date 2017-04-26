@@ -358,9 +358,10 @@ func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
 // ListAccounts mock to return a list of the available accounts
 func (mdb *ErrorMockDB) ListAccounts() ([]Account, error) {
-	var accounts []Account
-	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
-	return accounts, nil
+	return nil, errors.New("Error getting the accounts")
+	// var accounts []Account
+	// accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
+	// return accounts, nil
 }
 
 // PutAccount mock to update abn account assertion

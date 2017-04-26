@@ -68,11 +68,15 @@ func AdminRouter(env *Env) *mux.Router {
 	router.Handle("/v1/signinglog/filters", Middleware(http.HandlerFunc(SigningLogFiltersHandler), env)).Methods("GET")
 	router.Handle("/v1/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler), env)).Methods("DELETE")
 
+	// API routes: account assertions
+	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler), env)).Methods("GET")
+
 	// Web application routes
 	path := []string{env.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
 	router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
+	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
 	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler), env)).Methods("GET")
 

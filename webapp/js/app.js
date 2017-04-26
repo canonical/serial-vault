@@ -14,19 +14,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-'use strict'
-var React = require('react');
-var Router = require('react-router').Router;
-var ReactDOM = require('react-dom');
-var Route = require('react-router').Route;
-var IndexRoute = require('react-router').IndexRoute;
-var browserHistory = require('react-router').browserHistory;
-var App = require('./components/App');
-var Index = require('./components/Index');
-var ModelList = require('./components/ModelList');
-var ModelEdit = require('./components/ModelEdit');
-var KeypairAdd = require('./components/KeypairAdd');
-var SigningLog = require('./components/SigningLog');
+import React from 'react'
+import {Router} from 'react-router'
+import ReactDOM from 'react-dom'
+import {Route} from 'react-router'
+import {IndexRoute} from 'react-router'
+import {browserHistory} from 'react-router'
+import App        from './components/App'
+import Index      from './components/Index'
+import ModelList  from './components/ModelList'
+import ModelEdit  from './components/ModelEdit'
+import KeypairAdd from './components/KeypairAdd'
+import SigningLog from './components/SigningLog'
+import AccountList from './components/AccountList';
 
 // Imports for i18n
 import {IntlProvider, addLocaleData} from 'react-intl';
@@ -57,6 +57,7 @@ window.AppState = {
             <Route path="models/new" component={ModelEdit} />
             <Route path="models/:id/edit" component={ModelEdit} />
             <Route path="models/keypairs/new" component={KeypairAdd} />
+            <Route path="accounts" component={AccountList} />
             <Route path="signinglog" component={SigningLog} />
             <Route path="*" component={Index} />
           </Route>

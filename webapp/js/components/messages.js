@@ -32,6 +32,7 @@ var intlData = {
       "fingerprint": "<Fingerprint>",
       "models": "楷模",
       "models_available": "以下型号可供选择",
+      "accounts": "<Account Assertions>",
       "signinglog": "<Signing Log>",
       "signinglog-description": "<Log of the serial numbers and device-key fingerprints that have been used>",
       "delete-log": "<Delete log>",
@@ -77,6 +78,12 @@ var intlData = {
       "makes": "<Makes>",
       "models": "<Models>",
       "download": "<Download>",
+      "assertion": "<Assertion>",
+      "no-assertions": "<No assertions found>",
+      "no-assertion": "<No account assertion found>",
+      "no-assertion-key": "<No account key assertion found>",
+      "not-used-signing": "<Not used for signing system-user assertions>",
+      "account-keys": "<Account Key Assertions>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -125,6 +132,7 @@ var intlData = {
       "fingerprint": "Fingerprint",
       "models": "Models",
       "models_available": "The following models are available",
+      "accounts": "Account Assertions",
       "signinglog": "Signing Log",
       "signinglog-description": "Log of the serial numbers and device-key fingerprints that have been used",
       "delete-log": "Delete log",
@@ -170,6 +178,12 @@ var intlData = {
       "makes": "Makes",
       "models": "Models",
       "download": "Download",
+      "assertion": "Assertion",
+      "no-assertions": "No assertions found",
+      "no-assertion": "No account assertion found",
+      "no-assertion-key": "No account key assertion found",
+      "not-used-signing": "Not used for signing system-user assertions",
+      "account-keys": "Account Key Assertions",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",
