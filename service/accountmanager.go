@@ -61,7 +61,7 @@ func (db *DB) CreateAccountTable() error {
 
 // ListAccounts fetches the available accounts from the database.
 func (db *DB) ListAccounts() ([]Account, error) {
-	var accounts []Account
+	accounts := []Account{}
 
 	rows, err := db.Query(listAccountsSQL)
 	if err != nil {

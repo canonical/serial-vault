@@ -84,7 +84,6 @@ var intlData = {
       "no-assertion-key": "<No account key assertion found>",
       "not-used-signing": "<Not used for signing system-user assertions>",
       "account-keys": "<Account Key Assertions>",
-      "status": "Status",
       "new-account-assertion": "<Add or Replace Account Assertion>",
 
       // Error messages
@@ -186,7 +185,6 @@ var intlData = {
       "no-assertion-key": "No account key assertion found",
       "not-used-signing": "Not used for signing system-user assertions",
       "account-keys": "Account Key Assertions",
-      "status": "Status",
       "new-account-assertion": "Add or Replace Account Assertion",
 
       // Error messages

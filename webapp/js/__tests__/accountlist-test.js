@@ -45,6 +45,20 @@ describe('accounts list', function() {
         expect(component.find('table')).toHaveLength(0)
     })
 
+    it('displays the keypairs with no accounts', function() {
+
+        // Render the component
+        const component = shallow(
+            <AccountList accounts={null} keypairs={KEYPAIRS} models={MODELS} />
+        );
+
+        expect(component.find('section')).toHaveLength(2)
+        expect(component.find('table')).toHaveLength(1)
+        // No assertions displayed
+        expect(component.find('pre')).toHaveLength(0)
+        expect(component.find('i')).toHaveLength(1)
+    })
+
     it('displays the accounts and keys with assertions', function() {
 
         // Render the component
