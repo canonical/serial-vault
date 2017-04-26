@@ -113,7 +113,7 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                        <th>{T('authority-id')}</th><th>{T('assertion')}</th>
+                        <th>{T('account')}</th><th>{T('assertion')}</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -111,7 +111,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store or update the account assertion in the database
-	errorCode, err := Environ.DB.PutAccount(Account{AuthorityID: assertion.AuthorityID(), Assertion: string(decodedAssertion)})
+	errorCode, err := Environ.DB.PutAccount(Account{AuthorityID: assertion.HeaderString("account-id"), Assertion: string(decodedAssertion)})
 	if err != nil {
 		logMessage("ACCOUNT", "invalid-assertion", err.Error())
 		w.WriteHeader(http.StatusBadRequest)

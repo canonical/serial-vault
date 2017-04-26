@@ -85,6 +85,7 @@ var intlData = {
       "not-used-signing": "<Not used for signing system-user assertions>",
       "account-keys": "<Account Key Assertions>",
       "new-account-assertion": "<Add or Replace Account Assertion>",
+      "account": "<Account>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -186,6 +187,7 @@ var intlData = {
       "not-used-signing": "Not used for signing system-user assertions",
       "account-keys": "Account Key Assertions",
       "new-account-assertion": "Add or Replace Account Assertion",
+      "account": "Account",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",
