@@ -23,15 +23,6 @@ export function T(message) {
     return msg
 }
 
-export function isHTTPError(response) {
-    // Check for an HTTP error
-    if ((response.statusCode >= 300) && (response.statusCode != 400)) {
-        return true
-    } else {
-        return false
-    }
-}
-
 export function parseResponse(response) {
     // Check the content-type is JSON
     if (!response.headers['content-type'].includes('json')) {

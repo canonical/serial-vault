@@ -18,7 +18,7 @@ import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
 import Keypairs from '../models/keypairs'
-import {T, isHTTPError, parseResponse, formatError} from './Utils';
+import {T, parseResponse, formatError} from './Utils';
 
 class AccountKeyForm extends Component {
 

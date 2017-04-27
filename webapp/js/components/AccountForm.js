@@ -17,7 +17,7 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
-import {T, isHTTPError, parseResponse, formatError} from './Utils';
+import {T, parseResponse, formatError} from './Utils';
 
 class AccountForm extends Component {
 
