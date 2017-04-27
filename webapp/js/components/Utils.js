@@ -23,3 +23,35 @@ export function T(message) {
     return msg
 }
 
+export function isHTTPError(response) {
+    // Check for an HTTP error
+    if ((response.statusCode >= 300) && (response.statusCode != 400)) {
+        return true
+    } else {
+        return false
+    }
+}
+
+export function parseResponse(response) {
+    // Check the content-type is JSON
+    if (!response.headers['content-type'].includes('json')) {
+        // Non-json body
+        return {
+            error_code: response.statusCode,
+            message: response.body
+        }
+    }
+
+    // Parse the body as JSON
+    return JSON.parse(response.body);
+}
+
+export function formatError (data) {
+    var message = T(data.error_code);
+    if (data.error_subcode) {
+        message += ': ' + T(data.error_subcode);
+    } else if (data.message) {
+        message += ': ' + data.message;
+    }
+    return message;
+}

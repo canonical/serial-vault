@@ -70,6 +70,7 @@ func AdminRouter(env *Env) *mux.Router {
 
 	// API routes: account assertions
 	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler), env)).Methods("GET")
+	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsUpsertHandler), env)).Methods("POST")
 
 	// Web application routes
 	path := []string{env.Config.DocRoot, "/static/"}

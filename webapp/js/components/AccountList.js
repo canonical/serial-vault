@@ -113,14 +113,13 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                    <th className="small"></th><th>{T('authority-id')}</th><th>{T('assertion')}</th>
+                        <th>{T('account')}</th><th>{T('assertion')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {this.state.accounts.map((acc) => {
                     return (
                         <tr key={acc.ID}>
-                            <td></td>
                             <td>{acc.AuthorityID}</td>
                             <td><pre className="code">{acc.Assertion}</pre></td>
                         </tr>
@@ -172,7 +171,16 @@ class AccountList extends Component {
         return (
             <div className="row">
                 <section className="row">
-                    <h2>{T('accounts')}</h2>
+
+                    <div className="u-equal-height">
+                        <h2 className="col-4">{T('accounts')}</h2>
+                        &nbsp;
+                        <div className="col-1">
+                            <a href="/accounts/new" className="p-button--brand" title={T('new-account-assertion')}>
+                                <i className="fa fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
 
                     <div className="col-12">
                         {this.renderAccounts()}

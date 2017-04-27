@@ -56,7 +56,7 @@ describe('accounts list', function() {
         expect(component.find('table')).toHaveLength(1)
         // No assertions displayed
         expect(component.find('pre')).toHaveLength(0)
-        expect(component.find('i')).toHaveLength(1)
+        expect(component.find('i')).toHaveLength(2)
     })
 
     it('displays the accounts and keys with assertions', function() {
@@ -97,7 +97,7 @@ describe('accounts list', function() {
         expect(component.find('table')).toHaveLength(2)
         // Only account assertion displayed, no key assertion and one warning
         expect(component.find('pre')).toHaveLength(1)
-        expect(component.find('i')).toHaveLength(1)
+        expect(component.find('i')).toHaveLength(2)
     })
 
     it('displays the key with a warning messages', function() {
@@ -111,7 +111,7 @@ describe('accounts list', function() {
         expect(component.find('table')).toHaveLength(1)
         // No account assertion displayed, no key assertion and two warnings
         expect(component.find('pre')).toHaveLength(0)
-        expect(component.find('i')).toHaveLength(2)
+        expect(component.find('i')).toHaveLength(3)
     })
 
 })
