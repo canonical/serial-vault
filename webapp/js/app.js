@@ -28,6 +28,7 @@ import KeypairAdd from './components/KeypairAdd'
 import SigningLog from './components/SigningLog'
 import AccountList from './components/AccountList';
 import AccountForm from './components/AccountForm';
+import AccountKeyForm from './components/AccountKeyForm';
 
 // Imports for i18n
 import {IntlProvider, addLocaleData} from 'react-intl';
@@ -60,6 +61,7 @@ window.AppState = {
             <Route path="models/keypairs/new" component={KeypairAdd} />
             <Route path="accounts" component={AccountList} />
             <Route path="accounts/new" component={AccountForm} />
+            <Route path="accounts/key-assertion" component={AccountKeyForm} />
             <Route path="signinglog" component={SigningLog} />
             <Route path="*" component={Index} />
           </Route>

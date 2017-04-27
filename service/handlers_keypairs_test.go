@@ -27,6 +27,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/snapcore/snapd/asserts"
 )
 
 func TestKeypairListHandler(t *testing.T) {
@@ -413,4 +415,138 @@ func TestKeypairEnableHandlerBadID(t *testing.T) {
 	if result.ErrorCode != "error-invalid-keypair" {
 		t.Errorf("Expected a 'keypair update' message, got %s", result.ErrorCode)
 	}
+}
+
+func TestKeypairAssertionHandler(t *testing.T) {
+
+	// Mock the database
+	mockDatabase()
+
+	// Create the account key assertion
+	assertAcc, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
+	request, err := json.Marshal(AssertionRequest{ID: 1, Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/assertion", bytes.NewBuffer(request))
+	http.HandlerFunc(KeypairAssertionHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the account key assertion response: %v", err)
+	}
+	if !result.Success {
+		t.Errorf("Expected success, got failure: %s", result.ErrorMessage)
+	}
+}
+
+func sendKeypairAssertionError(request []byte, t *testing.T) {
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/assertion", bytes.NewBuffer(request))
+	http.HandlerFunc(KeypairAssertionHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the accounts response: %v", err)
+	}
+	if result.Success {
+		t.Errorf("Expected failure, got success")
+	}
+}
+
+func mockDatabase() {
+	// Mock the database
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+}
+
+func TestKeypairAssertionWithErrors(t *testing.T) {
+
+	mockDatabase()
+
+	sendKeypairAssertionError(nil, t)
+	sendKeypairAssertionError([]byte("InvalidData"), t)
+
+	// Invalid encoding
+	request, err := json.Marshal(AssertionRequest{ID: 1, Assertion: "InvalidData"})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+	sendKeypairAssertionError(request, t)
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte("InvalidData"))
+	request, err = json.Marshal(AssertionRequest{ID: 1, Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+	sendKeypairAssertionError(request, t)
+}
+
+func TestKeypairAssertionInvalidAssertionType(t *testing.T) {
+
+	mockDatabase()
+
+	// Encode the assertion and create the request (account instead of an account-key assertion)
+	assertion, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
+	request, err := json.Marshal(AssertionRequest{ID: 1, Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+	sendKeypairAssertionError(request, t)
+}
+
+func TestKeypairAssertionInvalidID(t *testing.T) {
+
+	mockDatabase()
+
+	// Encode the assertion and create the request
+	assertion, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+	sendKeypairAssertionError(request, t)
+}
+
+func TestKeypairAssertionUpdateError(t *testing.T) {
+
+	// Mock the database
+	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
+	Environ.KeypairDB, _ = GetKeyStore(config)
+
+	// Encode the assertion and create the request
+	assertion, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
+	request, err := json.Marshal(AssertionRequest{ID: 1, Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+	sendKeypairAssertionError(request, t)
 }

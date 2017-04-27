@@ -86,6 +86,7 @@ var intlData = {
       "account-keys": "<Account Key Assertions>",
       "new-account-assertion": "<Add or Replace Account Assertion>",
       "account": "<Account>",
+      "new-account-key-assertion": "<Add or Replace Account Key Assertion>",
 
       // Error messages
       "error-nil-data": "未初始化的POST数据",
@@ -188,6 +189,7 @@ var intlData = {
       "account-keys": "Account Key Assertions",
       "new-account-assertion": "Add or Replace Account Assertion",
       "account": "Account",
+      "new-account-key-assertion": "Add or Replace Account Key Assertion",
 
       // Error messages
       "error-nil-data": "Uninitialized POST data",
@@ -219,7 +221,7 @@ var intlData = {
       "error-validate-signingkey": "The Serial Assertion Key must be selected",
       "error-validate-userkey": "The System-User Assertion Key must be selected",
       "error-keypair-store": "Error storing the signing key"
-		}
+    }
 };
 
 module.exports = intlData;

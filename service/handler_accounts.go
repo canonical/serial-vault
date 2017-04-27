@@ -38,8 +38,9 @@ type AccountsResponse struct {
 	Accounts     []Account `json:"accounts"`
 }
 
-// AccountAssertionRequest is the JSON version of a account assertion
-type AccountAssertionRequest struct {
+// AssertionRequest is the JSON version of a account assertion
+type AssertionRequest struct {
+	ID        int    `json:"id"`
 	Assertion string `json:"assertion"`
 }
 
@@ -70,7 +71,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	assertionRequest := AccountAssertionRequest{}
+	assertionRequest := AssertionRequest{}
 	err := json.NewDecoder(r.Body).Decode(&assertionRequest)
 	switch {
 	// Check we have some data
