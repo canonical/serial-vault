@@ -17,18 +17,38 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
+import Keypairs from '../models/keypairs'
 import {T, parseResponse, formatError} from './Utils';
 
-class AccountForm extends Component {
+class AccountKeyForm extends Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
+            keypairs: props.keypairs || [],
+            keypairId: 0,
             assertion: null,
             error: null
         }
 
+        this.getKeypairs()
+    }
+
+    getKeypairs() {
+        Keypairs.list().then((response) => {
+            var data = JSON.parse(response.body);
+            var message = "";
+            if (!data.success) {
+                message = data.message;
+            }
+            this.setState({keypairs: data.keypairs, message: message});
+        });
+    }
+
+    handleChangeKeypair = (e) => {
+        e.preventDefault();
+        this.setState({keypairId: parseInt(e.target.value)})
     }
 
     handleFileUpload = (e) => {
@@ -47,7 +67,7 @@ class AccountForm extends Component {
     handleSaveClick = (e) => {
         e.preventDefault();
 
-        Accounts.create(this.state.assertion).then((response) => {
+        Keypairs.assertion(this.state.keypairId, this.state.assertion).then((response) => {
             var data = parseResponse(response)
             if (!data.success) {
                 this.setState({error: formatError(data)});
@@ -62,12 +82,24 @@ class AccountForm extends Component {
             <div>
 
                 <section className="row no-border">
-                    <h2>{T('new-account-assertion')}</h2>
+                    <h2>{T('new-account-key-assertion')}</h2>
                     <div className="col-12">
                         <AlertBox message={this.state.error} />
 
                         <form>
                             <fieldset>
+                                <label htmlFor="keypair">{T('private-key')}:
+                                    <select value={this.state.keypairId} id="keypair" onChange={this.handleChangeKeypair}>
+                                        <option></option>
+                                        {this.state.keypairs.map((kpr) => {
+                                            if (kpr.Active) {
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+                                            } else {
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+                                            }
+                                        })}
+                                    </select>
+                                </label>
                                 <label htmlFor="key">{T('assertion')}:
                                     <input type="file" onChange={this.handleFileUpload} />
                                 </label>
@@ -87,4 +119,4 @@ class AccountForm extends Component {
 
 }
 
-export default AccountForm
+export default AccountKeyForm

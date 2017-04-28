@@ -122,7 +122,7 @@ func TestAccountsUpsertHandler(t *testing.T) {
 
 	// Encode the assertion and create the request
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(AccountAssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -186,7 +186,7 @@ func TestAccountsUpsertInvalidEncoding(t *testing.T) {
 	Environ = &Env{DB: &MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
-	request, err := json.Marshal(AccountAssertionRequest{Assertion: "InvalidData"})
+	request, err := json.Marshal(AssertionRequest{Assertion: "InvalidData"})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -202,7 +202,7 @@ func TestAccountsUpsertInvalidAssertion(t *testing.T) {
 
 	// Encode the assertion and create the request
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte("InvalidData"))
-	request, err := json.Marshal(AccountAssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -222,7 +222,7 @@ func TestAccountsUpsertInvalidAssertionType(t *testing.T) {
 		t.Errorf("Error generating the assertion: %v", err)
 	}
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
-	request, err := json.Marshal(AccountAssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -242,7 +242,7 @@ func TestAccountsUpsertPutError(t *testing.T) {
 		t.Errorf("Error generating the assertion: %v", err)
 	}
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
-	request, err := json.Marshal(AccountAssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}

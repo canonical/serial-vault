@@ -62,6 +62,7 @@ func AdminRouter(env *Env) *mux.Router {
 	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler), env)).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")
+	router.Handle("/v1/keypairs/assertion", Middleware(http.HandlerFunc(KeypairAssertionHandler), env)).Methods("POST")
 
 	// API routes: signing log
 	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler), env)).Methods("GET")

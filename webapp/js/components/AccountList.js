@@ -141,7 +141,7 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                    <th>{T('key-id')}</th><th>{T('assertion')}</th>
+                        <th>{T('key-id')}</th><th>{T('assertion')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,7 +173,7 @@ class AccountList extends Component {
                 <section className="row">
 
                     <div className="u-equal-height">
-                        <h2 className="col-4">{T('accounts')}</h2>
+                        <h2 className="col-5">{T('accounts')}</h2>
                         &nbsp;
                         <div className="col-1">
                             <a href="/accounts/new" className="p-button--brand" title={T('new-account-assertion')}>
@@ -188,7 +188,15 @@ class AccountList extends Component {
                 </section>
 
                 <section className="row">
-                    <h2>{T('account-keys')}</h2>
+                    <div className="u-equal-height">
+                        <h2 className="col-5">{T('account-keys')}</h2>
+                        &nbsp;
+                        <div className="col-1">
+                            <a href="/accounts/key-assertion" className="p-button--brand" title={T('new-account-assertion')}>
+                                <i className="fa fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
 
                     <div className="col-12">
                         {this.renderAccountKeys()}
