@@ -1,0 +1,47 @@
+name: serial-vault-services
+version: 1.5
+summary: Serial Vault Services (signing, system-user and admin)
+description: Full suite of the Serial Services.
+confinement: strict
+grade: stable
+
+apps:
+    admin:
+      command: bin/snap-run-admin-service
+      plugs:
+        - network
+        - network-bind
+      daemon: simple
+    signing:
+      command: bin/snap-run-signing-service
+      plugs:
+        - network
+        - network-bind
+      daemon: simple
+    user:
+      command: bin/snap-run-user-service
+      plugs:
+        - network
+        - network-bind
+      daemon: simple
+    config:
+      command: bin/set-config
+    vaultclient:
+      command: bin/snap-run-vaultclient
+      plugs:
+        - network
+parts:
+    service:
+        plugin: go
+        source: git://github.com/ubuntu-core/identity-vault
+        go-importpath: github.com/ubuntu-core/identity-vault
+    bin:
+        source: ../bin
+        plugin: dump
+        organize:
+          "*": bin/
+    static:
+        source: ../static
+        plugin: dump
+        organize:
+          "*": static/
