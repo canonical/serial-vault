@@ -24,12 +24,42 @@ apps:
         - network
         - network-bind
       daemon: simple
+    serviceinit:
+      command: bin/serviceinit.sh
+      plugs:
+      - network
+      - network-bind
     config:
       command: bin/set-config
     vaultclient:
       command: bin/snap-run-vaultclient
       plugs:
         - network
+    createdb:
+      command: usr/bin/createdb
+      plugs:
+        - network
+    createuser:
+      command: usr/bin/createuser
+      plugs:
+        - network
+    dropdb:
+      command: usr/bin/dropdb
+      plugs:
+        - network
+    dropuser:
+      command: usr/bin/dropuser
+      plugs:
+        - network
+    initdb:
+      command: usr/bin/initdb
+    initialize:
+      command: usr/bin/wrapper-initialize
+    pgctl:
+      command: usr/bin/wrapper-pg_ctl
+      plugs:
+      - network
+      - network-bind
 parts:
     service:
         plugin: go
@@ -45,3 +75,12 @@ parts:
         plugin: dump
         organize:
           "*": static/
+    postgresql:
+        plugin: make
+        build: |
+          make snap
+    serviceinit:
+        source: bin
+        plugin: dump
+        organize:
+          "*": bin/
