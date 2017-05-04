@@ -20,15 +20,33 @@ installation script simplifies this process by handling the full installation pr
 
 ```bash
 cd serial-vault-services-snap  # Make sure you are in the correct directory
-sudo ./install.sh
+sudo snap install --dangerous serial-vault-services_1.5_amd64.snap
 ```
+*The version number of the snap may be different.
 
-## Uninstall the Serial Vault Services
-A script has been provided to uninstall the services and remove the databases and the
-user that were created. The database is not backed up, so make sure that you do not
-have data that needs to be kept within the database.
+## Configure the Serial Vault Services
+To initialize the database and to show the settings.yaml configuration file:
 
 ```bash
 cd serial-vault-services-snap  # Make sure you are in the correct directory
-sudo ./uninstall.sh
+serial-vault-services.serviceinit
+```
+
+This will display the settings.yaml file for the serial vault. To use the details, copy and
+paste them into a settings.yaml file and then run:
+```bash
+cat settings.yaml | sudo serial-vault-services.config
+sudo snap disable serial-vault-services
+sudo snap enable serial-vault-services
+```
+
+The services are then accessible via:
+Admin Service   : http://localhost:8081
+User Service    : http://localhost:8082
+Signing Service : http://localhost:8080/v1/version
+
+
+## Set-up Apache and SSL
+```bash
+sudo serial-vault-services.enable-https self-signed
 ```
