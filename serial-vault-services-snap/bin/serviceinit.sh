@@ -10,7 +10,7 @@ db_password=$(cat /dev/urandom | tr -dc _A-Z-a-z-0-9 | head -c64)
 
 # Update the database user's password
 $SNAP/usr/bin/wrapper-psql -h 127.0.0.1 $USER <<SQL
-ALTER USER $user WITH PASSWORD '$db_password';
+ALTER USER $USER WITH PASSWORD '$db_password';
 SQL
 
 # Generate the serial-vault secrets and API key
