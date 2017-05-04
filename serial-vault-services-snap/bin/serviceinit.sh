@@ -5,8 +5,17 @@ echo "Initialize the database"
 $SNAP/usr/bin/wrapper-initialize initdb
 $SNAP/usr/bin/wrapper-pg_ctl -D $SNAP_USER_COMMON/data -l $SNAP_USER_COMMON/logs/logfile start
 
+# Wait until the database is ready
+while ! $SNAP/usr/bin/pg_isready -h 127.0.0.1; do
+    sleep 1
+done
+
 # Generate the password for the database user
 db_password=$(cat /dev/urandom | tr -dc _A-Z-a-z-0-9 | head -c64)
+
+# Create the user and the database
+#$SNAP/usr/bin/createuser -s -d -h 127.0.0.1 $USER
+$SNAP/usr/bin/createdb -h 127.0.0.1 $USER
 
 # Update the database user's password
 $SNAP/usr/bin/wrapper-psql -h 127.0.0.1 $USER <<SQL
@@ -26,7 +35,7 @@ cat <<SETTINGS
 docRoot: "."
 
 driver: "postgres"
-datasource: "dbname=$USER user=$USER password=$db_password"
+datasource: "dbname=$USER user=$USER password=$db_password sslmode=disable"
 
 keystore: "database"
 keystoreSecret: "$keystore_secret"

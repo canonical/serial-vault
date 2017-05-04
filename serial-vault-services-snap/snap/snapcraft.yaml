@@ -86,6 +86,10 @@ apps:
     plugs:
     - network
     - network-bind
+  pgisready:
+    command: usr/bin/pg_isready
+    plugs:
+    - network
 parts:
   service:
       plugin: go
