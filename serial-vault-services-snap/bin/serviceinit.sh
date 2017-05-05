@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# The PostgreSQL snap only works with the en_US locale
+LC_ALL=en_US.UTF-8
+
 # Initialize and start the database service
 echo "Initialize the database"
 $SNAP/usr/bin/wrapper-initialize initdb
@@ -14,7 +17,6 @@ done
 db_password=$(cat /dev/urandom | tr -dc _A-Z-a-z-0-9 | head -c64)
 
 # Create the user and the database
-#$SNAP/usr/bin/createuser -s -d -h 127.0.0.1 $USER
 $SNAP/usr/bin/createdb -h 127.0.0.1 $USER
 
 # Update the database user's password

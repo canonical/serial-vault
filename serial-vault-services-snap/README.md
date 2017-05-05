@@ -20,9 +20,9 @@ installation script simplifies this process by handling the full installation pr
 
 ```bash
 cd serial-vault-services-snap  # Make sure you are in the correct directory
-sudo snap install --dangerous serial-vault-services_1.5_amd64.snap
+# sudo is only needed if you are not logged into the store
+sudo snap install --dangerous serial-vault-services_*_amd64.snap
 ```
-*The version number of the snap may be different.
 
 ## Configure the Serial Vault Services
 To initialize the database and to show the settings.yaml configuration file:
@@ -41,12 +41,15 @@ sudo snap enable serial-vault-services
 ```
 
 The services are then accessible via:
-Admin Service   : http://localhost:8081
-User Service    : http://localhost:8082
-Signing Service : http://localhost:8080/v1/version
+Admin Service   : http://localhost/admin/
+User Service    : http://localhost/user/
+Signing Service : http://localhost/signing/v1/version
 
 
 ## Set-up Apache and SSL
+Apache is configured to use a self-signed certificate, which will cause a browser warning
+for the certificate. It is possible to supply your own certificate using the ```enable-https``` command.
+
 ```bash
-sudo serial-vault-services.enable-https self-signed
+sudo serial-vault-services.enable-https -h
 ```

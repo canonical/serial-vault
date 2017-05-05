@@ -169,8 +169,7 @@ parts:
       - $exclude
 
   apache-customizations:
-    plugin: copy
-    files:
-      src/apache/scripts/*: bin/
-      src/apache/conf/*: conf/
-      src/apache/utilities/*: utilities/
+    plugin: dump
+    source: src/apache
+    organize:
+      html/*: static/
