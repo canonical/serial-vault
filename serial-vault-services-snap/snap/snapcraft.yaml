@@ -114,6 +114,12 @@ parts:
       plugin: dump
       organize:
         "*": bin/
+  # Private key for the vaultclient
+  keystore:
+    source: ../keystore
+    plugin: dump
+    organize:
+      TestDeviceKey.asc: keystore/TestDeviceKey.asc
 
   apache:
     plugin: apache
