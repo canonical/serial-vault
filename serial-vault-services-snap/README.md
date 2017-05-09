@@ -40,6 +40,10 @@ sudo snap disable serial-vault-services
 sudo snap enable serial-vault-services
 ```
 
+Note: 
+ - The database will be initialized and run as the local user, so it is recommended that a user is created specifically to run the database service.
+ - The ```serviceinit``` command generates a keystore secret and that is used to encrypt the private keys that are stored in the database. It is important, to backup the keystore secret as well as the database so that the services can be recovered successfully.
+
 The services are then accessible via:
 Admin Service   : http://localhost/admin/
 User Service    : http://localhost/user/
@@ -52,4 +56,17 @@ for the certificate. It is possible to supply your own certificate using the ```
 
 ```bash
 sudo serial-vault-services.enable-https -h
+```
+
+## Restarting Services
+The serial vault services run automatically when the system reboots, part from the database. The database
+runs as the local user, so it cannot be started as a snappy daemon (which run as root). Consequently, the
+database will need to be restarted manually:
+
+```bash
+serial-vault-services.startdb
+sudo snap disable serial-vault-services
+sudo snap enable serial-vault-services
+
+serial-vault-services.statusdb
 ```

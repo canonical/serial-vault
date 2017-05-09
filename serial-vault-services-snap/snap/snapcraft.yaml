@@ -60,6 +60,23 @@ apps:
     plugs:
       - network
 
+  # PostgreSQL wrappers
+  startdb:
+    command: bin/startdb
+    plugs:
+      - network
+      - network-bind
+  stopdb:
+    command: bin/stopdb
+    plugs:
+      - network
+      - network-bind
+  statusdb:
+    command: bin/statusdb
+    plugs:
+      - network
+      - network-bind
+
   # PostgreSQL
   createdb:
     command: usr/bin/createdb
@@ -90,6 +107,27 @@ apps:
     command: usr/bin/pg_isready
     plugs:
     - network
+  pgdump:
+    command: usr/bin/pg_dump
+    plugs:
+    - network
+  pgdumpall:
+    command: usr/bin/pg_dumpall
+    plugs:
+    - network
+  psql:
+    command: usr/bin/wrapper-psql
+    plugs:
+    - network
+  reindexdb:
+    command: usr/bin/reindexdb
+    plugs:
+    - network
+  vacuumdb:
+    command: usr/bin/vacuumdb
+    plugs:
+    - network
+
 parts:
   service:
       plugin: go
