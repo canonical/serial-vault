@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd $SNAP
+
+bin/tools -config=$SNAP_DATA/settings.yaml
+bin/identity-vault -mode=system-user -config=$SNAP_DATA/settings.yaml
