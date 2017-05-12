@@ -52,7 +52,7 @@ Signing Service : http://localhost/signing/v1/version
 
 ## Set-up Apache and SSL
 Apache is configured to use HTTP by default. It is possible to use HTTPS by generating a self-signed certificate or
-supplying to supply your own certificate using the ```enable-https``` command.
+supplying your own certificate using the ```enable-https``` command.
 ```bash
 sudo serial-vault-services.enable-https -h
 ```
