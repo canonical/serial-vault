@@ -7,11 +7,6 @@ echo "Running httpd..."
 
 . $SNAP/utilities/https-utilities
 
-# Create self-signed certs if we do not have a certificate
-if ! certificates_are_active; then
-	generate_self_signed_certificate
-	activate_self_signed_certificate
-fi
 
 # Rewrite live cert symlinks that aren't using the current symlink.
 # FIXME: Remove this migration once epochs and upgrade hooks are available.

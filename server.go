@@ -62,6 +62,7 @@ func main() {
 		CSRF := csrf.Protect(
 			[]byte(env.Config.CSRFAuthKey),
 			csrf.Secure(csrfSecure),
+			csrf.HttpOnly(csrfSecure),
 		)
 
 		// Create the admin web service router
@@ -79,6 +80,7 @@ func main() {
 		CSRF := csrf.Protect(
 			[]byte(env.Config.CSRFAuthKey),
 			csrf.Secure(csrfSecure),
+			csrf.HttpOnly(csrfSecure),
 			csrf.CookieName("XSRF-TOKEN"),
 		)
 

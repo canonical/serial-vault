@@ -51,12 +51,12 @@ Signing Service : http://localhost/signing/v1/version
 
 
 ## Set-up Apache and SSL
-Apache is configured to use a self-signed certificate, which will cause a browser warning
-for the certificate. It is possible to supply your own certificate using the ```enable-https``` command.
-
+Apache is configured to use HTTP by default. It is possible to use HTTPS by generating a self-signed certificate or
+supplying to supply your own certificate using the ```enable-https``` command.
 ```bash
 sudo serial-vault-services.enable-https -h
 ```
+Note: snapd will not be able to use the signing API if a self-signed certificate is used.
 
 ## Restarting Services
 The serial vault services run automatically when the system reboots, part from the database. The database
