@@ -1,6 +1,14 @@
 #!/bin/sh
 
+. $SNAP/utilities/https-utilities
+
 cd $SNAP
 
 bin/tools -config=$SNAP_DATA/settings.yaml
-bin/identity-vault -mode=system-user -config=$SNAP_DATA/settings.yaml
+
+if certificates_are_active; then
+    bin/identity-vault -mode=system-user -config=$SNAP_DATA/settings.yaml
+else
+    echo "HTTPS is disabled, so disable CSRF protection"
+    CSRF_SECURE=disable bin/identity-vault -mode=system-user -config=$SNAP_DATA/settings.yaml
+fi
