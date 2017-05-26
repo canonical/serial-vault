@@ -3,7 +3,7 @@
 
 A Go web service that digitally signs device assertion details.
 
-The application can be run in two modes: signing service or admin service. Both the web services
+The application can be run in three modes: signing service, admin service and system-user assertion services. All the web services
 operate under unencrypted HTTP connections, so these should not be exposed to a public network
 as-is. The services should be protected by web server front-end services, such as Apache, that
 provide secure HTTPS connections. Also, the admin service does not include authentication nor 
@@ -38,15 +38,16 @@ The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
  - Signing Service: http://localhost:8080/v1/version
  - Admin Service: http://localhost:8081/
+ - System-User Service: http://localhost:8082/
 
-The Admin service CSRF protection sends a cookie over a secure channel. If wanted to still send the cookie 
-over an insecure channel, it is needed to workaround it by setting the environment var:
+The Admin and System-User services' CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
+over an insecure channel, it is needed to workaround it by setting the environment variable:
 ```bash
 $ export CSRF_SECURE=disable
 ```
-When modified that environment var value, consider that current web session must be invalidated
-in order to changes take effect. That could require restart browser.
-NEVER use set this configuration in production environments.
+When modified that environment variable is set, consider that the current web session must be invalidated
+in order to changes take effect. That could require a browser restart.
+NEVER set this configuration in production environments.
 
 ## Install from Source
 If you have a Go development environment set up, Go get it:
