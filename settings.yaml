@@ -9,7 +9,7 @@ docRoot: "."
 
 # Backend database details
 driver: "postgres"
-datasource: "dbname=identityvault"
+datasource: "dbname=serialvault"
 
 # Signing Key Store
 #keystore: "filesystem"

@@ -23,10 +23,10 @@ import (
 	"flag"
 	"log"
 
+	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/overlord/auth"
 	"github.com/snapcore/snapd/store"
-	"github.com/ubuntu-core/identity-vault/service"
 )
 
 // SettingsFile is the path to the settings YAML file

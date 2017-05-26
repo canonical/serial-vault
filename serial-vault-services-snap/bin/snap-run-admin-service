@@ -7,8 +7,8 @@ cd $SNAP
 bin/tools -config=$SNAP_DATA/settings.yaml
 
 if certificates_are_active; then
-    bin/identity-vault -mode=admin -config=$SNAP_DATA/settings.yaml
+    bin/serial-vault -mode=admin -config=$SNAP_DATA/settings.yaml
 else
     echo "HTTPS is disabled, so disable CSRF protection"
-    CSRF_SECURE=disable bin/identity-vault -mode=admin -config=$SNAP_DATA/settings.yaml
+    CSRF_SECURE=disable bin/serial-vault -mode=admin -config=$SNAP_DATA/settings.yaml
 fi

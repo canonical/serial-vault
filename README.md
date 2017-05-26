@@ -52,7 +52,7 @@ NEVER use set this configuration in production environments.
 If you have a Go development environment set up, Go get it:
 
   ```bash
-  $ go get github.com/ubuntu-core/identity-vault
+  $ go get github.com/CanonicalLtd/serial-vault
   ```
 
 ### Configure it:
@@ -60,13 +60,13 @@ If you have a Go development environment set up, Go get it:
 - Set up the config file, using ```settings.yaml``` as a guide.
 - Create the database tables:
   ```bash
-  $ cd identity-vault
+  $ cd serial-vault
   $ go run tools/createdb.go -config=/path/to/settings.yaml
   ```
 
 ### Run it:
   ```bash
-  $ cd identity-vault
+  $ cd serial-vault
   $ go run server.go -config=/path/to/settings.yaml -mode=signing
   ```
 
@@ -82,8 +82,8 @@ The Juju charm uses a snap that is available at the [Snap store](https://uappexp
 
 ## Try with docker
   ```bash
-  $ git clone https://github.com/ubuntu-core/identity-vault
-  $ cd identity-vault/docker-compose
+  $ git clone https://github.com/CanonicalLtd/serial-vault
+  $ cd serial-vault/docker-compose
   $ docker-compose up
   # remove containers after try
   $ docker-compose kill && docker-compose rm
@@ -123,7 +123,7 @@ nvm use v4.4.3
 
 - Install the nodejs dependencies
 ```bash
-cd identity-vault
+cd serial-vault
 npm install
 ```
 
@@ -210,5 +210,5 @@ part of the serial assertion.
 The method returns a signed serial assertion using the key from the vault.
 
 
-[travis-image]: https://travis-ci.org/ubuntu-core/identity-vault.svg?branch=master
-[travis-url]: https://travis-ci.org/ubuntu-core/identity-vault
+[travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
+[travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault

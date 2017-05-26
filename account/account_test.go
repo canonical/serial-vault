@@ -23,8 +23,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/snapcore/snapd/asserts"
-	"github.com/ubuntu-core/identity-vault/service"
 )
 
 func TestCacheAccountAssertions(t *testing.T) {

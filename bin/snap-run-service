@@ -3,4 +3,4 @@
 cd $SNAP
 
 bin/tools -config=$SNAP_DATA/settings.yaml
-bin/identity-vault -config=$SNAP_DATA/settings.yaml
+bin/serial-vault -config=$SNAP_DATA/settings.yaml

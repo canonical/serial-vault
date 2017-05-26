@@ -125,7 +125,7 @@ func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey strin
 		return privateKey, sealedPrivateKey, err
 
 	default:
-		// Keypairs are handled by the ubuntu-core library, so this is a pass-through to the core library
+		// Keypairs are handled by the snapd library, so this is a pass-through to the core library
 		return privateKey, "", kdb.ImportKey(privateKey)
 	}
 }
@@ -149,7 +149,7 @@ func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, hea
 		return kdb.Sign(assertType, headers, body, keyID)
 
 	default:
-		// Filesystem keypairs are handled by the ubuntu-core library, so this is a pass-through to the core library
+		// Filesystem keypairs are handled by the snapd library, so this is a pass-through to the core library
 		return kdb.Sign(assertType, headers, body, keyID)
 	}
 }

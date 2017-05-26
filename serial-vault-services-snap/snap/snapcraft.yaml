@@ -131,8 +131,8 @@ apps:
 parts:
   service:
       plugin: go
-      source: git://github.com/ubuntu-core/identity-vault
-      go-importpath: github.com/ubuntu-core/identity-vault
+      source: git://github.com/CanonicalLtd/serial-vault
+      go-importpath: github.com/CanonicalLtd/serial-vault
   bin:
       source: ../bin
       plugin: dump
