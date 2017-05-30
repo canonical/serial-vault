@@ -22,7 +22,7 @@ package main
 import (
 	"log"
 
-	"github.com/ubuntu-core/identity-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service"
 )
 
 func main() {

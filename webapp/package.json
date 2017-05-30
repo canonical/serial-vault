@@ -1,5 +1,5 @@
 {
-  "name": "identity-vault",
+  "name": "serial-vault",
   "version": "0.2.0",
   "description": "A Go web service that digitally signs device assertion details.",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubuntu-core/identity-vault.git"
+    "url": "https://github.com/CanonicalLtd/serial-vault.git"
   },
   "author": "Canonical Ltd.",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/ubuntu-core/identity-vault/issues"
+    "url": "https://github.com/CanonicalLtd/serial-vault/issues"
   },
-  "homepage": "https://github.com/ubuntu-core/identity-vault",
+  "homepage": "https://github.com/CanonicalLtd/serial-vault",
   "dependencies": {
     "moment": "^2.14.1",
     "react": "^0.14.7",

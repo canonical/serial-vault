@@ -24,8 +24,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/gorilla/csrf"
-	"github.com/ubuntu-core/identity-vault/service"
 )
 
 func main() {

@@ -131,15 +131,15 @@ apps:
 parts:
   service:
       plugin: go
-      source: git://github.com/ubuntu-core/identity-vault
-      go-importpath: github.com/ubuntu-core/identity-vault
+      source: git://github.com/CanonicalLtd/serial-vault
+      go-importpath: github.com/CanonicalLtd/serial-vault
   bin:
-      source: ../bin
+      source: ../../bin
       plugin: dump
       organize:
         "*": bin/
   static:
-      source: ../static
+      source: ../../static
       plugin: dump
       organize:
         "*": static/
@@ -154,7 +154,7 @@ parts:
         "*": bin/
   # Private key for the vaultclient
   keystore:
-    source: ../keystore
+    source: ../../keystore
     plugin: dump
     organize:
       TestDeviceKey.asc: keystore/TestDeviceKey.asc

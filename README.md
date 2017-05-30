@@ -3,7 +3,7 @@
 
 A Go web service that digitally signs device assertion details.
 
-The application can be run in two modes: signing service or admin service. Both the web services
+The application can be run in three modes: signing service, admin service and system-user assertion services. All the web services
 operate under unencrypted HTTP connections, so these should not be exposed to a public network
 as-is. The services should be protected by web server front-end services, such as Apache, that
 provide secure HTTPS connections. Also, the admin service does not include authentication nor 
@@ -38,21 +38,22 @@ The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
  - Signing Service: http://localhost:8080/v1/version
  - Admin Service: http://localhost:8081/
+ - System-User Service: http://localhost:8082/
 
-The Admin service CSRF protection sends a cookie over a secure channel. If wanted to still send the cookie 
-over an insecure channel, it is needed to workaround it by setting the environment var:
+The Admin and System-User services' CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
+over an insecure channel, it is needed to workaround it by setting the environment variable:
 ```bash
 $ export CSRF_SECURE=disable
 ```
-When modified that environment var value, consider that current web session must be invalidated
-in order to changes take effect. That could require restart browser.
-NEVER use set this configuration in production environments.
+When modified that environment variable is set, consider that the current web session must be invalidated
+in order to changes take effect. That could require a browser restart.
+NEVER set this configuration in production environments.
 
 ## Install from Source
 If you have a Go development environment set up, Go get it:
 
   ```bash
-  $ go get github.com/ubuntu-core/identity-vault
+  $ go get github.com/CanonicalLtd/serial-vault
   ```
 
 ### Configure it:
@@ -60,13 +61,13 @@ If you have a Go development environment set up, Go get it:
 - Set up the config file, using ```settings.yaml``` as a guide.
 - Create the database tables:
   ```bash
-  $ cd identity-vault
+  $ cd serial-vault
   $ go run tools/createdb.go -config=/path/to/settings.yaml
   ```
 
 ### Run it:
   ```bash
-  $ cd identity-vault
+  $ cd serial-vault
   $ go run server.go -config=/path/to/settings.yaml -mode=signing
   ```
 
@@ -82,8 +83,8 @@ The Juju charm uses a snap that is available at the [Snap store](https://uappexp
 
 ## Try with docker
   ```bash
-  $ git clone https://github.com/ubuntu-core/identity-vault
-  $ cd identity-vault/docker-compose
+  $ git clone https://github.com/CanonicalLtd/serial-vault
+  $ cd serial-vault/docker-compose
   $ docker-compose up
   # remove containers after try
   $ docker-compose kill && docker-compose rm
@@ -123,7 +124,7 @@ nvm use v4.4.3
 
 - Install the nodejs dependencies
 ```bash
-cd identity-vault
+cd serial-vault
 npm install
 ```
 
@@ -210,5 +211,5 @@ part of the serial assertion.
 The method returns a signed serial assertion using the key from the vault.
 
 
-[travis-image]: https://travis-ci.org/ubuntu-core/identity-vault.svg?branch=master
-[travis-url]: https://travis-ci.org/ubuntu-core/identity-vault
+[travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
+[travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault

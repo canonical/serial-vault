@@ -10,7 +10,7 @@ The full suite of Serial Vault Services:
 Install [snapcraft](https://snapcraft.io/)
 
 ```bash
-cd serial-vault-services-snap  # Make sure you are in the correct directory
+cd snaps/serial-vault-services  # Make sure you are in the correct directory
 snapcraft
 ```
 
@@ -19,7 +19,7 @@ The Serial Vault Services need to have a PostgreSQL service installed and config
 installation script simplifies this process by handling the full installation process.
 
 ```bash
-cd serial-vault-services-snap  # Make sure you are in the correct directory
+cd snaps/serial-vault-services  # Make sure you are in the correct directory
 # sudo is only needed if you are not logged into the store
 sudo snap install --dangerous serial-vault-services_*_amd64.snap
 ```
@@ -28,7 +28,7 @@ sudo snap install --dangerous serial-vault-services_*_amd64.snap
 To initialize the database and to show the settings.yaml configuration file:
 
 ```bash
-cd serial-vault-services-snap  # Make sure you are in the correct directory
+cd snaps/serial-vault-services  # Make sure you are in the correct directory
 serial-vault-services.serviceinit
 ```
 

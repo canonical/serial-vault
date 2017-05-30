@@ -34,8 +34,8 @@ import (
 
 	"errors"
 
+	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/snapcore/snapd/asserts"
-	"github.com/ubuntu-core/identity-vault/service"
 )
 
 type requestParams struct {
