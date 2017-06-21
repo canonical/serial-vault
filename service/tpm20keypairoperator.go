@@ -24,6 +24,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 const (
@@ -131,7 +133,7 @@ func (tpmStore *TPM20KeypairOperator) generateEncryptionKey(authorityID, keyID s
 
 	// Encrypt the HMAC-ed auth-key for storage
 	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
-	Environ.DB.PutSetting(Setting{Code: generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
+	Environ.DB.PutSetting(datastore.Setting{Code: generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
 
 	// Remove the temporary files
 	os.Remove(tmpfile.Name())
@@ -196,7 +198,7 @@ func (tpmStore *TPM20KeypairOperator) createKey(primaryKeyContextPath, algorithm
 	}
 
 	// Store the handle so we know that it has been created
-	Environ.DB.PutSetting(Setting{Code: handle, Data: handle})
+	Environ.DB.PutSetting(datastore.Setting{Code: handle, Data: handle})
 
 	// Clean up the created files
 	os.Remove(keyContext.Name())

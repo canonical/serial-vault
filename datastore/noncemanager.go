@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"crypto/sha1"
@@ -27,7 +27,12 @@ import (
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/utils"
 )
+
+// Set the nonce expiry time
+const nonceMaximumAge = 600
 
 const createDeviceNonceTableSQL = `
 	CREATE TABLE IF NOT EXISTS devicenonce (
@@ -133,7 +138,7 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 }
 
 func generateNonce() (DeviceNonce, error) {
-	token, err := GenerateRandomString(64)
+	token, err := utils.GenerateRandomString(64)
 	if err != nil {
 		log.Printf("Could not generate random string for nonce")
 		return DeviceNonce{}, errors.New("Error generating nonce")

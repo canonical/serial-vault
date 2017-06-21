@@ -24,11 +24,8 @@ import (
 	"time"
 
 	"github.com/juju/httprequest"
-	"github.com/juju/loggo"
 	"golang.org/x/net/context"
 )
-
-var logger = loggo.GetLogger("serial-vault.usso.utils")
 
 const (
 	// identityMacaroonDuration is the length of time for which an

@@ -34,7 +34,7 @@ import (
 	"github.com/yohcop/openid-go"
 )
 
-var logger = loggo.GetLogger("serial-vault.usso.usso")
+var logger = loggo.GetLogger("serial-vault.usso")
 
 // ussoCallbackRequest documents the /v1/idp/usso/callback endpoint. This
 // is used by the UbuntuSSO login sequence to indicate it has completed.

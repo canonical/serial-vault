@@ -25,6 +25,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/utils"
 )
 
 func TestReadConfig(t *testing.T) {
@@ -76,9 +79,9 @@ func TestFormatModelsResponse(t *testing.T) {
 }
 
 func TestFormatKeypairsResponse(t *testing.T) {
-	var keypairs []Keypair
-	keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "Vendor", KeyID: "12345678abcde", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "Vendor", KeyID: "abcdef123456", Active: true})
+	var keypairs []datastore.Keypair
+	keypairs = append(keypairs, datastore.Keypair{ID: 1, AuthorityID: "Vendor", KeyID: "12345678abcde", Active: true})
+	keypairs = append(keypairs, datastore.Keypair{ID: 2, AuthorityID: "Vendor", KeyID: "abcdef123456", Active: true})
 
 	w := httptest.NewRecorder()
 	err := formatKeypairsResponse(true, "", "", "", keypairs, w)
@@ -100,9 +103,9 @@ func TestFormatKeypairsResponse(t *testing.T) {
 }
 
 func TestFormatSigningLogResponse(t *testing.T) {
-	var signingLog []SigningLog
-	signingLog = append(signingLog, SigningLog{ID: 1, Make: "System", Model: "Router 3400", SerialNumber: "A1", Fingerprint: "a1", Created: time.Now()})
-	signingLog = append(signingLog, SigningLog{ID: 2, Make: "System", Model: "Router 3400", SerialNumber: "A2", Fingerprint: "a2", Created: time.Now()})
+	var signingLog []datastore.SigningLog
+	signingLog = append(signingLog, datastore.SigningLog{ID: 1, Make: "System", Model: "Router 3400", SerialNumber: "A1", Fingerprint: "a1", Created: time.Now()})
+	signingLog = append(signingLog, datastore.SigningLog{ID: 2, Make: "System", Model: "Router 3400", SerialNumber: "A2", Fingerprint: "a2", Created: time.Now()})
 
 	w := httptest.NewRecorder()
 	err := formatSigningLogResponse(true, "", "", "", signingLog, w)
@@ -129,7 +132,7 @@ func TestRandomGeneration(t *testing.T) {
 	tokens := make(map[string]string)
 	for i := 0; i < n; i++ {
 		// generate minimum amount of random data to verify it is enough random
-		token, err := GenerateRandomString(10)
+		token, err := utils.GenerateRandomString(10)
 		if err != nil {
 			t.Errorf("Error generating random string: %v", err)
 		}

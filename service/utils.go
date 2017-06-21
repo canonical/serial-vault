@@ -20,8 +20,6 @@
 package service
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -32,6 +30,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 
 	"gopkg.in/yaml.v2"
@@ -45,9 +44,6 @@ var (
 
 // Set the application version from a constant
 const version = "1.5.0"
-
-// Set the nonce expiry time
-const nonceMaximumAge = 600
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
@@ -83,7 +79,7 @@ const ModelType = "device"
 // Env Environment struct that holds the config and data store details.
 type Env struct {
 	Config    ConfigSettings
-	DB        Datastore
+	DB        datastore.Datastore
 	KeypairDB *KeypairDatabase
 }
 
@@ -187,7 +183,7 @@ func formatModelResponse(success bool, errorCode, errorSubcode, message string, 
 	return nil
 }
 
-func formatKeypairsResponse(success bool, errorCode, errorSubcode, message string, keypairs []Keypair, w http.ResponseWriter) error {
+func formatKeypairsResponse(success bool, errorCode, errorSubcode, message string, keypairs []datastore.Keypair, w http.ResponseWriter) error {
 	response := KeypairsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Keypairs: keypairs}
 
 	// Encode the response as JSON
@@ -198,7 +194,7 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 	return nil
 }
 
-func formatAccountsResponse(success bool, errorCode, errorSubcode, message string, accounts []Account, w http.ResponseWriter) error {
+func formatAccountsResponse(success bool, errorCode, errorSubcode, message string, accounts []datastore.Account, w http.ResponseWriter) error {
 	response := AccountsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Accounts: accounts}
 
 	// Encode the response as JSON
@@ -209,7 +205,7 @@ func formatAccountsResponse(success bool, errorCode, errorSubcode, message strin
 	return nil
 }
 
-func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []SigningLog, w http.ResponseWriter) error {
+func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []datastore.SigningLog, w http.ResponseWriter) error {
 	response := SigningLogResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
 
 	// Encode the response as JSON
@@ -220,7 +216,7 @@ func formatSigningLogResponse(success bool, errorCode, errorSubcode, message str
 	return nil
 }
 
-func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters SigningLogFilters, w http.ResponseWriter) error {
+func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters datastore.SigningLogFilters, w http.ResponseWriter) error {
 	response := SigningLogFiltersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLogFilters: filters}
 
 	// Encode the response as JSON
@@ -231,7 +227,7 @@ func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, mess
 	return nil
 }
 
-func formatRequestIDResponse(success bool, message string, nonce DeviceNonce, w http.ResponseWriter) error {
+func formatRequestIDResponse(success bool, message string, nonce datastore.DeviceNonce, w http.ResponseWriter) error {
 	response := RequestIDResponse{Success: success, ErrorMessage: message, RequestID: nonce.Nonce}
 
 	// Encode the response as JSON
@@ -271,28 +267,6 @@ func checkAPIKey(apiKey string) error {
 // e.g. "METHOD CODE descriptive reason"
 func logMessage(method, code, reason string) {
 	log.Printf("%s %s %s\n", method, code, reason)
-}
-
-// GenerateRandomBytes returns securely generated random bytes.
-// It will return an error if the system's secure random
-// number generator fails to function correctly, in which
-// case the caller should not continue.
-func GenerateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	// Note that err == nil only if we read len(b) bytes.
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
-
-// GenerateRandomString returns a URL-safe, base64 encoded
-// securely generated random string.
-func GenerateRandomString(s int) (string, error) {
-	b, err := GenerateRandomBytes(s)
-	return base64.URLEncoding.EncodeToString(b), err
 }
 
 // define pattern for model name validation

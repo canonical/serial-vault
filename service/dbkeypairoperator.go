@@ -24,6 +24,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"log"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 // DatabaseKeypairOperator is the storage container for signing-keys in the database
@@ -66,7 +68,7 @@ func (dbStore *DatabaseKeypairOperator) generateEncryptionKey(authorityID, keyID
 
 	// Encrypt the HMAC-ed auth-key for storage
 	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
-	Environ.DB.PutSetting(Setting{Code: generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
+	Environ.DB.PutSetting(datastore.Setting{Code: generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
 
 	return string(encryptionKey[:]), nil
 }

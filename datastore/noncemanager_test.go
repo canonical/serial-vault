@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package datastore
 
 import "testing"
 

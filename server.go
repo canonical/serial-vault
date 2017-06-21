@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/gorilla/csrf"
 )
@@ -38,7 +39,7 @@ func main() {
 	}
 
 	// Open the connection to the local database
-	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
+	env.DB = datastore.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
 	// Opening the keypair manager to create the signing database
 	env.KeypairDB, err = service.GetKeyStore(env.Config)

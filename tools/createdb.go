@@ -22,6 +22,7 @@ package main
 import (
 	"log"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 )
 
@@ -32,7 +33,7 @@ func main() {
 	service.ReadConfig(&env.Config, service.SettingsFile)
 
 	// Open the connection to the local database
-	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
+	env.DB = datastore.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
 	// Create the keypair table, if it does not exist
 	err := env.DB.CreateKeypairTable()
@@ -44,7 +45,7 @@ func main() {
 		// Create the test key (if the filesystem store is used)
 		if env.Config.KeyStoreType == "filesystem" {
 			// Create the test key as it is in the default filesystem keystore
-			env.DB.PutKeypair(service.Keypair{AuthorityID: "System", KeyID: "61abf588e52be7a3"})
+			env.DB.PutKeypair(datastore.Keypair{AuthorityID: "System", KeyID: "61abf588e52be7a3"})
 		}
 	}
 

@@ -29,6 +29,7 @@ import (
 
 	"encoding/base64"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -70,7 +71,7 @@ func generateAccountAssertion(assertType *asserts.AssertionType, accountID, user
 func TestAccountsHandler(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	Environ = &Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
@@ -90,7 +91,7 @@ func TestAccountsHandler(t *testing.T) {
 func TestAccountsHandlerError(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
@@ -111,7 +112,7 @@ func TestAccountsUpsertHandler(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Create the account assertion
@@ -163,7 +164,7 @@ func TestAccountsUpsertNilRequest(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	sendAccountsUpsertError(nil, t)
@@ -173,7 +174,7 @@ func TestAccountsUpsertInvalidRequest(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	sendAccountsUpsertError([]byte("InvalidData"), t)
@@ -183,7 +184,7 @@ func TestAccountsUpsertInvalidEncoding(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	request, err := json.Marshal(AssertionRequest{Assertion: "InvalidData"})
@@ -197,7 +198,7 @@ func TestAccountsUpsertInvalidAssertion(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Encode the assertion and create the request
@@ -213,7 +214,7 @@ func TestAccountsUpsertInvalidAssertionType(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Encode the assertion and create the request (account-key instead of an account assertion)
@@ -233,7 +234,7 @@ func TestAccountsUpsertPutError(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Encode the assertion and create the request

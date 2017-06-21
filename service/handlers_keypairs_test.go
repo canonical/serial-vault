@@ -28,13 +28,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
 
 func TestKeypairListHandler(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	Environ = &Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
@@ -56,7 +57,7 @@ func TestKeypairListHandler(t *testing.T) {
 
 func TestKeypairListHandlerWithError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
@@ -207,7 +208,7 @@ func TestKeypairHandlerBadPrivateKeyEncoded(t *testing.T) {
 func TestKeypairHandlerValidPrivateKey(t *testing.T) {
 	// Mock the database and the keystore
 	config := ConfigSettings{KeyStoreType: "memory"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = getMemoryKeyStore(config)
 
 	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
@@ -237,7 +238,7 @@ func TestKeypairHandlerValidPrivateKey(t *testing.T) {
 func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 	// Mock the database and the keystore
 	config := ConfigSettings{KeyStoreType: "memory"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
 
 	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
@@ -267,7 +268,7 @@ func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 	// Mock the database and the keystore
 	config := ConfigSettings{KeyStoreType: "memory"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	Environ.KeypairDB, _ = getMemoryKeyStore(config)
 
 	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
@@ -293,7 +294,7 @@ func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 
 func TestKeypairDisableHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	Environ = &Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
@@ -312,7 +313,7 @@ func TestKeypairDisableHandler(t *testing.T) {
 
 func TestKeypairDisableHandlerError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
@@ -334,7 +335,7 @@ func TestKeypairDisableHandlerError(t *testing.T) {
 
 func TestKeypairDisableHandlerBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/9999999999999999999999999/disable", bytes.NewBufferString("{}"))
@@ -356,7 +357,7 @@ func TestKeypairDisableHandlerBadID(t *testing.T) {
 
 func TestKeypairEnableHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	Environ = &Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
@@ -375,7 +376,7 @@ func TestKeypairEnableHandler(t *testing.T) {
 
 func TestKeypairEnableHandlerError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
@@ -397,7 +398,7 @@ func TestKeypairEnableHandlerError(t *testing.T) {
 
 func TestKeypairEnableHandlerBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/9999999999999999999999999/enable", bytes.NewBufferString("{}"))
@@ -470,7 +471,7 @@ func sendKeypairAssertionError(request []byte, t *testing.T) {
 func mockDatabase() {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 }
 
@@ -535,7 +536,7 @@ func TestKeypairAssertionUpdateError(t *testing.T) {
 
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Encode the assertion and create the request

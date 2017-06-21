@@ -26,16 +26,17 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
 
 // AccountsResponse is the JSON response from the API Accounts method
 type AccountsResponse struct {
-	Success      bool      `json:"success"`
-	ErrorCode    string    `json:"error_code"`
-	ErrorSubcode string    `json:"error_subcode"`
-	ErrorMessage string    `json:"message"`
-	Accounts     []Account `json:"accounts"`
+	Success      bool                `json:"success"`
+	ErrorCode    string              `json:"error_code"`
+	ErrorSubcode string              `json:"error_subcode"`
+	ErrorMessage string              `json:"message"`
+	Accounts     []datastore.Account `json:"accounts"`
 }
 
 // AssertionRequest is the JSON version of a account assertion
@@ -112,7 +113,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store or update the account assertion in the database
-	errorCode, err := Environ.DB.PutAccount(Account{AuthorityID: assertion.HeaderString("account-id"), Assertion: string(decodedAssertion)})
+	errorCode, err := Environ.DB.PutAccount(datastore.Account{AuthorityID: assertion.HeaderString("account-id"), Assertion: string(decodedAssertion)})
 	if err != nil {
 		logMessage("ACCOUNT", "invalid-assertion", err.Error())
 		w.WriteHeader(http.StatusBadRequest)

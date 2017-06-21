@@ -24,7 +24,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/datastore"
+
 	"golang.org/x/net/context"
 	"gopkg.in/macaroon-bakery.v2-unstable/bakery"
 )
@@ -45,7 +46,7 @@ type Context interface {
 
 	// Database returns a (PostgreSQL) Database that the identity provider may use to
 	// store any necessary state data.
-	Database() *service.DB
+	Database() *datastore.DB
 }
 
 // RequestContext provides information about the identity-manager context

@@ -23,6 +23,7 @@ import (
 	"flag"
 	"log"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/overlord/auth"
@@ -72,7 +73,7 @@ func CacheAccountAssertions(env *service.Env) {
 			continue
 		}
 
-		_, err = env.DB.PutAccount(service.Account{AuthorityID: k.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
+		_, err = env.DB.PutAccount(datastore.Account{AuthorityID: k.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
 		if err != nil {
 			log.Printf("Error storing the account assertion from the store: %v\n", err)
 			continue

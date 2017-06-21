@@ -23,13 +23,14 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/snapcore/snapd/asserts"
 )
 
 func TestCacheAccountAssertions(t *testing.T) {
 	// Mock the database
-	mockDB := service.MockDB{}
+	mockDB := datastore.MockDB{}
 	config := service.ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
 	service.Environ = &service.Env{DB: &mockDB, Config: config}
 	service.Environ.KeypairDB, _ = service.GetKeyStore(config)
@@ -42,7 +43,7 @@ func TestCacheAccountAssertions(t *testing.T) {
 
 func TestCacheAccountAssertionsFetchError(t *testing.T) {
 	// Mock the database
-	mockDB := service.MockDB{}
+	mockDB := datastore.MockDB{}
 	config := service.ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
 	service.Environ = &service.Env{DB: &mockDB, Config: config}
 	service.Environ.KeypairDB, _ = service.GetKeyStore(config)

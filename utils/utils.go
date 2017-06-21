@@ -17,21 +17,31 @@
  *
  */
 
-package service
+package utils
 
 import (
-	"testing"
-
-	"github.com/CanonicalLtd/serial-vault/datastore"
+	"encoding/base64"
+	"math/rand"
 )
 
-func TestTPM2InitializeKeystore(t *testing.T) {
-	// Set up the environment variables
-	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	env := Env{Config: config, DB: &datastore.MockDB{}}
-
-	err := TPM2InitializeKeystore(env, &mockTPM20Command{})
+// GenerateRandomBytes returns securely generated random bytes.
+// It will return an error if the system's secure random
+// number generator fails to function correctly, in which
+// case the caller should not continue.
+func GenerateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
 	if err != nil {
-		t.Errorf("Error initializing the TPM keystore: %v", err)
+		return nil, err
 	}
+
+	return b, nil
+}
+
+// GenerateRandomString returns a URL-safe, base64 encoded
+// securely generated random string.
+func GenerateRandomString(s int) (string, error) {
+	b, err := GenerateRandomBytes(s)
+	return base64.URLEncoding.EncodeToString(b), err
 }

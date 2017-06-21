@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"errors"
@@ -305,6 +305,16 @@ func (mdb *MockDB) ValidateDeviceNonce(nonce string) error {
 	return nil
 }
 
+// CreateOpenidNonceTable database mock
+func (mdb *MockDB) CreateOpenidNonceTable() error {
+	return nil
+}
+
+// CreateOpenidNonce database mock
+func (mdb *MockDB) CreateOpenidNonce(nonce OpenidNonce) error {
+	return nil
+}
+
 // ErrorMockDB holds the unsuccessful mocks for the database
 type ErrorMockDB struct{}
 
@@ -483,4 +493,14 @@ func (mdb *ErrorMockDB) CreateDeviceNonce() (DeviceNonce, error) {
 // ValidateDeviceNonce error mock for the database
 func (mdb *ErrorMockDB) ValidateDeviceNonce(nonce string) error {
 	return errors.New("MOCK error validating a nonce")
+}
+
+// CreateOpenidNonceTable database mock
+func (mdb *ErrorMockDB) CreateOpenidNonceTable() error {
+	return nil
+}
+
+// CreateOpenidNonce database mock
+func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
+	return errors.New("MOCK error generating the nonce")
 }

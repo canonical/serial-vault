@@ -23,6 +23,7 @@ import (
 	"log"
 
 	"github.com/CanonicalLtd/serial-vault/account"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 )
 
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	// Open the connection to the local database
-	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
+	env.DB = datastore.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
 
 	// Cache the account assertions from the store in the database
 	account.CacheAccountAssertions(&env)

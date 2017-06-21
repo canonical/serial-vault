@@ -29,6 +29,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/gorilla/csrf"
 
 	"github.com/snapcore/snapd/asserts"
@@ -56,11 +57,11 @@ type SignResponse struct {
 
 // KeypairsResponse is the JSON response from the API Keypairs method
 type KeypairsResponse struct {
-	Success      bool      `json:"success"`
-	ErrorCode    string    `json:"error_code"`
-	ErrorSubcode string    `json:"error_subcode"`
-	ErrorMessage string    `json:"message"`
-	Keypairs     []Keypair `json:"keypairs"`
+	Success      bool                `json:"success"`
+	ErrorCode    string              `json:"error_code"`
+	ErrorSubcode string              `json:"error_subcode"`
+	ErrorMessage string              `json:"message"`
+	Keypairs     []datastore.Keypair `json:"keypairs"`
 }
 
 // VersionHandler is the API method to return the version of the service
@@ -144,7 +145,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	}
 
 	// Create a basic signing log entry (without the serial number)
-	signingLog := SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), Fingerprint: assertion.SignKeyID()}
+	signingLog := datastore.SigningLog{Make: assertion.HeaderString("brand-id"), Model: assertion.HeaderString("model"), Fingerprint: assertion.SignKeyID()}
 
 	// Convert the serial-request headers into a serial assertion
 	serialAssertion, err := serialRequestToSerial(assertion, &signingLog)
@@ -173,7 +174,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 }
 
 // serialRequestToSerial converts a serial-request to a serial assertion
-func serialRequestToSerial(assertion asserts.Assertion, signingLog *SigningLog) (asserts.Assertion, error) {
+func serialRequestToSerial(assertion asserts.Assertion, signingLog *datastore.SigningLog) (asserts.Assertion, error) {
 
 	// Create the serial assertion header from the serial-request headers
 	serialHeaders := assertion.Headers()

@@ -32,6 +32,8 @@ import (
 
 	"fmt"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/utils"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
 )
@@ -143,11 +145,11 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func userRequestToAssertion(user SystemUserRequest, model Model) map[string]interface{} {
+func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[string]interface{} {
 
 	// Create the salt from a random string
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
-	randomText, err := GenerateRandomString(32)
+	randomText, err := utils.GenerateRandomString(32)
 	if err != nil {
 		logMessage("USER", "generate-assertion", err.Error())
 		return map[string]interface{}{}

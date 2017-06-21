@@ -25,6 +25,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 func TestUserIndexHandler(t *testing.T) {
@@ -130,7 +132,7 @@ func TestSystemUserAssertionHandler(t *testing.T) {
 func sendSystemUserAssertion(request string, t *testing.T) (int, bool, string) {
 	// Mock the database
 	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
 	Environ.KeypairDB, _ = GetKeyStore(config)
 
 	// Submit the serial-request assertion for signing

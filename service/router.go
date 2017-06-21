@@ -23,7 +23,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
 
@@ -75,7 +74,7 @@ func AdminRouter(env *Env) *mux.Router {
 	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsUpsertHandler), env)).Methods("POST")
 
 	// OpenID routes: using Ubuntu SSO
-	idp := usso.IdentityProviderUSSO{}
+	//idp := usso.IdentityProviderUSSO{}
 
 	// Web application routes
 	path := []string{env.Config.DocRoot, "/static/"}

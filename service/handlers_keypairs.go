@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/gorilla/mux"
 	"github.com/snapcore/snapd/asserts"
 
@@ -110,7 +111,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the signing-key in the database
-	keypair := Keypair{
+	keypair := datastore.Keypair{
 		AuthorityID: keypairWithKey.AuthorityID,
 		KeyID:       privateKey.PublicKey().ID(),
 		SealedKey:   sealedPrivateKey,
