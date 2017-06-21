@@ -67,6 +67,9 @@ type Datastore interface {
 	GetAccount(authorityID string) (Account, error)
 	UpdateAccountAssertion(authorityID, assertion string) error
 	PutAccount(account Account) (string, error)
+
+	CreateOpenidNonceTable() error
+	CreateOpenidNonce(nonce OpenidNonce) error
 }
 
 // DB local database interface with our custom methods.
