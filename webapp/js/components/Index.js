@@ -19,8 +19,13 @@
 var React = require('react');
 var Navigation = require('./Navigation');
 import {FormattedMessage} from 'react-intl'
+import {storeJWT} from './Utils'
 
 var Index = React.createClass({
+
+  componentDidMount: function() {
+    storeJWT();
+  },
 
   render: function() {
     return (

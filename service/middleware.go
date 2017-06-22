@@ -23,8 +23,11 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/usso"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 )
 
@@ -85,4 +88,39 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 
 		return handlers.CORS(headers, origins, methods, exposed, credentials)(h)
 	}
+}
+
+// JWTValidate verifies that the JWT token is valid. The token is set after logging-in via Openid
+func JWTValidate(protected http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get the JWT from the header
+		jwtToken := r.Header.Get("Authorization")
+		splitToken := strings.Split(jwtToken, " ")
+		if len(splitToken) != 2 {
+			http.NotFound(w, r)
+			return
+		}
+		jwtToken = splitToken[1]
+
+		// Validate the JWT
+		token, err := usso.VerifyJWT(jwtToken)
+		if err != nil {
+			log.Println("Cannot verify the JWT")
+			http.NotFound(w, r)
+			return
+		}
+
+		if t, ok := token.(*jwt.Token); ok {
+			//ctx := context.WithValue(r.Context(), usso.ClaimsKey, t.Claims)
+			if t.Valid {
+				//protected(w, r)
+				protected.ServeHTTP(w, r)
+			}
+		} else {
+			log.Println("Invalid JWT")
+			http.NotFound(w, r)
+			return
+		}
+
+	})
 }

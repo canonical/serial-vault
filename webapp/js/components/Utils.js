@@ -15,6 +15,7 @@
  *
  */
 import Messages from './messages'
+import request from 'then-request'
 
 
 export function T(message) {
@@ -45,4 +46,17 @@ export function formatError (data) {
         message += ': ' + data.message;
     }
     return message;
+}
+
+var getQueryString = function ( field, url ) {
+    var href = url ? url : window.location.href;
+    var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
+    var string = reg.exec(href);
+    return string ? string[1] : null;
+};
+
+export function storeJWT() {
+    console.log("Store JWT")
+    var jwt = getQueryString('jwt')
+    localStorage.setItem("jwt-token", jwt)
 }
