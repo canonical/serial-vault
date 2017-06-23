@@ -17,29 +17,30 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"encoding/base64"
 	"io/ioutil"
 	"testing"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/utils"
 	"github.com/snapcore/snapd/asserts"
 )
 
 func getTPMKeyStore() (*KeypairDatabase, error) {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	config := config.Settings{KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
 	Environ = &Env{Config: config}
 
-	return GetKeyStore(config)
+	return getKeyStore(config)
 }
 
 func getTPMKeyStoreWithMockCommand() *KeypairDatabase {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	Environ = &Env{Config: config, DB: &datastore.MockDB{}}
+	config := config.Settings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 
@@ -67,7 +68,7 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 
 	plainText := "fake-hmac-ed-data"
 
-	cipherText, err := encryptKey(plainText, "this needs to be 32 bytes long!!")
+	cipherText, err := utils.EncryptKey(plainText, "this needs to be 32 bytes long!!")
 	if err != nil {
 		t.Errorf("Error encrypting text: %v", err)
 	}
@@ -75,7 +76,7 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 		t.Error("Invalid encryption")
 	}
 
-	plainTextAgain, err := decryptKey(cipherText, "this needs to be 32 bytes long!!")
+	plainTextAgain, err := utils.DecryptKey(cipherText, "this needs to be 32 bytes long!!")
 	if err != nil {
 		t.Errorf("Error decrypting text: %v", err)
 	}
@@ -86,7 +87,7 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 
 func TestGenerateAuthKey(t *testing.T) {
 
-	authKey := generateAuthKey("Hello", "World")
+	authKey := utils.GenerateAuthKey("Hello", "World")
 	if authKey != "Hello/World" {
 		t.Errorf("Error generating the auth-key: %v", authKey)
 	}
@@ -94,8 +95,8 @@ func TestGenerateAuthKey(t *testing.T) {
 
 func TestTPMCreateKey(t *testing.T) {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	Environ = &Env{Config: config, DB: &datastore.MockDB{}}
+	config := config.Settings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 
@@ -107,8 +108,8 @@ func TestTPMCreateKey(t *testing.T) {
 
 func TestTPMGenerateEncryptionKey(t *testing.T) {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	Environ = &Env{Config: config, DB: &datastore.MockDB{}}
+	config := config.Settings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	tpm20 := TPM20KeypairOperator{config.KeyStorePath, config.KeyStoreSecret, &mockTPM20Command{}}
 

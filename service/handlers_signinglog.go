@@ -50,7 +50,7 @@ type SigningLogFiltersResponse struct {
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	logs, err := Environ.DB.ListSigningLog()
+	logs, err := datastore.Environ.DB.ListSigningLog()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
@@ -66,7 +66,7 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	filters, err := Environ.DB.SigningLogFilterValues()
+	filters, err := datastore.Environ.DB.SigningLogFilterValues()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogFiltersResponse(false, "error-fetch-signinglogfilters", "", err.Error(), filters, w)
@@ -94,7 +94,7 @@ func SigningLogDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	signingLog := datastore.SigningLog{ID: logID}
-	errorSubcode, err := Environ.DB.DeleteSigningLog(signingLog)
+	errorSubcode, err := datastore.Environ.DB.DeleteSigningLog(signingLog)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)

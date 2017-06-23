@@ -17,21 +17,32 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"testing"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/config"
 )
 
-func TestTPM2InitializeKeystore(t *testing.T) {
+func TestGetKeyStoreFilesystem(t *testing.T) {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
-	env := Env{Config: config, DB: &datastore.MockDB{}}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	Environ = &Env{Config: config}
 
-	err := TPM2InitializeKeystore(env, &mockTPM20Command{})
+	err := OpenKeyStore(config)
 	if err != nil {
-		t.Errorf("Error initializing the TPM keystore: %v", err)
+		t.Error("Error setting up the filesystem keystore")
+	}
+}
+
+func TestGetKeyStoreInvalid(t *testing.T) {
+	// Set up the environment variables
+	config := config.Settings{KeyStoreType: "invalid", KeyStorePath: "../keystore"}
+	Environ = &Env{Config: config}
+
+	err := OpenKeyStore(config)
+	if err == nil {
+		t.Errorf("Expected error, but got success: %v", err)
 	}
 }

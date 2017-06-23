@@ -17,31 +17,39 @@
  *
  */
 
-package service
+package datastore
 
-import "testing"
+import (
+	"io/ioutil"
+	"log"
+	"testing"
+)
 
-func TestGetKeyStoreFilesystem(t *testing.T) {
-	// Set up the environment variables
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{Config: config}
+type mockTPM20Command struct{}
 
-	keystore, err := GetKeyStore(config)
+func TestRunCommand(t *testing.T) {
+	command := tpm20Command{}
+	err := command.runCommand("ls", "-l")
 	if err != nil {
-		t.Error("Error setting up the filesystem keystore")
-	}
-	if keystore == nil {
-		t.Error("Nil keystore returned")
+		t.Errorf("Error running shell command: %v", err)
 	}
 }
 
-func TestGetKeyStoreInvalid(t *testing.T) {
-	// Set up the environment variables
-	config := ConfigSettings{KeyStoreType: "invalid", KeyStorePath: "../keystore"}
-	Environ = &Env{Config: config}
+func TestRunCommandBadCommand(t *testing.T) {
+	command := tpm20Command{}
 
-	_, err := GetKeyStore(config)
+	err := command.runCommand("thisreallyshouldnotwork", "-l")
 	if err == nil {
-		t.Errorf("Expected error, but got success: %v", err)
+		t.Error("Expected error, got success")
 	}
+}
+
+func (tcmd *mockTPM20Command) runCommand(command string, args ...string) error {
+	log.Printf("  Mock command: %s\n", command)
+	if command == "tpm2_hmac" {
+		filename := args[len(args)-1]
+		err := ioutil.WriteFile(filename, []byte("fake-hmac-ed-data"), 0600)
+		return err
+	}
+	return nil
 }

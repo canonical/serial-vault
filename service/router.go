@@ -23,89 +23,90 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
 
 // SigningRouter returns the application route handler for the signing service methods
-func SigningRouter(env *Env) *mux.Router {
+func SigningRouter() *mux.Router {
 
 	// Start the web service router
 	router := mux.NewRouter()
 
 	// API routes
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
-	router.Handle("/v1/serial", Middleware(ErrorHandler(SignHandler), env)).Methods("POST")
-	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler), env)).Methods("POST")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
+	router.Handle("/v1/serial", Middleware(ErrorHandler(SignHandler))).Methods("POST")
+	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler))).Methods("POST")
 
 	return router
 }
 
 // AdminRouter returns the application route handler for administrating the application
-func AdminRouter(env *Env) *mux.Router {
+func AdminRouter() *mux.Router {
 
 	// Start the web service router
 	router := mux.NewRouter()
 
 	// API routes: csrf token
-	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler), env)).Methods("GET")
+	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
 
 	// API routes: models admin
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler), env)).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelCreateHandler), env)).Methods("POST")
-	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler), env)).Methods("GET")
-	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler), env)).Methods("PUT")
-	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler), env)).Methods("DELETE")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler))).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelCreateHandler))).Methods("POST")
+	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler))).Methods("GET")
+	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler))).Methods("DELETE")
 
 	// API routes: signing-keys
-	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairListHandler), env)).Methods("GET")
-	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler), env)).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler), env)).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler), env)).Methods("POST")
-	router.Handle("/v1/keypairs/assertion", Middleware(http.HandlerFunc(KeypairAssertionHandler), env)).Methods("POST")
+	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairListHandler))).Methods("GET")
+	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/assertion", Middleware(http.HandlerFunc(KeypairAssertionHandler))).Methods("POST")
 
 	// API routes: signing log
-	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler), env)).Methods("GET")
-	router.Handle("/v1/signinglog/filters", Middleware(http.HandlerFunc(SigningLogFiltersHandler), env)).Methods("GET")
-	router.Handle("/v1/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler), env)).Methods("DELETE")
+	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler))).Methods("GET")
+	router.Handle("/v1/signinglog/filters", Middleware(http.HandlerFunc(SigningLogFiltersHandler))).Methods("GET")
+	router.Handle("/v1/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler))).Methods("DELETE")
 
 	// API routes: account assertions
-	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler), env)).Methods("GET")
-	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsUpsertHandler), env)).Methods("POST")
+	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler))).Methods("GET")
+	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsUpsertHandler))).Methods("POST")
 
 	// OpenID routes: using Ubuntu SSO
-	router.Handle("/login", Middleware(http.HandlerFunc(usso.LoginHandler), env))
+	router.Handle("/login", Middleware(http.HandlerFunc(usso.LoginHandler)))
 
 	// Web application routes
-	path := []string{env.Config.DocRoot, "/static/"}
+	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
-	router.PathPrefix("/models").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler), env)))
-	router.PathPrefix("/accounts").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler), env)))
-	router.PathPrefix("/signinglog").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler), env)))
-	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler), env)).Methods("GET")
+	router.PathPrefix("/models").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler))))
+	router.PathPrefix("/accounts").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler))))
+	router.PathPrefix("/signinglog").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler))))
+	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler))).Methods("GET")
 
 	return router
 }
 
 // SystemUserRouter returns the application route handler for the system-user service methods
-func SystemUserRouter(env *Env) *mux.Router {
+func SystemUserRouter() *mux.Router {
 
 	// Start the web service router
 	router := mux.NewRouter()
 
 	// API routes
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler), env)).Methods("GET")
-	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler), env)).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler), env)).Methods("GET")
-	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler), env)).Methods("POST")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
+	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler))).Methods("GET")
+	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
 
 	// Web application routes
-	path := []string{env.Config.DocRoot, "/static/"}
+	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
-	router.Handle("/", Middleware(http.HandlerFunc(UserIndexHandler), env)).Methods("GET")
+	router.Handle("/", Middleware(http.HandlerFunc(UserIndexHandler))).Methods("GET")
 
 	return router
 }

@@ -22,9 +22,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -32,35 +30,7 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
-
-	"gopkg.in/yaml.v2"
 )
-
-// Accepted service modes
-var (
-	ModeSigning = "signing"
-	ModeAdmin   = "admin"
-)
-
-// Set the application version from a constant
-const version = "1.5.0"
-
-// ConfigSettings defines the parsed config file settings.
-type ConfigSettings struct {
-	Version        string
-	Title          string   `yaml:"title"`
-	Logo           string   `yaml:"logo"`
-	DocRoot        string   `yaml:"docRoot"`
-	Driver         string   `yaml:"driver"`
-	DataSource     string   `yaml:"datasource"`
-	KeyStoreType   string   `yaml:"keystore"`
-	KeyStorePath   string   `yaml:"keystorePath"`
-	KeyStoreSecret string   `yaml:"keystoreSecret"`
-	Mode           string   `yaml:"mode"`
-	APIKeys        []string `yaml:"apiKeys"`
-	APIKeysMap     map[string]struct{}
-	CSRFAuthKey    string `yaml:"csrfAuthKey"`
-}
 
 // DeviceAssertion defines the device identity.
 type DeviceAssertion struct {
@@ -76,63 +46,12 @@ type DeviceAssertion struct {
 // ModelType is the default type of a model
 const ModelType = "device"
 
-// Env Environment struct that holds the config and data store details.
-type Env struct {
-	Config    ConfigSettings
-	DB        datastore.Datastore
-	KeypairDB *KeypairDatabase
-}
-
-// SettingsFile is the path to the YAML configuration file
-var SettingsFile string
-
-// ServiceMode is whether we are running the user or admin service
-var ServiceMode string
-
 // BooleanResponse is the JSON response from an API method, indicating success or failure.
 type BooleanResponse struct {
 	Success      bool   `json:"success"`
 	ErrorCode    string `json:"error_code"`
 	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
-}
-
-// ParseArgs checks the command line arguments
-func ParseArgs() {
-	flag.StringVar(&SettingsFile, "config", "./settings.yaml", "Path to the config file")
-	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing, admin or system-user service ")
-	flag.Parse()
-}
-
-// ReadConfig parses the config file
-func ReadConfig(config *ConfigSettings, filePath string) error {
-	source, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		log.Println("Error opening the config file.")
-		return err
-	}
-
-	err = yaml.Unmarshal(source, &config)
-	if err != nil {
-		log.Println("Error parsing the config file.")
-		return err
-	}
-
-	// Set the application version from the constant
-	config.Version = version
-
-	// Set the service mode from the config file if it is not set
-	if ServiceMode == "" {
-		ServiceMode = config.Mode
-	}
-
-	// Migrate the API keys to a map for more efficient lookups
-	config.APIKeysMap = make(map[string]struct{})
-	for _, key := range config.APIKeys {
-		config.APIKeysMap[key] = struct{}{}
-	}
-
-	return nil
 }
 
 func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
@@ -238,25 +157,14 @@ func formatRequestIDResponse(success bool, message string, nonce datastore.Devic
 	return nil
 }
 
-// padRight truncates a string to a specific length, padding with a named
-// character for shorter strings.
-func padRight(str, pad string, length int) string {
-	for {
-		str += pad
-		if len(str) > length {
-			return str[0:length]
-		}
-	}
-}
-
 // checkAPIKey the API key header to make sure it is an allowed header
 func checkAPIKey(apiKey string) error {
-	if Environ.Config.APIKeys == nil || len(Environ.Config.APIKeys) == 0 {
+	if datastore.Environ.Config.APIKeys == nil || len(datastore.Environ.Config.APIKeys) == 0 {
 		log.Println("No API key authorisation defined - default policy is allow")
 		return nil
 	}
 
-	if _, ok := Environ.Config.APIKeysMap[apiKey]; !ok {
+	if _, ok := datastore.Environ.Config.APIKeysMap[apiKey]; !ok {
 		return errors.New("Unauthorized API key used")
 	}
 

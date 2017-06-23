@@ -17,17 +17,19 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"errors"
 
+	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/snapcore/snapd/asserts"
 )
 
 type errorMockKeypairManager struct{}
 
-func getMemoryKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
+// GetMemoryKeyStore creates a mocked keystore
+func GetMemoryKeyStore(config config.Settings) (*KeypairDatabase, error) {
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
 		KeypairManager: asserts.NewMemoryKeypairManager(),
 	})
@@ -43,7 +45,8 @@ func (emkdb *errorMockKeypairManager) Put(privKey asserts.PrivateKey) error {
 	return errors.New("MOCK error saving the private key")
 }
 
-func getErrorMockKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
+// GetErrorMockKeyStore creates a mocked keystore
+func GetErrorMockKeyStore(config config.Settings) (*KeypairDatabase, error) {
 	mockStore := new(errorMockKeypairManager)
 
 	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{

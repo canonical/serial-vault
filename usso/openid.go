@@ -43,11 +43,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	url := *r.URL
+	log.Println(url.String())
+	log.Println(url.IsAbs())
+
 	url.Scheme = "http"
 	url.Host = "localhost:8081"
 
 	if r.Form.Get("openid.ns") == "" {
-		log.Println("Form........")
 		req := openid.Request{
 			ReturnTo:     "http://localhost:8081/login",
 			Teams:        strings.FieldsFunc(teams, isComma),

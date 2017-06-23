@@ -39,9 +39,6 @@ func Logger(start time.Time, r *http.Request) {
 	)
 }
 
-// Environ contains the parsed config file settings.
-var Environ *Env
-
 // ErrorHandler is a standard error handler middleware that generates the error response
 func ErrorHandler(f func(http.ResponseWriter, *http.Request) ErrorResponse) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -60,13 +57,9 @@ func ErrorHandler(f func(http.ResponseWriter, *http.Request) ErrorResponse) http
 }
 
 // Middleware to pre-process web service requests
-func Middleware(inner http.Handler, env *Env) http.Handler {
+func Middleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-
-		if Environ == nil {
-			Environ = env
-		}
 
 		// Log the request
 		Logger(start, r)

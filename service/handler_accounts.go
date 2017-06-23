@@ -48,7 +48,7 @@ type AssertionRequest struct {
 // AccountsHandler is the API method to list the account assertions
 func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 
-	accounts, err := Environ.DB.ListAccounts()
+	accounts, err := datastore.Environ.DB.ListAccounts()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
@@ -113,7 +113,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store or update the account assertion in the database
-	errorCode, err := Environ.DB.PutAccount(datastore.Account{AuthorityID: assertion.HeaderString("account-id"), Assertion: string(decodedAssertion)})
+	errorCode, err := datastore.Environ.DB.PutAccount(datastore.Account{AuthorityID: assertion.HeaderString("account-id"), Assertion: string(decodedAssertion)})
 	if err != nil {
 		logMessage("ACCOUNT", "invalid-assertion", err.Error())
 		w.WriteHeader(http.StatusBadRequest)

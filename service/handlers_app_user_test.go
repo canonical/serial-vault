@@ -26,6 +26,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
@@ -33,8 +34,8 @@ func TestUserIndexHandler(t *testing.T) {
 
 	userIndexTemplate = "../static/app_user.html"
 
-	config := ConfigSettings{Title: "Site Title", Logo: "/url"}
-	Environ = &Env{Config: config}
+	config := config.Settings{Title: "Site Title", Logo: "/url"}
+	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
@@ -49,8 +50,8 @@ func TestUserIndexHandlerInvalidTemplate(t *testing.T) {
 
 	userIndexTemplate = "../static/does_not_exist.html"
 
-	config := ConfigSettings{Title: "Site Title", Logo: "/url"}
-	Environ = &Env{Config: config}
+	config := config.Settings{Title: "Site Title", Logo: "/url"}
+	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
@@ -131,14 +132,14 @@ func TestSystemUserAssertionHandler(t *testing.T) {
 
 func sendSystemUserAssertion(request string, t *testing.T) (int, bool, string) {
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &datastore.MockDB{}, Config: config}
-	Environ.KeypairDB, _ = GetKeyStore(config)
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
 
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/assertions", bytes.NewBufferString(request))
-	SystemUserRouter(Environ).ServeHTTP(w, r)
+	SystemUserRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SystemUserResponse{}

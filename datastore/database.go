@@ -23,8 +23,8 @@ import (
 	"database/sql"
 	"log"
 
-	// postgresql driver
-	_ "github.com/lib/pq"
+	"github.com/CanonicalLtd/serial-vault/config"
+	_ "github.com/lib/pq" // postgresql driver
 )
 
 // Datastore interface for the database logic
@@ -77,8 +77,18 @@ type DB struct {
 	*sql.DB
 }
 
+// Env Environment struct that holds the config and data store details.
+type Env struct {
+	Config    config.Settings
+	DB        Datastore
+	KeypairDB *KeypairDatabase
+}
+
+// Environ contains the parsed config file settings.
+var Environ *Env
+
 // OpenSysDatabase Return an open database connection
-func OpenSysDatabase(driver, dataSource string) *DB {
+func OpenSysDatabase(driver, dataSource string) {
 	// Open the database connection
 	db, err := sql.Open(driver, dataSource)
 	if err != nil {
@@ -92,5 +102,7 @@ func OpenSysDatabase(driver, dataSource string) *DB {
 	} else {
 		log.Println("Database opened successfully.")
 	}
-	return &DB{db}
+	//return &DB{db}
+
+	Environ.DB = &DB{db}
 }

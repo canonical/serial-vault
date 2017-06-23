@@ -69,7 +69,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	response := VersionResponse{Version: Environ.Config.Version}
+	response := VersionResponse{Version: datastore.Environ.Config.Version}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -125,14 +125,14 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	}
 
 	// Verify that the nonce is valid and has not expired
-	err = Environ.DB.ValidateDeviceNonce(assertion.HeaderString("request-id"))
+	err = datastore.Environ.DB.ValidateDeviceNonce(assertion.HeaderString("request-id"))
 	if err != nil {
 		logMessage("SIGN", "invalid-nonce", "Nonce is invalid or expired")
 		return ErrorInvalidNonce
 	}
 
 	// Validate the model by checking that it exists on the database
-	model, err := Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
+	model, err := datastore.Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
 	if err != nil {
 		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand and model")
 		return ErrorInvalidModel
@@ -155,14 +155,14 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	}
 
 	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
+	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 	if err != nil {
 		logMessage("SIGN", "signing-assertion", err.Error())
 		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusInternalServerError}
 	}
 
 	// Store the serial number and device-key fingerprint in the database
-	err = Environ.DB.CreateSigningLog(signingLog)
+	err = datastore.Environ.DB.CreateSigningLog(signingLog)
 	if err != nil {
 		logMessage("SIGN", "logging-assertion", err.Error())
 		return ErrorResponse{false, "logging-assertion", "", err.Error(), http.StatusInternalServerError}
@@ -208,7 +208,7 @@ func serialRequestToSerial(assertion asserts.Assertion, signingLog *datastore.Si
 
 	// Check that we have not already signed this device, and get the max. revision number for the serial number
 	signingLog.SerialNumber = headers["serial"].(string)
-	duplicateExists, maxRevision, err := Environ.DB.CheckForDuplicate(signingLog)
+	duplicateExists, maxRevision, err := datastore.Environ.DB.CheckForDuplicate(signingLog)
 	if err != nil {
 		logMessage("SIGN", "duplicate-assertion", err.Error())
 		return nil, errors.New(ErrorDuplicateAssertion.Message)
@@ -241,13 +241,13 @@ func RequestIDHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 		return ErrorInvalidAPIKey
 	}
 
-	err = Environ.DB.DeleteExpiredDeviceNonces()
+	err = datastore.Environ.DB.DeleteExpiredDeviceNonces()
 	if err != nil {
 		logMessage("REQUESTID", "delete-expired-nonces", err.Error())
 		return ErrorGenerateNonce
 	}
 
-	nonce, err := Environ.DB.CreateDeviceNonce()
+	nonce, err := datastore.Environ.DB.CreateDeviceNonce()
 	if err != nil {
 		logMessage("REQUESTID", "generate-request-id", err.Error())
 		return ErrorGenerateNonce

@@ -17,22 +17,22 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"encoding/base64"
 	"io/ioutil"
 	"testing"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/config"
 )
 
 func getDatabaseKeyStore() (*KeypairDatabase, error) {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStoreType: "database", KeyStoreSecret: "this needs to be something secure"}
-	Environ = &Env{Config: config, DB: &datastore.MockDB{}}
+	config := config.Settings{KeyStoreType: "database", KeyStoreSecret: "this needs to be something secure"}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
-	return GetKeyStore(config)
+	return getKeyStore(config)
 }
 
 func TestDatabaseGetKeyStore(t *testing.T) {
@@ -47,8 +47,8 @@ func TestDatabaseGetKeyStore(t *testing.T) {
 
 func TestDatabaseGenerateEncryptionKey(t *testing.T) {
 	// Set up the environment variables
-	config := ConfigSettings{KeyStoreType: "database", KeyStoreSecret: "this needs to be something secure"}
-	Environ = &Env{Config: config, DB: &datastore.MockDB{}}
+	config := config.Settings{KeyStoreType: "database", KeyStoreSecret: "this needs to be something secure"}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
 	dbOperator := DatabaseKeypairOperator{}
 

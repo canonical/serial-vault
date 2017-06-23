@@ -17,39 +17,21 @@
  *
  */
 
-package service
+package datastore
 
 import (
-	"io/ioutil"
-	"log"
 	"testing"
+
+	"github.com/CanonicalLtd/serial-vault/config"
 )
 
-type mockTPM20Command struct{}
+func TestTPM2InitializeKeystore(t *testing.T) {
+	// Set up the environment variables
+	config := config.Settings{KeyStorePath: "../keystore", KeyStoreType: "tpm2.0", KeyStoreSecret: "this needs to be 32 bytes long!!"}
+	Environ = &Env{Config: config, DB: &MockDB{}}
 
-func TestRunCommand(t *testing.T) {
-	command := tpm20Command{}
-	err := command.runCommand("ls", "-l")
+	err := TPM2InitializeKeystore(&mockTPM20Command{})
 	if err != nil {
-		t.Errorf("Error running shell command: %v", err)
+		t.Errorf("Error initializing the TPM keystore: %v", err)
 	}
-}
-
-func TestRunCommandBadCommand(t *testing.T) {
-	command := tpm20Command{}
-
-	err := command.runCommand("thisreallyshouldnotwork", "-l")
-	if err == nil {
-		t.Error("Expected error, got success")
-	}
-}
-
-func (tcmd *mockTPM20Command) runCommand(command string, args ...string) error {
-	log.Printf("  Mock command: %s\n", command)
-	if command == "tpm2_hmac" {
-		filename := args[len(args)-1]
-		err := ioutil.WriteFile(filename, []byte("fake-hmac-ed-data"), 0600)
-		return err
-	}
-	return nil
 }

@@ -17,13 +17,11 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"io/ioutil"
 	"log"
-
-	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 // TPM2InitializeKeystore initializes the TPM 2.0 module by taking ownership of the module
@@ -32,11 +30,11 @@ import (
 // Main TPM 2.0 operations:
 //  * takeownership
 //  * createprimary
-func TPM2InitializeKeystore(env Env, command TPM20Command) error {
+func TPM2InitializeKeystore(command TPM20Command) error {
 	log.Println("Initialize the TPM Keystore...")
 
 	// Generate a unique file name to hold the primary key context
-	primaryKeyContext, err := ioutil.TempFile(env.Config.KeyStorePath, ".primary")
+	primaryKeyContext, err := ioutil.TempFile(Environ.Config.KeyStorePath, ".primary")
 	if err != nil {
 		return err
 	}
@@ -60,7 +58,7 @@ func TPM2InitializeKeystore(env Env, command TPM20Command) error {
 	}
 
 	// Save the primary key context filepath in the database
-	err = env.DB.PutSetting(datastore.Setting{Code: "parent", Data: primaryKeyContext.Name()})
+	err = Environ.DB.PutSetting(Setting{Code: "parent", Data: primaryKeyContext.Name()})
 	if err != nil {
 		log.Printf("Error in saving the parent key path in settings, %v", err)
 		return err

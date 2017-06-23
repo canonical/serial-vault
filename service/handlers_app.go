@@ -24,6 +24,8 @@ import (
 	"net/http"
 	"strings"
 	"text/template"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 var indexTemplate = "/static/app.html"
@@ -36,9 +38,9 @@ type Page struct {
 
 // IndexHandler is the front page of the web application
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	page := Page{Title: Environ.Config.Title, Logo: Environ.Config.Logo}
+	page := Page{Title: datastore.Environ.Config.Title, Logo: datastore.Environ.Config.Logo}
 
-	path := []string{Environ.Config.DocRoot, indexTemplate}
+	path := []string{datastore.Environ.Config.DocRoot, indexTemplate}
 	t, err := template.ParseFiles(strings.Join(path, ""))
 	if err != nil {
 		log.Printf("Error loading the application template: %v\n", err)

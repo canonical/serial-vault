@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"crypto/hmac"
@@ -25,7 +25,7 @@ import (
 	"encoding/base64"
 	"log"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/utils"
 )
 
 // DatabaseKeypairOperator is the storage container for signing-keys in the database
@@ -42,7 +42,7 @@ func (dbStore *DatabaseKeypairOperator) ImportKeypair(authorityID, keyID, base64
 	authKeyHash, err := dbStore.generateEncryptionKey(authorityID, keyID)
 
 	// Use the HMAC-ed auth-key as the key to encrypt the signing-key
-	sealedSigningKey, err := encryptKey(base64PrivateKey, authKeyHash)
+	sealedSigningKey, err := utils.EncryptKey(base64PrivateKey, authKeyHash)
 
 	// base64 encode the sealed signing-key for storage
 	base64SealedSigningkey := base64.StdEncoding.EncodeToString(sealedSigningKey)
@@ -51,8 +51,8 @@ func (dbStore *DatabaseKeypairOperator) ImportKeypair(authorityID, keyID, base64
 }
 
 func (dbStore *DatabaseKeypairOperator) generateEncryptionKey(authorityID, keyID string) (string, error) {
-	keyText := generateAuthKey(authorityID, keyID)
-	secretText, err := createSecret(32)
+	keyText := utils.GenerateAuthKey(authorityID, keyID)
+	secretText, err := utils.CreateSecret(32)
 	if err != nil {
 		return "", err
 	}
@@ -61,14 +61,14 @@ func (dbStore *DatabaseKeypairOperator) generateEncryptionKey(authorityID, keyID
 	encryptionKey := string(h.Sum(nil)[:])
 
 	// Encrypt and store the auth-key hash
-	encryptedAuthKeyHash, err := encryptKey(string(encryptionKey[:]), Environ.Config.KeyStoreSecret)
+	encryptedAuthKeyHash, err := utils.EncryptKey(string(encryptionKey[:]), Environ.Config.KeyStoreSecret)
 	if err != nil {
 		return "", err
 	}
 
 	// Encrypt the HMAC-ed auth-key for storage
 	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
-	Environ.DB.PutSetting(datastore.Setting{Code: generateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
+	Environ.DB.PutSetting(Setting{Code: utils.GenerateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
 
 	return string(encryptionKey[:]), nil
 }
@@ -90,7 +90,7 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 		// The key has not been unsealed and stored in the memory store
 
 		// Decode and decrypt the auth-key
-		authKeySetting, err := Environ.DB.GetSetting(generateAuthKey(authorityID, keyID))
+		authKeySetting, err := Environ.DB.GetSetting(utils.GenerateAuthKey(authorityID, keyID))
 		if err != nil {
 			log.Println("Cannot find the auth-key for the signing-key")
 			return err
@@ -104,7 +104,7 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 		}
 
 		// Decrypt the decoded auth-key
-		authKey, err := decryptKey(encryptedAuthKey, Environ.Config.KeyStoreSecret)
+		authKey, err := utils.DecryptKey(encryptedAuthKey, Environ.Config.KeyStoreSecret)
 		if err != nil {
 			log.Println("Could not decrypt the auth-key for the signing-key")
 			return err
@@ -116,14 +116,14 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 			log.Println("Could not decode the signing-key")
 			return err
 		}
-		base64SigningKey, err := decryptKey(sealedSigningKey, string(authKey[:]))
+		base64SigningKey, err := utils.DecryptKey(sealedSigningKey, string(authKey[:]))
 		if err != nil {
 			log.Println("Could not decrypt the signing-key")
 			return err
 		}
 
 		// Convert the byte array to an asserts key
-		privateKey, errorCode, err := DeserializePrivateKey(string(base64SigningKey[:]))
+		privateKey, errorCode, err := utils.DeserializePrivateKey(string(base64SigningKey[:]))
 		if err != nil {
 			log.Printf("Error generating the asserts private-key: %v", errorCode)
 			return err

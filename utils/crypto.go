@@ -17,24 +17,32 @@
  *
  */
 
-package service
+package utils
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/rsa"
 	"encoding/base64"
 	"errors"
 	"io"
 	"log"
 	"strings"
+
+	"github.com/snapcore/snapd/asserts"
+	"golang.org/x/crypto/openpgp/armor"
+	"golang.org/x/crypto/openpgp/packet"
 )
 
-func generateAuthKey(authorityID, keyID string) string {
+// GenerateAuthKey generates an key from the signing key details
+func GenerateAuthKey(authorityID, keyID string) string {
 	return strings.Join([]string{authorityID, "/", keyID}, "")
 }
 
-func createSecret(length int) (string, error) {
+// CreateSecret generates a secret that can be used for encryption
+func CreateSecret(length int) (string, error) {
 	rb := make([]byte, length)
 	_, err := rand.Read(rb)
 	if err != nil {
@@ -43,8 +51,8 @@ func createSecret(length int) (string, error) {
 	return base64.URLEncoding.EncodeToString(rb), nil
 }
 
-// encryptKey uses symmetric encryption to encrypt the data for storage
-func encryptKey(plainTextKey, keyText string) ([]byte, error) {
+// EncryptKey uses symmetric encryption to encrypt the data for storage
+func EncryptKey(plainTextKey, keyText string) ([]byte, error) {
 	// The AES key needs to be 16 or 32 bytes i.e. AES-128 or AES-256
 	aesKey := padRight(keyText, "x", 32)
 
@@ -69,7 +77,8 @@ func encryptKey(plainTextKey, keyText string) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func decryptKey(sealedKey []byte, keyText string) ([]byte, error) {
+// DecryptKey handles the decryption of a sealed signing key
+func DecryptKey(sealedKey []byte, keyText string) ([]byte, error) {
 	aesKey := padRight(keyText, "x", 32)
 
 	block, err := aes.NewCipher([]byte(aesKey))
@@ -90,4 +99,42 @@ func decryptKey(sealedKey []byte, keyText string) ([]byte, error) {
 	cfb.XORKeyStream(sealedKey, sealedKey)
 
 	return sealedKey, nil
+}
+
+// DeserializePrivateKey decodes a base64 encoded private key file and converts
+// it to a private key that can be used for storage in the keypair store
+func DeserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string, error) {
+	const errorInvalidKey = "error-invalid-key"
+
+	// The private-key is base64 encoded, so we need to decode it
+	decodedPrivateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
+	if err != nil {
+		return nil, "error-decode-key", err
+	}
+
+	return privateKeyToAssertsKey(decodedPrivateKey)
+}
+
+func privateKeyToAssertsKey(key []byte) (asserts.PrivateKey, string, error) {
+	const errorInvalidKey = "error-invalid-key"
+
+	// Validate the signing-key
+	block, err := armor.Decode(bytes.NewReader(key))
+	if err != nil {
+		return nil, errorInvalidKey, err
+	}
+
+	pkt, err := packet.Read(block.Body)
+	if err != nil {
+		return nil, errorInvalidKey, err
+	}
+
+	privk, ok := pkt.(*packet.PrivateKey)
+	if !ok {
+		return nil, errorInvalidKey, errors.New("Not a private key")
+	}
+	if _, ok := privk.PrivateKey.(*rsa.PrivateKey); !ok {
+		return nil, errorInvalidKey, errors.New("Not an RSA private key")
+	}
+	return asserts.RSAPrivateKey(privk.PrivateKey.(*rsa.PrivateKey)), "", nil
 }

@@ -35,6 +35,7 @@ import (
 	"errors"
 
 	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/utils"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -86,7 +87,7 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 	}
 	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
 
-	privateKey, _, err := service.DeserializePrivateKey(encodedSigningKey)
+	privateKey, _, err := utils.DeserializePrivateKey(encodedSigningKey)
 	return privateKey, nil
 }
 

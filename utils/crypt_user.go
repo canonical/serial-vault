@@ -17,28 +17,22 @@
  *
  */
 
-package service
+package utils
 
-import (
-	"log"
-	"os/exec"
-)
+// #cgo LDFLAGS: -lcrypt
+// #define _GNU_SOURCE
+// #include <crypt.h>
+// #include <stdlib.h>
+import "C"
+import "unsafe"
 
-// TPM20Command is an interface for wrapping the TPM2.0 shell commands
-type TPM20Command interface {
-	runCommand(command string, args ...string) error
-}
-
-type tpm20Command struct{}
-
-func (tcmd *tpm20Command) runCommand(command string, args ...string) error {
-	cmd := exec.Command(command, args...)
-	out, err := cmd.Output()
-	if err != nil {
-		log.Printf("Error in TPM %s, %v", command, err)
-		log.Println(string(out[:]))
-		return err
-	}
-
-	return nil
+// CryptUser wraps C library crypt_r
+func CryptUser(key, salt string) string {
+	data := C.struct_crypt_data{}
+	ckey := C.CString(key)
+	csalt := C.CString(salt)
+	out := C.GoString(C.crypt_r(ckey, csalt, &data))
+	C.free(unsafe.Pointer(ckey))
+	C.free(unsafe.Pointer(csalt))
+	return out
 }

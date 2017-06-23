@@ -17,11 +17,13 @@
  *
  */
 
-package service
+package datastore
 
 import (
 	"errors"
 
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/utils"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -63,8 +65,18 @@ type KeypairDatabase struct {
 
 var keypairDB KeypairDatabase
 
-// GetKeyStore returns the keystore as defined in the config file
-func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
+// OpenKeyStore returns the keystore as defined in the config file
+func OpenKeyStore(config config.Settings) error {
+	keypairDB, err := getKeyStore(config)
+	if err != nil {
+		return err
+	}
+
+	Environ.KeypairDB = keypairDB
+	return nil
+}
+
+func getKeyStore(config config.Settings) (*KeypairDatabase, error) {
 	switch config.KeyStoreType {
 	case DatabaseStore.Name:
 		// Prepare the memory store for the unsealed keys
@@ -110,7 +122,7 @@ func GetKeyStore(config ConfigSettings) (*KeypairDatabase, error) {
 
 // ImportSigningKey adds a new signing-key for an authority into the keypair store
 func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey string) (asserts.PrivateKey, string, error) {
-	privateKey, _, err := DeserializePrivateKey(base64PrivateKey)
+	privateKey, _, err := utils.DeserializePrivateKey(base64PrivateKey)
 	if err != nil {
 		return nil, "", err
 	}

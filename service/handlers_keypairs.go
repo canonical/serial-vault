@@ -20,11 +20,8 @@
 package service
 
 import (
-	"bytes"
-	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,9 +31,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/gorilla/mux"
 	"github.com/snapcore/snapd/asserts"
-
-	"golang.org/x/crypto/openpgp/armor"
-	"golang.org/x/crypto/openpgp/packet"
 )
 
 // KeypairWithPrivateKey is the JSON version of a keypair, including the base64 armored, signing-key
@@ -51,7 +45,7 @@ type KeypairWithPrivateKey struct {
 func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	keypairs, err := Environ.DB.ListKeypairs()
+	keypairs, err := datastore.Environ.DB.ListKeypairs()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatKeypairsResponse(false, "error-fetch-keypairs", "", err.Error(), nil, w)
@@ -103,7 +97,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the signing-key in the keypair store using the asserts module
-	privateKey, sealedPrivateKey, err := Environ.KeypairDB.ImportSigningKey(keypairWithKey.AuthorityID, keypairWithKey.PrivateKey)
+	privateKey, sealedPrivateKey, err := datastore.Environ.KeypairDB.ImportSigningKey(keypairWithKey.AuthorityID, keypairWithKey.PrivateKey)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-store", "", err.Error(), w)
@@ -116,7 +110,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 		KeyID:       privateKey.PublicKey().ID(),
 		SealedKey:   sealedPrivateKey,
 	}
-	errorCode, err := Environ.DB.PutKeypair(keypair)
+	errorCode, err := datastore.Environ.DB.PutKeypair(keypair)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, errorCode, "", err.Error(), w)
@@ -126,44 +120,6 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Return success response
 	w.WriteHeader(http.StatusOK)
 	formatBooleanResponse(true, "", "", "", w)
-}
-
-// DeserializePrivateKey decodes a base64 encoded private key file and converts
-// it to a private key that can be used for storage in the keypair store
-func DeserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string, error) {
-	const errorInvalidKey = "error-invalid-key"
-
-	// The private-key is base64 encoded, so we need to decode it
-	decodedPrivateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
-	if err != nil {
-		return nil, "error-decode-key", err
-	}
-
-	return privateKeyToAssertsKey(decodedPrivateKey)
-}
-
-func privateKeyToAssertsKey(key []byte) (asserts.PrivateKey, string, error) {
-	const errorInvalidKey = "error-invalid-key"
-
-	// Validate the signing-key
-	block, err := armor.Decode(bytes.NewReader(key))
-	if err != nil {
-		return nil, errorInvalidKey, err
-	}
-
-	pkt, err := packet.Read(block.Body)
-	if err != nil {
-		return nil, errorInvalidKey, err
-	}
-
-	privk, ok := pkt.(*packet.PrivateKey)
-	if !ok {
-		return nil, errorInvalidKey, errors.New("Not a private key")
-	}
-	if _, ok := privk.PrivateKey.(*rsa.PrivateKey); !ok {
-		return nil, errorInvalidKey, errors.New("Not an RSA private key")
-	}
-	return asserts.RSAPrivateKey(privk.PrivateKey.(*rsa.PrivateKey)), "", nil
 }
 
 // KeypairDisableHandler disables an existing keypair, which will mean that any
@@ -183,7 +139,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = Environ.DB.UpdateKeypairActive(keypairID, false)
+	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, false)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -210,7 +166,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = Environ.DB.UpdateKeypairActive(keypairID, true)
+	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, true)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -280,7 +236,7 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store or update the account assertion in the database
-	err = Environ.DB.UpdateKeypairAssertion(assertionRequest.ID, string(decodedAssertion))
+	err = datastore.Environ.DB.UpdateKeypairAssertion(assertionRequest.ID, string(decodedAssertion))
 	if err != nil {
 		logMessage("KEYPAIR", "invalid-assertion", err.Error())
 		w.WriteHeader(http.StatusBadRequest)

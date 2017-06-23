@@ -24,25 +24,26 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/gorilla/csrf"
 )
 
 func main() {
-	env := service.Env{}
+	datastore.Environ = &datastore.Env{}
 	// Parse the command line arguments
-	service.ParseArgs()
-	err := service.ReadConfig(&env.Config, service.SettingsFile)
+	config.ParseArgs()
+	err := config.ReadConfig(&datastore.Environ.Config, config.SettingsFile)
 	if err != nil {
 		log.Fatalf("Error parsing the config file: %v", err)
 	}
 
 	// Open the connection to the local database
-	env.DB = datastore.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
+	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
 
 	// Opening the keypair manager to create the signing database
-	env.KeypairDB, err = service.GetKeyStore(env.Config)
+	err = datastore.OpenKeyStore(datastore.Environ.Config)
 	if err != nil {
 		log.Fatalf("Error initializing the signing-key database: %v", err)
 	}
@@ -50,7 +51,7 @@ func main() {
 	var handler http.Handler
 	var address string
 
-	switch service.ServiceMode {
+	switch config.ServiceMode {
 	case "admin":
 		// configure request forgery protection
 		csrfSecure := true
@@ -61,13 +62,13 @@ func main() {
 		}
 
 		CSRF := csrf.Protect(
-			[]byte(env.Config.CSRFAuthKey),
+			[]byte(datastore.Environ.Config.CSRFAuthKey),
 			csrf.Secure(csrfSecure),
 			csrf.HttpOnly(csrfSecure),
 		)
 
 		// Create the admin web service router
-		handler = CSRF(service.AdminRouter(&env))
+		handler = CSRF(service.AdminRouter())
 		address = ":8081"
 	case "system-user":
 		// configure request forgery protection
@@ -79,7 +80,7 @@ func main() {
 		}
 
 		CSRF := csrf.Protect(
-			[]byte(env.Config.CSRFAuthKey),
+			[]byte(datastore.Environ.Config.CSRFAuthKey),
 			csrf.Secure(csrfSecure),
 			csrf.HttpOnly(csrfSecure),
 			csrf.CookieName("XSRF-TOKEN"),
@@ -87,15 +88,15 @@ func main() {
 
 		// Create the admin web service router
 		if csrfSecure {
-			handler = CSRF(service.SystemUserRouter(&env))
+			handler = CSRF(service.SystemUserRouter())
 		} else {
 			// Allow cross-origin access for local development
-			handler = service.CORSMiddleware()(CSRF(service.SystemUserRouter(&env)))
+			handler = service.CORSMiddleware()(CSRF(service.SystemUserRouter()))
 		}
 		address = ":8082"
 	default:
 		// Create the user web service router
-		handler = service.SigningRouter(&env)
+		handler = service.SigningRouter()
 		address = ":8080"
 	}
 

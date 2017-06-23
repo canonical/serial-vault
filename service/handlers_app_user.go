@@ -64,9 +64,9 @@ type SystemUserResponse struct {
 
 // UserIndexHandler is the front page of the web application
 func UserIndexHandler(w http.ResponseWriter, r *http.Request) {
-	page := Page{Title: Environ.Config.Title, Logo: Environ.Config.Logo}
+	page := Page{Title: datastore.Environ.Config.Title, Logo: datastore.Environ.Config.Logo}
 
-	path := []string{Environ.Config.DocRoot, userIndexTemplate}
+	path := []string{datastore.Environ.Config.DocRoot, userIndexTemplate}
 	t, err := template.ParseFiles(strings.Join(path, ""))
 	if err != nil {
 		log.Printf("Error loading the application template: %v\n", err)
@@ -100,7 +100,7 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the model
-	model, err := Environ.DB.GetModel(user.ModelID)
+	model, err := datastore.Environ.DB.GetModel(user.ModelID)
 	if err != nil {
 		logMessage("USER", "invalid-model", "Cannot find model with the selected ID")
 		formatBooleanResponse(false, "invalid-model", "", "Cannot find model with the selected ID", w)
@@ -115,7 +115,7 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch the account assertion from the database
-	account, err := Environ.DB.GetAccount(model.AuthorityIDUser)
+	account, err := datastore.Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
 		logMessage("USER", "account-assertions", err.Error())
 		formatBooleanResponse(false, "account-assertions", "", "Error retrieving the account assertion from the database", w)
@@ -126,7 +126,7 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	assertionHeaders := userRequestToAssertion(user, model)
 
 	// Sign the system-user assertion using the system-user key
-	signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
+	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
 		logMessage("USER", "signing-assertion", err.Error())
 		formatBooleanResponse(false, "signing-assertion", "", err.Error(), w)
@@ -158,7 +158,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 
 	// Encrypt the password
 	salt := fmt.Sprintf("$6$%s$", baseSalt)
-	password := cryptUser(user.Password, salt)
+	password := utils.CryptUser(user.Password, salt)
 
 	// Set the since and end date/times
 	since, err := time.Parse("YYYY-MM-DDThh:mm:ssZ00:00", user.Since)

@@ -32,7 +32,7 @@ import (
 
 func TestSigningLogListHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
 	if len(response.SigningLog) != 10 {
@@ -42,14 +42,14 @@ func TestSigningLogListHandler(t *testing.T) {
 
 func TestSigningLogListHandlerError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
 }
 
 func TestSigningLogDeleteHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	// Delete a signing log
 	data := "{}"
@@ -58,7 +58,7 @@ func TestSigningLogDeleteHandler(t *testing.T) {
 
 func TestSigningLogDeleteHandlerWrongID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	// Delete a signing log
 	data := "{}"
@@ -67,7 +67,7 @@ func TestSigningLogDeleteHandlerWrongID(t *testing.T) {
 
 func TestSigningLogDeleteHandlerError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	// Delete a signing log
 	data := "{}"
@@ -76,7 +76,7 @@ func TestSigningLogDeleteHandlerError(t *testing.T) {
 
 func TestSigningLogDeleteHandlerBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	// Delete a signing log
 	data := "{}"
@@ -85,11 +85,11 @@ func TestSigningLogDeleteHandlerBadID(t *testing.T) {
 
 func TestSigningLogFilterValues(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SigningLogFiltersResponse{}
@@ -104,11 +104,11 @@ func TestSigningLogFilterValues(t *testing.T) {
 
 func TestSigningLogFilterValuesError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &datastore.ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SigningLogFiltersResponse{}
@@ -124,7 +124,7 @@ func TestSigningLogFilterValuesError(t *testing.T) {
 func sendSigningLogRequest(t *testing.T, method, url string, data io.Reader) (SigningLogResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SigningLogResponse{}
@@ -142,7 +142,7 @@ func sendSigningLogRequest(t *testing.T, method, url string, data io.Reader) (Si
 func sendSigningLogRequestExpectError(t *testing.T, method, url string, data io.Reader) (SigningLogResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SigningLogResponse{}
