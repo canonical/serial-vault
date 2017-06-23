@@ -20,8 +20,12 @@
 package usso
 
 import (
+	"errors"
 	"log"
+	"strings"
 	"time"
+
+	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/juju/usso/openid"
@@ -44,12 +48,48 @@ func NewJWTToken(resp *openid.Response) (string, error) {
 	return tokenString, err
 }
 
-// VerifyJWT checks that we have a valid token
-func VerifyJWT(jwtToken string) (interface{}, error) {
+func keyFunc(token *jwt.Token) (interface{}, error) {
+	return []byte(jwtSecret), nil
+}
 
-	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtSecret), nil
-	})
+// VerifyJWT checks that we have a valid token
+func VerifyJWT(jwtToken string) (*jwt.Token, error) {
+
+	token, err := jwt.Parse(jwtToken, keyFunc)
 
 	return token, err
+}
+
+// AddJWTCookie sets the JWT as a cookie
+func AddJWTCookie(jwtToken string, w http.ResponseWriter) {
+	expireCookie := time.Now().Add(time.Hour * 1)
+
+	cookie := http.Cookie{Name: JWTCookie, Value: jwtToken, Expires: expireCookie, HttpOnly: true}
+	http.SetCookie(w, &cookie)
+}
+
+// JWTExtractor extracts the JWT from a request and returns the token string.
+// The token is not verified.
+func JWTExtractor(r *http.Request) (string, error) {
+
+	// Get the JWT from the header
+	jwtToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(jwtToken, " ")
+	if len(splitToken) != 2 {
+		jwtToken = ""
+	} else {
+		jwtToken = splitToken[1]
+	}
+
+	// Check the cookie if we don't have a bearer token in the header
+	if jwtToken == "" {
+		cookie, err := r.Cookie(JWTCookie)
+		if err != nil {
+			log.Println("Cannot find the JWT")
+			return "", errors.New("Cannot from the JWT")
+		}
+		jwtToken = cookie.Value
+	}
+
+	return jwtToken, nil
 }

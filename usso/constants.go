@@ -32,3 +32,6 @@ const (
 	ClaimsName     = "name"
 	ClaimsRole     = "role"
 )
+
+// JWTCookie is the name of the cookie used to store the JWT
+const JWTCookie = "X-Auth-Token"

@@ -69,7 +69,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Verify the permissions of the user
 
-	// Build the JWT and add to the header
+	// Build the JWT
 	jwtToken, err := NewJWTToken(resp)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -78,8 +78,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Authorization", "Bearer "+jwtToken)
 
+	// Set a cookie with the JWT
+	AddJWTCookie(jwtToken, w)
+
 	// Redirect to the homepage with the JWT
-	http.Redirect(w, r, "http://localhost:8081?jwt="+jwtToken, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "http://localhost:8081", http.StatusTemporaryRedirect)
 }
 
 func isComma(c rune) bool {

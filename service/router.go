@@ -82,8 +82,8 @@ func AdminRouter(env *Env) *mux.Router {
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
 	router.PathPrefix("/models").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler), env)))
-	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
-	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler), env))
+	router.PathPrefix("/accounts").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler), env)))
+	router.PathPrefix("/signinglog").Handler(JWTValidate(Middleware(http.HandlerFunc(IndexHandler), env)))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler), env)).Methods("GET")
 
 	return router

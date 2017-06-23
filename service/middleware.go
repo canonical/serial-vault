@@ -23,11 +23,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/usso"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 )
 
@@ -93,34 +91,34 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 // JWTValidate verifies that the JWT token is valid. The token is set after logging-in via Openid
 func JWTValidate(protected http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Get the JWT from the header
-		jwtToken := r.Header.Get("Authorization")
-		splitToken := strings.Split(jwtToken, " ")
-		if len(splitToken) != 2 {
-			http.NotFound(w, r)
+		// Get the JWT from the header or cookie
+		jwtToken, err := usso.JWTExtractor(r)
+		if err != nil {
+			log.Println(err.Error())
+			// TODO: don't leave pages unprotected when there is no token
+			protected.ServeHTTP(w, r)
 			return
 		}
-		jwtToken = splitToken[1]
 
-		// Validate the JWT
+		// Verify the JWT string
 		token, err := usso.VerifyJWT(jwtToken)
 		if err != nil {
-			log.Println("Cannot verify the JWT")
-			http.NotFound(w, r)
+			log.Printf("JWT fails validation: %v", err.Error())
+			// TODO: don't leave pages unprotected when there is an invalid token
+			protected.ServeHTTP(w, r)
 			return
 		}
 
-		if t, ok := token.(*jwt.Token); ok {
-			//ctx := context.WithValue(r.Context(), usso.ClaimsKey, t.Claims)
-			if t.Valid {
-				//protected(w, r)
-				protected.ServeHTTP(w, r)
-			}
-		} else {
+		if !token.Valid {
 			log.Println("Invalid JWT")
-			http.NotFound(w, r)
-			return
+			// TODO: don't leave pages unprotected when there is an invalid token
+			protected.ServeHTTP(w, r)
 		}
+
+		// Set a cookie with the JWT
+		usso.AddJWTCookie(jwtToken, w)
+
+		protected.ServeHTTP(w, r)
 
 	})
 }
