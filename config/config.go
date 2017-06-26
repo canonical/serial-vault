@@ -45,7 +45,9 @@ type Settings struct {
 	APIKeys        []string `yaml:"apiKeys"`
 	APIKeysMap     map[string]struct{}
 	CSRFAuthKey    string `yaml:"csrfAuthKey"`
-	BaseURL        string `yaml:"baseURL"`
+	URLHost        string `yaml:"urlHost"`
+	URLScheme      string `yaml:"urlScheme"`
+	EnableUserAuth bool   `yaml:"enableUserAuth"`
 }
 
 // SettingsFile is the path to the YAML configuration file

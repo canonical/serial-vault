@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/handlers"
 )
@@ -84,6 +85,13 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 // JWTValidate verifies that the JWT token is valid. The token is set after logging-in via Openid
 func JWTValidate(protected http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// Do not validate access if user authentication is off (default)
+		if !datastore.Environ.Config.EnableUserAuth {
+			protected.ServeHTTP(w, r)
+			return
+		}
+
 		// Get the JWT from the header or cookie
 		jwtToken, err := usso.JWTExtractor(r)
 		if err != nil {

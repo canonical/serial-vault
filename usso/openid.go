@@ -21,10 +21,10 @@ package usso
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
 	"github.com/juju/usso/openid"
 )
@@ -43,15 +43,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	url := *r.URL
-	log.Println(url.String())
-	log.Println(url.IsAbs())
 
-	url.Scheme = "http"
-	url.Host = "localhost:8081"
+	// Set the return URL: from the OpenID login with the full domain name
+	url.Scheme = datastore.Environ.Config.URLScheme
+	url.Host = datastore.Environ.Config.URLHost
 
 	if r.Form.Get("openid.ns") == "" {
 		req := openid.Request{
-			ReturnTo:     "http://localhost:8081/login",
+			ReturnTo:     url.String(),
 			Teams:        strings.FieldsFunc(teams, isComma),
 			SRegRequired: strings.FieldsFunc(required, isComma),
 			SRegOptional: strings.FieldsFunc(optional, isComma),
@@ -62,14 +61,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, err := client.Verify(url.String())
-	w.Header().Set("ContentType", "text/html")
 	if err != nil {
+		w.Header().Set("ContentType", "text/html")
 		w.WriteHeader(http.StatusBadRequest)
 		errorTemplate.Execute(w, err)
 		return
 	}
 
-	// TODO: Verify the permissions of the user
+	// TODO: Verify the permissions of the user against the database
 
 	// Build the JWT
 	jwtToken, err := NewJWTToken(resp)
@@ -78,13 +77,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		errorTemplate.Execute(w, err)
 		return
 	}
-	w.Header().Set("Authorization", "Bearer "+jwtToken)
 
 	// Set a cookie with the JWT
 	AddJWTCookie(jwtToken, w)
 
 	// Redirect to the homepage with the JWT
-	http.Redirect(w, r, "http://localhost:8081", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 func isComma(c rune) bool {

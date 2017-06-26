@@ -62,8 +62,12 @@ func VerifyJWT(jwtToken string) (*jwt.Token, error) {
 
 // AddJWTCookie sets the JWT as a cookie
 func AddJWTCookie(jwtToken string, w http.ResponseWriter) {
-	expireCookie := time.Now().Add(time.Hour * 1)
 
+	// Set the JWT as a bearer token
+	// (In practice, the cookie will be used more as clicking on a page link will not send the auth header)
+	w.Header().Set("Authorization", "Bearer "+jwtToken)
+
+	expireCookie := time.Now().Add(time.Hour * 1)
 	cookie := http.Cookie{Name: JWTCookie, Value: jwtToken, Expires: expireCookie, HttpOnly: true}
 	http.SetCookie(w, &cookie)
 }

@@ -31,5 +31,9 @@ apiKeys:
 # 32 bytes long key to protect server from cross site request forgery attacks
 csrfAuthKey: "2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
 
-# Base URL of the service (needed for OpenID)
-baseURL: http://serial-vault
+# Return URL of the service (needed for OpenID)
+urlHost: "localhost:8081"
+urlScheme: http
+
+# Enable user authentication using Ubuntu SSO
+enableUserAuth: false
