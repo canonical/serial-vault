@@ -54,9 +54,3 @@ var getQueryString = function ( field, url ) {
     var string = reg.exec(href);
     return string ? string[1] : null;
 };
-
-export function storeJWT() {
-    console.log("Store JWT")
-    var jwt = getQueryString('jwt')
-    localStorage.setItem("jwt-token", jwt)
-}

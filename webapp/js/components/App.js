@@ -55,11 +55,11 @@ var App = React.createClass({
 
     return (
       <div>
-				<header className="p-navigation" role="banner">
+				<header className="p-navigation--light" role="banner">
 					<div className="row">
 						<div className="p-navigation__logo">
 								<div className="nav_logo">
-										<img src="/static/images/logo-ubuntu-white.svg" alt="Ubuntu" />
+										<img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
 										<span>{M({id:"title"})}</span>
 								</div>
 						</div>
