@@ -28,7 +28,8 @@ import (
 // OpenidNonceMaxAge is the maximum age of stored nonces. Any nonces older
 // than this will automatically be rejected. Stored nonces older
 // than this will periodically be purged from the database.
-const OpenidNonceMaxAge = time.Minute
+const OpenidNonceMaxAge = maxNonceAgeInSeconds * time.Second
+const maxNonceAgeInSeconds = 60
 
 const createOpenidNonceTableSQL = `
 	CREATE TABLE IF NOT EXISTS openidnonce (
@@ -90,7 +91,7 @@ func (db *DB) CreateOpenidNonce(nonce OpenidNonce) error {
 // deleteExpiredOpenidNonces removes nonces with timestamp older than max allowed lifetime
 func (db *DB) deleteExpiredOpenidNonces() error {
 	// Remove expired nonces from the table
-	timestamp := time.Now().Unix() - int64(OpenidNonceMaxAge)
+	timestamp := time.Now().Unix() - maxNonceAgeInSeconds
 	_, err := db.Exec(deleteExpiredOpenidNonceSQL, timestamp)
 	if err != nil {
 		log.Printf("Error deleting expired openid nonces: %v\n", err)

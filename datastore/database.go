@@ -87,6 +87,9 @@ type Env struct {
 // Environ contains the parsed config file settings.
 var Environ *Env
 
+// OpenidNonceStore contains the database nonce store for Openid
+var OpenidNonceStore PgNonceStore
+
 // OpenSysDatabase Return an open database connection
 func OpenSysDatabase(driver, dataSource string) {
 	// Open the database connection
@@ -105,4 +108,5 @@ func OpenSysDatabase(driver, dataSource string) {
 	//return &DB{db}
 
 	Environ.DB = &DB{db}
+	OpenidNonceStore.DB = &DB{db}
 }

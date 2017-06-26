@@ -115,4 +115,12 @@ func main() {
 			log.Println("Initialized TPM 2.0 module.")
 		}
 	}
+
+	// Create the OpenID nonce table, if it does not exist
+	err = datastore.Environ.DB.CreateOpenidNonceTable()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Created the 'openid nonce' table.")
+	}
 }

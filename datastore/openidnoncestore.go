@@ -17,19 +17,17 @@
  *
  */
 
-package pgnoncestore
+package datastore
 
 import (
 	"time"
-
-	"github.com/CanonicalLtd/serial-vault/datastore"
 
 	"gopkg.in/errgo.v1"
 )
 
 // PgNonceStore is a nonce store backed by PostgreSQL
 type PgNonceStore struct {
-	DB *datastore.DB
+	DB Datastore
 }
 
 // Accept implements openid.NonceStore.Accept
@@ -66,11 +64,14 @@ func (s *PgNonceStore) accept(endpoint, nonce string, now time.Time) error {
 	if err != nil {
 		return errgo.Notef(err, "%q does not contain a valid timestamp", nonce)
 	}
-	if t.Before(now.Add(datastore.OpenidNonceMaxAge)) {
+
+	// Check if the nonce has expired
+	diff := now.Sub(t)
+	if diff > OpenidNonceMaxAge {
 		return errgo.Newf("%q too old", nonce)
 	}
 
-	openidNonce := datastore.OpenidNonce{Nonce: nonce, Endpoint: endpoint, TimeStamp: t.Unix()}
+	openidNonce := OpenidNonce{Nonce: nonce, Endpoint: endpoint, TimeStamp: t.Unix()}
 	err = s.DB.CreateOpenidNonce(openidNonce)
 	return errgo.Mask(err)
 }

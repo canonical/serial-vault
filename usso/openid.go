@@ -35,7 +35,7 @@ var (
 	optional = ""
 )
 
-var client = openid.NewClient(usso.ProductionUbuntuSSOServer, nil, nil)
+var client = openid.NewClient(usso.ProductionUbuntuSSOServer, &datastore.OpenidNonceStore, nil)
 
 // LoginHandler processes the login for Ubuntu SSO
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
