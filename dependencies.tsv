@@ -13,3 +13,5 @@ golang.org/x/crypto	git	84e98f45760e87786b7f24603b8166a6fa09811d	2016-10-02T16:4
 golang.org/x/net	git	ffcf1bedda3b04ebb15a168a59800a73d6dc0f4d	2017-03-29T17:04:35Z
 gopkg.in/errgo.v1	git	442357a80af5c6bf9b6d51ae791a39c3421004f3	2016-12-22T12:58:16Z
 gopkg.in/yaml.v2	git	a5b47d31c556af34a302ce5d659e6fea44d90de0	2016-09-28T15:37:09Z
+github.com/ojii/gettext.go	git	b6dae1d7af8a8441285e42661565760b530a8a57	2017-01-20T06:14:37Z
+github.com/ojii/gettext.go/pluralforms	git	b6dae1d7af8a8441285e42661565760b530a8a57	2017-01-20T06:14:37Z
