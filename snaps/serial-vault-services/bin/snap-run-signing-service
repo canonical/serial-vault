@@ -2,5 +2,5 @@
 
 cd $SNAP
 
-bin/tools -config=$SNAP_DATA/settings.yaml
+bin/createdb -config=$SNAP_DATA/settings.yaml
 bin/serial-vault -mode=signing -config=$SNAP_DATA/settings.yaml
