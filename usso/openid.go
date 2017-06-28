@@ -30,12 +30,19 @@ import (
 )
 
 var (
+	// Teams are hardcoded and not currently used.
+	// The team config is here for reference only, but could be used in the future
 	teams    = "ce-web-logs,canonical"
 	required = "email,fullname,nickname"
 	optional = ""
 )
 
 var client = openid.NewClient(usso.ProductionUbuntuSSOServer, &datastore.OpenidNonceStore, nil)
+
+// verify is used to perform the OpenID verification of the login
+// response. This is declared as a variable so it can be overridden for
+// testing.
+var verify = client.Verify
 
 // LoginHandler processes the login for Ubuntu SSO
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +67,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := client.Verify(url.String())
+	resp, err := verify(url.String())
 	if err != nil {
 		w.Header().Set("ContentType", "text/html")
 		w.WriteHeader(http.StatusBadRequest)

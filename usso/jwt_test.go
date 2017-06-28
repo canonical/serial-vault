@@ -89,7 +89,7 @@ func TestAddJWTCookie(t *testing.T) {
 	// Copy the Cookie over to a new Request
 	request := &http.Request{Header: http.Header{"Cookie": w.HeaderMap["Set-Cookie"]}}
 
-	// Extract the dropped cookie from the request
+	// Extract the cookie from the request
 	jwtToken, err := JWTExtractor(request)
 	if err != nil {
 		t.Errorf("Error getting the JWT cookie: %v", err)
