@@ -17,7 +17,7 @@
  *
  */
 
-package utils
+package crypt
 
 import (
 	"bytes"
@@ -137,4 +137,15 @@ func privateKeyToAssertsKey(key []byte) (asserts.PrivateKey, string, error) {
 		return nil, errorInvalidKey, errors.New("Not an RSA private key")
 	}
 	return asserts.RSAPrivateKey(privk.PrivateKey.(*rsa.PrivateKey)), "", nil
+}
+
+// padRight truncates a string to a specific length, padding with a named
+// character for shorter strings.
+func padRight(str, pad string, length int) string {
+	for {
+		str += pad
+		if len(str) > length {
+			return str[0:length]
+		}
+	}
 }

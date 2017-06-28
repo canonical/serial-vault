@@ -17,7 +17,7 @@
  *
  */
 
-package utils
+package crypt
 
 import "testing"
 

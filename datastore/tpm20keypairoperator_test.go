@@ -25,7 +25,7 @@ import (
 	"testing"
 
 	"github.com/CanonicalLtd/serial-vault/config"
-	"github.com/CanonicalLtd/serial-vault/utils"
+	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -68,7 +68,7 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 
 	plainText := "fake-hmac-ed-data"
 
-	cipherText, err := utils.EncryptKey(plainText, "this needs to be 32 bytes long!!")
+	cipherText, err := crypt.EncryptKey(plainText, "this needs to be 32 bytes long!!")
 	if err != nil {
 		t.Errorf("Error encrypting text: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 		t.Error("Invalid encryption")
 	}
 
-	plainTextAgain, err := utils.DecryptKey(cipherText, "this needs to be 32 bytes long!!")
+	plainTextAgain, err := crypt.DecryptKey(cipherText, "this needs to be 32 bytes long!!")
 	if err != nil {
 		t.Errorf("Error decrypting text: %v", err)
 	}
@@ -87,7 +87,7 @@ func TestTPMEncryptDecrypt(t *testing.T) {
 
 func TestGenerateAuthKey(t *testing.T) {
 
-	authKey := utils.GenerateAuthKey("Hello", "World")
+	authKey := crypt.GenerateAuthKey("Hello", "World")
 	if authKey != "Hello/World" {
 		t.Errorf("Error generating the auth-key: %v", authKey)
 	}

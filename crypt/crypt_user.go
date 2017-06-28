@@ -17,25 +17,22 @@
  *
  */
 
-package utils
+package crypt
 
-import "testing"
+// #cgo LDFLAGS: -lcrypt
+// #define _GNU_SOURCE
+// #include <crypt.h>
+// #include <stdlib.h>
+import "C"
+import "unsafe"
 
-func TestRandomGeneration(t *testing.T) {
-	n := 10
-	// search for random strings enough smalls as to see if they are random
-	tokens := make(map[string]string)
-	for i := 0; i < n; i++ {
-		// generate minimum amount of random data to verify it is enough random
-		token, err := GenerateRandomString(10)
-		if err != nil {
-			t.Errorf("Error generating random string: %v", err)
-		}
-		tokens[token] = token
-	}
-
-	// Check that we have n different tokens stored in the map
-	if len(tokens) < n {
-		t.Error("Generated random numbers are not unique")
-	}
+// CLibCryptUser wraps C library crypt_r
+func CLibCryptUser(key, salt string) string {
+	data := C.struct_crypt_data{}
+	ckey := C.CString(key)
+	csalt := C.CString(salt)
+	out := C.GoString(C.crypt_r(ckey, csalt, &data))
+	C.free(unsafe.Pointer(ckey))
+	C.free(unsafe.Pointer(csalt))
+	return out
 }

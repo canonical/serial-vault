@@ -28,7 +28,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CanonicalLtd/serial-vault/utils"
+	"github.com/CanonicalLtd/serial-vault/random"
 )
 
 // Set the nonce expiry time
@@ -138,7 +138,7 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 }
 
 func generateNonce() (DeviceNonce, error) {
-	token, err := utils.GenerateRandomString(64)
+	token, err := random.GenerateRandomString(64)
 	if err != nil {
 		log.Printf("Could not generate random string for nonce")
 		return DeviceNonce{}, errors.New("Error generating nonce")
