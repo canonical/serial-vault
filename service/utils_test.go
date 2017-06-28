@@ -26,33 +26,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
-
-func TestReadConfig(t *testing.T) {
-	settings := config.Settings{}
-	err := config.ReadConfig(&settings, "../settings.yaml")
-	if err != nil {
-		t.Errorf("Error reading config file: %v", err)
-	}
-}
-
-func TestReadConfigInvalidPath(t *testing.T) {
-	settings := config.Settings{}
-	err := config.ReadConfig(&settings, "not a good path")
-	if err == nil {
-		t.Error("Expected an error with an invalid config file.")
-	}
-}
-
-func TestReadConfigInvalidFile(t *testing.T) {
-	settings := config.Settings{}
-	err := config.ReadConfig(&settings, "../README.md")
-	if err == nil {
-		t.Error("Expected an error with an invalid config file.")
-	}
-}
 
 func TestFormatModelsResponse(t *testing.T) {
 	var models []ModelSerialize
