@@ -70,6 +70,18 @@ type Datastore interface {
 
 	CreateOpenidNonceTable() error
 	CreateOpenidNonce(nonce OpenidNonce) error
+
+	CreateUser(user User) error
+	ListUsers() ([]User, error)
+	FindUsers(query string) ([]User, error)
+	GetUser(username string) (User, error)
+	UpdateUser(username string, user User) error
+	DeleteUser(username string) error
+	CreateUserTable() error
+	CreateAccountUserLinkTable() error
+
+	ListUserAccounts(username string) ([]Account, error)
+	ListAccountUsers(authorityID string) ([]User, error)
 }
 
 // DB local database interface with our custom methods.
