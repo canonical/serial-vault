@@ -39,7 +39,7 @@ func NewJWTToken(resp *openid.Response) (string, error) {
 	token.Claims[ClaimsName] = resp.SReg["fullname"]
 	token.Claims[ClaimsEmail] = resp.SReg["email"]
 	token.Claims[ClaimsIdentity] = resp.ID
-	token.Claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	token.Claims[StandardClaimExpiresAt] = time.Now().Add(time.Hour * 24).Unix()
 
 	tokenString, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {

@@ -26,11 +26,12 @@ var ClaimsKey struct{}
 
 // UserClaims holds the JWT custom claims for a user
 const (
-	ClaimsIdentity = "identity"
-	ClaimsUsername = "username"
-	ClaimsEmail    = "email"
-	ClaimsName     = "name"
-	ClaimsRole     = "role"
+	ClaimsIdentity         = "identity"
+	ClaimsUsername         = "username"
+	ClaimsEmail            = "email"
+	ClaimsName             = "name"
+	ClaimsRole             = "role"
+	StandardClaimExpiresAt = "exp"
 )
 
 // JWTCookie is the name of the cookie used to store the JWT
