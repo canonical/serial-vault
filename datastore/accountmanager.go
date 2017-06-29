@@ -20,6 +20,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
@@ -46,6 +47,14 @@ const upsertAccountSQL = `
 	where not exists (select * from upsert)
 `
 
+const listUserAccountsSQL = `
+	select id, authority_id, assertion 
+	from account a
+	inner join accountuserlink l on a.id = l.account_id
+	inner join user u on l.user_id = u.id
+	where u.username=$1
+`
+
 // Account holds the store account assertion in the local database
 type Account struct {
 	ID          int
@@ -61,8 +70,6 @@ func (db *DB) CreateAccountTable() error {
 
 // ListAccounts fetches the available accounts from the database.
 func (db *DB) ListAccounts() ([]Account, error) {
-	accounts := []Account{}
-
 	rows, err := db.Query(listAccountsSQL)
 	if err != nil {
 		log.Printf("Error retrieving database accounts: %v\n", err)
@@ -70,16 +77,7 @@ func (db *DB) ListAccounts() ([]Account, error) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		account := Account{}
-		err := rows.Scan(&account.ID, &account.AuthorityID, &account.Assertion)
-		if err != nil {
-			return nil, err
-		}
-		accounts = append(accounts, account)
-	}
-
-	return accounts, nil
+	return rowsToAccounts(rows)
 }
 
 // GetAccount fetches a single account from the database by the authority ID
@@ -120,4 +118,31 @@ func (db *DB) PutAccount(account Account) (string, error) {
 	}
 
 	return "", nil
+}
+
+// ListUserAccounts returns a list of Account objects related with certain user
+func (db *DB) ListUserAccounts(username string) ([]Account, error) {
+	rows, err := db.Query(listUserAccountsSQL, username)
+	if err != nil {
+		log.Printf("Error retrieving database accounts of certain user: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	return rowsToAccounts(rows)
+}
+
+func rowsToAccounts(rows *sql.Rows) ([]Account, error) {
+	accounts := []Account{}
+
+	for rows.Next() {
+		account := Account{}
+		err := rows.Scan(&account.ID, &account.AuthorityID, &account.Assertion)
+		if err != nil {
+			return nil, err
+		}
+		accounts = append(accounts, account)
+	}
+
+	return accounts, nil
 }
