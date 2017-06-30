@@ -28,13 +28,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
 
 func TestKeypairListHandler(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
@@ -56,7 +58,7 @@ func TestKeypairListHandler(t *testing.T) {
 
 func TestKeypairListHandlerWithError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
@@ -206,9 +208,9 @@ func TestKeypairHandlerBadPrivateKeyEncoded(t *testing.T) {
 
 func TestKeypairHandlerValidPrivateKey(t *testing.T) {
 	// Mock the database and the keystore
-	config := ConfigSettings{KeyStoreType: "memory"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
-	Environ.KeypairDB, _ = getMemoryKeyStore(config)
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
 
 	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
 	if err != nil {
@@ -236,9 +238,9 @@ func TestKeypairHandlerValidPrivateKey(t *testing.T) {
 
 func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 	// Mock the database and the keystore
-	config := ConfigSettings{KeyStoreType: "memory"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
-	Environ.KeypairDB, _ = getErrorMockKeyStore(config)
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetErrorMockKeyStore(config)
 
 	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
 	if err != nil {
@@ -266,9 +268,9 @@ func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 
 func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 	// Mock the database and the keystore
-	config := ConfigSettings{KeyStoreType: "memory"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
-	Environ.KeypairDB, _ = getMemoryKeyStore(config)
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
 
 	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
 	if err != nil {
@@ -293,11 +295,11 @@ func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 
 func TestKeypairDisableHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -312,11 +314,11 @@ func TestKeypairDisableHandler(t *testing.T) {
 
 func TestKeypairDisableHandlerError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -334,11 +336,11 @@ func TestKeypairDisableHandlerError(t *testing.T) {
 
 func TestKeypairDisableHandlerBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/9999999999999999999999999/disable", bytes.NewBufferString("{}"))
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -356,11 +358,11 @@ func TestKeypairDisableHandlerBadID(t *testing.T) {
 
 func TestKeypairEnableHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -375,11 +377,11 @@ func TestKeypairEnableHandler(t *testing.T) {
 
 func TestKeypairEnableHandlerError(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -397,11 +399,11 @@ func TestKeypairEnableHandlerError(t *testing.T) {
 
 func TestKeypairEnableHandlerBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/keypairs/9999999999999999999999999/enable", bytes.NewBufferString("{}"))
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
@@ -469,9 +471,9 @@ func sendKeypairAssertionError(request []byte, t *testing.T) {
 
 func mockDatabase() {
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
-	Environ.KeypairDB, _ = GetKeyStore(config)
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
 }
 
 func TestKeypairAssertionWithErrors(t *testing.T) {
@@ -534,9 +536,9 @@ func TestKeypairAssertionInvalidID(t *testing.T) {
 func TestKeypairAssertionUpdateError(t *testing.T) {
 
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
-	Environ.KeypairDB, _ = GetKeyStore(config)
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
 
 	// Encode the assertion and create the request
 	assertion, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")

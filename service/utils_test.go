@@ -25,31 +25,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
-
-func TestReadConfig(t *testing.T) {
-	config := ConfigSettings{}
-	err := ReadConfig(&config, "../settings.yaml")
-	if err != nil {
-		t.Errorf("Error reading config file: %v", err)
-	}
-}
-
-func TestReadConfigInvalidPath(t *testing.T) {
-	config := ConfigSettings{}
-	err := ReadConfig(&config, "not a good path")
-	if err == nil {
-		t.Error("Expected an error with an invalid config file.")
-	}
-}
-
-func TestReadConfigInvalidFile(t *testing.T) {
-	config := ConfigSettings{}
-	err := ReadConfig(&config, "../README.md")
-	if err == nil {
-		t.Error("Expected an error with an invalid config file.")
-	}
-}
 
 func TestFormatModelsResponse(t *testing.T) {
 	var models []ModelSerialize
@@ -76,9 +54,9 @@ func TestFormatModelsResponse(t *testing.T) {
 }
 
 func TestFormatKeypairsResponse(t *testing.T) {
-	var keypairs []Keypair
-	keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "Vendor", KeyID: "12345678abcde", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "Vendor", KeyID: "abcdef123456", Active: true})
+	var keypairs []datastore.Keypair
+	keypairs = append(keypairs, datastore.Keypair{ID: 1, AuthorityID: "Vendor", KeyID: "12345678abcde", Active: true})
+	keypairs = append(keypairs, datastore.Keypair{ID: 2, AuthorityID: "Vendor", KeyID: "abcdef123456", Active: true})
 
 	w := httptest.NewRecorder()
 	err := formatKeypairsResponse(true, "", "", "", keypairs, w)
@@ -100,9 +78,9 @@ func TestFormatKeypairsResponse(t *testing.T) {
 }
 
 func TestFormatSigningLogResponse(t *testing.T) {
-	var signingLog []SigningLog
-	signingLog = append(signingLog, SigningLog{ID: 1, Make: "System", Model: "Router 3400", SerialNumber: "A1", Fingerprint: "a1", Created: time.Now()})
-	signingLog = append(signingLog, SigningLog{ID: 2, Make: "System", Model: "Router 3400", SerialNumber: "A2", Fingerprint: "a2", Created: time.Now()})
+	var signingLog []datastore.SigningLog
+	signingLog = append(signingLog, datastore.SigningLog{ID: 1, Make: "System", Model: "Router 3400", SerialNumber: "A1", Fingerprint: "a1", Created: time.Now()})
+	signingLog = append(signingLog, datastore.SigningLog{ID: 2, Make: "System", Model: "Router 3400", SerialNumber: "A2", Fingerprint: "a2", Created: time.Now()})
 
 	w := httptest.NewRecorder()
 	err := formatSigningLogResponse(true, "", "", "", signingLog, w)
@@ -120,25 +98,6 @@ func TestFormatSigningLogResponse(t *testing.T) {
 	}
 	if result.SigningLog[0].Fingerprint != signingLog[0].Fingerprint {
 		t.Errorf("Expected the first fingerprint '%s', got: %s", signingLog[0].Fingerprint, result.SigningLog[0].Fingerprint)
-	}
-}
-
-func TestRandomGeneration(t *testing.T) {
-	n := 10
-	// search for random strings enough smalls as to see if they are random
-	tokens := make(map[string]string)
-	for i := 0; i < n; i++ {
-		// generate minimum amount of random data to verify it is enough random
-		token, err := GenerateRandomString(10)
-		if err != nil {
-			t.Errorf("Error generating random string: %v", err)
-		}
-		tokens[token] = token
-	}
-
-	// Check that we have n different tokens stored in the map
-	if len(tokens) < n {
-		t.Error("Generated random numbers are not unique")
 	}
 }
 

@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/gorilla/mux"
 )
 
@@ -63,7 +64,7 @@ type ModelResponse struct {
 	Model        ModelSerialize `json:"model"`
 }
 
-func modelForDisplay(model Model) ModelSerialize {
+func modelForDisplay(model datastore.Model) ModelSerialize {
 	return ModelSerialize{
 		ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType,
 		KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive,
@@ -77,7 +78,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	models := []ModelSerialize{}
 
-	dbModels, err := Environ.DB.ListModels()
+	dbModels, err := datastore.Environ.DB.ListModels()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -112,7 +113,7 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	model, err := Environ.DB.GetModel(modelID)
+	model, err := datastore.Environ.DB.GetModel(modelID)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
@@ -174,8 +175,8 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
-	errorSubcode, err := Environ.DB.UpdateModel(model)
+	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
+	errorSubcode, err := datastore.Environ.DB.UpdateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -202,8 +203,8 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := Model{ID: modelID}
-	errorSubcode, err := Environ.DB.DeleteModel(model)
+	model := datastore.Model{ID: modelID}
+	errorSubcode, err := datastore.Environ.DB.DeleteModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -253,9 +254,9 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new model, linked to the existing signing-key
-	model := Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
+	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
-	model, errorSubcode, err = Environ.DB.CreateModel(model)
+	model, errorSubcode, err = datastore.Environ.DB.CreateModel(model)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)

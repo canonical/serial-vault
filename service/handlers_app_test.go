@@ -23,14 +23,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 func TestIndexHandler(t *testing.T) {
 
 	indexTemplate = "../static/app.html"
 
-	config := ConfigSettings{Title: "Site Title", Logo: "/url"}
-	Environ = &Env{Config: config}
+	config := config.Settings{Title: "Site Title", Logo: "/url"}
+	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
@@ -45,8 +48,8 @@ func TestIndexHandlerInvalidTemplate(t *testing.T) {
 
 	indexTemplate = "../static/does_not_exist.html"
 
-	config := ConfigSettings{Title: "Site Title", Logo: "/url"}
-	Environ = &Env{Config: config}
+	config := config.Settings{Title: "Site Title", Logo: "/url"}
+	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)

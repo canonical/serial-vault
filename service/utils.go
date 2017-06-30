@@ -20,51 +20,17 @@
 package service
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
 	"strings"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
-
-	"gopkg.in/yaml.v2"
 )
-
-// Accepted service modes
-var (
-	ModeSigning = "signing"
-	ModeAdmin   = "admin"
-)
-
-// Set the application version from a constant
-const version = "1.5.0"
-
-// Set the nonce expiry time
-const nonceMaximumAge = 600
-
-// ConfigSettings defines the parsed config file settings.
-type ConfigSettings struct {
-	Version        string
-	Title          string   `yaml:"title"`
-	Logo           string   `yaml:"logo"`
-	DocRoot        string   `yaml:"docRoot"`
-	Driver         string   `yaml:"driver"`
-	DataSource     string   `yaml:"datasource"`
-	KeyStoreType   string   `yaml:"keystore"`
-	KeyStorePath   string   `yaml:"keystorePath"`
-	KeyStoreSecret string   `yaml:"keystoreSecret"`
-	Mode           string   `yaml:"mode"`
-	APIKeys        []string `yaml:"apiKeys"`
-	APIKeysMap     map[string]struct{}
-	CSRFAuthKey    string `yaml:"csrfAuthKey"`
-}
 
 // DeviceAssertion defines the device identity.
 type DeviceAssertion struct {
@@ -80,63 +46,12 @@ type DeviceAssertion struct {
 // ModelType is the default type of a model
 const ModelType = "device"
 
-// Env Environment struct that holds the config and data store details.
-type Env struct {
-	Config    ConfigSettings
-	DB        Datastore
-	KeypairDB *KeypairDatabase
-}
-
-// SettingsFile is the path to the YAML configuration file
-var SettingsFile string
-
-// ServiceMode is whether we are running the user or admin service
-var ServiceMode string
-
 // BooleanResponse is the JSON response from an API method, indicating success or failure.
 type BooleanResponse struct {
 	Success      bool   `json:"success"`
 	ErrorCode    string `json:"error_code"`
 	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
-}
-
-// ParseArgs checks the command line arguments
-func ParseArgs() {
-	flag.StringVar(&SettingsFile, "config", "./settings.yaml", "Path to the config file")
-	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing, admin or system-user service ")
-	flag.Parse()
-}
-
-// ReadConfig parses the config file
-func ReadConfig(config *ConfigSettings, filePath string) error {
-	source, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		log.Println("Error opening the config file.")
-		return err
-	}
-
-	err = yaml.Unmarshal(source, &config)
-	if err != nil {
-		log.Println("Error parsing the config file.")
-		return err
-	}
-
-	// Set the application version from the constant
-	config.Version = version
-
-	// Set the service mode from the config file if it is not set
-	if ServiceMode == "" {
-		ServiceMode = config.Mode
-	}
-
-	// Migrate the API keys to a map for more efficient lookups
-	config.APIKeysMap = make(map[string]struct{})
-	for _, key := range config.APIKeys {
-		config.APIKeysMap[key] = struct{}{}
-	}
-
-	return nil
 }
 
 func formatSignResponse(success bool, errorCode, errorSubcode, message string, assertion asserts.Assertion, w http.ResponseWriter) error {
@@ -187,7 +102,7 @@ func formatModelResponse(success bool, errorCode, errorSubcode, message string, 
 	return nil
 }
 
-func formatKeypairsResponse(success bool, errorCode, errorSubcode, message string, keypairs []Keypair, w http.ResponseWriter) error {
+func formatKeypairsResponse(success bool, errorCode, errorSubcode, message string, keypairs []datastore.Keypair, w http.ResponseWriter) error {
 	response := KeypairsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Keypairs: keypairs}
 
 	// Encode the response as JSON
@@ -198,7 +113,7 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 	return nil
 }
 
-func formatAccountsResponse(success bool, errorCode, errorSubcode, message string, accounts []Account, w http.ResponseWriter) error {
+func formatAccountsResponse(success bool, errorCode, errorSubcode, message string, accounts []datastore.Account, w http.ResponseWriter) error {
 	response := AccountsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Accounts: accounts}
 
 	// Encode the response as JSON
@@ -209,7 +124,7 @@ func formatAccountsResponse(success bool, errorCode, errorSubcode, message strin
 	return nil
 }
 
-func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []SigningLog, w http.ResponseWriter) error {
+func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []datastore.SigningLog, w http.ResponseWriter) error {
 	response := SigningLogResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
 
 	// Encode the response as JSON
@@ -220,7 +135,7 @@ func formatSigningLogResponse(success bool, errorCode, errorSubcode, message str
 	return nil
 }
 
-func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters SigningLogFilters, w http.ResponseWriter) error {
+func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters datastore.SigningLogFilters, w http.ResponseWriter) error {
 	response := SigningLogFiltersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLogFilters: filters}
 
 	// Encode the response as JSON
@@ -231,7 +146,7 @@ func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, mess
 	return nil
 }
 
-func formatRequestIDResponse(success bool, message string, nonce DeviceNonce, w http.ResponseWriter) error {
+func formatRequestIDResponse(success bool, message string, nonce datastore.DeviceNonce, w http.ResponseWriter) error {
 	response := RequestIDResponse{Success: success, ErrorMessage: message, RequestID: nonce.Nonce}
 
 	// Encode the response as JSON
@@ -242,25 +157,14 @@ func formatRequestIDResponse(success bool, message string, nonce DeviceNonce, w 
 	return nil
 }
 
-// padRight truncates a string to a specific length, padding with a named
-// character for shorter strings.
-func padRight(str, pad string, length int) string {
-	for {
-		str += pad
-		if len(str) > length {
-			return str[0:length]
-		}
-	}
-}
-
 // checkAPIKey the API key header to make sure it is an allowed header
 func checkAPIKey(apiKey string) error {
-	if Environ.Config.APIKeys == nil || len(Environ.Config.APIKeys) == 0 {
+	if datastore.Environ.Config.APIKeys == nil || len(datastore.Environ.Config.APIKeys) == 0 {
 		log.Println("No API key authorisation defined - default policy is allow")
 		return nil
 	}
 
-	if _, ok := Environ.Config.APIKeysMap[apiKey]; !ok {
+	if _, ok := datastore.Environ.Config.APIKeysMap[apiKey]; !ok {
 		return errors.New("Unauthorized API key used")
 	}
 
@@ -271,28 +175,6 @@ func checkAPIKey(apiKey string) error {
 // e.g. "METHOD CODE descriptive reason"
 func logMessage(method, code, reason string) {
 	log.Printf("%s %s %s\n", method, code, reason)
-}
-
-// GenerateRandomBytes returns securely generated random bytes.
-// It will return an error if the system's secure random
-// number generator fails to function correctly, in which
-// case the caller should not continue.
-func GenerateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	// Note that err == nil only if we read len(b) bytes.
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
-
-// GenerateRandomString returns a URL-safe, base64 encoded
-// securely generated random string.
-func GenerateRandomString(s int) (string, error) {
-	b, err := GenerateRandomBytes(s)
-	return base64.URLEncoding.EncodeToString(b), err
 }
 
 // define pattern for model name validation

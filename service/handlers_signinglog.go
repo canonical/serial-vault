@@ -24,32 +24,33 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/gorilla/mux"
 )
 
 // SigningLogResponse is the JSON response from the API Signing Log method
 type SigningLogResponse struct {
-	Success      bool         `json:"success"`
-	ErrorCode    string       `json:"error_code"`
-	ErrorSubcode string       `json:"error_subcode"`
-	ErrorMessage string       `json:"message"`
-	SigningLog   []SigningLog `json:"logs"`
+	Success      bool                   `json:"success"`
+	ErrorCode    string                 `json:"error_code"`
+	ErrorSubcode string                 `json:"error_subcode"`
+	ErrorMessage string                 `json:"message"`
+	SigningLog   []datastore.SigningLog `json:"logs"`
 }
 
 // SigningLogFiltersResponse is the JSON response from the API Signing Log Filters method
 type SigningLogFiltersResponse struct {
-	Success           bool              `json:"success"`
-	ErrorCode         string            `json:"error_code"`
-	ErrorSubcode      string            `json:"error_subcode"`
-	ErrorMessage      string            `json:"message"`
-	SigningLogFilters SigningLogFilters `json:"filters"`
+	Success           bool                        `json:"success"`
+	ErrorCode         string                      `json:"error_code"`
+	ErrorSubcode      string                      `json:"error_subcode"`
+	ErrorMessage      string                      `json:"message"`
+	SigningLogFilters datastore.SigningLogFilters `json:"filters"`
 }
 
 // SigningLogHandler is the API method to fetch the log records from signing
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	logs, err := Environ.DB.ListSigningLog()
+	logs, err := datastore.Environ.DB.ListSigningLog()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
@@ -65,7 +66,7 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	filters, err := Environ.DB.SigningLogFilterValues()
+	filters, err := datastore.Environ.DB.SigningLogFilterValues()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogFiltersResponse(false, "error-fetch-signinglogfilters", "", err.Error(), filters, w)
@@ -92,8 +93,8 @@ func SigningLogDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	signingLog := SigningLog{ID: logID}
-	errorSubcode, err := Environ.DB.DeleteSigningLog(signingLog)
+	signingLog := datastore.SigningLog{ID: logID}
+	errorSubcode, err := datastore.Environ.DB.DeleteSigningLog(signingLog)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)

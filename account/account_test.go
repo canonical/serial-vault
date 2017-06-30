@@ -23,34 +23,35 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
 
 func TestCacheAccountAssertions(t *testing.T) {
 	// Mock the database
-	mockDB := service.MockDB{}
-	config := service.ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	service.Environ = &service.Env{DB: &mockDB, Config: config}
-	service.Environ.KeypairDB, _ = service.GetKeyStore(config)
+	mockDB := datastore.MockDB{}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &mockDB, Config: config}
+	datastore.OpenKeyStore(config)
 
 	// Mock the retrieval of the assertion from the store (using a fixed assertion)
 	FetchAssertionFromStore = mockFetchAssertionFromStore
 
-	CacheAccountAssertions(service.Environ)
+	CacheAccountAssertions(datastore.Environ)
 }
 
 func TestCacheAccountAssertionsFetchError(t *testing.T) {
 	// Mock the database
-	mockDB := service.MockDB{}
-	config := service.ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
-	service.Environ = &service.Env{DB: &mockDB, Config: config}
-	service.Environ.KeypairDB, _ = service.GetKeyStore(config)
+	mockDB := datastore.MockDB{}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &mockDB, Config: config}
+	datastore.OpenKeyStore(config)
 
 	// Mock the retrieval of the assertion from the store (using a fixed assertion)
 	FetchAssertionFromStore = mockErrorFetchAssertionFromStore
 
-	CacheAccountAssertions(service.Environ)
+	CacheAccountAssertions(datastore.Environ)
 }
 
 // Mock the retrieval of the assertion from the store (using a fixed assertion)

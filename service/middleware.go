@@ -25,6 +25,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/handlers"
 )
 
@@ -37,9 +39,6 @@ func Logger(start time.Time, r *http.Request) {
 		time.Since(start),
 	)
 }
-
-// Environ contains the parsed config file settings.
-var Environ *Env
 
 // ErrorHandler is a standard error handler middleware that generates the error response
 func ErrorHandler(f func(http.ResponseWriter, *http.Request) ErrorResponse) http.HandlerFunc {
@@ -59,13 +58,9 @@ func ErrorHandler(f func(http.ResponseWriter, *http.Request) ErrorResponse) http
 }
 
 // Middleware to pre-process web service requests
-func Middleware(inner http.Handler, env *Env) http.Handler {
+func Middleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-
-		if Environ == nil {
-			Environ = env
-		}
 
 		// Log the request
 		Logger(start, r)
@@ -85,4 +80,46 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 
 		return handlers.CORS(headers, origins, methods, exposed, credentials)(h)
 	}
+}
+
+// JWTValidate verifies that the JWT token is valid. The token is set after logging-in via Openid
+func JWTValidate(protected http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// Do not validate access if user authentication is off (default)
+		if !datastore.Environ.Config.EnableUserAuth {
+			protected.ServeHTTP(w, r)
+			return
+		}
+
+		// Get the JWT from the header or cookie
+		jwtToken, err := usso.JWTExtractor(r)
+		if err != nil {
+			log.Println(err.Error())
+			// TODO: don't leave pages unprotected when there is no token
+			protected.ServeHTTP(w, r)
+			return
+		}
+
+		// Verify the JWT string
+		token, err := usso.VerifyJWT(jwtToken)
+		if err != nil {
+			log.Printf("JWT fails validation: %v", err.Error())
+			// TODO: don't leave pages unprotected when there is an invalid token
+			protected.ServeHTTP(w, r)
+			return
+		}
+
+		if !token.Valid {
+			log.Println("Invalid JWT")
+			// TODO: don't leave pages unprotected when there is an invalid token
+			protected.ServeHTTP(w, r)
+		}
+
+		// Set a cookie with the JWT
+		usso.AddJWTCookie(jwtToken, w)
+
+		protected.ServeHTTP(w, r)
+
+	})
 }

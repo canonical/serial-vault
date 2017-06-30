@@ -23,22 +23,23 @@ import (
 	"log"
 
 	"github.com/CanonicalLtd/serial-vault/account"
-	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 func main() {
-	env := service.Env{}
+	datastore.Environ = &datastore.Env{}
 
 	// Parse the command line arguments
 	account.ParseArgs()
-	err := service.ReadConfig(&env.Config, account.SettingsFile)
+	err := config.ReadConfig(&datastore.Environ.Config, account.SettingsFile)
 	if err != nil {
 		log.Fatalf("Error parsing the config file: %v\n", err)
 	}
 
 	// Open the connection to the local database
-	env.DB = service.OpenSysDatabase(env.Config.Driver, env.Config.DataSource)
+	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
 
 	// Cache the account assertions from the store in the database
-	account.CacheAccountAssertions(&env)
+	account.CacheAccountAssertions(datastore.Environ)
 }

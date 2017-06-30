@@ -26,12 +26,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
 func TestModelsHandler(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
@@ -54,7 +57,7 @@ func TestModelsHandler(t *testing.T) {
 func TestModelsHandlerWithError(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
@@ -75,7 +78,7 @@ func TestModelsHandlerWithError(t *testing.T) {
 func TestModelGetHandler(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	result, _ := sendRequest(t, "GET", "/v1/models/1", nil)
 
@@ -90,7 +93,7 @@ func TestModelGetHandler(t *testing.T) {
 func TestModelGetHandlerWithError(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	sendRequestExpectError(t, "GET", "/v1/models/999999", nil)
 }
@@ -98,14 +101,14 @@ func TestModelGetHandlerWithError(t *testing.T) {
 func TestModelGetHandlerWithBadID(t *testing.T) {
 
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	sendRequestExpectError(t, "GET", "/v1/models/999999999999999999999999999999", nil)
 }
 
 func TestModelUpdateHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	// Update a model
 	data := `
@@ -129,7 +132,7 @@ func TestModelUpdateHandler(t *testing.T) {
 
 func TestModelUpdateHandlerWithErrors(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	// Update a model
 	data := `{}`
@@ -139,35 +142,35 @@ func TestModelUpdateHandlerWithErrors(t *testing.T) {
 
 func TestModelUpdateHandlerWithNilData(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/1", nil)
 }
 
 func TestModelUpdateHandlerWithEmptyData(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString(""))
 }
 
 func TestModelUpdateHandlerWithBadData(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString("bad"))
 }
 
 func TestModelUpdateHandlerWithBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
 func TestModelDeleteHandler(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &MockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 
 	// Delete a model
 	data := "{}"
@@ -176,7 +179,7 @@ func TestModelDeleteHandler(t *testing.T) {
 
 func TestModelDeleteHandlerWithErrors(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	// Delete a model
 	data := `{}`
@@ -186,15 +189,15 @@ func TestModelDeleteHandlerWithErrors(t *testing.T) {
 
 func TestModelDeleteHandlerWithBadID(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "DELETE", "/v1/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
 func TestModelCreateHandler(t *testing.T) {
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &MockDB{}, Config: config}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
 	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
@@ -211,8 +214,8 @@ func TestModelCreateHandler(t *testing.T) {
 
 func TestModelCreateHandlerWithError(t *testing.T) {
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
 	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
@@ -223,8 +226,8 @@ func TestModelCreateHandlerWithError(t *testing.T) {
 
 func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 	// Mock the database
-	config := ConfigSettings{KeyStoreType: "filesystem"}
-	Environ = &Env{DB: &ErrorMockDB{}, Config: config}
+	config := config.Settings{KeyStoreType: "filesystem"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
 	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
@@ -235,21 +238,21 @@ func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 
 func TestModelCreateHandlerWithNilData(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "POST", "/v1/models", nil)
 }
 
 func TestModelCreateHandlerWithEmptyData(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewBufferString(""))
 }
 
 func TestModelCreateHandlerWithBadData(t *testing.T) {
 	// Mock the database
-	Environ = &Env{DB: &ErrorMockDB{}}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewBufferString("bad"))
 }
@@ -257,7 +260,7 @@ func TestModelCreateHandlerWithBadData(t *testing.T) {
 func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
@@ -275,7 +278,7 @@ func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelRespons
 func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
-	AdminRouter(Environ).ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}

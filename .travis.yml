@@ -1,6 +1,7 @@
 sudo: required
 dist: xenial
 language: go
+go_import_path: github.com/CanonicalLtd/serial-vault
 go:
   - 1.6
 env:
@@ -8,6 +9,13 @@ env:
     - TEST_SUITE="--static"
     - TEST_SUITE="--unit"
 
+before_install:
+    - go get github.com/cheggaaa/pb
+    - go get gopkg.in/macaroon.v1
+    - go get gopkg.in/retry.v1
+    - go get gopkg.in/tomb.v2
+
 install:
-  - echo "Skip. Install is done by the test script."
+    - echo $GOPATH
+    - echo "Remaining install is done by the test script."
 script: sh -v ./run-checks $TEST_SUITE

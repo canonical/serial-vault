@@ -62,7 +62,7 @@ If you have a Go development environment set up, Go get it:
 - Create the database tables:
   ```bash
   $ cd serial-vault
-  $ go run tools/createdb.go -config=/path/to/settings.yaml
+  $ go run cmd/createddb/main.go -config=/path/to/settings.yaml
   ```
 
 ### Run it:

@@ -23,7 +23,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/overlord/auth"
 	"github.com/snapcore/snapd/store"
@@ -48,7 +48,7 @@ var FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []s
 }
 
 // CacheAccountAssertions fetches the account assertions from the store and caches them in the database
-func CacheAccountAssertions(env *service.Env) {
+func CacheAccountAssertions(env *datastore.Env) {
 
 	// Get the active signing-keys from the database
 	keypairs, err := env.DB.ListKeypairs()
@@ -72,7 +72,7 @@ func CacheAccountAssertions(env *service.Env) {
 			continue
 		}
 
-		_, err = env.DB.PutAccount(service.Account{AuthorityID: k.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
+		_, err = env.DB.PutAccount(datastore.Account{AuthorityID: k.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
 		if err != nil {
 			log.Printf("Error storing the account assertion from the store: %v\n", err)
 			continue
