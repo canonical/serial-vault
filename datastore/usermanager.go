@@ -57,6 +57,18 @@ const listAccountUsersSQL = `
 	where a.authority_id=$1
 `
 
+// Available user roles:
+//
+// * Standard:	role for regular users. This is the less privileged role
+// * Admin:		role for admin users, including standard role permissions but not superuser ones
+// * Superuser:	role for users having all the permissions
+const (
+	_         = iota
+	Standard  = 100 * iota // 100
+	Admin                  // 200
+	Superuser              // 300
+)
+
 // User holds user personal, authentication and authorization info
 type User struct {
 	ID          int
