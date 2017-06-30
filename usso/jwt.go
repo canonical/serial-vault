@@ -90,7 +90,7 @@ func JWTExtractor(r *http.Request) (string, error) {
 		cookie, err := r.Cookie(JWTCookie)
 		if err != nil {
 			log.Println("Cannot find the JWT")
-			return "", errors.New("Cannot from the JWT")
+			return "", errors.New("Cannot find the JWT")
 		}
 		jwtToken = cookie.Value
 	}
