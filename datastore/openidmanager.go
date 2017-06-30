@@ -31,6 +31,7 @@ import (
 const OpenidNonceMaxAge = maxNonceAgeInSeconds * time.Second
 const maxNonceAgeInSeconds = 60
 
+// https://openid.net/specs/openid-authentication-2_0.html for more information
 const createOpenidNonceTableSQL = `
 	CREATE TABLE IF NOT EXISTS openidnonce (
 		id             serial primary key not null,

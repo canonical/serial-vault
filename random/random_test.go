@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2017-2018 Canonical Ltd
+ * Copyright (C) 2016-2017 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,22 +17,25 @@
  *
  */
 
-package usso
+package random
 
-const jwtSecret = "TODO-ReplaceWithASecretFromTheConfigurationFile"
+import "testing"
 
-// ClaimsKey is the context key for the JWT claims
-var ClaimsKey struct{}
+func TestRandomGeneration(t *testing.T) {
+	n := 10
+	// search for random strings enough smalls as to see if they are random
+	tokens := make(map[string]string)
+	for i := 0; i < n; i++ {
+		// generate minimum amount of random data to verify it is enough random
+		token, err := GenerateRandomString(10)
+		if err != nil {
+			t.Errorf("Error generating random string: %v", err)
+		}
+		tokens[token] = token
+	}
 
-// UserClaims holds the JWT custom claims for a user
-const (
-	ClaimsIdentity         = "identity"
-	ClaimsUsername         = "username"
-	ClaimsEmail            = "email"
-	ClaimsName             = "name"
-	ClaimsRole             = "role"
-	StandardClaimExpiresAt = "exp"
-)
-
-// JWTCookie is the name of the cookie used to store the JWT
-const JWTCookie = "X-Auth-Token"
+	// Check that we have n different tokens stored in the map
+	if len(tokens) < n {
+		t.Error("Generated random numbers are not unique")
+	}
+}

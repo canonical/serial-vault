@@ -25,7 +25,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/CanonicalLtd/serial-vault/utils"
+	"github.com/CanonicalLtd/serial-vault/crypt"
 )
 
 const (
@@ -74,7 +74,7 @@ func (tpmStore *TPM20KeypairOperator) ImportKeypair(authorityID, keyID, base64Pr
 	}
 
 	// Use the HMAC-ed auth-key as the key to encrypt the signing-key
-	sealedSigningKey, err := utils.EncryptKey(base64PrivateKey, authKeyHash)
+	sealedSigningKey, err := crypt.EncryptKey(base64PrivateKey, authKeyHash)
 
 	// base64 encode the sealed signing-key for storage
 	base64SealedSigningkey := base64.StdEncoding.EncodeToString(sealedSigningKey)
@@ -95,7 +95,7 @@ func (tpmStore *TPM20KeypairOperator) UnsealKeypair(authorityID string, keyID st
 // This hash is used as the key for symmetric encryption of the signing-key.
 func (tpmStore *TPM20KeypairOperator) generateEncryptionKey(authorityID, keyID string) (string, error) {
 	// Generate a file with the plain-text base of the symmetric encryption key
-	keyText := utils.GenerateAuthKey(authorityID, keyID)
+	keyText := crypt.GenerateAuthKey(authorityID, keyID)
 	tmpfile, err := ioutil.TempFile("", "tmp")
 	if err != nil {
 		return "", err
@@ -126,14 +126,14 @@ func (tpmStore *TPM20KeypairOperator) generateEncryptionKey(authorityID, keyID s
 	}
 
 	// Encrypt and store the auth-key hash
-	encryptedAuthKeyHash, err := utils.EncryptKey(string(encryptionKey[:]), tpmStore.secret)
+	encryptedAuthKeyHash, err := crypt.EncryptKey(string(encryptionKey[:]), tpmStore.secret)
 	if err != nil {
 		return "", err
 	}
 
 	// Encrypt the HMAC-ed auth-key for storage
 	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
-	Environ.DB.PutSetting(Setting{Code: utils.GenerateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
+	Environ.DB.PutSetting(Setting{Code: crypt.GenerateAuthKey(authorityID, keyID), Data: base64AuthKeyHash})
 
 	// Remove the temporary files
 	os.Remove(tmpfile.Name())

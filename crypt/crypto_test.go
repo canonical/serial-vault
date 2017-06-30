@@ -17,22 +17,27 @@
  *
  */
 
-package utils
+package crypt
 
-// #cgo LDFLAGS: -lcrypt
-// #define _GNU_SOURCE
-// #include <crypt.h>
-// #include <stdlib.h>
-import "C"
-import "unsafe"
+import "testing"
 
-// CryptUser wraps C library crypt_r
-func CryptUser(key, salt string) string {
-	data := C.struct_crypt_data{}
-	ckey := C.CString(key)
-	csalt := C.CString(salt)
-	out := C.GoString(C.crypt_r(ckey, csalt, &data))
-	C.free(unsafe.Pointer(ckey))
-	C.free(unsafe.Pointer(csalt))
-	return out
+func TestEncryptDecrypt(t *testing.T) {
+
+	plainText := "fake-hmac-ed-data"
+
+	cipherText, err := EncryptKey(plainText, "this needs to be 32 bytes long!!")
+	if err != nil {
+		t.Errorf("Error encrypting text: %v", err)
+	}
+	if string(cipherText[:]) == plainText {
+		t.Error("Invalid encryption")
+	}
+
+	plainTextAgain, err := DecryptKey(cipherText, "this needs to be 32 bytes long!!")
+	if err != nil {
+		t.Errorf("Error decrypting text: %v", err)
+	}
+	if string(plainTextAgain[:]) != plainText {
+		t.Error("Invalid decryption")
+	}
 }

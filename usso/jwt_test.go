@@ -42,7 +42,11 @@ func TestNewJWTToken(t *testing.T) {
 		expected: []string{"jwt", "", ""},
 	}
 	test3 := testJWT{
-		resp:     openid.Response{ID: "id", Teams: []string{"teamone", "team2"}, SReg: map[string]string{"nickname": "jwt", "email": "jwt@example.com", "fullname": "John W Thompson"}},
+		resp: openid.Response{
+			ID:    "id",
+			Teams: []string{"teamone", "team2"},
+			SReg:  map[string]string{"nickname": "jwt", "email": "jwt@example.com", "fullname": "John W Thompson"},
+		},
 		expected: []string{"jwt", "jwt@example.com", "John W Thompson"},
 	}
 

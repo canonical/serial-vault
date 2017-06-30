@@ -32,8 +32,9 @@ import (
 
 	"fmt"
 
+	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/utils"
+	"github.com/CanonicalLtd/serial-vault/random"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
 )
@@ -149,7 +150,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 
 	// Create the salt from a random string
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
-	randomText, err := utils.GenerateRandomString(32)
+	randomText, err := random.GenerateRandomString(32)
 	if err != nil {
 		logMessage("USER", "generate-assertion", err.Error())
 		return map[string]interface{}{}
@@ -158,7 +159,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 
 	// Encrypt the password
 	salt := fmt.Sprintf("$6$%s$", baseSalt)
-	password := utils.CryptUser(user.Password, salt)
+	password := crypt.CLibCryptUser(user.Password, salt)
 
 	// Set the since and end date/times
 	since, err := time.Parse("YYYY-MM-DDThh:mm:ssZ00:00", user.Since)

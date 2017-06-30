@@ -23,7 +23,7 @@ import (
 	"errors"
 
 	"github.com/CanonicalLtd/serial-vault/config"
-	"github.com/CanonicalLtd/serial-vault/utils"
+	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -122,7 +122,7 @@ func getKeyStore(config config.Settings) (*KeypairDatabase, error) {
 
 // ImportSigningKey adds a new signing-key for an authority into the keypair store
 func (kdb *KeypairDatabase) ImportSigningKey(authorityID, base64PrivateKey string) (asserts.PrivateKey, string, error) {
-	privateKey, _, err := utils.DeserializePrivateKey(base64PrivateKey)
+	privateKey, _, err := crypt.DeserializePrivateKey(base64PrivateKey)
 	if err != nil {
 		return nil, "", err
 	}

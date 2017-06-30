@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,25 +17,30 @@
  *
  */
 
-package utils
+package config
 
 import "testing"
 
-func TestRandomGeneration(t *testing.T) {
-	n := 10
-	// search for random strings enough smalls as to see if they are random
-	tokens := make(map[string]string)
-	for i := 0; i < n; i++ {
-		// generate minimum amount of random data to verify it is enough random
-		token, err := GenerateRandomString(10)
-		if err != nil {
-			t.Errorf("Error generating random string: %v", err)
-		}
-		tokens[token] = token
+func TestReadConfig(t *testing.T) {
+	settings := Settings{}
+	err := ReadConfig(&settings, "../settings.yaml")
+	if err != nil {
+		t.Errorf("Error reading config file: %v", err)
 	}
+}
 
-	// Check that we have n different tokens stored in the map
-	if len(tokens) < n {
-		t.Error("Generated random numbers are not unique")
+func TestReadConfigInvalidPath(t *testing.T) {
+	settings := Settings{}
+	err := ReadConfig(&settings, "not a good path")
+	if err == nil {
+		t.Error("Expected an error with an invalid config file.")
+	}
+}
+
+func TestReadConfigInvalidFile(t *testing.T) {
+	settings := Settings{}
+	err := ReadConfig(&settings, "../README.md")
+	if err == nil {
+		t.Error("Expected an error with an invalid config file.")
 	}
 }

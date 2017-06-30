@@ -117,7 +117,6 @@ func OpenSysDatabase(driver, dataSource string) {
 	} else {
 		log.Println("Database opened successfully.")
 	}
-	//return &DB{db}
 
 	Environ.DB = &DB{db}
 	OpenidNonceStore.DB = &DB{db}
