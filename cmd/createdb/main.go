@@ -91,7 +91,7 @@ func main() {
 		{datastore.Environ.DB.CreateOpenidNonceTable, create, "openid nonce"},
 
 		// Create the User table, if it does not exist
-		{datastore.Environ.DB.CreateUserTable, create, "user"},
+		{datastore.Environ.DB.CreateUserTable, create, "userinfo"},
 
 		// Create the AccountUserLink table, if it does not exist
 		{datastore.Environ.DB.CreateAccountUserLinkTable, create, "account-user link"},
