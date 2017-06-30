@@ -26,6 +26,32 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
+const (
+	create = "Create"
+	update = "Update"
+)
+
+type operation struct {
+	method func() error
+	action string
+	table  string
+}
+
+func execOne(method func() error, action, tableName string) {
+	err := method()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("%sd the '%s' table.", action, tableName)
+	}
+}
+
+func exec(operations []operation) {
+	for _, op := range operations {
+		execOne(op.method, op.action, op.table)
+	}
+}
+
 func main() {
 	datastore.Environ = &datastore.Env{}
 	// Parse the command line arguments
@@ -35,80 +61,54 @@ func main() {
 	// Open the connection to the local database
 	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
 
-	// Create the keypair table, if it does not exist
-	err := datastore.Environ.DB.CreateKeypairTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'keypair' table.")
+	// Execute all create and alter table operations
+	operations := []operation{
+		// Create the keypair table, if it does not exist
+		{datastore.Environ.DB.CreateKeypairTable, create, "keypair"},
 
-		// Create the test key (if the filesystem store is used)
-		if datastore.Environ.Config.KeyStoreType == "filesystem" {
-			// Create the test key as it is in the default filesystem keystore
-			datastore.Environ.DB.PutKeypair(datastore.Keypair{AuthorityID: "System", KeyID: "61abf588e52be7a3"})
-		}
+		// Create the model table, if it does not exist
+		{datastore.Environ.DB.CreateModelTable, create, "model"},
+
+		// Create the keypair table, if it does not exist
+		{datastore.Environ.DB.CreateSettingsTable, create, "settings"},
+
+		// Create the signinglog table, if it does not exist
+		{datastore.Environ.DB.CreateSigningLogTable, create, "signinglog"},
+
+		// Create the nonce table, if it does not exist
+		{datastore.Environ.DB.CreateDeviceNonceTable, create, "nonce"},
+
+		// Create the account table, if it does not exist
+		{datastore.Environ.DB.CreateAccountTable, create, "account"},
+
+		// Update the model table, adding the new user-keypair field
+		{datastore.Environ.DB.AlterModelTable, update, "model"},
+
+		// Update the keypair table, adding the new fields
+		{datastore.Environ.DB.AlterKeypairTable, update, "keypair"},
+
+		// Create the OpenID nonce table, if it does not exist
+		{datastore.Environ.DB.CreateOpenidNonceTable, create, "openid nonce"},
+
+		// Create the User table, if it does not exist
+		{datastore.Environ.DB.CreateUserTable, create, "user"},
+
+		// Create the AccountUserLink table, if it does not exist
+		{datastore.Environ.DB.CreateAccountUserLinkTable, create, "account-user link"},
 	}
 
-	// Create the model table, if it does not exist
-	err = datastore.Environ.DB.CreateModelTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'model' table.")
-	}
+	exec(operations)
 
-	// Create the keypair table, if it does not exist
-	err = datastore.Environ.DB.CreateSettingsTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'settings' table.")
-	}
-
-	// Create the signinglog table, if it does not exist
-	err = datastore.Environ.DB.CreateSigningLogTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'signinglog' table.")
-	}
-
-	// Create the nonce table, if it does not exist
-	err = datastore.Environ.DB.CreateDeviceNonceTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'nonce' table.")
-	}
-
-	// Create the account table, if it does not exist
-	err = datastore.Environ.DB.CreateAccountTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'account' table.")
-	}
-
-	// Update the model table, adding the new user-keypair field
-	err = datastore.Environ.DB.AlterModelTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Updated the 'model' table.")
-	}
-
-	// Update the keypair table, adding the new fields
-	err = datastore.Environ.DB.AlterKeypairTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Updated the 'keypair' table.")
+	// Create the test key (if the filesystem store is used)
+	if datastore.Environ.Config.KeyStoreType == "filesystem" {
+		// Create the test key as it is in the default filesystem keystore
+		datastore.Environ.DB.PutKeypair(datastore.Keypair{AuthorityID: "System", KeyID: "61abf588e52be7a3"})
 	}
 
 	// Initalize the TPM store, authenticating with the TPM 2.0 module
 	if datastore.Environ.Config.KeyStoreType == datastore.TPM20Store.Name {
 		log.Println("Initialize the TPM2.0 store")
-		err = datastore.TPM2InitializeKeystore(nil)
+		err := datastore.TPM2InitializeKeystore(nil)
 		if err != nil {
 			log.Fatal(err)
 		} else {
@@ -116,11 +116,4 @@ func main() {
 		}
 	}
 
-	// Create the OpenID nonce table, if it does not exist
-	err = datastore.Environ.DB.CreateOpenidNonceTable()
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Created the 'openid nonce' table.")
-	}
 }
