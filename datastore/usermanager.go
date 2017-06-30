@@ -25,33 +25,33 @@ import (
 )
 
 const createUserTableSQL = `
-	CREATE TABLE IF NOT EXISTS user (
+	CREATE TABLE IF NOT EXISTS userinfo (
 		id               serial primary key not null,
-		username         citext not null unique,
+		username         varchar(200) not null unique,
 		openid_token     text not null,
 		name             varchar(200),
-		email            citext not null,
+		email            varchar(255) not null,
 		role             int not null
 	)
 `
 
 const createAccountUserLinkTableSQL = `
 	CREATE TABLE IF NOT EXISTS useraccountlink (
-		user_id          int references user not null,
+		user_id          int references userinfo not null,
 		account_id     	 int references account not null
 	)
 `
 
-const listUsersSQL = "select id, username, openid_token, name, email, role from user order by username"
-const getUserSQL = "select id, username, openid_token, name, email, role from user where username=$1"
-const findUsersSQL = "select id, username, openid_token, name, email, role from user where username like '%$1%' or name like '%$1%"
-const createUserSQL = "insert into user (username, openid_token, name, email, role) values ($1,$2,$3,$4,$5)"
-const updateUserSQL = "update user set username=$1, openid_token=$2, name=$3, email=$4, role=$5 where username=$6"
-const deleteUserSQL = "delete from username where username=$1"
+const listUsersSQL = "select id, username, openid_token, name, email, role from userinfo order by username"
+const getUserSQL = "select id, username, openid_token, name, email, role from userinfo where username=$1"
+const findUsersSQL = "select id, username, openid_token, name, email, role from userinfo where username like '%$1%' or name like '%$1%'"
+const createUserSQL = "insert into userinfo (username, openid_token, name, email, role) values ($1,$2,$3,$4,$5)"
+const updateUserSQL = "update userinfo set username=$1, openid_token=$2, name=$3, email=$4, role=$5 where username=$6"
+const deleteUserSQL = "delete from userinfo where username=$1"
 
 const listAccountUsersSQL = `
 	select id, username, openid_token, name, email, role
-	from user u
+	from useinfo u
 	inner join accountuserlink l on u.id = l.user_id
 	inner join accounts a on l.account_id = a.id
 	where a.authority_id=$1
