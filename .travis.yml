@@ -14,6 +14,7 @@ before_install:
     - go get gopkg.in/macaroon.v1
     - go get gopkg.in/retry.v1
     - go get gopkg.in/tomb.v2
+    - go get gopkg.in/check.v1
 
 install:
     - echo $GOPATH
