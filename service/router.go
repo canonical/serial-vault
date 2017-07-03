@@ -48,8 +48,9 @@ func AdminRouter() *mux.Router {
 	// Start the web service router
 	router := mux.NewRouter()
 
-	// API routes: csrf token
+	// API routes: csrf token and auth token
 	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
+	router.Handle("/v1/authtoken", JWTValidate(Middleware(http.HandlerFunc(TokenHandler)))).Methods("GET")
 
 	// API routes: models admin
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")

@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/CanonicalLtd/serial-vault",
   "dependencies": {
+    "jwt-decode": "^2.2.0",
     "moment": "^2.14.1",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",

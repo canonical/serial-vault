@@ -25,16 +25,27 @@ var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-import {T} from './Utils'
+import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils'
 
 var ModelList = React.createClass({
 
   getInitialState: function() {
-    return {models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null};
+    return {models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null, token: {}};
   },
 
   componentDidMount: function() {
+    getAuthToken(this.setAuthToken)
     this.refresh();
+  },
+
+  setAuthToken: function(token) {
+    // Redirect to the home page if we're not logged in
+    if (!isLoggedIn(token)) {
+      window.location.href = '/'
+      return
+    }
+
+      this.setState({token: token})
   },
 
   refresh: function() {
@@ -67,14 +78,14 @@ var ModelList = React.createClass({
   },
 
   formatError: function(data) {
-		var message = T(data.error_code);
-		if (data.error_subcode) {
-			message += ': ' + T(data.error_subcode);
-		} else if (data.message) {
-			message += ': ' + data.message;
-		}
-		return message;
-	},
+    var message = T(data.error_code);
+    if (data.error_subcode) {
+      message += ': ' + T(data.error_subcode);
+    } else if (data.message) {
+      message += ': ' + data.message;
+    }
+    return message;
+  },
 
   handleDelete: function(e) {
     e.preventDefault();
@@ -136,6 +147,14 @@ var ModelList = React.createClass({
   },
 
   render: function() {
+    console.log('Models', this.state.token)
+    if (!isUserAdmin(this.state.token)) {
+      return (
+        <div className="row">
+          <AlertBox message={T('error-no-permissions')} />
+        </div>
+      )
+    }
 
     return (
         <div className="row">

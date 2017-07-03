@@ -24,7 +24,7 @@ var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
 import SigningLogFilter from './SigningLogFilter'
 import Pagination from './Pagination'
-import {T} from './Utils'
+import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils'
 
 const PAGINATION_SIZE = 50;
 
@@ -41,12 +41,24 @@ var SigningLogList = React.createClass({
         page: 1,
         startRow: 0,
         endRow: PAGINATION_SIZE,
+        token: {},
     };
   },
 
   componentDidMount: function () {
+    getAuthToken(this.setAuthToken)
     this.getLogs();
     this.getFilters();
+  },
+
+  setAuthToken: function(token) {
+    // Redirect to the home page if we're not logged in
+    if (!isLoggedIn(token)) {
+      window.location.href = '/'
+      return
+    }
+
+      this.setState({token: token})
   },
 
   getLogs: function () {
@@ -213,6 +225,16 @@ var SigningLogList = React.createClass({
   },
 
   render: function() {
+
+    console.log('SigningLog', this.state.token)
+    if (!isUserAdmin(this.state.token)) {
+      return (
+        <div className="row">
+          <AlertBox message={T('error-no-permissions')} />
+        </div>
+      )
+    }
+
     var displayRows = this.displayRows();
 
     return (

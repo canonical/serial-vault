@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-'use strict'
 
 var React = require('react');
 var AlertBox = require('./AlertBox');
@@ -23,176 +22,196 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-import {T} from './Utils';
+import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils';
 
 var ModelEdit = React.createClass({
-	getInitialState: function() {
-		return {title: null, model: {}, error: null, keypairs: []};
-	},
+    getInitialState: function() {
+        return {title: null, model: {}, error: null, keypairs: [], token: {}};
+    },
 
-	componentDidMount: function() {
-		this.getKeypairs();
+    componentDidMount: function() {
+        getAuthToken(this.setAuthToken)
+        this.getKeypairs();
 
-		if (this.props.params.id) {
-			this.setTitle('edit-model');
-			this.getModel(this.props.params.id);
-		} else {
-			this.setTitle('new-model');
-		}
-	},
+        if (this.props.params.id) {
+            this.setTitle('edit-model');
+            this.getModel(this.props.params.id);
+        } else {
+            this.setTitle('new-model');
+        }
+    },
 
-	setTitle: function(title) {
-		this.setState({title: T(title)});
-	},
+    setAuthToken: function(token) {
+        // Redirect to the home page if we're not logged in
+        if (!isLoggedIn(token)) {
+            window.location.href = '/'
+            return
+        }
 
-	getModel: function(modelId) {
-		var self = this;
-		Models.get(modelId).then(function(response) {
-			var data = JSON.parse(response.body);
-			self.setState({model: data.model});
-		});
-	},
+        this.setState({token: token})
+    },
 
-	getKeypairs: function() {
-		var self = this;
-		Keypairs.list().then(function(response) {
-			var data = JSON.parse(response.body);
-			var message = "";
-			if (!data.success) {
-				message = data.message;
-			}
-			self.setState({keypairs: data.keypairs, message: message});
-		});
-	},
+    setTitle: function(title) {
+        this.setState({title: T(title)});
+    },
 
-	formatError: function(data) {
-		var message = T(data.error_code);
-		if (data.error_subcode) {
-			message += ': ' + T(data.error_subcode);
-		} else if (data.message) {
-			message += ': ' + data.message;
-		}
-		return message;
-	},
+    getModel: function(modelId) {
+        var self = this;
+        Models.get(modelId).then(function(response) {
+            var data = JSON.parse(response.body);
+            self.setState({model: data.model});
+        });
+    },
 
-	handleChangeBrand: function(e) {
-		var model = this.state.model;
-		model['brand-id'] = e.target.value;
-		this.setState({model: model});
-	},
+    getKeypairs: function() {
+        var self = this;
+        Keypairs.list().then(function(response) {
+            var data = JSON.parse(response.body);
+            var message = "";
+            if (!data.success) {
+                message = data.message;
+            }
+            self.setState({keypairs: data.keypairs, message: message});
+        });
+    },
 
-	handleChangeModel: function(e) {
-		var model = this.state.model;
-		model.model = e.target.value;
-		this.setState({model: model});
-	},
+    formatError: function(data) {
+        var message = T(data.error_code);
+        if (data.error_subcode) {
+            message += ': ' + T(data.error_subcode);
+        } else if (data.message) {
+            message += ': ' + data.message;
+        }
+        return message;
+    },
 
-	handleChangePrivateKey: function(e) {
-		var self = this;
-		var model = this.state.model;
-		model['keypair-id'] = parseInt(e.target.value);
-		this.setState({model: model});
-	},
+    handleChangeBrand: function(e) {
+        var model = this.state.model;
+        model['brand-id'] = e.target.value;
+        this.setState({model: model});
+    },
 
-	handleChangePrivateKeyUser: function(e) {
-		var self = this;
-		var model = this.state.model;
-		model['keypair-id-user'] = parseInt(e.target.value);
-		this.setState({model: model});
-	},
+    handleChangeModel: function(e) {
+        var model = this.state.model;
+        model.model = e.target.value;
+        this.setState({model: model});
+    },
 
-	handleSaveClick: function(e) {
-		e.preventDefault();
-		var self = this;
+    handleChangePrivateKey: function(e) {
+        var self = this;
+        var model = this.state.model;
+        model['keypair-id'] = parseInt(e.target.value);
+        this.setState({model: model});
+    },
 
-		if (this.state.model.id) {
-			// Update the existing model
-			Models.update(this.state.model).then(function(response) {
-				var data = JSON.parse(response.body);
-				if (response.statusCode >= 300) {
-					self.setState({error: self.formatError(data)});
-				} else {
-					window.location = '/models';
-				}
-			});
-		} else {
-			// Create a new model
-			Models.create(this.state.model).then(function(response) {
-				var data = JSON.parse(response.body);
-				if (response.statusCode >= 300) {
-					self.setState({error: self.formatError(data)});
-				} else {
-					window.location = '/models';
-				}
-			});
-		}
-	},
+    handleChangePrivateKeyUser: function(e) {
+        var self = this;
+        var model = this.state.model;
+        model['keypair-id-user'] = parseInt(e.target.value);
+        this.setState({model: model});
+    },
 
-	renderError: function() {
-		if (this.state.error) {
-			return (
-				<AlertBox message={this.state.error} />
-			);
-		}
-	},
+    handleSaveClick: function(e) {
+        e.preventDefault();
+        var self = this;
 
-	render: function() {
-		var self = this;
+        if (this.state.model.id) {
+            // Update the existing model
+            Models.update(this.state.model).then(function(response) {
+                var data = JSON.parse(response.body);
+                if (response.statusCode >= 300) {
+                    self.setState({error: self.formatError(data)});
+                } else {
+                    window.location = '/models';
+                }
+            });
+        } else {
+            // Create a new model
+            Models.create(this.state.model).then(function(response) {
+                var data = JSON.parse(response.body);
+                if (response.statusCode >= 300) {
+                    self.setState({error: self.formatError(data)});
+                } else {
+                    window.location = '/models';
+                }
+            });
+        }
+    },
 
-		return (
-			<div className="row">
-				<section className="row">
-					  <h2>{this.state.title}</h2>
+    renderError: function() {
+        if (this.state.error) {
+            return (
+                <AlertBox message={this.state.error} />
+            );
+        }
+    },
 
-						<AlertBox message={this.state.error} />
+    render: function() {
 
-						<form>
-							<fieldset>
-								<label htmlFor="brand">{T('brand')}:
-									<input type="text" id="brand" placeholder={T('brand-description')}
-										value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
-								</label>
-								<label htmlFor="model">{T('model')}:
-									<input type="text" id="model" placeholder={T('model-description')}
-										value={this.state.model.model} onChange={this.handleChangeModel}/>
-								</label>
-								<label htmlFor="keypair">{T('private-key')}:
-									<select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
-										<option></option>
-										{this.state.keypairs.map(function(kpr) {
-											if (kpr.Active) {
-												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
-											} else {
-												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
-											}
-										})}
-									</select>
-								</label>
-								<label htmlFor="keypair-user">{T('private-key-user')}:
-									<select value={this.state.model['keypair-id-user']} id="keypair-user" onChange={this.handleChangePrivateKeyUser}>
-										<option></option>
-										{this.state.keypairs.map(function(kpr) {
-											if (kpr.Active) {
-												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
-											} else {
-												return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
-											}
-										})}
-									</select>
-								</label>
-							</fieldset>
-						</form>
+        if (!isUserAdmin(this.state.token)) {
+            return (
+                <div className="row">
+                <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
 
-						<div>
-							<a href='/models' className="p-button--neutral">{T('cancel')}</a>
-							&nbsp;
-							<a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
-						</div>
-				</section>
-				<br />
-			</div>
-		)
-	}
+        var self = this;
+
+        return (
+            <div className="row">
+                <section className="row">
+                      <h2>{this.state.title}</h2>
+
+                        <AlertBox message={this.state.error} />
+
+                        <form>
+                            <fieldset>
+                                <label htmlFor="brand">{T('brand')}:
+                                    <input type="text" id="brand" placeholder={T('brand-description')}
+                                        value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
+                                </label>
+                                <label htmlFor="model">{T('model')}:
+                                    <input type="text" id="model" placeholder={T('model-description')}
+                                        value={this.state.model.model} onChange={this.handleChangeModel}/>
+                                </label>
+                                <label htmlFor="keypair">{T('private-key')}:
+                                    <select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
+                                        <option></option>
+                                        {this.state.keypairs.map(function(kpr) {
+                                            if (kpr.Active) {
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+                                            } else {
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+                                            }
+                                        })}
+                                    </select>
+                                </label>
+                                <label htmlFor="keypair-user">{T('private-key-user')}:
+                                    <select value={this.state.model['keypair-id-user']} id="keypair-user" onChange={this.handleChangePrivateKeyUser}>
+                                        <option></option>
+                                        {this.state.keypairs.map(function(kpr) {
+                                            if (kpr.Active) {
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+                                            } else {
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+                                            }
+                                        })}
+                                    </select>
+                                </label>
+                            </fieldset>
+                        </form>
+
+                        <div>
+                            <a href='/models' className="p-button--neutral">{T('cancel')}</a>
+                            &nbsp;
+                            <a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
+                        </div>
+                </section>
+                <br />
+            </div>
+        )
+    }
 });
 
 module.exports = ModelEdit;
