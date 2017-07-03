@@ -335,19 +335,19 @@ func (mdb *MockDB) CreateUser(user User) error {
 func (mdb *MockDB) ListUsers() ([]User, error) {
 	var users []User
 	users = append(users, User{
-		ID:          1,
-		Username:    "user1",
-		OpenIDToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
-		Name:        "Rigoberto Picaporte",
-		Email:       "rigoberto.picaporte@ubuntu.com",
-		Role:        Standard})
+		ID:             1,
+		Username:       "user1",
+		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcyssfmr",
+		Name:           "Rigoberto Picaporte",
+		Email:          "rigoberto.picaporte@ubuntu.com",
+		Role:           Standard})
 	users = append(users, User{
-		ID:          2,
-		Username:    "user2",
-		OpenIDToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTG9zIFBhY2hhY2hvcyIsImFkbWluIjp0cnVlfQ.bwLJoxbp9fVp8-2pjyJx1UShaYdQGhEVqG3IuOQ1t90",
-		Name:        "Nancy Reagan",
-		Email:       "nancy.reagan@usa.gov",
-		Role:        Admin})
+		ID:             2,
+		Username:       "user2",
+		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcyssfmr",
+		Name:           "Nancy Reagan",
+		Email:          "nancy.reagan@usa.gov",
+		Role:           Admin})
 	return users, nil
 }
 
