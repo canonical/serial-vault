@@ -31,7 +31,7 @@ const createUserTableSQL = `
 		openid_identity  text not null,
 		name             varchar(200),
 		email            varchar(255) not null,
-		role             int not null
+		userrole         int not null
 	)
 `
 
@@ -42,16 +42,16 @@ const createAccountUserLinkTableSQL = `
 	)
 `
 
-const listUsersSQL = "select id, username, openid_identity, name, email, role from userinfo order by username"
-const getUserSQL = "select id, username, openid_identity, name, email, role from userinfo where username=$1"
-const findUsersSQL = "select id, username, openid_identity, name, email, role from userinfo where username like '%$1%' or name like '%$1%'"
-const createUserSQL = "insert into userinfo (username, openid_identity, name, email, role) values ($1,$2,$3,$4,$5)"
-const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, role=$5 where username=$6"
+const listUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo order by username"
+const getUserSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username=$1"
+const findUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
+const createUserSQL = "insert into userinfo (username, openid_identity, name, email, userrole) values ($1,$2,$3,$4,$5)"
+const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, userrole=$5 where username=$6"
 const deleteUserSQL = "delete from userinfo where username=$1"
 
 const listAccountUsersSQL = `
-	select id, username, openid_identity, name, email, role
-	from useinfo u
+	select id, username, openid_identity, name, email, userrole
+	from userinfo u
 	inner join accountuserlink l on u.id = l.user_id
 	inner join accounts a on l.account_id = a.id
 	where a.authority_id=$1

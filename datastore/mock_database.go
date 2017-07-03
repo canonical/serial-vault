@@ -344,7 +344,7 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 	users = append(users, User{
 		ID:             2,
 		Username:       "user2",
-		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcyssfmr",
+		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcysrrtt",
 		Name:           "Nancy Reagan",
 		Email:          "nancy.reagan@usa.gov",
 		Role:           Admin})
