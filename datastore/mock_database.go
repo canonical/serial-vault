@@ -22,6 +22,7 @@ package datastore
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -315,6 +316,89 @@ func (mdb *MockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 	return nil
 }
 
+// CreateUserTable mock for creating database User table operation
+func (mdb *MockDB) CreateUserTable() error {
+	return nil
+}
+
+// CreateAccountUserLinkTable mock for creating database AccountUserLink table operation
+func (mdb *MockDB) CreateAccountUserLinkTable() error {
+	return nil
+}
+
+// CreateUser mock for create user operation
+func (mdb *MockDB) CreateUser(user User) error {
+	return nil
+}
+
+// ListUsers mock returning a fixed list of users
+func (mdb *MockDB) ListUsers() ([]User, error) {
+	var users []User
+	users = append(users, User{
+		ID:             1,
+		Username:       "user1",
+		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcyssfmr",
+		Name:           "Rigoberto Picaporte",
+		Email:          "rigoberto.picaporte@ubuntu.com",
+		Role:           Standard})
+	users = append(users, User{
+		ID:             2,
+		Username:       "user2",
+		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcysrrtt",
+		Name:           "Nancy Reagan",
+		Email:          "nancy.reagan@usa.gov",
+		Role:           Admin})
+	return users, nil
+}
+
+// FindUsers mock trying to find a user in a fixed list of users
+func (mdb *MockDB) FindUsers(query string) ([]User, error) {
+	users, _ := mdb.ListUsers()
+	returnArray := make([]User, 2)
+
+	for _, u := range users {
+		if strings.Contains(u.Username, query) || strings.Contains(u.Email, query) {
+			returnArray = append(returnArray, u)
+		}
+	}
+	return returnArray, nil
+}
+
+// GetUser mock returning the user if found by username in a fixed list of users
+func (mdb *MockDB) GetUser(username string) (User, error) {
+	users, _ := mdb.ListUsers()
+	for _, u := range users {
+		if u.Username == username {
+			return u, nil
+		}
+	}
+	return User{}, errors.New("Cannot find the user")
+}
+
+// UpdateUser mock for update user operation. Returns error if user not found in a fixed list of users
+func (mdb *MockDB) UpdateUser(username string, user User) error {
+	_, err := mdb.GetUser(username)
+	return err
+}
+
+// DeleteUser mock for delete user operation. Returns error if user not found in a fixed list of users
+func (mdb *MockDB) DeleteUser(username string) error {
+	_, err := mdb.GetUser(username)
+	return err
+}
+
+// ListUserAccounts mock returning a fixed list of accounts
+func (mdb *MockDB) ListUserAccounts(username string) ([]Account, error) {
+	var accounts []Account
+	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
+	return accounts, nil
+}
+
+// ListAccountUsers mock returning a fixed list of users
+func (mdb *MockDB) ListAccountUsers(authorityID string) ([]User, error) {
+	return mdb.ListUsers()
+}
+
 // ErrorMockDB holds the unsuccessful mocks for the database
 type ErrorMockDB struct{}
 
@@ -503,4 +587,54 @@ func (mdb *ErrorMockDB) CreateOpenidNonceTable() error {
 // CreateOpenidNonce database mock
 func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 	return errors.New("MOCK error generating the nonce")
+}
+
+// CreateUserTable mock for creating database User table operation
+func (mdb *ErrorMockDB) CreateUserTable() error {
+	return errors.New("Could not create User table")
+}
+
+// CreateAccountUserLinkTable mock for creating database AccountUserLink table operation
+func (mdb *ErrorMockDB) CreateAccountUserLinkTable() error {
+	return errors.New("Could not create AccountUserLink table")
+}
+
+// CreateUser error mock for create user operation
+func (mdb *ErrorMockDB) CreateUser(user User) error {
+	return errors.New("Cannot create user")
+}
+
+// ListUsers mock returning an error for list users operation
+func (mdb *ErrorMockDB) ListUsers() ([]User, error) {
+	return []User{}, errors.New("Could not retrieve users list")
+}
+
+// FindUsers mock returning an error for find users operation
+func (mdb *ErrorMockDB) FindUsers(query string) ([]User, error) {
+	return []User{}, errors.New("Could not find any user")
+}
+
+// GetUser mock returning an error for get user operation
+func (mdb *ErrorMockDB) GetUser(username string) (User, error) {
+	return User{}, errors.New("Cannot get the user")
+}
+
+// UpdateUser mock returning an error for update user operation
+func (mdb *ErrorMockDB) UpdateUser(username string, user User) error {
+	return errors.New("Cannot update the user")
+}
+
+// DeleteUser mock returning an error for delete user operation
+func (mdb *ErrorMockDB) DeleteUser(username string) error {
+	return errors.New("Cannot delete the user")
+}
+
+// ListUserAccounts mock returning an error for list user accounts operation
+func (mdb *ErrorMockDB) ListUserAccounts(username string) ([]Account, error) {
+	return []Account{}, errors.New("Could not get accounts for that user")
+}
+
+// ListAccountUsers mock returning an error for list account users operation
+func (mdb *ErrorMockDB) ListAccountUsers(authorityID string) ([]User, error) {
+	return []User{}, errors.New("Could not get any user for that account")
 }
