@@ -28,7 +28,7 @@ const createUserTableSQL = `
 	CREATE TABLE IF NOT EXISTS userinfo (
 		id               serial primary key not null,
 		username         varchar(200) not null unique,
-		openid_token     text not null,
+		openid_identity  text not null,
 		name             varchar(200),
 		email            varchar(255) not null,
 		role             int not null
@@ -42,15 +42,15 @@ const createAccountUserLinkTableSQL = `
 	)
 `
 
-const listUsersSQL = "select id, username, openid_token, name, email, role from userinfo order by username"
-const getUserSQL = "select id, username, openid_token, name, email, role from userinfo where username=$1"
-const findUsersSQL = "select id, username, openid_token, name, email, role from userinfo where username like '%$1%' or name like '%$1%'"
-const createUserSQL = "insert into userinfo (username, openid_token, name, email, role) values ($1,$2,$3,$4,$5)"
-const updateUserSQL = "update userinfo set username=$1, openid_token=$2, name=$3, email=$4, role=$5 where username=$6"
+const listUsersSQL = "select id, username, openid_identity, name, email, role from userinfo order by username"
+const getUserSQL = "select id, username, openid_identity, name, email, role from userinfo where username=$1"
+const findUsersSQL = "select id, username, openid_identity, name, email, role from userinfo where username like '%$1%' or name like '%$1%'"
+const createUserSQL = "insert into userinfo (username, openid_identity, name, email, role) values ($1,$2,$3,$4,$5)"
+const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, role=$5 where username=$6"
 const deleteUserSQL = "delete from userinfo where username=$1"
 
 const listAccountUsersSQL = `
-	select id, username, openid_token, name, email, role
+	select id, username, openid_identity, name, email, role
 	from useinfo u
 	inner join accountuserlink l on u.id = l.user_id
 	inner join accounts a on l.account_id = a.id
@@ -71,12 +71,12 @@ const (
 
 // User holds user personal, authentication and authorization info
 type User struct {
-	ID          int
-	Username    string
-	OpenIDToken string
-	Name        string
-	Email       string
-	Role        int
+	ID             int
+	Username       string
+	OpenIDIdentity string
+	Name           string
+	Email          string
+	Role           int
 }
 
 // CreateUserTable creates User table in database
@@ -116,7 +116,7 @@ func (db *DB) FindUsers(query string) ([]User, error) {
 
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDToken, &user.Name, &user.Email, &user.Role)
+		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
 		if err != nil {
 			return nil, err
 		}
@@ -130,7 +130,7 @@ func (db *DB) FindUsers(query string) ([]User, error) {
 func (db *DB) GetUser(username string) (User, error) {
 	user := User{}
 
-	err := db.QueryRow(getUserSQL, username).Scan(&user.ID, &user.Username, &user.OpenIDToken, &user.Name, &user.Email, &user.Role)
+	err := db.QueryRow(getUserSQL, username).Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
 	if err != nil {
 		log.Printf("Error retrieving user %v: %v\n", username, err)
 		return user, err
@@ -141,7 +141,7 @@ func (db *DB) GetUser(username string) (User, error) {
 
 // CreateUser adds a new record to User database table
 func (db *DB) CreateUser(user User) error {
-	_, err := db.Exec(createUserSQL, user.Username, user.OpenIDToken, user.Name, user.Email, user.Role)
+	_, err := db.Exec(createUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role)
 	if err != nil {
 		log.Printf("Error creating user %v: %v\n", user.Username, err)
 		return err
@@ -152,7 +152,7 @@ func (db *DB) CreateUser(user User) error {
 
 // UpdateUser sets user new values for an existing record.
 func (db *DB) UpdateUser(username string, user User) error {
-	_, err := db.Exec(updateUserSQL, user.Username, user.OpenIDToken, user.Name, user.Email, user.Role, username)
+	_, err := db.Exec(updateUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role, username)
 	if err != nil {
 		log.Printf("Error updating database user %v: %v\n", username, err)
 		return err
@@ -185,7 +185,7 @@ func (db *DB) ListAccountUsers(authorityID string) ([]User, error) {
 
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDToken, &user.Name, &user.Email, &user.Role)
+		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
 		if err != nil {
 			return nil, err
 		}
@@ -200,7 +200,7 @@ func rowsToUsers(rows *sql.Rows) ([]User, error) {
 
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDToken, &user.Name, &user.Email, &user.Role)
+		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
 		if err != nil {
 			return nil, err
 		}
