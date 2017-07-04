@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"fmt"
@@ -60,7 +61,7 @@ func TestLoginHandlerUSSORedirect(t *testing.T) {
 
 func TestLoginHandlerReturn(t *testing.T) {
 	// Response parameters from OpenID login
-	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A"
+	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A&openid.sreg.nickname=a"
 
 	// Mock the database and OpenID verification
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
@@ -84,13 +85,21 @@ func TestLoginHandlerReturn(t *testing.T) {
 	}
 
 	// Check the JWT details
-	response, _ := verifySuccess("")
-	expectedToken(t, jwtToken, response, response.SReg["nickname"], response.SReg["email"], response.SReg["fullname"])
+	response, _ := verifySuccess(url)
+
+	// Get User Role
+	user, err := datastore.Environ.DB.GetUser(response.SReg["nickname"])
+
+	if err != nil {
+		t.Errorf("Could not get datastore user %v: %v\n", response.SReg["nickname"], err)
+	}
+
+	expectedToken(t, jwtToken, response, response.SReg["nickname"], response.SReg["email"], response.SReg["fullname"], user.Role)
 }
 
 func TestLoginHandlerReturnFail(t *testing.T) {
 	// Response parameters from OpenID login
-	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A"
+	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A&openid.sreg.nickname=a"
 
 	// Mock the database and OpenID verification
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
@@ -106,10 +115,25 @@ func TestLoginHandlerReturnFail(t *testing.T) {
 }
 
 func verifySuccess(requestURL string) (*openid.Response, error) {
+	params := make(map[string]string)
+
+	tokens := strings.Split(requestURL, "&")
+	for _, t := range tokens {
+		tks := strings.Split(t, "=")
+
+		if len(tks) == 2 {
+			params[strings.TrimSpace(tks[0])] = tks[1]
+		}
+	}
+
 	r := openid.Response{
-		ID:    "AAAAAA",
+		ID:    params["openid.sig"],
 		Teams: []string{"ce-web-logs"},
-		SReg:  map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"},
+		SReg: map[string]string{
+			"nickname": params["openid.sreg.nickname"],
+			"fullname": params["openid.sreg.fullname"],
+			"email":    params["openid.sreg.email"],
+		},
 	}
 
 	return &r, nil

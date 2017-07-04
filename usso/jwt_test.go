@@ -30,16 +30,19 @@ import (
 type testJWT struct {
 	resp     openid.Response
 	expected []string
+	role     int
 }
 
 func TestNewJWTToken(t *testing.T) {
 	test1 := testJWT{
 		resp:     openid.Response{ID: "id", Teams: []string{"teamone", "team2"}},
 		expected: []string{"", "", ""},
+		role:     100,
 	}
 	test2 := testJWT{
 		resp:     openid.Response{ID: "id", Teams: []string{"teamone", "team2"}, SReg: map[string]string{"nickname": "jwt"}},
 		expected: []string{"jwt", "", ""},
+		role:     200,
 	}
 	test3 := testJWT{
 		resp: openid.Response{
@@ -48,21 +51,23 @@ func TestNewJWTToken(t *testing.T) {
 			SReg:  map[string]string{"nickname": "jwt", "email": "jwt@example.com", "fullname": "John W Thompson"},
 		},
 		expected: []string{"jwt", "jwt@example.com", "John W Thompson"},
+		role:     300,
 	}
 
 	for _, r := range []testJWT{test1, test2, test3} {
 
-		jwtToken, err := NewJWTToken(&r.resp)
+		// adding arbitrary role value for second parameter
+		jwtToken, err := NewJWTToken(&r.resp, r.role)
 		if err != nil {
 			t.Errorf("Error creating JWT: %v", err)
 		}
 
-		expectedToken(t, jwtToken, &r.resp, r.expected[0], r.expected[1], r.expected[2])
+		expectedToken(t, jwtToken, &r.resp, r.expected[0], r.expected[1], r.expected[2], r.role)
 
 	}
 }
 
-func expectedToken(t *testing.T, jwtToken string, resp *openid.Response, username, email, name string) {
+func expectedToken(t *testing.T, jwtToken string, resp *openid.Response, username, email, name string, role int) {
 	token, err := VerifyJWT(jwtToken)
 	if err != nil {
 		t.Errorf("Error validating JWT: %v", err)
@@ -79,6 +84,9 @@ func expectedToken(t *testing.T, jwtToken string, resp *openid.Response, usernam
 	}
 	if token.Claims[ClaimsName] != name {
 		t.Errorf("JWT name does not match: %v", token.Claims[ClaimsName])
+	}
+	if int(token.Claims[ClaimsRole].(float64)) != role {
+		t.Errorf("JWT role does not match: expected %v but got %v", role, token.Claims[ClaimsRole])
 	}
 }
 
