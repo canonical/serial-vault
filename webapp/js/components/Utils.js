@@ -36,21 +36,6 @@ export function sectionIdFromPath(path, section) {
   return (parts[0] === section && parts[1]) || ''
 }
 
-// export function sectionFromHash(hash) {
-//     console.log('hash', hash)
-//     //const p = hash.replace(/\//g, '')
-
-//     const pp = hash.split('/')
-//     const p = pp[1]
-
-//     console.log('p', p)
-//     return p === '' ? 'home' : (
-//         sections.find(section => (
-//         p.startsWith(`${section}`)
-//         )) || ''
-//     )
-// }
-
 export function T(message) {
     const lang = window.AppState.getLocale()
     const msg = Messages[lang][message] || message;
@@ -104,15 +89,16 @@ export function getAuthToken(callback) {
     Ajax.getAuthToken().then((resp) => {
         var jwt = resp.headers.authorization
 
-        if (!jwt) return {}
+        if (!jwt) {
+            callback({})
+            return
+        }
         var token = jwtDecode(jwt)
 
         if (!token) {
             callback({})
             return
         }
-
-        token.role = 200;  //TODO - remove
 
         localStorage.setItem('token', JSON.stringify(token))
         callback(token)

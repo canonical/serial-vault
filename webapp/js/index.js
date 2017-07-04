@@ -41,7 +41,6 @@ window.AppState = {
     var locale = this.getLocale();
 
     getAuthToken( (token) => {
-      console.log('----', token)
       ReactDOM.render((
         <IntlProvider locale={locale} messages={Messages[locale]}>
           <App token={token} />

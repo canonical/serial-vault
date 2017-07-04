@@ -57,7 +57,6 @@ var Navigation = React.createClass({
     render: function() {
 
         var token = this.props.token
-        console.log('Nav', token)
 
         var activeHome = 'p-navigation__link';
         var activeModels = 'p-navigation__link';

@@ -17,16 +17,17 @@
 import React, { Component } from 'react';
 import Header from './components/Header'
 import Footer from './components/Footer'
-import If from './components/If'
 import Index from './components/Index'
 import ModelList from './components/ModelList'
 import ModelEdit from './components/ModelEdit'
+import KeypairAdd from './components/KeypairAdd'
 import AccountList from './components/AccountList'
+import AccountForm from './components/AccountForm'
+import AccountKeyForm from './components/AccountKeyForm'
 import SigningLog from './components/SigningLog'
 import AlertBox from './components/AlertBox'
 import {sectionFromPath, sectionIdFromPath} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
-//import './sass/App.css';
 
 
 const history = createHistory()
@@ -49,7 +50,6 @@ class App extends Component {
 
   renderModels() {
     const id = sectionIdFromPath(location.pathname, 'models')
-    console.log('id', id)
 
     switch(id) {
       case 'new':
@@ -59,23 +59,38 @@ class App extends Component {
       default:
         return <ModelEdit token={this.props.token} id={id} />
     }
-
   }
+
+  renderAccounts() {
+    const id = sectionIdFromPath(location.pathname, 'accounts')
+
+    switch(id) {
+      case 'new':
+        return <AccountForm token={this.props.token} />
+      case 'key-assertion':
+        return <AccountKeyForm token={this.props.token} />
+      default:
+        return <AccountList token={this.props.token} />
+    }
+  }
+
 
   render() {
 
     var currentSection = sectionFromPath(location.pathname);
-    console.log('currentSection', currentSection)
 
     return (
       <div className="App">
           <Header token={this.props.token} />
+
+          <div className="spacer" />
   
           {currentSection==='home'? <Index token={this.props.token} /> : ''}
 
           {currentSection==='models'? this.renderModels() : ''}
+          {currentSection==='keypairs'? <KeypairAdd token={this.props.token} />: ''}
 
-          {currentSection==='accounts'? <AccountList token={this.props.token} /> : ''}
+          {currentSection==='accounts'? this.renderAccounts() : ''}
           {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
 
           <Footer />

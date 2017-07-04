@@ -18,7 +18,7 @@ import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
 import Keypairs from '../models/keypairs'
-import {T, parseResponse, formatError, authToken, getAuthToken, isLoggedIn, isUserAdmin} from './Utils';
+import {T, parseResponse, formatError, isLoggedIn, isUserAdmin} from './Utils';
 
 class AccountKeyForm extends Component {
 
@@ -32,18 +32,7 @@ class AccountKeyForm extends Component {
             error: null
         }
 
-        getAuthToken(this.setAuthToken)
         this.getKeypairs()
-    }
-
-    setAuthToken = (token) => {
-        // Redirect to the home page if we're not logged in
-        if (!isLoggedIn(token)) {
-            window.location.href = '/'
-            return
-        }
-
-        this.setState({token: token})
     }
 
     getKeypairs() {
@@ -90,9 +79,7 @@ class AccountKeyForm extends Component {
 
     render() {
 
-        // For ES6 Component, get token from localstorage as state doesn't get set
-        var t = authToken()
-        if (!isUserAdmin(t)) {
+        if (!isUserAdmin(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />

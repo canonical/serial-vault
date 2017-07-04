@@ -21,25 +21,11 @@ var Keypairs = require('../models/keypairs');
 var Navigation = require('./Navigation');
 var AlertBox = require('./AlertBox');
 var Footer = require('./Footer');
-import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils';
+import {T, isLoggedIn, isUserAdmin} from './Utils';
 
 var KeypairAdd = React.createClass({
     getInitialState: function() {
-        return {authorityId: null, key: null, error: this.props.error, token: {}};
-    },
-
-    componentDidMount: function() {
-        getAuthToken(this.setAuthToken)
-    },
-
-    setAuthToken: function(token) {
-        // Redirect to the home page if we're not logged in
-        if (!isLoggedIn(token)) {
-            window.location.href = '/'
-            return
-        }
-
-        this.setState({token: token})
+        return {authorityId: null, key: null, error: this.props.error};
     },
 
     handleChangeAuthorityId: function(e) {
@@ -90,7 +76,7 @@ var KeypairAdd = React.createClass({
 
     render: function() {
 
-        if (!isUserAdmin(this.state.token)) {
+        if (!isUserAdmin(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />

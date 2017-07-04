@@ -212,7 +212,6 @@ var SigningLog = React.createClass({
 
   render: function() {
 
-    console.log('SigningLog', this.props.token)
     if (!isUserAdmin(this.props.token)) {
       return (
         <div className="row">

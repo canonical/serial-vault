@@ -26,37 +26,37 @@ jest.dontMock('../components/AlertBox');
 
 describe('alert box', function() {
  it('displays the alert box with a message', function() {
-	 var AlertBox = require('../components/AlertBox');
-   var Messages = require('../components/messages').en;
+    var AlertBox = require('../components/AlertBox');
+    var Messages = require('../components/messages').en;
 
-   var handleYesClick = jest.genMockFunction();
-   var handleNoClick = jest.genMockFunction();
+    var handleYesClick = jest.genMockFunction();
+    var handleNoClick = jest.genMockFunction();
 
-	 // Render the component
-	 var page = TestUtils.renderIntoDocument(
-			 <AlertBox message={'The message goes here'} />
-	 );
+    // Render the component
+    var page = TestUtils.renderIntoDocument(
+          <AlertBox message={'The message goes here'} />
+    );
 
-	 expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+    expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
 
-	 // Check all the expected elements are rendered
-	 var div = TestUtils.findRenderedDOMComponentWithTag(page, 'div');
-   var p = TestUtils.findRenderedDOMComponentWithTag(page, 'p');
-   expect(p.textContent).toBe('The message goes here');
+    // Check all the expected elements are rendered
+    var div = TestUtils.findRenderedDOMComponentWithTag(page, 'div');
+    var p = TestUtils.findRenderedDOMComponentWithTag(page, 'p');
+    expect(p.textContent).toBe('The message goes here');
 
  });
 
  it('displays no box when there is no message', function() {
-	 var AlertBox = require('../components/AlertBox');
-   var Messages = require('../components/messages').en;
+    var AlertBox = require('../components/AlertBox');
+    var Messages = require('../components/messages').en;
 
-   // Render the component
-	 var page = TestUtils.renderIntoDocument(
-     <AlertBox message={null} />
-	 );
+    // Render the component
+    var page = TestUtils.renderIntoDocument(
+        <AlertBox message={null} />
+    );
 
-   expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
-   var span = TestUtils.scryRenderedDOMComponentsWithTag(page, 'span');
+    expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+    var span = TestUtils.scryRenderedDOMComponentsWithTag(page, 'span');
  });
 
 });

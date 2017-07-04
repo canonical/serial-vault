@@ -38,7 +38,6 @@ var Index = React.createClass({
   },
 
   render: function() {
-    console.log('Index', this.props.token)
     return (
         <div className="row">
 

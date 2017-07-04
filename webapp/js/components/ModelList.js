@@ -135,7 +135,6 @@ var ModelList = React.createClass({
   },
 
   render: function() {
-    console.log('Models', this.props.token)
     if (!isUserAdmin(this.props.token)) {
       return (
         <div className="row">
