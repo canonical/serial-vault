@@ -361,7 +361,7 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		OpenIDIdentity: "https://login.ubuntu.com/+id/AAAAAA",
 		Name:           "A",
 		Email:          "a@example.com",
-		Role:           Standard})
+		Role:           Superuser})
 	return users, nil
 }
 

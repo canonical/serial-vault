@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"fmt"
@@ -84,10 +85,11 @@ func TestLoginHandlerReturn(t *testing.T) {
 	}
 
 	// Check the JWT details
-	response, _ := verifySuccess("")
+	response, _ := verifySuccess(url)
 
 	// Get User Role
 	user, err := datastore.Environ.DB.GetUser(response.SReg["nickname"])
+
 	if err != nil {
 		t.Errorf("Could not get datastore user %v: %v\n", response.SReg["nickname"], err)
 	}
@@ -113,10 +115,25 @@ func TestLoginHandlerReturnFail(t *testing.T) {
 }
 
 func verifySuccess(requestURL string) (*openid.Response, error) {
+	params := make(map[string]string)
+
+	tokens := strings.Split(requestURL, "&")
+	for _, t := range tokens {
+		tks := strings.Split(t, "=")
+
+		if len(tks) == 2 {
+			params[strings.TrimSpace(tks[0])] = tks[1]
+		}
+	}
+
 	r := openid.Response{
-		ID:    "AAAAAA",
+		ID:    params["openid.sig"],
 		Teams: []string{"ce-web-logs"},
-		SReg:  map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com", "role": "100"},
+		SReg: map[string]string{
+			"nickname": params["openid.sreg.nickname"],
+			"fullname": params["openid.sreg.fullname"],
+			"email":    params["openid.sreg.email"],
+		},
 	}
 
 	return &r, nil
