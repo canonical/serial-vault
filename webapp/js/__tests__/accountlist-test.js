@@ -33,6 +33,12 @@ const MODELS = [{id: 1, "authority-id-user": "canonical", "key-id-user": "123"}]
 const MODELS_NOTUSED = [{id: 1, "authority-id-user": "canonical", "key-id-user": "456"}]
 
 describe('accounts list', function() {
+
+    beforeAll(() => {
+        const ls = require("./localStorage.js");
+        ls.setLocalStorage();
+    });
+
     it('displays the account lists', function() {
 
         // Render the component

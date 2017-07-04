@@ -14,15 +14,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-'use strict'
 
 var React = require('react');
 var Navigation = require('./Navigation');
 import {FormattedMessage} from 'react-intl'
+import {authToken, getAuthToken, isLoggedIn} from './Utils'
+
 
 var Index = React.createClass({
 
+  getInitialState: function() {
+    return {token: this.props.token}
+  },
+
+  renderUser: function() {
+    if (isLoggedIn(this.props.token)) {
+      return <div />
+    } else {
+      return (
+        <a href="/login" className="p-button--brand">Login</a>
+      )
+    }
+  },
+
   render: function() {
+    console.log('Index', this.props.token)
     return (
         <div className="row">
 
@@ -35,6 +51,9 @@ var Index = React.createClass({
             </div>
           </section>
 
+          <section className="row">
+            {this.renderUser()}
+          </section>
         </div>
     );
   }

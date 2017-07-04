@@ -18,7 +18,8 @@ import React, {Component} from 'react'
 import Accounts from '../models/accounts'
 import Keypairs from '../models/keypairs'
 import Models from '../models/models'
-import {T} from './Utils'
+import AlertBox from './AlertBox'
+import {T, isLoggedIn, isUserAdmin} from './Utils'
 
 class AccountList extends Component {
 
@@ -168,8 +169,16 @@ class AccountList extends Component {
     }
 
     render() {
+        if (!isUserAdmin(this.props.token)) {
+            return (
+                <div className="row">
+                <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
+
         return (
-            <div className="row">
+            <div className="row" ref="root">
                 <section className="row">
 
                     <div className="u-equal-height">

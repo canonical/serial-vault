@@ -24,6 +24,10 @@ var Ajax = {
 		return this.get('token')
 	},
 
+	getAuthToken: function() {
+		return this.get('authtoken')
+	},
+
 	get: function(url, qs) {
 			if (!qs) {
 				qs = {};

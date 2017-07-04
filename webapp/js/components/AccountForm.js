@@ -17,7 +17,7 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
-import {T, parseResponse, formatError} from './Utils';
+import {T, parseResponse, formatError, authToken, getAuthToken, isLoggedIn, isUserAdmin} from './Utils';
 
 class AccountForm extends Component {
 
@@ -26,9 +26,22 @@ class AccountForm extends Component {
 
         this.state = {
             assertion: null,
-            error: null
+            error: null,
+            token: {},
         }
 
+        getAuthToken(this.setAuthToken)
+
+    }
+
+    setAuthToken = (token) => {
+        // Redirect to the home page if we're not logged in
+        if (!isLoggedIn(token)) {
+            window.location.href = '/'
+            return
+        }
+
+        this.setState({token: token})
     }
 
     handleFileUpload = (e) => {
@@ -58,6 +71,16 @@ class AccountForm extends Component {
     }
 
     render() {
+        // For ES6 Component, get token from localstorage as state doesn't get set
+        var t = authToken()
+        if (!isUserAdmin(t)) {
+            return (
+                <div className="row">
+                <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
+
         return (
             <div>
 

@@ -25,6 +25,12 @@ jest.dontMock('../components/Navigation');
 jest.dontMock('../components/Utils');
 
 describe('model edit', function() {
+
+  beforeAll(() => {
+      const ls = require("./utils/localStorage.js");
+      ls.setLocalStorage();
+  });
+
  it('displays the model edit page for create', function() {
 	 var ModelEdit = require('../components/ModelEdit');
 

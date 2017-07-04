@@ -15,8 +15,41 @@
  *
  */
 import Messages from './messages'
-import request from 'then-request'
+import jwtDecode from 'jwt-decode'
+import Ajax from '../models/Ajax'
+import {Role} from './Constants'
 
+
+const sections = ['models', 'keypairs', 'accounts', 'signinglog']
+
+
+export function sectionFromPath(path) {
+  return path === '/' ? 'home' : (
+    sections.find(section => (
+      path.startsWith(`/${section}`)
+    )) || ''
+  )
+}
+
+export function sectionIdFromPath(path, section) {
+  const parts = path.split('/').slice(1)
+  return (parts[0] === section && parts[1]) || ''
+}
+
+// export function sectionFromHash(hash) {
+//     console.log('hash', hash)
+//     //const p = hash.replace(/\//g, '')
+
+//     const pp = hash.split('/')
+//     const p = pp[1]
+
+//     console.log('p', p)
+//     return p === '' ? 'home' : (
+//         sections.find(section => (
+//         p.startsWith(`${section}`)
+//         )) || ''
+//     )
+// }
 
 export function T(message) {
     const lang = window.AppState.getLocale()
@@ -54,3 +87,81 @@ var getQueryString = function ( field, url ) {
     var string = reg.exec(href);
     return string ? string[1] : null;
 };
+
+export function getAuthToken(callback) {
+
+    if (localStorage.getItem('token')) {
+        var t = JSON.parse(localStorage.getItem('token'))
+        var utcTimestamp = Math.floor((new Date()).getTime() / 1000)
+        if (t.exp > utcTimestamp) {
+            // Use the token from local storage
+            callback(t)
+            return
+        }
+    }
+
+    // Get a fresh token and store it in local storage
+    Ajax.getAuthToken().then((resp) => {
+        var jwt = resp.headers.authorization
+
+        if (!jwt) return {}
+        var token = jwtDecode(jwt)
+
+        if (!token) {
+            callback({})
+            return
+        }
+
+        token.role = 200;  //TODO - remove
+
+        localStorage.setItem('token', JSON.stringify(token))
+        callback(token)
+    })
+
+}
+
+export function authToken() {
+    if (localStorage.getItem('token')) {
+        var t = JSON.parse(localStorage.getItem('token'))
+        return t
+    } else {
+        return {}
+    }
+}
+
+export function isLoggedIn(token) {
+    return isUserStandard(token)
+}
+
+export function isUserStandard(token) {
+    if (!token) return false
+    if (!token.role) return false
+
+    if (token.role >= Role.Standard) {
+        return true
+    } else {
+        return false
+    }
+}
+
+export function isUserAdmin(token) {
+    if (!token) return false
+    if (!token.role) return false
+
+    if (token.role >= Role.Admin) {
+        return true
+    } else {
+        return false
+    }
+}
+
+export function isUserSuperuser(token) {
+    if (!token) return false
+    if (!token.role) return false
+
+    if (token.role >= Role.Superuser) {
+        return true
+    } else {
+        return false
+    }
+}
