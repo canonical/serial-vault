@@ -18,25 +18,17 @@
 var React = require('react');
 var Navigation = require('./Navigation');
 import {FormattedMessage} from 'react-intl'
-import {getAuthToken, isLoggedIn} from './Utils'
+import {authToken, getAuthToken, isLoggedIn} from './Utils'
 
 
 var Index = React.createClass({
 
   getInitialState: function() {
-    return {token: {}}
-  },
-
-  componentDidMount: function() {
-    getAuthToken(this.getAuthToken)
-  },
-
-  getAuthToken: function(token) {
-    this.setState({token: token})
+    return {token: this.props.token}
   },
 
   renderUser: function() {
-    if (isLoggedIn(this.state.token)) {
+    if (isLoggedIn(this.props.token)) {
       return <div />
     } else {
       return (
@@ -46,6 +38,7 @@ var Index = React.createClass({
   },
 
   render: function() {
+    console.log('Index', this.props.token)
     return (
         <div className="row">
 

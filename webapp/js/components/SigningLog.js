@@ -17,18 +17,16 @@
 'use strict'
 
 var React = require('react');
-var Navigation = require('./Navigation');
 var SigningLogRow = require('./SigningLogRow');
-var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
 import SigningLogFilter from './SigningLogFilter'
 import Pagination from './Pagination'
-import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils'
+import {T, isLoggedIn, isUserAdmin} from './Utils'
 
 const PAGINATION_SIZE = 50;
 
-var SigningLogList = React.createClass({
+var SigningLog = React.createClass({
   getInitialState: function() {
     return {
         logs: this.props.logs || [],
@@ -41,24 +39,12 @@ var SigningLogList = React.createClass({
         page: 1,
         startRow: 0,
         endRow: PAGINATION_SIZE,
-        token: {},
     };
   },
 
   componentDidMount: function () {
-    getAuthToken(this.setAuthToken)
-    this.getLogs();
-    this.getFilters();
-  },
-
-  setAuthToken: function(token) {
-    // Redirect to the home page if we're not logged in
-    if (!isLoggedIn(token)) {
-      window.location.href = '/'
-      return
-    }
-
-      this.setState({token: token})
+    //this.getLogs();
+    //this.getFilters();
   },
 
   getLogs: function () {
@@ -226,8 +212,8 @@ var SigningLogList = React.createClass({
 
   render: function() {
 
-    console.log('SigningLog', this.state.token)
-    if (!isUserAdmin(this.state.token)) {
+    console.log('SigningLog', this.props.token)
+    if (!isUserAdmin(this.props.token)) {
       return (
         <div className="row">
           <AlertBox message={T('error-no-permissions')} />
@@ -290,4 +276,4 @@ var SigningLogList = React.createClass({
 
 });
 
-module.exports = SigningLogList;
+module.exports = SigningLog;

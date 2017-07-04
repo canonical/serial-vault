@@ -22,33 +22,22 @@ var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils';
+import {T, isLoggedIn, isUserAdmin} from './Utils';
 
 var ModelEdit = React.createClass({
     getInitialState: function() {
-        return {title: null, model: {}, error: null, keypairs: [], token: {}};
+        return {title: null, model: {}, error: null, keypairs: []};
     },
 
     componentDidMount: function() {
-        getAuthToken(this.setAuthToken)
         this.getKeypairs();
 
-        if (this.props.params.id) {
+        if (this.props.id) {
             this.setTitle('edit-model');
-            this.getModel(this.props.params.id);
+            this.getModel(this.props.id);
         } else {
             this.setTitle('new-model');
         }
-    },
-
-    setAuthToken: function(token) {
-        // Redirect to the home page if we're not logged in
-        if (!isLoggedIn(token)) {
-            window.location.href = '/'
-            return
-        }
-
-        this.setState({token: token})
     },
 
     setTitle: function(title) {
@@ -148,7 +137,7 @@ var ModelEdit = React.createClass({
 
     render: function() {
 
-        if (!isUserAdmin(this.state.token)) {
+        if (!isUserAdmin(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />

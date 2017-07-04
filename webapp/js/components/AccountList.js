@@ -19,7 +19,7 @@ import Accounts from '../models/accounts'
 import Keypairs from '../models/keypairs'
 import Models from '../models/models'
 import AlertBox from './AlertBox'
-import {T, authToken, getAuthToken, isLoggedIn, isUserAdmin} from './Utils'
+import {T, isLoggedIn, isUserAdmin} from './Utils'
 
 class AccountList extends Component {
 
@@ -31,24 +31,11 @@ class AccountList extends Component {
             keypairs: props.keypairs || [],
             models: props.models || [],
             message: '',
-            token: {},
         }
-
-        getAuthToken(this.setAuthToken.bind(this))
 
         this.getModels()
         this.getAccounts()
         this.getKeypairs()
-    }
-
-    setAuthToken(token) {
-        // Redirect to the home page if we're not logged in
-        if (!isLoggedIn(token)) {
-            window.location.href = '/'
-            return
-        }
-
-        this.setState({token: token})
     }
 
     getAccounts() {
@@ -182,9 +169,7 @@ class AccountList extends Component {
     }
 
     render() {
-        // For ES6 Component, get token from localstorage as state doesn't get set
-        var t = authToken()
-        if (!isUserAdmin(t)) {
+        if (!isUserAdmin(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />
@@ -193,7 +178,7 @@ class AccountList extends Component {
         }
 
         return (
-            <div className="row">
+            <div className="row" ref="root">
                 <section className="row">
 
                     <div className="u-equal-height">

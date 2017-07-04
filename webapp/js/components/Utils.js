@@ -19,6 +19,38 @@ import jwtDecode from 'jwt-decode'
 import Ajax from '../models/Ajax'
 import {Role} from './Constants'
 
+
+const sections = ['models', 'keypairs', 'accounts', 'signinglog']
+
+
+export function sectionFromPath(path) {
+  return path === '/' ? 'home' : (
+    sections.find(section => (
+      path.startsWith(`/${section}`)
+    )) || ''
+  )
+}
+
+export function sectionIdFromPath(path, section) {
+  const parts = path.split('/').slice(1)
+  return (parts[0] === section && parts[1]) || ''
+}
+
+// export function sectionFromHash(hash) {
+//     console.log('hash', hash)
+//     //const p = hash.replace(/\//g, '')
+
+//     const pp = hash.split('/')
+//     const p = pp[1]
+
+//     console.log('p', p)
+//     return p === '' ? 'home' : (
+//         sections.find(section => (
+//         p.startsWith(`${section}`)
+//         )) || ''
+//     )
+// }
+
 export function T(message) {
     const lang = window.AppState.getLocale()
     const msg = Messages[lang][message] || message;
@@ -57,7 +89,6 @@ var getQueryString = function ( field, url ) {
 };
 
 export function getAuthToken(callback) {
-    console.log('callback', callback)
 
     if (localStorage.getItem('token')) {
         var t = JSON.parse(localStorage.getItem('token'))

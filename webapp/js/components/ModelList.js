@@ -19,33 +19,21 @@
 'use strict'
 
 var React = require('react');
-var Navigation = require('./Navigation');
 var ModelRow = require('./ModelRow');
 var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-import {T, getAuthToken, isLoggedIn, isUserAdmin} from './Utils'
+import {T, isLoggedIn, isUserAdmin} from './Utils'
 
 var ModelList = React.createClass({
 
   getInitialState: function() {
-    return {models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null, token: {}};
+    return {models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null};
   },
 
   componentDidMount: function() {
-    getAuthToken(this.setAuthToken)
     this.refresh();
-  },
-
-  setAuthToken: function(token) {
-    // Redirect to the home page if we're not logged in
-    if (!isLoggedIn(token)) {
-      window.location.href = '/'
-      return
-    }
-
-      this.setState({token: token})
   },
 
   refresh: function() {
@@ -147,8 +135,8 @@ var ModelList = React.createClass({
   },
 
   render: function() {
-    console.log('Models', this.state.token)
-    if (!isUserAdmin(this.state.token)) {
+    console.log('Models', this.props.token)
+    if (!isUserAdmin(this.props.token)) {
       return (
         <div className="row">
           <AlertBox message={T('error-no-permissions')} />
@@ -183,7 +171,7 @@ var ModelList = React.createClass({
               <h2 className="col-3">{T('signing-keys')}</h2>
               &nbsp;
               <div className="col-1">
-                <a href="/models/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
+                <a href="/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
                   <i className="fa fa-plus"></i>
                 </a>
               </div>

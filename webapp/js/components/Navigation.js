@@ -23,16 +23,16 @@ import {getAuthToken, isUserAdmin, isLoggedIn} from './Utils'
 
 var Navigation = React.createClass({
     getInitialState: function() {
-        return {token: {}}
+        return {token: this.props.token}
     },
 
-    componentDidMount: function() {
-        getAuthToken(this.setAuthToken)
-    },
+    // componentDidMount: function() {
+    //     getAuthToken(this.setAuthToken)
+    // },
 
-    setAuthToken: function(token) {
-        this.setState({token: token})
-    },
+    // setAuthToken: function(token) {
+    //     this.setState({token: token})
+    // },
 
     renderLink: function(token, active, link, label) {
         if (isUserAdmin(token)) {
@@ -56,7 +56,7 @@ var Navigation = React.createClass({
 
     render: function() {
 
-        var token = this.state.token
+        var token = this.props.token
         console.log('Nav', token)
 
         var activeHome = 'p-navigation__link';

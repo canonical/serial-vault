@@ -45,7 +45,7 @@ gulp.task('compile_app', ['compile_components', 'compile_models'], function(){
 });
 
 gulp.task('build', ['compile_app'], function(){
-  return gulp.src([path.BUILD + 'app.js'])
+  return gulp.src([path.BUILD + 'index.js'])
     .pipe(browserify({}))
     .on('prebundle', function(bundler) {
         // Make React available externally for dev tools
