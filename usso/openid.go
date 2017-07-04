@@ -21,12 +21,14 @@ package usso
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
 	"github.com/juju/usso/openid"
+	"gopkg.in/errgo.v1"
 )
 
 var (
@@ -43,6 +45,12 @@ var client = openid.NewClient(usso.ProductionUbuntuSSOServer, &datastore.OpenidN
 // response. This is declared as a variable so it can be overridden for
 // testing.
 var verify = client.Verify
+
+func replyHTTPError(w http.ResponseWriter, returnCode int, err error) {
+	w.Header().Set("ContentType", "text/html")
+	w.WriteHeader(returnCode)
+	errorTemplate.Execute(w, err)
+}
 
 // LoginHandler processes the login for Ubuntu SSO
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,19 +77,36 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := verify(url.String())
 	if err != nil {
-		w.Header().Set("ContentType", "text/html")
-		w.WriteHeader(http.StatusBadRequest)
-		errorTemplate.Execute(w, err)
+		replyHTTPError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	// TODO: Verify the permissions of the user against the database
+	// get form username and get from datastore the User
+	username := r.Form.Get("openid.sreg.nickname")
+	if len(username) == 0 {
+		log.Println("Got no 'openid.sreg.nickname' in response params")
+		replyHTTPError(w, http.StatusBadRequest, errgo.New("OpenID response has not valid format"))
+		return
+	}
+
+	User, err := datastore.Environ.DB.GetUser(username)
+	if err != nil {
+		log.Printf("Error retrieving user from datastore: %v\n", err)
+		replyHTTPError(w, http.StatusInternalServerError, errgo.New(http.StatusText(http.StatusInternalServerError)))
+		return
+	}
+
+	// verify role value is valid
+	if User.Role != datastore.Standard && User.Role != datastore.Admin && User.Role != datastore.Superuser {
+		log.Printf("Role obtained from database for user %v has not a valid value: %v\n", username, User.Role)
+		replyHTTPError(w, http.StatusInternalServerError, errgo.New(http.StatusText(http.StatusInternalServerError)))
+		return
+	}
 
 	// Build the JWT
-	jwtToken, err := NewJWTToken(resp)
+	jwtToken, err := NewJWTToken(resp, User.Role)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorTemplate.Execute(w, err)
+		replyHTTPError(w, http.StatusBadRequest, err)
 		return
 	}
 

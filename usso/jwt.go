@@ -32,13 +32,14 @@ import (
 )
 
 // NewJWTToken creates a new JWT from the verified OpenID response
-func NewJWTToken(resp *openid.Response) (string, error) {
+func NewJWTToken(resp *openid.Response, role int) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	token.Claims[ClaimsUsername] = resp.SReg["nickname"]
 	token.Claims[ClaimsName] = resp.SReg["fullname"]
 	token.Claims[ClaimsEmail] = resp.SReg["email"]
 	token.Claims[ClaimsIdentity] = resp.ID
+	token.Claims[ClaimsRole] = role
 	token.Claims[StandardClaimExpiresAt] = time.Now().Add(time.Hour * 24).Unix()
 
 	tokenString, err := token.SignedString([]byte(jwtSecret))
