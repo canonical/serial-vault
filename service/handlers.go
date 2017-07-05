@@ -64,6 +64,11 @@ type KeypairsResponse struct {
 	Keypairs     []datastore.Keypair `json:"keypairs"`
 }
 
+// TokenResponse is the JSON response from the API Version method
+type TokenResponse struct {
+	EnableUserAuth bool `json:"enableUserAuth"`
+}
+
 // VersionHandler is the API method to return the version of the service
 func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -79,8 +84,19 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // TokenHandler returns CSRF protection new token in a X-CSRF-Token response header
+// This method is also used by the /authtoken endpoint to return the JWT. The method
+// indicates to the UI whether OpenID user auth is enabled
 func TokenHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("X-CSRF-Token", csrf.Token(r))
+
+	response := TokenResponse{EnableUserAuth: datastore.Environ.Config.EnableUserAuth}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		message := fmt.Sprintf("Error encoding the token response: %v", err)
+		logMessage("TOKEN", "get-token", message)
+	}
 }
 
 // SignHandler is the API method to sign assertions from the device

@@ -87,6 +87,14 @@ export function getAuthToken(callback) {
 
     // Get a fresh token and store it in local storage
     Ajax.getAuthToken().then((resp) => {
+
+        // If user authentication is off, set up a default token
+        var data = JSON.parse(resp.body)
+        if (!data.enableUserAuth) {
+            callback({role: Role.Admin})
+            return
+        }
+
         var jwt = resp.headers.authorization
 
         if (!jwt) {
