@@ -19,6 +19,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+import {shallow, mount, render} from 'enzyme';
 
 jest.dontMock('../components/ModelList');
 jest.dontMock('../components/KeypairList');
@@ -29,6 +30,8 @@ jest.dontMock('../components/Utils');
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
 
+const token = { role: 200 }
+const tokenUser = { role: 100 }
 
 describe('model list', function() {
   it('displays the models page with no models', function() {
@@ -42,7 +45,7 @@ describe('model list', function() {
 
     // Render the component
     var modelsPage = TestUtils.renderIntoDocument(
-        <ModelList />
+        <ModelList token={token} />
     );
 
     expect(TestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
@@ -81,7 +84,7 @@ describe('model list', function() {
 
   // Render the component
   shallowRenderer.render(
-      <ModelList models={models} />
+      <ModelList models={models} token={token} />
   );
   var modelsPage = shallowRenderer.getRenderOutput();
 
@@ -128,7 +131,7 @@ describe('model list', function() {
 
   // Render the component
   var modelsPage = TestUtils.renderIntoDocument(
-      <ModelList models={models} keypairs={keypairs} />
+      <ModelList models={models} keypairs={keypairs} token={token} />
   );
 
   expect(TestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
@@ -158,5 +161,29 @@ describe('model list', function() {
   expect(sectionKeypairRows[0].children[2].textContent).toBe(keypairs[0].KeyID);
 
  });
+
+  it('displays error with no permissions', function() {
+      var ModelList = require('../components/ModelList');
+
+      // Render the component
+      const component = shallow(
+          <ModelList />
+      );
+
+      expect(component.find('div')).toHaveLength(1)
+      expect(component.find('AlertBox')).toHaveLength(1)
+  })
+
+  it('displays error with insufficient permissions', function() {
+      var ModelList = require('../components/ModelList');
+
+      // Render the component
+      const component = shallow(
+          <ModelList token={tokenUser} />
+      );
+
+      expect(component.find('div')).toHaveLength(1)
+      expect(component.find('AlertBox')).toHaveLength(1)
+  })
 
 });

@@ -32,12 +32,16 @@ const KEYPAIRS_INCOMPLETE = [{ID: 1, AuthorityID: "canonical", KeyID: "123", Ass
 const MODELS = [{id: 1, "authority-id-user": "canonical", "key-id-user": "123"}]
 const MODELS_NOTUSED = [{id: 1, "authority-id-user": "canonical", "key-id-user": "456"}]
 
+const token = { role: 200 }
+const tokenUser = { role: 100 }
+
 describe('accounts list', function() {
+
     it('displays the account lists', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList />
+            <AccountList token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -49,7 +53,7 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={null} keypairs={KEYPAIRS} models={MODELS} />
+            <AccountList accounts={null} keypairs={KEYPAIRS} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -63,7 +67,7 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS} />
+            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -76,7 +80,7 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS_NOTUSED} />
+            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS_NOTUSED} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -90,7 +94,7 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} />
+            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -104,7 +108,7 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} />
+            <AccountList keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -112,6 +116,28 @@ describe('accounts list', function() {
         // No account assertion displayed, no key assertion and two warnings (+ two buttons)
         expect(component.find('pre')).toHaveLength(0)
         expect(component.find('i')).toHaveLength(4)
+    })
+
+    it('displays error with no permissions', function() {
+
+        // Render the component
+        const component = shallow(
+            <AccountList />
+        );
+
+        expect(component.find('div')).toHaveLength(1)
+        expect(component.find('AlertBox')).toHaveLength(1)
+    })
+
+    it('displays error with insufficient permissions', function() {
+
+        // Render the component
+        const component = shallow(
+            <AccountList token={tokenUser} />
+        );
+
+        expect(component.find('div')).toHaveLength(1)
+        expect(component.find('AlertBox')).toHaveLength(1)
     })
 
 })

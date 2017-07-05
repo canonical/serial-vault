@@ -17,7 +17,7 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
-import {T, parseResponse, formatError} from './Utils';
+import {T, parseResponse, formatError, isLoggedIn, isUserAdmin} from './Utils';
 
 class AccountForm extends Component {
 
@@ -26,9 +26,8 @@ class AccountForm extends Component {
 
         this.state = {
             assertion: null,
-            error: null
+            error: null,
         }
-
     }
 
     handleFileUpload = (e) => {
@@ -58,6 +57,14 @@ class AccountForm extends Component {
     }
 
     render() {
+        if (!isUserAdmin(this.props.token)) {
+            return (
+                <div className="row">
+                <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
+
         return (
             <div>
 

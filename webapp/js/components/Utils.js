@@ -15,8 +15,26 @@
  *
  */
 import Messages from './messages'
-import request from 'then-request'
+import jwtDecode from 'jwt-decode'
+import Ajax from '../models/Ajax'
+import {Role} from './Constants'
 
+
+const sections = ['models', 'keypairs', 'accounts', 'signinglog']
+
+
+export function sectionFromPath(path) {
+  return path === '/' ? 'home' : (
+    sections.find(section => (
+      path.startsWith(`/${section}`)
+    )) || ''
+  )
+}
+
+export function sectionIdFromPath(path, section) {
+  const parts = path.split('/').slice(1)
+  return (parts[0] === section && parts[1]) || ''
+}
 
 export function T(message) {
     const lang = window.AppState.getLocale()
@@ -54,3 +72,68 @@ var getQueryString = function ( field, url ) {
     var string = reg.exec(href);
     return string ? string[1] : null;
 };
+
+export function getAuthToken(callback) {
+
+    if (localStorage.getItem('token')) {
+        var t = JSON.parse(localStorage.getItem('token'))
+        var utcTimestamp = Math.floor((new Date()).getTime() / 1000)
+        if (t.exp > utcTimestamp) {
+            // Use the token from local storage
+            callback(t)
+            return
+        }
+    }
+
+    // Get a fresh token and store it in local storage
+    Ajax.getAuthToken().then((resp) => {
+        var jwt = resp.headers.authorization
+
+        if (!jwt) {
+            callback({})
+            return
+        }
+        var token = jwtDecode(jwt)
+
+        if (!token) {
+            callback({})
+            return
+        }
+
+        localStorage.setItem('token', JSON.stringify(token))
+        callback(token)
+    })
+
+}
+
+export function authToken() {
+    if (localStorage.getItem('token')) {
+        var t = JSON.parse(localStorage.getItem('token'))
+        return t
+    } else {
+        return {}
+    }
+}
+
+export function isLoggedIn(token) {
+    return isUserStandard(token)
+}
+
+export function isUserStandard(token) {
+    return isUser(Role.Standard, token)
+}
+
+export function isUserAdmin(token) {
+    return isUser(Role.Admin, token)
+}
+
+export function isUserSuperuser(token) {
+    return isUser(Role.Superuser, token)
+}
+
+function isUser(role, token) {
+    if (!token) return false
+    if (!token.role) return false
+
+    return (token.role >= role)
+}

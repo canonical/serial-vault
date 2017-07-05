@@ -20,7 +20,7 @@
 var intlData = {
     zh: {
       "title": "串行库",
-      "description": "串行库是一个Web服务，加密迹象活泼的Ubuntu模型断言。",
+      "description": "<The Serial Vault is a web service that generates cryptographically-signed serial assertions.>",
       "home": "家",
       "brand": "牌",
       "brand-description": "设备品牌名称",
@@ -117,13 +117,13 @@ var intlData = {
       "error-key-not-found": "SSH公用密钥无法找到",
       "error-validate-signingkey": "<The Signing Key must be selected>",
       "error-validate-userkey": "<The System-User Key must be selected>",
-      "error-keypair-store": "<Error storing the signing key>"
-
+      "error-keypair-store": "<Error storing the signing key>",
+      "error-no-permissions": "<You do not have permissions to access this page>"
     },
 
     en: {
       "title": "Serial Vault",
-      "description": "The Serial Vault is a web service that cryptographically signs snappy Ubuntu model assertions.",
+      "description": "The Serial Vault is a web service that generates cryptographically-signed serial assertions.",
       "home": "Home",
       "brand": "Brand",
       "brand-description": "The name of the device brand",
@@ -220,7 +220,8 @@ var intlData = {
       "error-key-not-found": "The ssh public key cannot be found",
       "error-validate-signingkey": "The Serial Assertion Key must be selected",
       "error-validate-userkey": "The System-User Assertion Key must be selected",
-      "error-keypair-store": "Error storing the signing key"
+      "error-keypair-store": "Error storing the signing key",
+      "error-no-permissions": "You do not have permissions to access this page"
     }
 };
 

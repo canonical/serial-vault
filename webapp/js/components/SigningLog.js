@@ -17,18 +17,16 @@
 'use strict'
 
 var React = require('react');
-var Navigation = require('./Navigation');
 var SigningLogRow = require('./SigningLogRow');
-var Footer = require('./Footer');
 var AlertBox = require('./AlertBox');
 var SigningLogModel = require('../models/signinglog') 
 import SigningLogFilter from './SigningLogFilter'
 import Pagination from './Pagination'
-import {T} from './Utils'
+import {T, isLoggedIn, isUserAdmin} from './Utils'
 
 const PAGINATION_SIZE = 50;
 
-var SigningLogList = React.createClass({
+var SigningLog = React.createClass({
   getInitialState: function() {
     return {
         logs: this.props.logs || [],
@@ -45,8 +43,8 @@ var SigningLogList = React.createClass({
   },
 
   componentDidMount: function () {
-    this.getLogs();
-    this.getFilters();
+    //this.getLogs();
+    //this.getFilters();
   },
 
   getLogs: function () {
@@ -213,6 +211,15 @@ var SigningLogList = React.createClass({
   },
 
   render: function() {
+
+    if (!isUserAdmin(this.props.token)) {
+      return (
+        <div className="row">
+          <AlertBox message={T('error-no-permissions')} />
+        </div>
+      )
+    }
+
     var displayRows = this.displayRows();
 
     return (
@@ -268,4 +275,4 @@ var SigningLogList = React.createClass({
 
 });
 
-module.exports = SigningLogList;
+module.exports = SigningLog;

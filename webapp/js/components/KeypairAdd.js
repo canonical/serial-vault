@@ -21,23 +21,23 @@ var Keypairs = require('../models/keypairs');
 var Navigation = require('./Navigation');
 var AlertBox = require('./AlertBox');
 var Footer = require('./Footer');
-import {T} from './Utils';
+import {T, isLoggedIn, isUserAdmin} from './Utils';
 
 var KeypairAdd = React.createClass({
-	getInitialState: function() {
-    return {authorityId: null, key: null, error: this.props.error};
-  },
+    getInitialState: function() {
+        return {authorityId: null, key: null, error: this.props.error};
+    },
 
-	handleChangeAuthorityId: function(e) {
-		this.setState({authorityId: e.target.value});
-	},
+    handleChangeAuthorityId: function(e) {
+        this.setState({authorityId: e.target.value});
+    },
 
-	handleChangeKey: function(e) {
-		this.setState({key: e.target.value});
-	},
+    handleChangeKey: function(e) {
+        this.setState({key: e.target.value});
+    },
 
-	handleFileUpload: function(e) {
-		var self = this;
+    handleFileUpload: function(e) {
+        var self = this;
     var reader = new FileReader();
     var file = e.target.files[0];
 
@@ -48,66 +48,73 @@ var KeypairAdd = React.createClass({
     }
 
     reader.readAsDataURL(file);
-	},
+    },
 
-	handleSaveClick: function(e) {
-		var self = this;
-		e.preventDefault();
+    handleSaveClick: function(e) {
+        var self = this;
+        e.preventDefault();
 
-		Keypairs.create(this.state.authorityId, this.state.key).then(function(response) {
-			var data = JSON.parse(response.body);
-			if ((response.statusCode >= 300) || (!data.success)) {
+        Keypairs.create(this.state.authorityId, this.state.key).then(function(response) {
+            var data = JSON.parse(response.body);
+            if ((response.statusCode >= 300) || (!data.success)) {
         self.setState({error: self.formatError(data)});
       } else {
         window.location = '/models';
       }
-		});
-	},
+        });
+    },
 
-	formatError: function(data) {
-		var message = T(data.error_code);
-		if (data.error_subcode) {
-			message += ': ' + T(data.error_subcode);
-		} else if (data.message) {
-			message += ': ' + data.message;
-		}
-		return message;
-	},
+    formatError: function(data) {
+        var message = T(data.error_code);
+        if (data.error_subcode) {
+            message += ': ' + T(data.error_subcode);
+        } else if (data.message) {
+            message += ': ' + data.message;
+        }
+        return message;
+    },
 
-	render: function() {
+    render: function() {
 
-		return (
-			<div>
+        if (!isUserAdmin(this.props.token)) {
+            return (
+                <div className="row">
+                <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
 
-				<section className="row no-border">
-					<h2>{T('new-signing-key')}</h2>
-					<div className="col-12">
-						<AlertBox message={this.state.error} />
+        return (
+            <div>
+                <section className="row no-border">
+                    <h2>{T('new-signing-key')}</h2>
+                    <div className="col-12">
+                        <AlertBox message={this.state.error} />
 
-						<form>
-							<fieldset>
-								<label htmlFor="authority-id">{T('authority-id')}:
-									<input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
-								</label>
-								<label htmlFor="key">{T('signing-key')}:
-									<textarea onChange={this.handleChangeKey} defaultValue={this.state.key} id="key"
-											placeholder={T('new-signing-key-description')}>
-									</textarea>
-									<input type="file" onChange={this.handleFileUpload} />
-								</label>
-							</fieldset>
-						</form>
-						<div>
-							<a href='/models' className="p-button--neutral">{T('cancel')}</a>
-							&nbsp;
-							<a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
-						</div>
-					</div>
-				</section>
-				<br />
-			</div>
-		);
-	}
+                        <form>
+                            <fieldset>
+                                <label htmlFor="authority-id">{T('authority-id')}:
+                                    <input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
+                                </label>
+                                <label htmlFor="key">{T('signing-key')}:
+                                    <textarea onChange={this.handleChangeKey} defaultValue={this.state.key} id="key"
+                                            placeholder={T('new-signing-key-description')}>
+                                    </textarea>
+                                    <input type="file" onChange={this.handleFileUpload} />
+                                </label>
+                            </fieldset>
+                        </form>
+                        <div>
+                            <a href='/models' className="p-button--neutral">{T('cancel')}</a>
+                            &nbsp;
+                            <a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
+                        </div>
+                    </div>
+                </section>
+                <br />
+            </div>
+        );
+    }
 });
 
 module.exports = KeypairAdd;

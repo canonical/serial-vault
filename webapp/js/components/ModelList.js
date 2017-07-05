@@ -19,13 +19,12 @@
 'use strict'
 
 var React = require('react');
-var Navigation = require('./Navigation');
 var ModelRow = require('./ModelRow');
 var KeypairList = require('./KeypairList');
 var AlertBox = require('./AlertBox');
 var Models = require('../models/models');
 var Keypairs = require('../models/keypairs');
-import {T} from './Utils'
+import {T, isLoggedIn, isUserAdmin} from './Utils'
 
 var ModelList = React.createClass({
 
@@ -67,14 +66,14 @@ var ModelList = React.createClass({
   },
 
   formatError: function(data) {
-		var message = T(data.error_code);
-		if (data.error_subcode) {
-			message += ': ' + T(data.error_subcode);
-		} else if (data.message) {
-			message += ': ' + data.message;
-		}
-		return message;
-	},
+    var message = T(data.error_code);
+    if (data.error_subcode) {
+      message += ': ' + T(data.error_subcode);
+    } else if (data.message) {
+      message += ': ' + data.message;
+    }
+    return message;
+  },
 
   handleDelete: function(e) {
     e.preventDefault();
@@ -136,6 +135,13 @@ var ModelList = React.createClass({
   },
 
   render: function() {
+    if (!isUserAdmin(this.props.token)) {
+      return (
+        <div className="row">
+          <AlertBox message={T('error-no-permissions')} />
+        </div>
+      )
+    }
 
     return (
         <div className="row">
@@ -164,7 +170,7 @@ var ModelList = React.createClass({
               <h2 className="col-3">{T('signing-keys')}</h2>
               &nbsp;
               <div className="col-1">
-                <a href="/models/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
+                <a href="/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
                   <i className="fa fa-plus"></i>
                 </a>
               </div>

@@ -20,6 +20,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import SigningLog from '../components/SigningLog';
+import {shallow, mount, render} from 'enzyme';
 
 jest.dontMock('../components/SigningLog');
 jest.dontMock('../components/SigningLogRow');
@@ -32,6 +33,9 @@ jest.dontMock('../components/Utils');
 
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
+
+const token = { role: 200 }
+const tokenUser = { role: 100 }
 
 describe('signing-log list', function() {
     it('displays the signing logs page with no logs', function() {
@@ -46,7 +50,7 @@ describe('signing-log list', function() {
         var shallowRenderer = TestUtils.createRenderer();
 
         shallowRenderer.render(
-            <SigningLog />
+            <SigningLog token={token} />
         );
 
         var logsPage = shallowRenderer.getRenderOutput();
@@ -77,7 +81,7 @@ describe('signing-log list', function() {
 
         // Render the component
         shallowRenderer.render(
-            <SigningLog logs={logs} />
+            <SigningLog logs={logs} token={token} />
         );
         var logsPage = shallowRenderer.getRenderOutput();
 
@@ -95,4 +99,26 @@ describe('signing-log list', function() {
         expect(row1.type.displayName).toBe('SigningLogRow')
         expect(row1.props.log).toBe(logs[0])
     });
+
+    it('displays error with no permissions', function() {
+
+        // Render the component
+        const component = shallow(
+            <SigningLog />
+        );
+
+        expect(component.find('div')).toHaveLength(1)
+        expect(component.find('AlertBox')).toHaveLength(1)
+    })
+
+    it('displays error with insufficient permissions', function() {
+
+        // Render the component
+        const component = shallow(
+            <SigningLog token={tokenUser} />
+        );
+
+        expect(component.find('div')).toHaveLength(1)
+        expect(component.find('AlertBox')).toHaveLength(1)
+    })
 });

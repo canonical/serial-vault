@@ -100,5 +100,6 @@ func main() {
 		address = ":8080"
 	}
 
+	log.Printf("Starting service on port %s", address)
 	log.Fatal(http.ListenAndServe(address, handler))
 }

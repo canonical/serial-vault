@@ -26,45 +26,46 @@ jest.dontMock('../components/Utils');
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
 
+const token = { role: 200 }
 
 describe('navigation', function() {
  it('displays the navigation menu with home active', function() {
-	 var Navigation = require('../components/Navigation');
+   var Navigation = require('../components/Navigation');
 
    var handleYesClick = jest.genMockFunction();
    var handleNoClick = jest.genMockFunction();
 
-	 // Render the component
-	 var page = TestUtils.renderIntoDocument(
-			<Navigation active={'home'} />
-	 );
+   // Render the component
+   var page = TestUtils.renderIntoDocument(
+      <Navigation active={'home'} token={token} />
+   );
 
-	 expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+   expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
 
-	 // Check all the expected elements are rendered
+   // Check all the expected elements are rendered
    var ul = TestUtils.findRenderedDOMComponentWithTag(page, 'ul');
-   expect(ul.children.length).toBe(4);
+   expect(ul.children.length).toBe(5);
    expect(ul.children[0].firstChild.textContent).toBe('Home');
    expect(ul.children[0].firstChild.className).toBe('');
    expect(ul.children[1].firstChild.className).toBe('');
  });
 
  it('displays the navigation menu with models active', function() {
-	 var Navigation = require('../components/Navigation');
+   var Navigation = require('../components/Navigation');
 
    var handleYesClick = jest.genMockFunction();
    var handleNoClick = jest.genMockFunction();
 
-	 // Render the component
-	 var page = TestUtils.renderIntoDocument(
-			 <Navigation active={'models'} />
-	 );
+   // Render the component
+   var page = TestUtils.renderIntoDocument(
+       <Navigation active={'models'} token={token} />
+   );
 
-	 expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
+   expect(TestUtils.isCompositeComponent(page)).toBeTruthy();
 
-	 // Check all the expected elements are rendered
+   // Check all the expected elements are rendered
    var ul = TestUtils.findRenderedDOMComponentWithTag(page, 'ul');
-   expect(ul.children.length).toBe(4);
+   expect(ul.children.length).toBe(5);
    expect(ul.children[1].firstChild.textContent).toBe('Models');
    expect(ul.children[1].firstChild.className).toBe('');
    expect(ul.children[0].firstChild.className).toBe('');
