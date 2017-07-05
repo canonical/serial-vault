@@ -42,11 +42,14 @@ var Navigation = React.createClass({
 
     renderUser: function(token) {
         if (isLoggedIn(token)) {
-            return (
-            <li className="p-navigation__link">
-                <a href="https://login.ubuntu.com/" className="p-link--external">{token.name}</a>
-            </li>
-            )
+            // The name is undefined if user authentication is off
+            if (token.name) {
+                return (
+                <li className="p-navigation__link">
+                    <a href="https://login.ubuntu.com/" className="p-link--external">{token.name}</a>
+                </li>
+                )
+            }
         } else {
             return (
             <li className="p-navigation__link"><a href="/login" className="p-link--external">Login</a></li>

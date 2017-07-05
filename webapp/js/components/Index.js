@@ -32,7 +32,9 @@ var Index = React.createClass({
       return <div />
     } else {
       return (
-        <a href="/login" className="p-button--brand">Login</a>
+        <div>
+          <a href="/login" className="p-button--brand">Login</a>
+        </div>
       )
     }
   },

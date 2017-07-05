@@ -396,6 +396,19 @@ func TestVersionHandler(t *testing.T) {
 
 }
 
+func TestTokenHandler(t *testing.T) {
+
+	config := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{Config: config}
+
+	result, _ := sendRequestToken(t, "GET", "/v1/authtoken", nil)
+
+	if result.EnableUserAuth != datastore.Environ.Config.EnableUserAuth {
+		t.Errorf("Incorrect token response returned. Expected '%v' got: %v", datastore.Environ.Config.EnableUserAuth, result.EnableUserAuth)
+	}
+
+}
+
 func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (VersionResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
@@ -406,6 +419,21 @@ func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (Versi
 	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the version response: %v", err)
+	}
+
+	return result, err
+}
+
+func sendRequestToken(t *testing.T, method, url string, data io.Reader) (TokenResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := TokenResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the token response: %v", err)
 	}
 
 	return result, err
