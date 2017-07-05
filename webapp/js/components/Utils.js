@@ -120,34 +120,20 @@ export function isLoggedIn(token) {
 }
 
 export function isUserStandard(token) {
-    if (!token) return false
-    if (!token.role) return false
-
-    if (token.role >= Role.Standard) {
-        return true
-    } else {
-        return false
-    }
+    return isUser(Role.Standard, token)
 }
 
 export function isUserAdmin(token) {
-    if (!token) return false
-    if (!token.role) return false
-
-    if (token.role >= Role.Admin) {
-        return true
-    } else {
-        return false
-    }
+    return isUser(Role.Admin, token)
 }
 
 export function isUserSuperuser(token) {
+    return isUser(Role.Superuser, token)
+}
+
+function isUser(role, token) {
     if (!token) return false
     if (!token.role) return false
 
-    if (token.role >= Role.Superuser) {
-        return true
-    } else {
-        return false
-    }
+    return (token.role >= role)
 }
