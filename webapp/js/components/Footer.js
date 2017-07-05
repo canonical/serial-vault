@@ -39,7 +39,7 @@ var Footer = React.createClass({
 
 	render: function() {
 		return (
-			<footer>
+			<footer className="spacer">
 				<div className="row">
 					<p><small>{T('version')}: {this.state.version}</small></p>
 				</div>

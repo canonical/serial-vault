@@ -36,4 +36,4 @@ urlHost: "localhost:8081"
 urlScheme: http
 
 # Enable user authentication using Ubuntu SSO
-enableUserAuth: true
+enableUserAuth: false
