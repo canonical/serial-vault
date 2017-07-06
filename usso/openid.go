@@ -92,15 +92,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	User, err := datastore.Environ.DB.GetUser(username)
 	if err != nil {
+		// Cannot find the user, so redirect to the login page
 		log.Printf("Error retrieving user from datastore: %v\n", err)
-		replyHTTPError(w, http.StatusInternalServerError, errgo.New(http.StatusText(http.StatusInternalServerError)))
+		http.Redirect(w, r, "/notfound", http.StatusTemporaryRedirect)
 		return
 	}
 
 	// verify role value is valid
 	if User.Role != datastore.Standard && User.Role != datastore.Admin && User.Role != datastore.Superuser {
 		log.Printf("Role obtained from database for user %v has not a valid value: %v\n", username, User.Role)
-		replyHTTPError(w, http.StatusInternalServerError, errgo.New(http.StatusText(http.StatusInternalServerError)))
+		http.Redirect(w, r, "/notfound", http.StatusTemporaryRedirect)
 		return
 	}
 

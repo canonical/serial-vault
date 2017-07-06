@@ -19,6 +19,7 @@ var React = require('react');
 var Navigation = require('./Navigation');
 import {FormattedMessage} from 'react-intl'
 import {T, isLoggedIn} from './Utils'
+import AlertBox from './AlertBox'
 
 
 var Index = React.createClass({
@@ -39,12 +40,22 @@ var Index = React.createClass({
     }
   },
 
+  renderError: function() {
+    if (this.props.error) {
+      return (
+        <AlertBox message={T('user-not-found')} />
+      )
+    }
+  },
+
   render: function() {
     return (
         <div className="row">
 
+
           <section className="row">
             <h2><FormattedMessage id="title" /></h2>
+            {this.renderError()}
             <div>
               <div className="p-card">
                 <FormattedMessage id="description" />
