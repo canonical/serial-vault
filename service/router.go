@@ -78,6 +78,7 @@ func AdminRouter() *mux.Router {
 
 	// OpenID routes: using Ubuntu SSO
 	router.Handle("/login", Middleware(http.HandlerFunc(usso.LoginHandler)))
+	router.Handle("/logout", Middleware(http.HandlerFunc(usso.LogoutHandler)))
 
 	// Web application routes
 	path := []string{datastore.Environ.Config.DocRoot, "/static/"}

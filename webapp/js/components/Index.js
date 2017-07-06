@@ -18,7 +18,7 @@
 var React = require('react');
 var Navigation = require('./Navigation');
 import {FormattedMessage} from 'react-intl'
-import {authToken, getAuthToken, isLoggedIn} from './Utils'
+import {T, isLoggedIn} from './Utils'
 
 
 var Index = React.createClass({
@@ -33,7 +33,7 @@ var Index = React.createClass({
     } else {
       return (
         <div>
-          <a href="/login" className="p-button--brand">Login</a>
+          <a href="/login" className="p-button--brand">{T('login')}</a>
         </div>
       )
     }

@@ -75,17 +75,8 @@ var getQueryString = function ( field, url ) {
 
 export function getAuthToken(callback) {
 
-    if (localStorage.getItem('token')) {
-        var t = JSON.parse(localStorage.getItem('token'))
-        var utcTimestamp = Math.floor((new Date()).getTime() / 1000)
-        if (t.exp > utcTimestamp) {
-            // Use the token from local storage
-            callback(t)
-            return
-        }
-    }
-
-    // Get a fresh token and store it in local storage
+    // Get a fresh token and return it to the callback
+    // The token will be passed to the views
     Ajax.getAuthToken().then((resp) => {
 
         // If user authentication is off, set up a default token
@@ -107,8 +98,6 @@ export function getAuthToken(callback) {
             callback({})
             return
         }
-
-        localStorage.setItem('token', JSON.stringify(token))
         callback(token)
     })
 

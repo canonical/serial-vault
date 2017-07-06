@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
@@ -126,3 +127,29 @@ var errorTemplate = template.Must(template.New("failure").Parse(`<html>
 <body>{{.}}</body>
 </html>
 `))
+
+// LogoutHandler logs the user out by removing the cookie and the JWT authorization header
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Remove the authorization header with contains the bearer token
+	w.Header().Del("Authorization")
+
+	// Create a new invalid token with an unauthorized user
+	jwtToken, err := createJWT("INVALID", "Not Logged-In", "", "", 0, 0)
+	if err != nil {
+		log.Println("Error logging out:", err.Error())
+	}
+
+	// Update the cookie with the invalid token and expired date
+	c, err := r.Cookie(JWTCookie)
+	if err != nil {
+		log.Println("Error logging out:", err.Error())
+	}
+	c.Value = jwtToken
+	c.Expires = time.Now().AddDate(0, 0, -1)
+
+	// Set the bearer token and the cookie
+	http.SetCookie(w, c)
+
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+}

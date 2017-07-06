@@ -31,22 +31,26 @@ import (
 	"github.com/juju/usso/openid"
 )
 
-// NewJWTToken creates a new JWT from the verified OpenID response
-func NewJWTToken(resp *openid.Response, role int) (string, error) {
+func createJWT(username, name, email, identity string, role int, expires int64) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	token.Claims[ClaimsUsername] = resp.SReg["nickname"]
-	token.Claims[ClaimsName] = resp.SReg["fullname"]
-	token.Claims[ClaimsEmail] = resp.SReg["email"]
-	token.Claims[ClaimsIdentity] = resp.ID
+	token.Claims[ClaimsUsername] = username
+	token.Claims[ClaimsName] = name
+	token.Claims[ClaimsEmail] = email
+	token.Claims[ClaimsIdentity] = identity
 	token.Claims[ClaimsRole] = role
-	token.Claims[StandardClaimExpiresAt] = time.Now().Add(time.Hour * 24).Unix()
+	token.Claims[StandardClaimExpiresAt] = expires
 
 	tokenString, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
 		log.Printf("Error signing the JWT: %v", err.Error())
 	}
 	return tokenString, err
+}
+
+// NewJWTToken creates a new JWT from the verified OpenID response
+func NewJWTToken(resp *openid.Response, role int) (string, error) {
+	return createJWT(resp.SReg["nickname"], resp.SReg["fullname"], resp.SReg["email"], resp.ID, role, time.Now().Add(time.Hour*24).Unix())
 }
 
 func keyFunc(token *jwt.Token) (interface{}, error) {

@@ -95,7 +95,7 @@ func JWTValidate(protected http.Handler) http.Handler {
 		// Get the JWT from the header or cookie
 		jwtToken, err := usso.JWTExtractor(r)
 		if err != nil {
-			log.Println(err.Error())
+			log.Println("Error in JWT extraction:", err.Error())
 			// TODO: don't leave pages unprotected when there is no token
 			protected.ServeHTTP(w, r)
 			return
@@ -116,8 +116,8 @@ func JWTValidate(protected http.Handler) http.Handler {
 			protected.ServeHTTP(w, r)
 		}
 
-		// Set a cookie with the JWT
-		usso.AddJWTCookie(jwtToken, w)
+		// Set up the bearer token in the header
+		w.Header().Set("Authorization", "Bearer "+jwtToken)
 
 		protected.ServeHTTP(w, r)
 
