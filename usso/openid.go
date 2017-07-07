@@ -29,7 +29,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
 	"github.com/juju/usso/openid"
-	"gopkg.in/errgo.v1"
 )
 
 var (
@@ -78,15 +77,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := verify(url.String())
 	if err != nil {
+		// A mangled OpenID response is suspicious, so leave a nasty response
 		replyHTTPError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	// get form username and get from datastore the User
+	// Check we have the mandatory fields in the OpenID response
 	username := r.Form.Get("openid.sreg.nickname")
-	if len(username) == 0 {
-		log.Println("Got no 'openid.sreg.nickname' in response params")
-		replyHTTPError(w, http.StatusBadRequest, errgo.New("OpenID response has not valid format"))
+	fullname := r.Form.Get("openid.sreg.fullname")
+	email := r.Form.Get("openid.sreg.email")
+	if len(username) == 0 || len(fullname) == 0 || len(email) == 0 {
+		log.Println("Some params are missing from the OpenID response")
+		http.Redirect(w, r, "/notfound", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -108,6 +110,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Build the JWT
 	jwtToken, err := NewJWTToken(resp, User.Role)
 	if err != nil {
+		// Unexpected that this should occur, so leave the detailed response
+		log.Printf("Error creating the JWT: %v", err)
 		replyHTTPError(w, http.StatusBadRequest, err)
 		return
 	}
