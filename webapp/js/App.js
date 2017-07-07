@@ -86,6 +86,7 @@ class App extends Component {
           <div className="spacer" />
   
           {currentSection==='home'? <Index token={this.props.token} /> : ''}
+          {currentSection==='notfound'? <Index token={this.props.token} error={true} /> : ''}
 
           {currentSection==='models'? this.renderModels() : ''}
           {currentSection==='keypairs'? <KeypairAdd token={this.props.token} />: ''}

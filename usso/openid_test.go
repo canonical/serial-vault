@@ -29,6 +29,8 @@ import (
 
 	"fmt"
 
+	"time"
+
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
 	"github.com/juju/usso/openid"
@@ -97,6 +99,44 @@ func TestLoginHandlerReturn(t *testing.T) {
 	expectedToken(t, jwtToken, response, response.SReg["nickname"], response.SReg["email"], response.SReg["fullname"], user.Role)
 }
 
+func TestLoginHandlerBadUser(t *testing.T) {
+	// Response parameters from OpenID login
+	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A&openid.sreg.nickname=a"
+
+	// Mock the database (with error) and OpenID verification
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	verify = verifySuccess
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", url, nil)
+	http.HandlerFunc(LoginHandler).ServeHTTP(w, r)
+
+	if w.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Expected HTTP status '307', got: %v", w.Code)
+	}
+
+	if w.Header().Get("Location") != "/notfound" {
+		t.Errorf("Expected redirect to /notfound but got: %v", w.Header().Get("Location"))
+	}
+}
+
+func TestLoginHandlerReturnBad(t *testing.T) {
+	// Response parameters from OpenID login (with empty nickname)
+	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A&openid.sreg.nickname="
+
+	// Mock the database and OpenID verification
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	verify = verifySuccess
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", url, nil)
+	http.HandlerFunc(LoginHandler).ServeHTTP(w, r)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected HTTP status '400', got: %v", w.Code)
+	}
+}
+
 func TestLoginHandlerReturnFail(t *testing.T) {
 	// Response parameters from OpenID login
 	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A&openid.sreg.nickname=a"
@@ -111,6 +151,46 @@ func TestLoginHandlerReturnFail(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Expected HTTP status '400', got: %v", w.Code)
+	}
+}
+
+func TestLogoutHandler(t *testing.T) {
+
+	// Mock the database
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/logout", nil)
+
+	// Create a test cookie
+	expireCookie := time.Now().Add(time.Hour * 1)
+	c := http.Cookie{Name: JWTCookie, Value: "test-cookie", Expires: expireCookie, HttpOnly: true}
+
+	// Add auth header and cookie to the request
+	r.Header.Set("Authorization", "test-header")
+	r.AddCookie(&c)
+
+	// Send the logout request
+	http.HandlerFunc(LogoutHandler).ServeHTTP(w, r)
+
+	if w.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Expected HTTP status '307', got: %v", w.Code)
+	}
+
+	if w.Header().Get("Location") != "/" {
+		t.Errorf("Expected redirect to / but got: %v", w.Header().Get("Location"))
+	}
+
+	// Copy the headers over to a new Request
+	request := &http.Request{Header: w.Header()}
+
+	// Check the headers
+	if request.Header.Get("Authorization") != "" {
+		t.Errorf("Expected no Authorization header, got: %v", request.Header.Get("Authorization"))
+	}
+	_, err := request.Cookie(JWTCookie)
+	if err == nil {
+		t.Error("Expected the JWT cookie to have been deleted")
 	}
 }
 

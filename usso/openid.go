@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
@@ -91,15 +92,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	User, err := datastore.Environ.DB.GetUser(username)
 	if err != nil {
+		// Cannot find the user, so redirect to the login page
 		log.Printf("Error retrieving user from datastore: %v\n", err)
-		replyHTTPError(w, http.StatusInternalServerError, errgo.New(http.StatusText(http.StatusInternalServerError)))
+		http.Redirect(w, r, "/notfound", http.StatusTemporaryRedirect)
 		return
 	}
 
 	// verify role value is valid
 	if User.Role != datastore.Standard && User.Role != datastore.Admin && User.Role != datastore.Superuser {
 		log.Printf("Role obtained from database for user %v has not a valid value: %v\n", username, User.Role)
-		replyHTTPError(w, http.StatusInternalServerError, errgo.New(http.StatusText(http.StatusInternalServerError)))
+		http.Redirect(w, r, "/notfound", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -126,3 +128,29 @@ var errorTemplate = template.Must(template.New("failure").Parse(`<html>
 <body>{{.}}</body>
 </html>
 `))
+
+// LogoutHandler logs the user out by removing the cookie and the JWT authorization header
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Remove the authorization header with contains the bearer token
+	w.Header().Del("Authorization")
+
+	// Create a new invalid token with an unauthorized user
+	jwtToken, err := createJWT("INVALID", "Not Logged-In", "", "", 0, 0)
+	if err != nil {
+		log.Println("Error logging out:", err.Error())
+	}
+
+	// Update the cookie with the invalid token and expired date
+	c, err := r.Cookie(JWTCookie)
+	if err != nil {
+		log.Println("Error logging out:", err.Error())
+	}
+	c.Value = jwtToken
+	c.Expires = time.Now().AddDate(0, 0, -1)
+
+	// Set the bearer token and the cookie
+	http.SetCookie(w, c)
+
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+}

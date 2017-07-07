@@ -18,7 +18,8 @@
 var React = require('react');
 var Navigation = require('./Navigation');
 import {FormattedMessage} from 'react-intl'
-import {authToken, getAuthToken, isLoggedIn} from './Utils'
+import {T, isLoggedIn} from './Utils'
+import AlertBox from './AlertBox'
 
 
 var Index = React.createClass({
@@ -33,8 +34,16 @@ var Index = React.createClass({
     } else {
       return (
         <div>
-          <a href="/login" className="p-button--brand">Login</a>
+          <a href="/login" className="p-button--brand">{T('login')}</a>
         </div>
+      )
+    }
+  },
+
+  renderError: function() {
+    if (this.props.error) {
+      return (
+        <AlertBox message={T('user-not-found')} />
       )
     }
   },
@@ -43,8 +52,10 @@ var Index = React.createClass({
     return (
         <div className="row">
 
+
           <section className="row">
             <h2><FormattedMessage id="title" /></h2>
+            {this.renderError()}
             <div>
               <div className="p-card">
                 <FormattedMessage id="description" />

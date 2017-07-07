@@ -17,22 +17,13 @@
 'use strict'
 
 var React = require('react');
-import {T} from './Utils';
-import {getAuthToken, isUserAdmin, isLoggedIn} from './Utils'
+import {T, isUserAdmin, isLoggedIn} from './Utils'
 
 
 var Navigation = React.createClass({
     getInitialState: function() {
         return {token: this.props.token}
     },
-
-    // componentDidMount: function() {
-    //     getAuthToken(this.setAuthToken)
-    // },
-
-    // setAuthToken: function(token) {
-    //     this.setState({token: token})
-    // },
 
     renderLink: function(token, active, link, label) {
         if (isUserAdmin(token)) {
@@ -45,15 +36,24 @@ var Navigation = React.createClass({
             // The name is undefined if user authentication is off
             if (token.name) {
                 return (
-                <li className="p-navigation__link">
-                    <a href="https://login.ubuntu.com/" className="p-link--external">{token.name}</a>
-                </li>
+                    <li className="p-navigation__link"><a href="https://login.ubuntu.com/" className="p-link--external">{token.name}</a></li>
                 )
             }
         } else {
             return (
-            <li className="p-navigation__link"><a href="/login" className="p-link--external">Login</a></li>
+            <li className="p-navigation__link"><a href="/login" className="p-link--external">{T('login')}</a></li>
             )
+        }
+    },
+
+    renderUserLogout: function(token) {
+        if (isLoggedIn(token)) {
+            // The name is undefined if user authentication is off
+            if (token.name) {
+                return (
+                    <li className="p-navigation__link"><a href="/logout">{T('logout')}</a></li>
+                )
+            }
         }
     },
 
@@ -89,6 +89,7 @@ var Navigation = React.createClass({
               {this.renderLink(token, activeAccounts, '/accounts', 'accounts')}
               {this.renderLink(token, activeSigningLog, '/signinglog', 'signinglog')}
               {this.renderUser(token)}
+              {this.renderUserLogout(token)}
           </ul>
         );
     }

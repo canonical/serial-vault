@@ -19,6 +19,9 @@
 
 var intlData = {
     zh: {
+      "login": "<Login>",
+      "logout": "<Logout>",
+      "user-not-found": "<You do not have permissions to access this site>",
       "title": "串行库",
       "description": "<The Serial Vault is a web service that generates cryptographically-signed serial assertions.>",
       "home": "家",
@@ -122,6 +125,9 @@ var intlData = {
     },
 
     en: {
+      "login": "Login",
+      "logout": "Logout",
+      "user-not-found": "You do not have permissions to access this site",
       "title": "Serial Vault",
       "description": "The Serial Vault is a web service that generates cryptographically-signed serial assertions.",
       "home": "Home",
