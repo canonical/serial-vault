@@ -96,7 +96,7 @@ func (mdb *MockDB) UpdateAccountAssertion(authorityID, assertion string) error {
 }
 
 // ListModels Mock the database response for a list of models
-func (mdb *MockDB) ListModels() ([]Model, error) {
+func (mdb *MockDB) ListModels(username string) ([]Model, error) {
 
 	var models []Model
 	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
@@ -125,7 +125,7 @@ func (mdb *MockDB) GetModel(modelID int) (Model, error) {
 
 	var model Model
 	found := false
-	models, _ := mdb.ListModels()
+	models, _ := mdb.ListModels("")
 
 	for _, mdl := range models {
 		if mdl.ID == modelID {
@@ -144,7 +144,7 @@ func (mdb *MockDB) GetModel(modelID int) (Model, error) {
 
 // UpdateModel mocks the model update.
 func (mdb *MockDB) UpdateModel(model Model) (string, error) {
-	models, _ := mdb.ListModels()
+	models, _ := mdb.ListModels("")
 	found := false
 
 	for _, mdl := range models {
@@ -162,7 +162,7 @@ func (mdb *MockDB) UpdateModel(model Model) (string, error) {
 
 // DeleteModel mocks the model deletion.
 func (mdb *MockDB) DeleteModel(model Model) (string, error) {
-	models, _ := mdb.ListModels()
+	models, _ := mdb.ListModels("")
 	found := false
 
 	for _, mdl := range models {
@@ -480,7 +480,7 @@ func (mdb *ErrorMockDB) UpdateAccountAssertion(authorityID, assertion string) er
 }
 
 // ListModels ModelsList Mock the database response for a list of models
-func (mdb *ErrorMockDB) ListModels() ([]Model, error) {
+func (mdb *ErrorMockDB) ListModels(username string) ([]Model, error) {
 	return nil, errors.New("Error getting the models")
 }
 
