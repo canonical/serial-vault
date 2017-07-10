@@ -132,8 +132,12 @@ func TestLoginHandlerReturnBad(t *testing.T) {
 	r, _ := http.NewRequest("GET", url, nil)
 	http.HandlerFunc(LoginHandler).ServeHTTP(w, r)
 
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("Expected HTTP status '400', got: %v", w.Code)
+	if w.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Expected HTTP status '307', got: %v", w.Code)
+	}
+
+	if w.Header().Get("Location") != "/notfound" {
+		t.Errorf("Expected redirect to /notfound but got: %v", w.Header().Get("Location"))
 	}
 }
 
