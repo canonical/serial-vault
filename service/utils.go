@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -197,4 +198,24 @@ func validateModelName(name string) error {
 	}
 
 	return nil
+}
+
+// checkUserPermissions retrieves the user from the JWT.
+// The user will be restricted by the accounts the username can access and their role.
+// If user authentication is turned off, the JWT will irrelevant.
+func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error) {
+
+	if !datastore.Environ.Config.EnableUserAuth {
+		// User authentication is turned off
+		return "", nil
+	}
+
+	// Check the authentication token
+	token, err := JWTCheck(w, r)
+	if err != nil {
+		return "", err
+	}
+
+	// Get the user from the token
+	return token.Claims[usso.ClaimsUsername].(string), nil
 }

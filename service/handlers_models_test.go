@@ -54,6 +54,38 @@ func TestModelsHandler(t *testing.T) {
 	}
 }
 
+func TestModelsHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/models", nil)
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := ModelsResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the models response: %v", err)
+	}
+	if len(result.Models) != 3 {
+		t.Errorf("Expected 3 models, got %d", len(result.Models))
+	}
+	if result.Models[0].Name != "alder" {
+		t.Errorf("Expected model name 'alder', got %s", result.Models[0].Name)
+	}
+}
+
 func TestModelsHandlerWithError(t *testing.T) {
 
 	// Mock the database

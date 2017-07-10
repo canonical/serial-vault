@@ -50,7 +50,7 @@ const listModelsForUserSQL = `
 	inner join account acc on acc.authority_id=m.brand_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where u.username=$1
+	where u.username=$1 and u.userrole >= $2
 	order by name
 `
 const findModelSQL = `
@@ -125,6 +125,7 @@ func (db *DB) AlterModelTable() error {
 
 // ListModels fetches the full catalogue of models from the database.
 // If a username is supplied, then only show the models for the user
+// [Permissions: Admin]
 func (db *DB) ListModels(username string) ([]Model, error) {
 	models := []Model{}
 
@@ -136,7 +137,7 @@ func (db *DB) ListModels(username string) ([]Model, error) {
 	if len(username) == 0 {
 		rows, err = db.Query(listModelsSQL)
 	} else {
-		rows, err = db.Query(listModelsForUserSQL, username)
+		rows, err = db.Query(listModelsForUserSQL, username, Admin)
 	}
 	if err != nil {
 		log.Printf("Error retrieving database models: %v\n", err)
