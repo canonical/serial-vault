@@ -109,6 +109,13 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	vars := mux.Vars(r)
 
 	modelID, err := strconv.Atoi(vars["id"])
@@ -120,7 +127,7 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	model, err := datastore.Environ.DB.GetModel(modelID)
+	model, err := datastore.Environ.DB.GetModel(modelID, username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
@@ -227,6 +234,13 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -237,7 +251,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Decode the JSON body
 	mdlWithKey := ModelSerialize{}
-	err := json.NewDecoder(r.Body).Decode(&mdlWithKey)
+	err = json.NewDecoder(r.Body).Decode(&mdlWithKey)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
@@ -263,7 +277,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a new model, linked to the existing signing-key
 	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
-	model, errorSubcode, err = datastore.Environ.DB.CreateModel(model)
+	model, errorSubcode, err = datastore.Environ.DB.CreateModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)

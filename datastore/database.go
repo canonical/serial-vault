@@ -31,10 +31,10 @@ import (
 type Datastore interface {
 	ListModels(username string) ([]Model, error)
 	FindModel(brandID, modelName string) (Model, error)
-	GetModel(modelID int) (Model, error)
+	GetModel(modelID int, username string) (Model, error)
 	UpdateModel(model Model) (string, error)
 	DeleteModel(model Model) (string, error)
-	CreateModel(model Model) (Model, string, error)
+	CreateModel(model Model, username string) (Model, string, error)
 	CreateModelTable() error
 	AlterModelTable() error
 

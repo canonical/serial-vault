@@ -125,11 +125,11 @@ func (mdb *MockDB) FindModel(brandID, modelName string) (Model, error) {
 }
 
 // GetModel mocks the model from the database by ID.
-func (mdb *MockDB) GetModel(modelID int) (Model, error) {
+func (mdb *MockDB) GetModel(modelID int, username string) (Model, error) {
 
 	var model Model
 	found := false
-	models, _ := mdb.ListModels("")
+	models, _ := mdb.ListModels(username)
 
 	for _, mdl := range models {
 		if mdl.ID == modelID {
@@ -183,7 +183,7 @@ func (mdb *MockDB) DeleteModel(model Model) (string, error) {
 }
 
 // CreateModel mocks creating a new model.
-func (mdb *MockDB) CreateModel(model Model) (Model, string, error) {
+func (mdb *MockDB) CreateModel(model Model, username string) (Model, string, error) {
 	model = Model{ID: 7, BrandID: "System", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
 
 	return model, "", nil
@@ -494,7 +494,7 @@ func (mdb *ErrorMockDB) FindModel(brandID, modelName string) (Model, error) {
 }
 
 // GetModel mocks the model from the database by ID, returning an error.
-func (mdb *ErrorMockDB) GetModel(modelID int) (Model, error) {
+func (mdb *ErrorMockDB) GetModel(modelID int, username string) (Model, error) {
 	return Model{}, errors.New("Error retrieving the model")
 }
 
@@ -509,7 +509,7 @@ func (mdb *ErrorMockDB) DeleteModel(model Model) (string, error) {
 }
 
 // CreateModel mocks creating a new model, returning an error.
-func (mdb *ErrorMockDB) CreateModel(model Model) (Model, string, error) {
+func (mdb *ErrorMockDB) CreateModel(model Model, username string) (Model, string, error) {
 	return Model{}, "", errors.New("Error creating the database model")
 }
 

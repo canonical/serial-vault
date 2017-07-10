@@ -122,6 +122,22 @@ func TestModelGetHandler(t *testing.T) {
 	}
 }
 
+func TestModelGetHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	result, _ := sendRequest(t, "GET", "/v1/models/1", nil)
+
+	if result.Model.ID != 1 {
+		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "alder" {
+		t.Errorf("Expected model name 'alder', got %s", result.Model.Name)
+	}
+}
+
 func TestModelGetHandlerWithError(t *testing.T) {
 
 	// Mock the database
@@ -292,11 +308,19 @@ func TestModelCreateHandlerWithBadData(t *testing.T) {
 func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	err = json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the model response: %v", err)
 	}

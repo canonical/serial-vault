@@ -209,3 +209,15 @@ func rowsToUsers(rows *sql.Rows) ([]User, error) {
 
 	return users, nil
 }
+
+func (db *DB) checkUserPermissions(username string) int {
+	if username == "" {
+		return Admin
+	}
+
+	user, err := db.GetUser(username)
+	if err != nil {
+		return 0
+	}
+	return user.Role
+}
