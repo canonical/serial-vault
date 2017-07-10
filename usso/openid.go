@@ -32,9 +32,7 @@ import (
 )
 
 var (
-	// Teams are hardcoded and not currently used.
-	// The team config is here for reference only, but could be used in the future
-	teams    = "ce-web-logs,canonical"
+	teams    = "" // e.g. ce-web-logs,canonical
 	required = "email,fullname,nickname"
 	optional = ""
 )
@@ -85,8 +83,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Check we have the mandatory fields in the OpenID response
 	username := r.Form.Get("openid.sreg.nickname")
 	fullname := r.Form.Get("openid.sreg.fullname")
-	email := r.Form.Get("openid.sreg.email")
-	if len(username) == 0 || len(fullname) == 0 || len(email) == 0 {
+	if len(username) == 0 || len(fullname) == 0 {
 		log.Println("Some params are missing from the OpenID response")
 		http.Redirect(w, r, "/notfound", http.StatusTemporaryRedirect)
 		return
