@@ -21,12 +21,14 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/handlers"
 )
 
@@ -82,44 +84,35 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 	}
 }
 
-// JWTValidate verifies that the JWT token is valid. The token is set after logging-in via Openid
-func JWTValidate(protected http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// JWTCheck extracts the JWT from the request, validates it and returns the token
+func JWTCheck(w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
 
-		// Do not validate access if user authentication is off (default)
-		if !datastore.Environ.Config.EnableUserAuth {
-			protected.ServeHTTP(w, r)
-			return
-		}
+	// Do not validate access if user authentication is off (default)
+	if !datastore.Environ.Config.EnableUserAuth {
+		return nil, nil
+	}
 
-		// Get the JWT from the header or cookie
-		jwtToken, err := usso.JWTExtractor(r)
-		if err != nil {
-			log.Println("Error in JWT extraction:", err.Error())
-			// TODO: don't leave pages unprotected when there is no token
-			protected.ServeHTTP(w, r)
-			return
-		}
+	// Get the JWT from the header or cookie
+	jwtToken, err := usso.JWTExtractor(r)
+	if err != nil {
+		log.Println("Error in JWT extraction:", err.Error())
+		return nil, errors.New("Error in retrieving the authentication token")
+	}
 
-		// Verify the JWT string
-		token, err := usso.VerifyJWT(jwtToken)
-		if err != nil {
-			log.Printf("JWT fails validation: %v", err.Error())
-			// TODO: don't leave pages unprotected when there is an invalid token
-			protected.ServeHTTP(w, r)
-			return
-		}
+	// Verify the JWT string
+	token, err := usso.VerifyJWT(jwtToken)
+	if err != nil {
+		log.Printf("JWT fails verification: %v", err.Error())
+		return nil, errors.New("The authentication token is invalid")
+	}
 
-		if !token.Valid {
-			log.Println("Invalid JWT")
-			// TODO: don't leave pages unprotected when there is an invalid token
-			protected.ServeHTTP(w, r)
-		}
+	if !token.Valid {
+		log.Println("Invalid JWT")
+		return nil, errors.New("The authentication token is invalid")
+	}
 
-		// Set up the bearer token in the header
-		w.Header().Set("Authorization", "Bearer "+jwtToken)
+	// Set up the bearer token in the header
+	w.Header().Set("Authorization", "Bearer "+jwtToken)
 
-		protected.ServeHTTP(w, r)
-
-	})
+	return token, nil
 }

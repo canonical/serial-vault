@@ -27,6 +27,7 @@ import (
 	"strconv"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
 
@@ -78,7 +79,20 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	models := []ModelSerialize{}
 
-	dbModels, err := datastore.Environ.DB.ListModels()
+	// Check the authentication token
+	token, err := JWTCheck(w, r)
+	if err != nil {
+		// Failed authentication so return an error
+		formatModelsResponse(false, "error-auth", "", "", models, w)
+	}
+
+	// Filter results based on the token (token=nil means that auth is disabled, so no filtering needed)
+	username := ""
+	if token != nil {
+		username = token.Claims[usso.ClaimsUsername].(string)
+	}
+
+	dbModels, err := datastore.Environ.DB.ListModels(username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("%v", err)

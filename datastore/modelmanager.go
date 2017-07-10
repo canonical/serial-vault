@@ -42,6 +42,17 @@ const listModelsSQL = `
 	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
+const listModelsForUserSQL = `
+	select m.id, brand_id, m.name, keypair_id, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	from model m
+	inner join keypair k on k.id = m.keypair_id
+	inner join keypair ku on ku.id = m.user_keypair_id
+	inner join account acc on acc.authority_id=m.brand_id
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where u.username=$1
+	order by name
+`
 const findModelSQL = `
 	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
@@ -113,10 +124,20 @@ func (db *DB) AlterModelTable() error {
 }
 
 // ListModels fetches the full catalogue of models from the database.
-func (db *DB) ListModels() ([]Model, error) {
+// If a username is supplied, then only show the models for the user
+func (db *DB) ListModels(username string) ([]Model, error) {
 	models := []Model{}
 
-	rows, err := db.Query(listModelsSQL)
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listModelsSQL)
+	} else {
+		rows, err = db.Query(listModelsForUserSQL, username)
+	}
 	if err != nil {
 		log.Printf("Error retrieving database models: %v\n", err)
 		return nil, err

@@ -90,6 +90,9 @@ func TokenHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
+	// Check the JWT and return it in the authorization header, if valid
+	JWTCheck(w, r)
+
 	response := TokenResponse{EnableUserAuth: datastore.Environ.Config.EnableUserAuth}
 
 	// Encode the response as JSON
