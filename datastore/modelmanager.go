@@ -83,6 +83,12 @@ const updateModelForUserSQL = `
 	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$6 and u.userrole >= $7`
 const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id) values ($1,$2,$3,$4) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
+const deleteModelForUserSQL = `
+	delete from model m
+	using account acc
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where m.id=$1 and acc.authority_id=m.brand_id and u.username=$2 and u.userrole >= $3`
 
 // Add the user keypair to the models table (nullable)
 const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
@@ -280,9 +286,14 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 }
 
 // DeleteModel deletes a model record.
-func (db *DB) DeleteModel(model Model) (string, error) {
+func (db *DB) DeleteModel(model Model, username string) (string, error) {
+	var err error
 
-	_, err := db.Exec(deleteModelSQL, model.ID)
+	if len(username) == 0 {
+		_, err = db.Exec(deleteModelSQL, model.ID)
+	} else {
+		_, err = db.Exec(deleteModelForUserSQL, model.ID, username, Admin)
+	}
 	if err != nil {
 		log.Printf("Error deleting the database model: %v\n", err)
 		return "", err

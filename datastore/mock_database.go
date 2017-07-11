@@ -165,8 +165,8 @@ func (mdb *MockDB) UpdateModel(model Model, username string) (string, error) {
 }
 
 // DeleteModel mocks the model deletion.
-func (mdb *MockDB) DeleteModel(model Model) (string, error) {
-	models, _ := mdb.ListModels("")
+func (mdb *MockDB) DeleteModel(model Model, username string) (string, error) {
+	models, _ := mdb.ListModels(username)
 	found := false
 
 	for _, mdl := range models {
@@ -504,7 +504,7 @@ func (mdb *ErrorMockDB) UpdateModel(model Model, username string) (string, error
 }
 
 // DeleteModel mocks the model deletion, returning an error.
-func (mdb *ErrorMockDB) DeleteModel(model Model) (string, error) {
+func (mdb *ErrorMockDB) DeleteModel(model Model, username string) (string, error) {
 	return "", errors.New("Error deleting the database model")
 }
 

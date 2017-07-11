@@ -275,6 +275,16 @@ func TestModelDeleteHandler(t *testing.T) {
 	sendRequest(t, "DELETE", "/v1/models/1", bytes.NewBufferString(data))
 }
 
+func TestModelDeleteHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// Delete a model
+	data := "{}"
+	sendRequest(t, "DELETE", "/v1/models/1", bytes.NewBufferString(data))
+}
+
 func TestModelDeleteHandlerWithErrors(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}

@@ -213,6 +213,13 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	// Get the model primary key
 	vars := mux.Vars(r)
 	modelID, err := strconv.Atoi(vars["id"])
@@ -225,7 +232,7 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	model := datastore.Model{ID: modelID}
-	errorSubcode, err := datastore.Environ.DB.DeleteModel(model)
+	errorSubcode, err := datastore.Environ.DB.DeleteModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)

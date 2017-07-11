@@ -33,7 +33,7 @@ type Datastore interface {
 	FindModel(brandID, modelName string) (Model, error)
 	GetModel(modelID int, username string) (Model, error)
 	UpdateModel(model Model, username string) (string, error)
-	DeleteModel(model Model) (string, error)
+	DeleteModel(model Model, username string) (string, error)
 	CreateModel(model Model, username string) (Model, string, error)
 	CreateModelTable() error
 	AlterModelTable() error
