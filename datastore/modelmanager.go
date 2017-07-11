@@ -90,6 +90,13 @@ const deleteModelForUserSQL = `
 	inner join userinfo u on ua.user_id=u.id
 	where m.id=$1 and acc.authority_id=m.brand_id and u.username=$2 and u.userrole >= $3`
 
+const checkBrandsMatch = `
+	select count(*) from model m
+	inner join keypair k on k.authority_id = m.brand_id
+	inner join keypair ku on ku.authority_id = m.brand_id
+	where m.brand_id=$1 and k.id=$2 and ku.id=$3
+`
+
 // Add the user keypair to the models table (nullable)
 const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
 
@@ -235,6 +242,10 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 		return "error-validate-userkey", errors.New("The System-User Key must be selected")
 	}
 
+	if !db.checkBrandsMatch(username, model.BrandID, model.KeypairID, model.KeypairIDUser) {
+		return "error-auth", errors.New("The model and the keys must have the same brand")
+	}
+
 	var err error
 
 	if len(username) == 0 {
@@ -260,6 +271,14 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.KeypairID <= 0 || model.KeypairIDUser <= 0 {
 		return model, "error-validate-new-model", errors.New("The Brand, Model and Signing-Keys must be supplied")
+	}
+
+	if !db.checkUserInAccount(username, model.BrandID) {
+		return model, "error-auth", errors.New("The user does not have permissions to create a model for this account")
+	}
+
+	if !db.checkBrandsMatch(username, model.BrandID, model.KeypairID, model.KeypairIDUser) {
+		return model, "error-auth", errors.New("The model and the keys must have the same brand")
 	}
 
 	// Check that the model does not exist
@@ -300,4 +319,21 @@ func (db *DB) DeleteModel(model Model, username string) (string, error) {
 	}
 
 	return "", nil
+}
+
+func (db *DB) checkBrandsMatch(username, brandID string, keypairID, keypairIDUser int) bool {
+	if username == "" {
+		return true
+	}
+
+	var count int
+
+	row := db.QueryRow(checkBrandsMatch, brandID, keypairID, keypairIDUser)
+	err := row.Scan(&count)
+	if err != nil {
+		log.Printf("Error checking that the account matches for a model: %v\n", err)
+		return false
+	}
+
+	return count > 0
 }
