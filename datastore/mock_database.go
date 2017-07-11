@@ -196,12 +196,16 @@ func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 }
 
 // ListKeypairs mocks listing the keypairs
-func (mdb *MockDB) ListKeypairs() ([]Keypair, error) {
+func (mdb *MockDB) ListKeypairs(username string) ([]Keypair, error) {
 	var keypairs []Keypair
-	keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "61abf588e52be7a3", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "system", KeyID: "inactiveone", Active: false})
+	if username == "" || username == "sv" {
+		keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
+		keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
+	}
+	if username == "" {
+		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "61abf588e52be7a3", Active: true})
+		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "system", KeyID: "inactiveone", Active: false})
+	}
 	return keypairs, nil
 }
 
@@ -520,7 +524,7 @@ func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
 }
 
 // ListKeypairs error mock for the database
-func (mdb *ErrorMockDB) ListKeypairs() ([]Keypair, error) {
+func (mdb *ErrorMockDB) ListKeypairs(username string) ([]Keypair, error) {
 	var keypairs []Keypair
 	return keypairs, errors.New("MOCK Error fetching from the database")
 }

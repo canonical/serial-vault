@@ -45,7 +45,14 @@ type KeypairWithPrivateKey struct {
 func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	keypairs, err := datastore.Environ.DB.ListKeypairs()
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatKeypairsResponse(false, "error-auth", "", "", nil, w)
+		return
+	}
+
+	keypairs, err := datastore.Environ.DB.ListKeypairs(username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatKeypairsResponse(false, "error-fetch-keypairs", "", err.Error(), nil, w)

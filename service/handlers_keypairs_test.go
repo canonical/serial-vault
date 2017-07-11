@@ -56,6 +56,38 @@ func TestKeypairListHandler(t *testing.T) {
 	}
 }
 
+func TestKeypairListHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := KeypairsResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the keypairs response: %v", err)
+	}
+	if len(result.Keypairs) != 2 {
+		t.Errorf("Expected 2 keypairs, got %d", len(result.Keypairs))
+	}
+	if result.Keypairs[0].KeyID != "61abf588e52be7a3" {
+		t.Errorf("Expected key ID '61abf588e52be7a3', got %s", result.Keypairs[0].KeyID)
+	}
+}
+
 func TestKeypairListHandlerWithError(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}

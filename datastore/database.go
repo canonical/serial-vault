@@ -38,7 +38,7 @@ type Datastore interface {
 	CreateModelTable() error
 	AlterModelTable() error
 
-	ListKeypairs() ([]Keypair, error)
+	ListKeypairs(username string) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateKeypairActive(keypairID int, active bool) error

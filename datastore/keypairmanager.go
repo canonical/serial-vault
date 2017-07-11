@@ -20,6 +20,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
@@ -36,6 +37,14 @@ const createKeypairTableSQL = `
 	)
 `
 const listKeypairsSQL = "select id, authority_id, key_id, active, assertion from keypair order by authority_id, key_id"
+const listKeypairsForUserSQL = `
+	select k.id, k.authority_id, k.key_id, k.active, k.assertion 
+	from keypair k
+	inner join account acc on acc.authority_id=k.authority_id
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where u.username=$1 and u.userrole >= $2
+	order by authority_id, key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const upsertKeypairSQL = `
@@ -77,10 +86,19 @@ func (db *DB) AlterKeypairTable() error {
 }
 
 // ListKeypairs fetches the available keypairs from the database.
-func (db *DB) ListKeypairs() ([]Keypair, error) {
+func (db *DB) ListKeypairs(username string) ([]Keypair, error) {
 	var keypairs []Keypair
 
-	rows, err := db.Query(listKeypairsSQL)
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listKeypairsSQL)
+	} else {
+		rows, err = db.Query(listKeypairsForUserSQL, username, Admin)
+	}
 	if err != nil {
 		log.Printf("Error retrieving database keypairs: %v\n", err)
 		return nil, err
