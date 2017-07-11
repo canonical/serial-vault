@@ -66,7 +66,7 @@ const getModelSQL = `
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where m.id=$1`
 const getModelForUserSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, m.brand_id, m.name, m.keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -75,6 +75,12 @@ const getModelForUserSQL = `
 	inner join userinfo u on ua.user_id=u.id
 	where m.id=$1 and u.username=$2 and u.userrole >= $3`
 const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5 where id=$1"
+const updateModelForUserSQL = `
+	update model m set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5
+	from account acc
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$6 and u.userrole >= $7`
 const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id) values ($1,$2,$3,$4) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 
@@ -210,7 +216,7 @@ func (db *DB) GetModel(modelID int, username string) (Model, error) {
 }
 
 // UpdateModel updates the model.
-func (db *DB) UpdateModel(model Model) (string, error) {
+func (db *DB) UpdateModel(model Model, username string) (string, error) {
 
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" {
@@ -223,7 +229,13 @@ func (db *DB) UpdateModel(model Model) (string, error) {
 		return "error-validate-userkey", errors.New("The System-User Key must be selected")
 	}
 
-	_, err := db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser)
+	var err error
+
+	if len(username) == 0 {
+		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser)
+	} else {
+		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, username, Admin)
+	}
 	if err != nil {
 		log.Printf("Error updating the database model: %v\n", err)
 		return "", err

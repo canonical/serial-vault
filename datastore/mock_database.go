@@ -147,8 +147,8 @@ func (mdb *MockDB) GetModel(modelID int, username string) (Model, error) {
 }
 
 // UpdateModel mocks the model update.
-func (mdb *MockDB) UpdateModel(model Model) (string, error) {
-	models, _ := mdb.ListModels("")
+func (mdb *MockDB) UpdateModel(model Model, username string) (string, error) {
+	models, _ := mdb.ListModels(username)
 	found := false
 
 	for _, mdl := range models {
@@ -499,7 +499,7 @@ func (mdb *ErrorMockDB) GetModel(modelID int, username string) (Model, error) {
 }
 
 // UpdateModel mocks the model update, returning an error.
-func (mdb *ErrorMockDB) UpdateModel(model Model) (string, error) {
+func (mdb *ErrorMockDB) UpdateModel(model Model, username string) (string, error) {
 	return "", errors.New("Error updating the database model")
 }
 

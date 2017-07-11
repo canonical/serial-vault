@@ -178,6 +178,56 @@ func TestModelUpdateHandler(t *testing.T) {
 	}
 }
 
+func TestModelUpdateHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// Update a model
+	data := `
+	{
+		"id": 1,
+		"brand-id": "System",
+		"model":"the-model",
+		"serial":"A1234-L",
+		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+	}`
+
+	result, _ := sendRequest(t, "PUT", "/v1/models/1", bytes.NewBufferString(data))
+
+	if result.Model.ID != 1 {
+		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "the-model" {
+		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
+	}
+}
+
+func TestModelUpdateHandlerWithPermissionsNotFound(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// Update a model
+	data := `
+	{
+		"id": 5,
+		"brand-id": "System",
+		"model":"the-model",
+		"serial":"A1234-L",
+		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+	}`
+
+	result, _ := sendRequestExpectError(t, "PUT", "/v1/models/5", bytes.NewBufferString(data))
+
+	if result.Model.ID != 5 {
+		t.Errorf("Expected model with ID 5, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "the-model" {
+		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
+	}
+}
+
 func TestModelUpdateHandlerWithErrors(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
@@ -334,11 +384,19 @@ func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelRespons
 func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	err = json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the model response: %v", err)
 	}

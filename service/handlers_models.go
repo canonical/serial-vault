@@ -145,6 +145,13 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	// Get the model primary key
 	vars := mux.Vars(r)
 	modelID, err := strconv.Atoi(vars["id"])
@@ -190,7 +197,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
-	errorSubcode, err := datastore.Environ.DB.UpdateModel(model)
+	errorSubcode, err := datastore.Environ.DB.UpdateModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
