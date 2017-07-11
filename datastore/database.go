@@ -79,6 +79,7 @@ type Datastore interface {
 	DeleteUser(username string) error
 	CreateUserTable() error
 	CreateAccountUserLinkTable() error
+	CheckUserInAccount(username, authorityID string) bool
 
 	ListUserAccounts(username string) ([]Account, error)
 	ListAccountUsers(authorityID string) ([]User, error)

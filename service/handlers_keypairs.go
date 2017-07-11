@@ -71,6 +71,13 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -81,7 +88,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Decode the JSON body
 	keypairWithKey := KeypairWithPrivateKey{}
-	err := json.NewDecoder(r.Body).Decode(&keypairWithKey)
+	err = json.NewDecoder(r.Body).Decode(&keypairWithKey)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
@@ -100,6 +107,13 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	if len(keypairWithKey.AuthorityID) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-json", "", "The authority-id is mandatory", w)
+		return
+	}
+
+	// Check that the user has permissions to this authority-id
+	if !datastore.Environ.DB.CheckUserInAccount(username, keypairWithKey.AuthorityID) {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
 		return
 	}
 

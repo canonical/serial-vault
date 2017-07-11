@@ -230,7 +230,8 @@ func (db *DB) checkUserPermissions(username string) int {
 	return user.Role
 }
 
-func (db *DB) checkUserInAccount(username, authorityID string) bool {
+// CheckUserInAccount verifies that a user has permissions to a specific account
+func (db *DB) CheckUserInAccount(username, authorityID string) bool {
 	if username == "" {
 		return true
 	}

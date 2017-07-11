@@ -23,6 +23,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -107,14 +108,40 @@ func TestKeypairListHandlerWithError(t *testing.T) {
 	}
 }
 
-func TestKeypairHandlerNilData(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", nil)
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
+func TestKeypairHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory", EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
+
+	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
+	if err != nil {
+		t.Errorf("Error reading the signing-key file: %v", err)
+	}
+	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
+
+	keypair := KeypairWithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "System"}
+	data, _ := json.Marshal(keypair)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, bytes.NewReader(data))
+	if err != nil {
+		t.Errorf("Error decoding the keypair response: %v", err)
+	}
+	if !result.Success {
+		t.Errorf("Expected an success, got error: %s", result.ErrorCode)
+	}
+}
+
+func TestKeypairHandlerNilData(t *testing.T) {
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
+
+	// Check the JSON response
+	result, err := sendKeypairCreate(t, nil)
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -127,13 +154,13 @@ func TestKeypairHandlerNilData(t *testing.T) {
 }
 
 func TestKeypairHandlerNoData(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", new(bytes.Buffer))
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, new(bytes.Buffer))
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -146,13 +173,13 @@ func TestKeypairHandlerNoData(t *testing.T) {
 }
 
 func TestKeypairHandlerBadData(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewBufferString("bad"))
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, bytes.NewBufferString("bad"))
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -165,13 +192,13 @@ func TestKeypairHandlerBadData(t *testing.T) {
 }
 
 func TestKeypairHandlerNoAuthorityID(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewBufferString("{}"))
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, bytes.NewBufferString("{}"))
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -184,6 +211,11 @@ func TestKeypairHandlerNoAuthorityID(t *testing.T) {
 }
 
 func TestKeypairHandlerBadPrivateKeyNotEncoded(t *testing.T) {
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
+
 	signingKey, err := ioutil.ReadFile("../README.md")
 	if err != nil {
 		t.Errorf("Error reading the bad signing-key file: %v", err)
@@ -192,13 +224,8 @@ func TestKeypairHandlerBadPrivateKeyNotEncoded(t *testing.T) {
 	keypair := KeypairWithPrivateKey{PrivateKey: string(signingKey), AuthorityID: "System"}
 	data, _ := json.Marshal(keypair)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
-
 	// Check the JSON response
-	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, bytes.NewReader(data))
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -211,6 +238,11 @@ func TestKeypairHandlerBadPrivateKeyNotEncoded(t *testing.T) {
 }
 
 func TestKeypairHandlerBadPrivateKeyEncoded(t *testing.T) {
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
+
 	signingKey, err := ioutil.ReadFile("../README.md")
 	if err != nil {
 		t.Errorf("Error reading the bad signing-key file: %v", err)
@@ -225,8 +257,7 @@ func TestKeypairHandlerBadPrivateKeyEncoded(t *testing.T) {
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, bytes.NewReader(data))
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -253,13 +284,8 @@ func TestKeypairHandlerValidPrivateKey(t *testing.T) {
 	keypair := KeypairWithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "System"}
 	data, _ := json.Marshal(keypair)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
-
 	// Check the JSON response
-	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	result, err := sendKeypairCreate(t, bytes.NewReader(data))
 	if err != nil {
 		t.Errorf("Error decoding the keypair response: %v", err)
 	}
@@ -283,19 +309,36 @@ func TestKeypairHandlerValidPrivateKeyKeyStoreError(t *testing.T) {
 	keypair := KeypairWithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "System"}
 	data, _ := json.Marshal(keypair)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/keypairs", bytes.NewReader(data))
-	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := BooleanResponse{}
-	json.NewDecoder(w.Body).Decode(&result)
+	// Send the request and check the JSON response
+	result, err := sendKeypairCreate(t, bytes.NewReader(data))
+	if err != nil {
+		t.Errorf("Error decoding the keypair response: %v", err)
+	}
 	if result.Success {
 		t.Error("Expected an error, got success response")
 	}
 	if result.ErrorCode != "error-keypair-store" {
 		t.Errorf("Expected a 'keystore error' message, got %s", result.ErrorCode)
 	}
+}
+
+func sendKeypairCreate(t *testing.T, body io.Reader) (BooleanResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs", body)
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	return result, err
 }
 
 func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {

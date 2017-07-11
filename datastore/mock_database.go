@@ -324,6 +324,11 @@ func (mdb *MockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 	return nil
 }
 
+// CheckUserInAccount verifies that a user has permissions to a specific account
+func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
+	return true
+}
+
 // CreateUserTable mock for creating database User table operation
 func (mdb *MockDB) CreateUserTable() error {
 	return nil
@@ -609,6 +614,11 @@ func (mdb *ErrorMockDB) CreateOpenidNonceTable() error {
 // CreateOpenidNonce database mock
 func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 	return errors.New("MOCK error generating the nonce")
+}
+
+// CheckUserInAccount verifies that a user has permissions to a specific account
+func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
+	return true
 }
 
 // CreateUserTable mock for creating database User table operation
