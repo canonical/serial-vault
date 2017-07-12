@@ -329,6 +329,11 @@ func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
 }
 
+// CheckUserPermissions fetches the user's permissions
+func (mdb *MockDB) CheckUserPermissions(username string) int {
+	return Admin
+}
+
 // CreateUserTable mock for creating database User table operation
 func (mdb *MockDB) CreateUserTable() error {
 	return nil
@@ -619,6 +624,11 @@ func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
+}
+
+// CheckUserPermissions fetches the user's permissions
+func (mdb *ErrorMockDB) CheckUserPermissions(username string) int {
+	return 0
 }
 
 // CreateUserTable mock for creating database User table operation

@@ -80,6 +80,7 @@ type Datastore interface {
 	CreateUserTable() error
 	CreateAccountUserLinkTable() error
 	CheckUserInAccount(username, authorityID string) bool
+	CheckUserPermissions(username string) int
 
 	ListUserAccounts(username string) ([]Account, error)
 	ListAccountUsers(authorityID string) ([]User, error)
