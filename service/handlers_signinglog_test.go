@@ -20,7 +20,6 @@
 package service
 
 import (
-	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -65,42 +64,6 @@ func TestSigningLogListHandlerError(t *testing.T) {
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
-}
-
-func TestSigningLogDeleteHandler(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequest(t, "DELETE", "/v1/signinglog/1", bytes.NewBufferString(data))
-}
-
-func TestSigningLogDeleteHandlerWrongID(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/22", bytes.NewBufferString(data))
-}
-
-func TestSigningLogDeleteHandlerError(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/1", bytes.NewBufferString(data))
-}
-
-func TestSigningLogDeleteHandlerBadID(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/99999999999999999999999999999999999999999999999", bytes.NewBufferString(data))
 }
 
 func TestSigningLogFilterValues(t *testing.T) {

@@ -269,15 +269,6 @@ func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
-// DeleteSigningLog database mock
-func (mdb *MockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-	logs, _ := mdb.ListSigningLog("")
-	if signingLog.ID > len(logs)+1 {
-		return "", errors.New("Cannot find the signing log")
-	}
-	return "", nil
-}
-
 // ListSigningLog database mock
 func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
 	var fromID = 11
@@ -576,12 +567,6 @@ func (mdb *ErrorMockDB) CreateSigningLog(signLog SigningLog) error {
 // CreateSigningLogTable error mock for the database
 func (mdb *ErrorMockDB) CreateSigningLogTable() error {
 	return nil
-}
-
-// DeleteSigningLog error mock for the database
-func (mdb *ErrorMockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-
-	return "", errors.New("Error deleting the database signing log")
 }
 
 // ListSigningLog error mock for the database

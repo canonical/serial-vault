@@ -200,18 +200,6 @@ func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
 	return signingLogs, nil
 }
 
-// DeleteSigningLog deletes a signing log record.
-func (db *DB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-
-	_, err := db.Exec(deleteSigningLogSQL, signingLog.ID)
-	if err != nil {
-		log.Printf("Error deleting the database signing log: %v\n", err)
-		return "", err
-	}
-
-	return "", nil
-}
-
 // SigningLogFilterValues returns the unique values of the main filterable columns
 func (db *DB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
 	filters := SigningLogFilters{}

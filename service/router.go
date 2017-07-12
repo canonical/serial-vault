@@ -70,7 +70,6 @@ func AdminRouter() *mux.Router {
 	// API routes: signing log
 	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler))).Methods("GET")
 	router.Handle("/v1/signinglog/filters", Middleware(http.HandlerFunc(SigningLogFiltersHandler))).Methods("GET")
-	router.Handle("/v1/signinglog/{id:[0-9]+}", Middleware(http.HandlerFunc(SigningLogDeleteHandler))).Methods("DELETE")
 
 	// API routes: account assertions
 	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler))).Methods("GET")
