@@ -99,12 +99,16 @@ func (mdb *MockDB) UpdateAccountAssertion(authorityID, assertion string) error {
 func (mdb *MockDB) ListModels(username string) ([]Model, error) {
 
 	var models []Model
-	models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
-	models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: false})
-	models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
-	models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
-	models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
-	models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+	if username == "" || username == "sv" {
+		models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
+		models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: false})
+		models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+	}
+	if username == "" {
+		models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+	}
 	return models, nil
 }
 
@@ -121,11 +125,11 @@ func (mdb *MockDB) FindModel(brandID, modelName string) (Model, error) {
 }
 
 // GetModel mocks the model from the database by ID.
-func (mdb *MockDB) GetModel(modelID int) (Model, error) {
+func (mdb *MockDB) GetModel(modelID int, username string) (Model, error) {
 
 	var model Model
 	found := false
-	models, _ := mdb.ListModels("")
+	models, _ := mdb.ListModels(username)
 
 	for _, mdl := range models {
 		if mdl.ID == modelID {
@@ -143,8 +147,8 @@ func (mdb *MockDB) GetModel(modelID int) (Model, error) {
 }
 
 // UpdateModel mocks the model update.
-func (mdb *MockDB) UpdateModel(model Model) (string, error) {
-	models, _ := mdb.ListModels("")
+func (mdb *MockDB) UpdateModel(model Model, username string) (string, error) {
+	models, _ := mdb.ListModels(username)
 	found := false
 
 	for _, mdl := range models {
@@ -161,8 +165,8 @@ func (mdb *MockDB) UpdateModel(model Model) (string, error) {
 }
 
 // DeleteModel mocks the model deletion.
-func (mdb *MockDB) DeleteModel(model Model) (string, error) {
-	models, _ := mdb.ListModels("")
+func (mdb *MockDB) DeleteModel(model Model, username string) (string, error) {
+	models, _ := mdb.ListModels(username)
 	found := false
 
 	for _, mdl := range models {
@@ -179,7 +183,7 @@ func (mdb *MockDB) DeleteModel(model Model) (string, error) {
 }
 
 // CreateModel mocks creating a new model.
-func (mdb *MockDB) CreateModel(model Model) (Model, string, error) {
+func (mdb *MockDB) CreateModel(model Model, username string) (Model, string, error) {
 	model = Model{ID: 7, BrandID: "System", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
 
 	return model, "", nil
@@ -490,22 +494,22 @@ func (mdb *ErrorMockDB) FindModel(brandID, modelName string) (Model, error) {
 }
 
 // GetModel mocks the model from the database by ID, returning an error.
-func (mdb *ErrorMockDB) GetModel(modelID int) (Model, error) {
+func (mdb *ErrorMockDB) GetModel(modelID int, username string) (Model, error) {
 	return Model{}, errors.New("Error retrieving the model")
 }
 
 // UpdateModel mocks the model update, returning an error.
-func (mdb *ErrorMockDB) UpdateModel(model Model) (string, error) {
+func (mdb *ErrorMockDB) UpdateModel(model Model, username string) (string, error) {
 	return "", errors.New("Error updating the database model")
 }
 
 // DeleteModel mocks the model deletion, returning an error.
-func (mdb *ErrorMockDB) DeleteModel(model Model) (string, error) {
+func (mdb *ErrorMockDB) DeleteModel(model Model, username string) (string, error) {
 	return "", errors.New("Error deleting the database model")
 }
 
 // CreateModel mocks creating a new model, returning an error.
-func (mdb *ErrorMockDB) CreateModel(model Model) (Model, string, error) {
+func (mdb *ErrorMockDB) CreateModel(model Model, username string) (Model, string, error) {
 	return Model{}, "", errors.New("Error creating the database model")
 }
 

@@ -52,9 +52,17 @@ const deleteUserSQL = "delete from userinfo where username=$1"
 const listAccountUsersSQL = `
 	select id, username, openid_identity, name, email, userrole
 	from userinfo u
-	inner join accountuserlink l on u.id = l.user_id
-	inner join accounts a on l.account_id = a.id
+	inner join useraccountlink l on u.id = l.user_id
+	inner join account a on l.account_id = a.id
 	where a.authority_id=$1
+`
+
+const findAccountUserSQL = `
+	select count(*) 
+	from userinfo u
+	inner join useraccountlink l on u.id = l.user_id
+	inner join account a on l.account_id = a.id
+	where u.username=$1 and a.authority_id=$2
 `
 
 // Available user roles:
@@ -208,4 +216,33 @@ func rowsToUsers(rows *sql.Rows) ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func (db *DB) checkUserPermissions(username string) int {
+	if username == "" {
+		return Admin
+	}
+
+	user, err := db.GetUser(username)
+	if err != nil {
+		return 0
+	}
+	return user.Role
+}
+
+func (db *DB) checkUserInAccount(username, authorityID string) bool {
+	if username == "" {
+		return true
+	}
+
+	var count int
+
+	row := db.QueryRow(findAccountUserSQL, username, authorityID)
+	err := row.Scan(&count)
+	if err != nil {
+		log.Printf("Error retrieving database account of certain user: %v\n", err)
+		return false
+	}
+
+	return count > 0
 }

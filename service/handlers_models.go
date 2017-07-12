@@ -27,7 +27,6 @@ import (
 	"strconv"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
 
@@ -79,17 +78,11 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	models := []ModelSerialize{}
 
-	// Check the authentication token
-	token, err := JWTCheck(w, r)
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
 	if err != nil {
-		// Failed authentication so return an error
 		formatModelsResponse(false, "error-auth", "", "", models, w)
-	}
-
-	// Filter results based on the token (token=nil means that auth is disabled, so no filtering needed)
-	username := ""
-	if token != nil {
-		username = token.Claims[usso.ClaimsUsername].(string)
+		return
 	}
 
 	dbModels, err := datastore.Environ.DB.ListModels(username)
@@ -116,6 +109,13 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	vars := mux.Vars(r)
 
 	modelID, err := strconv.Atoi(vars["id"])
@@ -127,7 +127,7 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	model, err := datastore.Environ.DB.GetModel(modelID)
+	model, err := datastore.Environ.DB.GetModel(modelID, username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
@@ -144,6 +144,13 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 // ModelUpdateHandler is the API method to update a model.
 func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
 
 	// Get the model primary key
 	vars := mux.Vars(r)
@@ -190,7 +197,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
-	errorSubcode, err := datastore.Environ.DB.UpdateModel(model)
+	errorSubcode, err := datastore.Environ.DB.UpdateModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -206,6 +213,13 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	// Get the model primary key
 	vars := mux.Vars(r)
 	modelID, err := strconv.Atoi(vars["id"])
@@ -218,7 +232,7 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	model := datastore.Model{ID: modelID}
-	errorSubcode, err := datastore.Environ.DB.DeleteModel(model)
+	errorSubcode, err := datastore.Environ.DB.DeleteModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -234,6 +248,13 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
+		return
+	}
+
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -244,7 +265,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Decode the JSON body
 	mdlWithKey := ModelSerialize{}
-	err := json.NewDecoder(r.Body).Decode(&mdlWithKey)
+	err = json.NewDecoder(r.Body).Decode(&mdlWithKey)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
@@ -270,7 +291,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a new model, linked to the existing signing-key
 	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
-	model, errorSubcode, err = datastore.Environ.DB.CreateModel(model)
+	model, errorSubcode, err = datastore.Environ.DB.CreateModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)

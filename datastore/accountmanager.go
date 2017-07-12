@@ -50,7 +50,7 @@ const upsertAccountSQL = `
 const listUserAccountsSQL = `
 	select id, authority_id, assertion 
 	from account a
-	inner join accountuserlink l on a.id = l.account_id
+	inner join useraccountlink l on a.id = l.account_id
 	inner join user u on l.user_id = u.id
 	where u.username=$1
 `
