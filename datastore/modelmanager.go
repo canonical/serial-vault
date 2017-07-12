@@ -90,7 +90,7 @@ const deleteModelForUserSQL = `
 	inner join userinfo u on ua.user_id=u.id
 	where m.id=$1 and acc.authority_id=m.brand_id and u.username=$2 and u.userrole >= $3`
 
-const checkBrandsMatch = `
+const checkBrandsMatchSQL = `
 	select count(*) from model m
 	inner join keypair k on k.authority_id = m.brand_id
 	inner join keypair ku on ku.authority_id = m.brand_id
@@ -208,9 +208,7 @@ func (db *DB) FindModel(brandID, modelName string) (Model, error) {
 func (db *DB) GetModel(modelID int, username string) (Model, error) {
 	model := Model{}
 
-	var (
-		row *sql.Row
-	)
+	var row *sql.Row
 
 	if len(username) == 0 {
 		row = db.QueryRow(getModelSQL, modelID)
@@ -328,7 +326,7 @@ func (db *DB) checkBrandsMatch(username, brandID string, keypairID, keypairIDUse
 
 	var count int
 
-	row := db.QueryRow(checkBrandsMatch, brandID, keypairID, keypairIDUser)
+	row := db.QueryRow(checkBrandsMatchSQL, brandID, keypairID, keypairIDUser)
 	err := row.Scan(&count)
 	if err != nil {
 		log.Printf("Error checking that the account matches for a model: %v\n", err)
