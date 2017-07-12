@@ -214,6 +214,13 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Check the user and role from the JWT
+	_, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -223,7 +230,7 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	assertionRequest := AssertionRequest{}
-	err := json.NewDecoder(r.Body).Decode(&assertionRequest)
+	err = json.NewDecoder(r.Body).Decode(&assertionRequest)
 	switch {
 	// Check we have some data
 	case err == io.EOF:

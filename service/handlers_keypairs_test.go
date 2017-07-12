@@ -623,6 +623,82 @@ func TestKeypairAssertionHandler(t *testing.T) {
 	}
 }
 
+func TestKeypairAssertionHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database
+	mockDatabase()
+	datastore.Environ.Config.EnableUserAuth = true
+
+	// Create the account key assertion
+	assertAcc, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
+	request, err := json.Marshal(AssertionRequest{ID: 1, Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/assertion", bytes.NewBuffer(request))
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	http.HandlerFunc(KeypairAssertionHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the account key assertion response: %v", err)
+	}
+	if !result.Success {
+		t.Errorf("Expected success, got failure: %s", result.ErrorMessage)
+	}
+}
+
+func TestKeypairAssertionHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database
+	mockDatabase()
+	datastore.Environ.Config.EnableUserAuth = true
+
+	// Create the account key assertion
+	assertAcc, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
+	request, err := json.Marshal(AssertionRequest{ID: 1, Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/assertion", bytes.NewBuffer(request))
+	http.HandlerFunc(KeypairAssertionHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the account key assertion response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected failure, got success")
+	}
+}
+
 func sendKeypairAssertionError(request []byte, t *testing.T) {
 
 	w := httptest.NewRecorder()
