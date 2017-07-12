@@ -294,7 +294,7 @@ func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
 }
 
 // SigningLogFilterValues database mock
-func (mdb *MockDB) SigningLogFilterValues() (SigningLogFilters, error) {
+func (mdb *MockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
 	return SigningLogFilters{Makes: []string{"System"}, Models: []string{"Router 3400"}}, nil
 }
 
@@ -591,7 +591,7 @@ func (mdb *ErrorMockDB) ListSigningLog(username string) ([]SigningLog, error) {
 }
 
 // SigningLogFilterValues error mock for the database
-func (mdb *ErrorMockDB) SigningLogFilterValues() (SigningLogFilters, error) {
+func (mdb *ErrorMockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
 	return SigningLogFilters{}, errors.New("Error retrieving the signing log filters")
 }
 

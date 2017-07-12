@@ -122,6 +122,54 @@ func TestSigningLogFilterValues(t *testing.T) {
 	}
 }
 
+func TestSigningLogFilterValuesWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SigningLogFiltersResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log filters response: %v", err)
+	}
+	if !result.Success {
+		t.Error("Expected success, got error")
+	}
+}
+
+func TestSigningLogFilterValuesWithNoPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SigningLogFiltersResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log filters response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success")
+	}
+}
+
 func TestSigningLogFilterValuesError(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}

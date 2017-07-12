@@ -116,24 +116,27 @@ div.filter-section:last-of-type {
 .filter-section li {
     width: 100%;
     list-style: none;
+    line-height: 1em;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 .filter-section li span.checked {
     background-repeat: no-repeat;
     background-image: url(../images/checkbox_checked_16.png);
-    width: 20px;
     height: 20px;
     display: inline-block; 
     vertical-align: middle;
     position:relative;
+    padding-left: 20px;
 }
 .filter-section li span.unchecked {
     background-repeat: no-repeat;
     background-image: url(../images/checkbox_unchecked_16.png);
-    width: 20px;
     height: 20px;
     display: inline-block; 
     vertical-align: middle;
     position:relative;
+    padding-left: 20px;
 }
 
 .p-card .label {

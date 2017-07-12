@@ -55,7 +55,7 @@ type Datastore interface {
 	CreateSigningLog(signLog SigningLog) error
 	ListSigningLog(username string) ([]SigningLog, error)
 	DeleteSigningLog(signingLog SigningLog) (string, error)
-	SigningLogFilterValues() (SigningLogFilters, error)
+	SigningLogFilterValues(username string) (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error
 	DeleteExpiredDeviceNonces() error
