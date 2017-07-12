@@ -20,6 +20,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
@@ -53,6 +54,15 @@ const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where 
 const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 10000"
+const listSigningLogForUserSQL = `
+	SELECT s.* FROM signinglog s
+	WHERE id < $1 and EXISTS(
+		SELECT * FROM account acc
+		INNER JOIN useraccountlink ua on ua.account_id=acc.id
+		INNER JOIN userinfo u on ua.user_id=u.id
+		WHERE acc.authority_id=s.make and u.username=$2 and u.userrole >= $3
+	)
+	ORDER BY id DESC LIMIT 10000`
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 const filterValuesMakeSigningLogSQL = "SELECT DISTINCT make FROM signinglog ORDER BY make"
 const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
@@ -141,12 +151,21 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 
 // ListSigningLog returns a list of signing log records from a specific date/time.
 // The fromId parameter is used enables the use of indexes for more efficient pagination.
-func (db *DB) ListSigningLog() ([]SigningLog, error) {
+func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
-	rows, err := db.Query(listSigningLogSQL, MaxFromID)
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listSigningLogSQL, MaxFromID)
+	} else {
+		rows, err = db.Query(listSigningLogForUserSQL, MaxFromID, username, Admin)
+	}
 	if err != nil {
-		log.Printf("Error retrieving database models: %v\n", err)
+		log.Printf("Error retrieving signing logs: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()

@@ -50,7 +50,14 @@ type SigningLogFiltersResponse struct {
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	logs, err := datastore.Environ.DB.ListSigningLog()
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
+		return
+	}
+
+	logs, err := datastore.Environ.DB.ListSigningLog(username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)

@@ -271,7 +271,7 @@ func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
 
 // DeleteSigningLog database mock
 func (mdb *MockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-	logs, _ := mdb.ListSigningLog()
+	logs, _ := mdb.ListSigningLog("")
 	if signingLog.ID > len(logs)+1 {
 		return "", errors.New("Cannot find the signing log")
 	}
@@ -279,9 +279,13 @@ func (mdb *MockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
 }
 
 // ListSigningLog database mock
-func (mdb *MockDB) ListSigningLog() ([]SigningLog, error) {
-	const fromID = 11
+func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
+	var fromID = 11
 	signingLog := []SigningLog{}
+
+	if len(username) > 0 {
+		fromID = 5
+	}
 
 	for i := 1; i < fromID; i++ {
 		signingLog = append(signingLog, SigningLog{ID: i, Make: "System", Model: "Router 3400", SerialNumber: fmt.Sprintf("A%d", i), Fingerprint: fmt.Sprintf("a%d", i), Created: time.Now()})
@@ -581,7 +585,7 @@ func (mdb *ErrorMockDB) DeleteSigningLog(signingLog SigningLog) (string, error) 
 }
 
 // ListSigningLog error mock for the database
-func (mdb *ErrorMockDB) ListSigningLog() ([]SigningLog, error) {
+func (mdb *ErrorMockDB) ListSigningLog(username string) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
 }

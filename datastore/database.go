@@ -53,7 +53,7 @@ type Datastore interface {
 	CreateSigningLogTable() error
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
-	ListSigningLog() ([]SigningLog, error)
+	ListSigningLog(username string) ([]SigningLog, error)
 	DeleteSigningLog(signingLog SigningLog) (string, error)
 	SigningLogFilterValues() (SigningLogFilters, error)
 
