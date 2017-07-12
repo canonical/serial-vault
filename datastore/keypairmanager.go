@@ -47,6 +47,13 @@ const listKeypairsForUserSQL = `
 	order by authority_id, key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
+const toggleKeypairForUserSQL = `
+	update keypair k
+	set active=$2
+	from account acc 
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where k.id=$1 and u.username=$3 and u.userrole >= $4 and acc.authority_id=k.authority_id`
 const upsertKeypairSQL = `
 	WITH upsert AS (
 		update keypair set authority_id=$1, key_id=$2, sealed_key=$3, assertion=$4
@@ -147,8 +154,14 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 }
 
 // UpdateKeypairActive sets the active state of a keypair
-func (db *DB) UpdateKeypairActive(keypairID int, active bool) error {
-	_, err := db.Exec(toggleKeypairSQL, keypairID, active)
+func (db *DB) UpdateKeypairActive(keypairID int, active bool, username string) error {
+	var err error
+
+	if len(username) == 0 {
+		_, err = db.Exec(toggleKeypairSQL, keypairID, active)
+	} else {
+		_, err = db.Exec(toggleKeypairForUserSQL, keypairID, active, username, Admin)
+	}
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
 		return err

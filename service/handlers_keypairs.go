@@ -149,6 +149,13 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
 	// Get the keypair primary key
 	vars := mux.Vars(r)
 	keypairID, err := strconv.Atoi(vars["id"])
@@ -160,7 +167,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, false)
+	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, false, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -176,6 +183,13 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
 	// Get the keypair primary key
 	vars := mux.Vars(r)
 	keypairID, err := strconv.Atoi(vars["id"])
@@ -187,7 +201,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, true)
+	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, true, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)

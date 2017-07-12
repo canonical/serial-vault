@@ -215,7 +215,7 @@ func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 }
 
 // UpdateKeypairActive database mock
-func (mdb *MockDB) UpdateKeypairActive(keypairID int, active bool) error {
+func (mdb *MockDB) UpdateKeypairActive(keypairID int, active bool, username string) error {
 	return nil
 }
 
@@ -540,7 +540,7 @@ func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 }
 
 // UpdateKeypairActive error mock for the database
-func (mdb *ErrorMockDB) UpdateKeypairActive(keypairID int, active bool) error {
+func (mdb *ErrorMockDB) UpdateKeypairActive(keypairID int, active bool, username string) error {
 	return errors.New("Error updating the database")
 }
 

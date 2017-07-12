@@ -41,7 +41,7 @@ type Datastore interface {
 	ListKeypairs(username string) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
-	UpdateKeypairActive(keypairID int, active bool) error
+	UpdateKeypairActive(keypairID int, active bool, username string) error
 	UpdateKeypairAssertion(keypairID int, assertion string) error
 	CreateKeypairTable() error
 	AlterKeypairTable() error

@@ -387,6 +387,54 @@ func TestKeypairDisableHandler(t *testing.T) {
 	}
 }
 
+func TestKeypairDisableHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	config := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Expected an success, got error: %v", err)
+	}
+	if !result.Success {
+		t.Error("Expected an success, got fail response")
+	}
+}
+
+func TestKeypairDisableHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	config := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Expected a success, got error: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected a fail, got success response")
+	}
+}
+
 func TestKeypairDisableHandlerError(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
@@ -447,6 +495,54 @@ func TestKeypairEnableHandler(t *testing.T) {
 	}
 	if !result.Success {
 		t.Error("Expected an success, got fail response")
+	}
+}
+
+func TestKeypairEnableHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	config := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
+
+	// Create a JWT and add it to the request
+	jwtToken, err := createJWT()
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Expected an success, got error: %v", err)
+	}
+	if !result.Success {
+		t.Error("Expected an success, got fail response")
+	}
+}
+
+func TestKeypairEnableHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	config := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Expected a success, got error: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected a fail, got success response")
 	}
 }
 
