@@ -218,9 +218,9 @@ func rowsToUsers(rows *sql.Rows) ([]User, error) {
 	return users, nil
 }
 
-// CheckUserPermissions checks the user role against the database
+// RoleForUser checks the user role against the database
 // If user authentication is turned off, the role defaults to Admin
-func (db *DB) CheckUserPermissions(username string) int {
+func (db *DB) RoleForUser(username string) int {
 	if username == "" {
 		return Admin
 	}

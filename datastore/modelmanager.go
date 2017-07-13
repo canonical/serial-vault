@@ -264,7 +264,7 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 // CreateModel updates the model.
 func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 
-	if db.CheckUserPermissions(username) < Admin {
+	if db.RoleForUser(username) < Admin {
 		return model, "error-auth", errors.New("The user does not have permissions to create a model")
 	}
 

@@ -324,8 +324,8 @@ func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
 }
 
-// CheckUserPermissions fetches the user's permissions
-func (mdb *MockDB) CheckUserPermissions(username string) int {
+// RoleForUser fetches the user's permissions
+func (mdb *MockDB) RoleForUser(username string) int {
 	return Admin
 }
 
@@ -615,8 +615,8 @@ func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
 }
 
-// CheckUserPermissions fetches the user's permissions
-func (mdb *ErrorMockDB) CheckUserPermissions(username string) int {
+// RoleForUser fetches the user's permissions
+func (mdb *ErrorMockDB) RoleForUser(username string) int {
 	return 0
 }
 

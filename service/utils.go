@@ -220,7 +220,7 @@ func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error
 	username := token.Claims[usso.ClaimsUsername].(string)
 
 	// Check that the role is at least an Admin
-	role := datastore.Environ.DB.CheckUserPermissions(username)
+	role := datastore.Environ.DB.RoleForUser(username)
 	if role < datastore.Admin {
 		return username, errors.New("The user is not authorized")
 	}
