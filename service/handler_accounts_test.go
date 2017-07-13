@@ -89,6 +89,52 @@ func TestAccountsHandler(t *testing.T) {
 	}
 }
 
+func TestAccountsHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
+
+	// Create a JWT and add it to the request
+	createJWT(r, t)
+
+	http.HandlerFunc(AccountsHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := AccountsResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the accounts response: %v", err)
+	}
+	if len(result.Accounts) != 1 {
+		t.Errorf("Expected 1 accounts, got %d", len(result.Accounts))
+	}
+}
+
+func TestAccountsHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
+	http.HandlerFunc(AccountsHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := AccountsResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the accounts response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success")
+	}
+}
+
 func TestAccountsHandlerError(t *testing.T) {
 
 	// Mock the database
@@ -141,6 +187,88 @@ func TestAccountsUpsertHandler(t *testing.T) {
 	}
 	if !result.Success {
 		t.Errorf("Expected success, got failure: %s", result.ErrorMessage)
+	}
+}
+
+func TestAccountsUpsertHandlerWithPermissions(t *testing.T) {
+
+	// Mock the database
+	config := config.Settings{
+		EnableUserAuth: true,
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Create the account assertion
+	assertAcc, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
+
+	// Create a JWT and add it to the request
+	createJWT(r, t)
+
+	http.HandlerFunc(AccountsUpsertHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the accounts response: %v", err)
+	}
+	if !result.Success {
+		t.Errorf("Expected success, got failure: %s", result.ErrorMessage)
+	}
+}
+
+func TestAccountsUpsertHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database
+	config := config.Settings{
+		EnableUserAuth: true,
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Create the account assertion
+	assertAcc, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
+	if err != nil {
+		t.Errorf("Error generating the assertion: %v", err)
+	}
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
+	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	if err != nil {
+		t.Errorf("Error marshalling the assertion to JSON: %v", err)
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
+	http.HandlerFunc(AccountsUpsertHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the accounts response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected failure, got success")
 	}
 }
 

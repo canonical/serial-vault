@@ -20,6 +20,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
@@ -53,9 +54,36 @@ const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where 
 const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 10000"
+const listSigningLogForUserSQL = `
+	SELECT s.* FROM signinglog s
+	WHERE id < $1 and EXISTS(
+		SELECT * FROM account acc
+		INNER JOIN useraccountlink ua on ua.account_id=acc.id
+		INNER JOIN userinfo u on ua.user_id=u.id
+		WHERE acc.authority_id=s.make and u.username=$2 and u.userrole >= $3
+	)
+	ORDER BY id DESC LIMIT 10000`
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 const filterValuesMakeSigningLogSQL = "SELECT DISTINCT make FROM signinglog ORDER BY make"
+const filterValuesMakeSigningLogForUserSQL = `
+	SELECT DISTINCT make FROM signinglog s
+	WHERE EXISTS(
+		SELECT * FROM account acc
+		INNER JOIN useraccountlink ua on ua.account_id=acc.id
+		INNER JOIN userinfo u on ua.user_id=u.id
+		WHERE acc.authority_id=s.make and u.username=$1 and u.userrole >= $2
+	)
+	ORDER BY make`
 const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
+const filterValuesModelSigningLogForUserSQL = `
+	SELECT DISTINCT model FROM signinglog s
+	WHERE EXISTS(
+		SELECT * FROM account acc
+		INNER JOIN useraccountlink ua on ua.account_id=acc.id
+		INNER JOIN userinfo u on ua.user_id=u.id
+		WHERE acc.authority_id=s.make and u.username=$1 and u.userrole >= $2
+	)
+	ORDER BY model`
 
 // SigningLog holds the details of the serial number and public key fingerprint that were supplied
 // in a serial assertion for signing. The details are stored in the local database,
@@ -141,12 +169,21 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 
 // ListSigningLog returns a list of signing log records from a specific date/time.
 // The fromId parameter is used enables the use of indexes for more efficient pagination.
-func (db *DB) ListSigningLog() ([]SigningLog, error) {
+func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
-	rows, err := db.Query(listSigningLogSQL, MaxFromID)
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listSigningLogSQL, MaxFromID)
+	} else {
+		rows, err = db.Query(listSigningLogForUserSQL, MaxFromID, username, Admin)
+	}
 	if err != nil {
-		log.Printf("Error retrieving database models: %v\n", err)
+		log.Printf("Error retrieving signing logs: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -163,29 +200,30 @@ func (db *DB) ListSigningLog() ([]SigningLog, error) {
 	return signingLogs, nil
 }
 
-// DeleteSigningLog deletes a signing log record.
-func (db *DB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-
-	_, err := db.Exec(deleteSigningLogSQL, signingLog.ID)
-	if err != nil {
-		log.Printf("Error deleting the database signing log: %v\n", err)
-		return "", err
-	}
-
-	return "", nil
-}
-
 // SigningLogFilterValues returns the unique values of the main filterable columns
-func (db *DB) SigningLogFilterValues() (SigningLogFilters, error) {
+func (db *DB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
 	filters := SigningLogFilters{}
 
-	err := db.filterValuesForField(filterValuesMakeSigningLogSQL, &filters.Makes)
+	var (
+		makesSQL  string
+		modelsSQL string
+	)
+
+	if len(username) == 0 {
+		makesSQL = filterValuesMakeSigningLogSQL
+		modelsSQL = filterValuesModelSigningLogSQL
+	} else {
+		makesSQL = filterValuesMakeSigningLogForUserSQL
+		modelsSQL = filterValuesModelSigningLogForUserSQL
+	}
+
+	err := db.filterValuesForField(username, makesSQL, &filters.Makes)
 	if err != nil {
 		log.Printf("Error retrieving filter values: %v\n", err)
 		return filters, err
 	}
 
-	err = db.filterValuesForField(filterValuesModelSigningLogSQL, &filters.Models)
+	err = db.filterValuesForField(username, modelsSQL, &filters.Models)
 	if err != nil {
 		log.Printf("Error retrieving filter values: %v\n", err)
 		return filters, err
@@ -194,11 +232,20 @@ func (db *DB) SigningLogFilterValues() (SigningLogFilters, error) {
 	return filters, nil
 }
 
-func (db *DB) filterValuesForField(sql string, fieldValues *[]string) error {
+func (db *DB) filterValuesForField(username string, sqlQuery string, fieldValues *[]string) error {
 
+	var (
+		rows *sql.Rows
+		err  error
+	)
 	values := []string{}
 
-	rows, err := db.Query(sql)
+	if len(username) == 0 {
+		rows, err = db.Query(sqlQuery)
+	} else {
+		rows, err = db.Query(sqlQuery, username, Admin)
+	}
+
 	if err != nil {
 		log.Printf("Error retrieving filter values: %v\n", err)
 		return err

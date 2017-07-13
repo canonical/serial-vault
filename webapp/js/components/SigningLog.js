@@ -43,8 +43,8 @@ var SigningLog = React.createClass({
   },
 
   componentDidMount: function () {
-    //this.getLogs();
-    //this.getFilters();
+    this.getLogs();
+    this.getFilters();
   },
 
   getLogs: function () {

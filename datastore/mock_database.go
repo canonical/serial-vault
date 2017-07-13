@@ -68,7 +68,7 @@ func (mdb *MockDB) CreateAccountTable() error {
 
 // GetAccount mock to return a single account key
 func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
-	accounts, _ := mdb.ListAccounts()
+	accounts, _ := mdb.ListAccounts("")
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -79,7 +79,7 @@ func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
 }
 
 // ListAccounts mock to return a list of the available accounts
-func (mdb *MockDB) ListAccounts() ([]Account, error) {
+func (mdb *MockDB) ListAccounts(username string) ([]Account, error) {
 	var accounts []Account
 	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
 	return accounts, nil
@@ -196,12 +196,16 @@ func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 }
 
 // ListKeypairs mocks listing the keypairs
-func (mdb *MockDB) ListKeypairs() ([]Keypair, error) {
+func (mdb *MockDB) ListKeypairs(username string) ([]Keypair, error) {
 	var keypairs []Keypair
-	keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "61abf588e52be7a3", Active: true})
-	keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "system", KeyID: "inactiveone", Active: false})
+	if username == "" || username == "sv" {
+		keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
+		keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
+	}
+	if username == "" {
+		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "61abf588e52be7a3", Active: true})
+		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "system", KeyID: "inactiveone", Active: false})
+	}
 	return keypairs, nil
 }
 
@@ -211,7 +215,7 @@ func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 }
 
 // UpdateKeypairActive database mock
-func (mdb *MockDB) UpdateKeypairActive(keypairID int, active bool) error {
+func (mdb *MockDB) UpdateKeypairActive(keypairID int, active bool, username string) error {
 	return nil
 }
 
@@ -265,19 +269,14 @@ func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
-// DeleteSigningLog database mock
-func (mdb *MockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-	logs, _ := mdb.ListSigningLog()
-	if signingLog.ID > len(logs)+1 {
-		return "", errors.New("Cannot find the signing log")
-	}
-	return "", nil
-}
-
 // ListSigningLog database mock
-func (mdb *MockDB) ListSigningLog() ([]SigningLog, error) {
-	const fromID = 11
+func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
+	var fromID = 11
 	signingLog := []SigningLog{}
+
+	if len(username) > 0 {
+		fromID = 5
+	}
 
 	for i := 1; i < fromID; i++ {
 		signingLog = append(signingLog, SigningLog{ID: i, Make: "System", Model: "Router 3400", SerialNumber: fmt.Sprintf("A%d", i), Fingerprint: fmt.Sprintf("a%d", i), Created: time.Now()})
@@ -286,7 +285,7 @@ func (mdb *MockDB) ListSigningLog() ([]SigningLog, error) {
 }
 
 // SigningLogFilterValues database mock
-func (mdb *MockDB) SigningLogFilterValues() (SigningLogFilters, error) {
+func (mdb *MockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
 	return SigningLogFilters{Makes: []string{"System"}, Models: []string{"Router 3400"}}, nil
 }
 
@@ -318,6 +317,16 @@ func (mdb *MockDB) CreateOpenidNonceTable() error {
 // CreateOpenidNonce database mock
 func (mdb *MockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 	return nil
+}
+
+// CheckUserInAccount verifies that a user has permissions to a specific account
+func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
+	return true
+}
+
+// RoleForUser fetches the user's permissions
+func (mdb *MockDB) RoleForUser(username string) int {
+	return Admin
 }
 
 // CreateUserTable mock for creating database User table operation
@@ -458,7 +467,7 @@ func (mdb *ErrorMockDB) CreateAccountTable() error {
 // GetAccount mock to return a single account key
 func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
-	accounts, _ := mdb.ListAccounts()
+	accounts, _ := mdb.ListAccounts("")
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -469,7 +478,7 @@ func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 }
 
 // ListAccounts mock to return a list of the available accounts
-func (mdb *ErrorMockDB) ListAccounts() ([]Account, error) {
+func (mdb *ErrorMockDB) ListAccounts(username string) ([]Account, error) {
 	return nil, errors.New("Error getting the accounts")
 }
 
@@ -520,7 +529,7 @@ func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
 }
 
 // ListKeypairs error mock for the database
-func (mdb *ErrorMockDB) ListKeypairs() ([]Keypair, error) {
+func (mdb *ErrorMockDB) ListKeypairs(username string) ([]Keypair, error) {
 	var keypairs []Keypair
 	return keypairs, errors.New("MOCK Error fetching from the database")
 }
@@ -531,7 +540,7 @@ func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 }
 
 // UpdateKeypairActive error mock for the database
-func (mdb *ErrorMockDB) UpdateKeypairActive(keypairID int, active bool) error {
+func (mdb *ErrorMockDB) UpdateKeypairActive(keypairID int, active bool, username string) error {
 	return errors.New("Error updating the database")
 }
 
@@ -560,20 +569,14 @@ func (mdb *ErrorMockDB) CreateSigningLogTable() error {
 	return nil
 }
 
-// DeleteSigningLog error mock for the database
-func (mdb *ErrorMockDB) DeleteSigningLog(signingLog SigningLog) (string, error) {
-
-	return "", errors.New("Error deleting the database signing log")
-}
-
 // ListSigningLog error mock for the database
-func (mdb *ErrorMockDB) ListSigningLog() ([]SigningLog, error) {
+func (mdb *ErrorMockDB) ListSigningLog(username string) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
 }
 
 // SigningLogFilterValues error mock for the database
-func (mdb *ErrorMockDB) SigningLogFilterValues() (SigningLogFilters, error) {
+func (mdb *ErrorMockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
 	return SigningLogFilters{}, errors.New("Error retrieving the signing log filters")
 }
 
@@ -605,6 +608,16 @@ func (mdb *ErrorMockDB) CreateOpenidNonceTable() error {
 // CreateOpenidNonce database mock
 func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 	return errors.New("MOCK error generating the nonce")
+}
+
+// CheckUserInAccount verifies that a user has permissions to a specific account
+func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
+	return true
+}
+
+// RoleForUser fetches the user's permissions
+func (mdb *ErrorMockDB) RoleForUser(username string) int {
+	return 0
 }
 
 // CreateUserTable mock for creating database User table operation

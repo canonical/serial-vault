@@ -262,7 +262,7 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 // CreateModel updates the model.
 func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 
-	if db.checkUserPermissions(username) < Admin {
+	if db.RoleForUser(username) < Admin {
 		return model, "error-auth", errors.New("The user does not have permissions to create a model")
 	}
 
@@ -271,7 +271,7 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 		return model, "error-validate-new-model", errors.New("The Brand, Model and Signing-Keys must be supplied")
 	}
 
-	if !db.checkUserInAccount(username, model.BrandID) {
+	if !db.CheckUserInAccount(username, model.BrandID) {
 		return model, "error-auth", errors.New("The user does not have permissions to create a model for this account")
 	}
 

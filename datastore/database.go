@@ -38,10 +38,10 @@ type Datastore interface {
 	CreateModelTable() error
 	AlterModelTable() error
 
-	ListKeypairs() ([]Keypair, error)
+	ListKeypairs(username string) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
-	UpdateKeypairActive(keypairID int, active bool) error
+	UpdateKeypairActive(keypairID int, active bool, username string) error
 	UpdateKeypairAssertion(keypairID int, assertion string) error
 	CreateKeypairTable() error
 	AlterKeypairTable() error
@@ -53,9 +53,8 @@ type Datastore interface {
 	CreateSigningLogTable() error
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
-	ListSigningLog() ([]SigningLog, error)
-	DeleteSigningLog(signingLog SigningLog) (string, error)
-	SigningLogFilterValues() (SigningLogFilters, error)
+	ListSigningLog(username string) ([]SigningLog, error)
+	SigningLogFilterValues(username string) (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error
 	DeleteExpiredDeviceNonces() error
@@ -63,7 +62,7 @@ type Datastore interface {
 	ValidateDeviceNonce(nonce string) error
 
 	CreateAccountTable() error
-	ListAccounts() ([]Account, error)
+	ListAccounts(username string) ([]Account, error)
 	GetAccount(authorityID string) (Account, error)
 	UpdateAccountAssertion(authorityID, assertion string) error
 	PutAccount(account Account) (string, error)
@@ -79,6 +78,8 @@ type Datastore interface {
 	DeleteUser(username string) error
 	CreateUserTable() error
 	CreateAccountUserLinkTable() error
+	CheckUserInAccount(username, authorityID string) bool
+	RoleForUser(username string) int
 
 	ListUserAccounts(username string) ([]Account, error)
 	ListAccountUsers(authorityID string) ([]User, error)

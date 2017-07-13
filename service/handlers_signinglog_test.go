@@ -20,13 +20,13 @@
 package service
 
 import (
-	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
@@ -40,47 +40,30 @@ func TestSigningLogListHandler(t *testing.T) {
 	}
 }
 
+func TestSigningLogListHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
+	if len(response.SigningLog) != 4 {
+		t.Errorf("Expected 4 signing logs, got: %d", len(response.SigningLog))
+	}
+}
+
+func TestSigningLogListHandlerWithNoPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
+}
+
 func TestSigningLogListHandlerError(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
 
 	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
-}
-
-func TestSigningLogDeleteHandler(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequest(t, "DELETE", "/v1/signinglog/1", bytes.NewBufferString(data))
-}
-
-func TestSigningLogDeleteHandlerWrongID(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/22", bytes.NewBufferString(data))
-}
-
-func TestSigningLogDeleteHandlerError(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/1", bytes.NewBufferString(data))
-}
-
-func TestSigningLogDeleteHandlerBadID(t *testing.T) {
-	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
-
-	// Delete a signing log
-	data := "{}"
-	sendSigningLogRequestExpectError(t, "DELETE", "/v1/signinglog/99999999999999999999999999999999999999999999999", bytes.NewBufferString(data))
 }
 
 func TestSigningLogFilterValues(t *testing.T) {
@@ -99,6 +82,50 @@ func TestSigningLogFilterValues(t *testing.T) {
 	}
 	if !result.Success {
 		t.Error("Expected success, got error")
+	}
+}
+
+func TestSigningLogFilterValuesWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
+
+	// Create a JWT and add it to the request
+	createJWT(r, t)
+
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SigningLogFiltersResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log filters response: %v", err)
+	}
+	if !result.Success {
+		t.Error("Expected success, got error")
+	}
+}
+
+func TestSigningLogFilterValuesWithNoPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := SigningLogFiltersResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the signing log filters response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success")
 	}
 }
 
@@ -124,6 +151,10 @@ func TestSigningLogFilterValuesError(t *testing.T) {
 func sendSigningLogRequest(t *testing.T, method, url string, data io.Reader) (SigningLogResponse, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
+
+	// Create a JWT and add it to the request
+	createJWT(r, t)
+
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response

@@ -35,7 +35,7 @@ class SigningLogFilter extends Component {
                 {this.props.items.map(function(item, i) {
                     return (
                         <li key={i} onClick={this.props.handleItemClick.bind(this, i, this.props.keyName)}>
-                            <span className={item.selected ? "checked" : "unchecked"}></span>{item.name}
+                            <span className={item.selected ? "checked overflow" : "unchecked overflow"}>{item.name}</span>
                         </li>
                     );
                 }, this)}

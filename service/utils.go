@@ -201,8 +201,8 @@ func validateModelName(name string) error {
 }
 
 // checkUserPermissions retrieves the user from the JWT.
-// The user will be restricted by the accounts the username can access and their role.
-// If user authentication is turned off, the JWT will irrelevant.
+// The user will be restricted by the accounts the username can access and their role i.e. only Admin and Superuser
+// If user authentication is turned off, the JWT will irrelevant. In this case the username is returned as "".
 func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	if !datastore.Environ.Config.EnableUserAuth {
@@ -217,5 +217,13 @@ func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error
 	}
 
 	// Get the user from the token
-	return token.Claims[usso.ClaimsUsername].(string), nil
+	username := token.Claims[usso.ClaimsUsername].(string)
+
+	// Check that the role is at least an Admin
+	role := datastore.Environ.DB.RoleForUser(username)
+	if role < datastore.Admin {
+		return username, errors.New("The user is not authorized")
+	}
+
+	return username, nil
 }

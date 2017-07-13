@@ -426,10 +426,15 @@ func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (Versi
 	return result, err
 }
 
-func createJWT() (string, error) {
+func createJWT(r *http.Request, t *testing.T) {
 	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
 	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
-	return usso.NewJWTToken(&resp, datastore.Standard)
+	jwtToken, err := usso.NewJWTToken(&resp, datastore.Standard)
+
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
 }
 
 func sendRequestToken(t *testing.T, method, url string, data io.Reader) (TokenResponse, error) {
@@ -437,17 +442,13 @@ func sendRequestToken(t *testing.T, method, url string, data io.Reader) (TokenRe
 	r, _ := http.NewRequest(method, url, data)
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := TokenResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the token response: %v", err)
 	}

@@ -20,6 +20,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
@@ -36,8 +37,23 @@ const createKeypairTableSQL = `
 	)
 `
 const listKeypairsSQL = "select id, authority_id, key_id, active, assertion from keypair order by authority_id, key_id"
+const listKeypairsForUserSQL = `
+	select k.id, k.authority_id, k.key_id, k.active, k.assertion 
+	from keypair k
+	inner join account acc on acc.authority_id=k.authority_id
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where u.username=$1 and u.userrole >= $2
+	order by authority_id, key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
+const toggleKeypairForUserSQL = `
+	update keypair k
+	set active=$2
+	from account acc 
+	inner join useraccountlink ua on ua.account_id=acc.id
+	inner join userinfo u on ua.user_id=u.id
+	where k.id=$1 and u.username=$3 and u.userrole >= $4 and acc.authority_id=k.authority_id`
 const upsertKeypairSQL = `
 	WITH upsert AS (
 		update keypair set authority_id=$1, key_id=$2, sealed_key=$3, assertion=$4
@@ -77,10 +93,19 @@ func (db *DB) AlterKeypairTable() error {
 }
 
 // ListKeypairs fetches the available keypairs from the database.
-func (db *DB) ListKeypairs() ([]Keypair, error) {
+func (db *DB) ListKeypairs(username string) ([]Keypair, error) {
 	var keypairs []Keypair
 
-	rows, err := db.Query(listKeypairsSQL)
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listKeypairsSQL)
+	} else {
+		rows, err = db.Query(listKeypairsForUserSQL, username, Admin)
+	}
 	if err != nil {
 		log.Printf("Error retrieving database keypairs: %v\n", err)
 		return nil, err
@@ -129,8 +154,14 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 }
 
 // UpdateKeypairActive sets the active state of a keypair
-func (db *DB) UpdateKeypairActive(keypairID int, active bool) error {
-	_, err := db.Exec(toggleKeypairSQL, keypairID, active)
+func (db *DB) UpdateKeypairActive(keypairID int, active bool, username string) error {
+	var err error
+
+	if len(username) == 0 {
+		_, err = db.Exec(toggleKeypairSQL, keypairID, active)
+	} else {
+		_, err = db.Exec(toggleKeypairForUserSQL, keypairID, active, username, Admin)
+	}
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
 		return err
