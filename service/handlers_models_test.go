@@ -64,17 +64,13 @@ func TestModelsHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelsResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the models response: %v", err)
 	}
@@ -380,17 +376,13 @@ func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelRespons
 	r, _ := http.NewRequest(method, url, data)
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the model response: %v", err)
 	}
@@ -406,17 +398,13 @@ func sendRequestExpectError(t *testing.T, method, url string, data io.Reader) (M
 	r, _ := http.NewRequest(method, url, data)
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := ModelResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the model response: %v", err)
 	}

@@ -48,7 +48,14 @@ type AssertionRequest struct {
 // AccountsHandler is the API method to list the account assertions
 func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 
-	accounts, err := datastore.Environ.DB.ListAccounts()
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatAccountsResponse(false, "error-auth", "", "", nil, w)
+		return
+	}
+
+	accounts, err := datastore.Environ.DB.ListAccounts(username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
@@ -64,6 +71,13 @@ func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
+	// Get the user from the JWT
+	username, err := checkUserPermissions(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
 	// Check that we have a message body
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -73,7 +87,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	assertionRequest := AssertionRequest{}
-	err := json.NewDecoder(r.Body).Decode(&assertionRequest)
+	err = json.NewDecoder(r.Body).Decode(&assertionRequest)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
@@ -109,6 +123,12 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	if assertion.Type().Name != asserts.AccountType.Name {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "invalid-assertion", "", fmt.Sprintf("An assertion of type '%s' is required", asserts.AccountType.Name), w)
+		return
+	}
+
+	// Check that the user has permissions for the authority-id
+	if !datastore.Environ.DB.CheckUserInAccount(username, assertion.AuthorityID()) {
+		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
 	}
 

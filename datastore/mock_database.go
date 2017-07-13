@@ -68,7 +68,7 @@ func (mdb *MockDB) CreateAccountTable() error {
 
 // GetAccount mock to return a single account key
 func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
-	accounts, _ := mdb.ListAccounts()
+	accounts, _ := mdb.ListAccounts("")
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -79,7 +79,7 @@ func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
 }
 
 // ListAccounts mock to return a list of the available accounts
-func (mdb *MockDB) ListAccounts() ([]Account, error) {
+func (mdb *MockDB) ListAccounts(username string) ([]Account, error) {
 	var accounts []Account
 	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
 	return accounts, nil
@@ -467,7 +467,7 @@ func (mdb *ErrorMockDB) CreateAccountTable() error {
 // GetAccount mock to return a single account key
 func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
-	accounts, _ := mdb.ListAccounts()
+	accounts, _ := mdb.ListAccounts("")
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -478,7 +478,7 @@ func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 }
 
 // ListAccounts mock to return a list of the available accounts
-func (mdb *ErrorMockDB) ListAccounts() ([]Account, error) {
+func (mdb *ErrorMockDB) ListAccounts(username string) ([]Account, error) {
 	return nil, errors.New("Error getting the accounts")
 }
 

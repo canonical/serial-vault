@@ -67,17 +67,13 @@ func TestKeypairListHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := KeypairsResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the keypairs response: %v", err)
 	}
@@ -327,17 +323,13 @@ func sendKeypairCreate(t *testing.T, body io.Reader) (BooleanResponse, error) {
 	r, _ := http.NewRequest("POST", "/v1/keypairs", body)
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }
 
@@ -396,17 +388,13 @@ func TestKeypairDisableHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/disable", bytes.NewBufferString("{}"))
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Expected an success, got error: %v", err)
 	}
@@ -507,17 +495,13 @@ func TestKeypairEnableHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/v1/keypairs/1/enable", bytes.NewBufferString("{}"))
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Expected an success, got error: %v", err)
 	}
@@ -646,11 +630,7 @@ func TestKeypairAssertionHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/v1/keypairs/assertion", bytes.NewBuffer(request))
 
 	// Create a JWT and add it to the request
-	jwtToken, err := createJWT()
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	createJWT(r, t)
 
 	http.HandlerFunc(KeypairAssertionHandler).ServeHTTP(w, r)
 

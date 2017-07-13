@@ -48,10 +48,10 @@ const upsertAccountSQL = `
 `
 
 const listUserAccountsSQL = `
-	select id, authority_id, assertion 
+	select a.id, authority_id, assertion 
 	from account a
 	inner join useraccountlink l on a.id = l.account_id
-	inner join user u on l.user_id = u.id
+	inner join userinfo u on l.user_id = u.id
 	where u.username=$1
 `
 
@@ -69,8 +69,18 @@ func (db *DB) CreateAccountTable() error {
 }
 
 // ListAccounts fetches the available accounts from the database.
-func (db *DB) ListAccounts() ([]Account, error) {
-	rows, err := db.Query(listAccountsSQL)
+func (db *DB) ListAccounts(username string) ([]Account, error) {
+
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listAccountsSQL)
+	} else {
+		rows, err = db.Query(listUserAccountsSQL, username)
+	}
 	if err != nil {
 		log.Printf("Error retrieving database accounts: %v\n", err)
 		return nil, err
