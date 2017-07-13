@@ -25,6 +25,7 @@ import AccountList from './components/AccountList'
 import AccountForm from './components/AccountForm'
 import AccountKeyForm from './components/AccountKeyForm'
 import SigningLog from './components/SigningLog'
+import SystemUserForm from './components/SystemUserForm'
 import AlertBox from './components/AlertBox'
 import {sectionFromPath, sectionIdFromPath} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
@@ -93,6 +94,9 @@ class App extends Component {
 
           {currentSection==='accounts'? this.renderAccounts() : ''}
           {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
+          {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
+
+          {currentSection==='systemuser'? <SystemUserForm token={this.props.token} /> : ''}
 
           <Footer />
       </div>

@@ -56,8 +56,10 @@ var Header = React.createClass({
             <div className="row">
                 <div className="p-navigation__logo">
                         <div className="nav_logo">
+                            <a href="/" className="p-navigation__link">
                                 <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
                                 <span>{T("title")}</span>
+                            </a>
                         </div>
                 </div>
 

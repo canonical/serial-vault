@@ -38,6 +38,7 @@ var intlData = {
       "accounts": "<Account Assertions>",
       "signinglog": "<Signing Log>",
       "signinglog-description": "<Log of the serial numbers and device-key fingerprints that have been used>",
+      "systemuser": "<System-User>",
       "delete-log": "<Delete log>",
       "version": "版本",
       "edit-model": "编辑模型",
@@ -92,6 +93,7 @@ var intlData = {
       "new-account-key-assertion": "<Add or Replace Account Key Assertion>",
 
       // Error messages
+      "error-auth": "<You are not authorized to view this page>",
       "error-nil-data": "未初始化的POST数据",
       "error-sign-empty": "没有签名提供的数据",
       "error-decode-json": "错误解码JSON",
@@ -144,6 +146,7 @@ var intlData = {
       "accounts": "Account Assertions",
       "signinglog": "Signing Log",
       "signinglog-description": "Log of the serial numbers and device-key fingerprints that have been used",
+      "systemuser": "System-User",
       "delete-log": "Delete log",
       "version": "Version",
       "edit-model": "Edit Model",
@@ -198,6 +201,7 @@ var intlData = {
       "new-account-key-assertion": "Add or Replace Account Key Assertion",
 
       // Error messages
+      "error-auth": "You are not authorized to view this page",
       "error-nil-data": "Uninitialized POST data",
       "error-sign-empty": "No data supplied for signing",
       "error-decode-json": "Error decoding JSON",

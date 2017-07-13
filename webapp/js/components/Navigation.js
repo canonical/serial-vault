@@ -18,18 +18,14 @@
 
 var React = require('react');
 import {T, isUserAdmin, isLoggedIn} from './Utils'
+import {Role} from './Constants'
+
+const linksSuperuser = ['models', 'accounts', 'systemuser', 'signinglog'];
+const linksAdmin = ['models', 'accounts', 'systemuser', 'signinglog'];
+const linksStandard = ['systemuser'];
 
 
 var Navigation = React.createClass({
-    getInitialState: function() {
-        return {token: this.props.token}
-    },
-
-    renderLink: function(token, active, link, label) {
-        if (isUserAdmin(token)) {
-            return <li className={active}><a href={link}>{T(label)}</a></li>
-        }
-    },
 
     renderUser: function(token) {
         if (isLoggedIn(token)) {
@@ -60,34 +56,32 @@ var Navigation = React.createClass({
     render: function() {
 
         var token = this.props.token
+        var links = []
 
-        var activeHome = 'p-navigation__link';
-        var activeModels = 'p-navigation__link';
-        var activeKeys = 'p-navigation__link';
-        var activeSigningLog = 'p-navigation__link';
-        var activeAccounts = 'p-navigation__link';
-        if (this.props.active === 'home') {
-            activeHome = 'p-navigation__link active';
-        }
-        if (this.props.active === 'models') {
-            activeModels = 'p-navigation__link active';
-        }
-        if (this.props.active === 'keys') {
-            activeKeys = 'p-navigation__link active';
-        }
-        if (this.props.active === 'accounts') {
-            activeAccounts = 'p-navigation__link active';
-        }
-        if (this.props.active === 'signinglog') {
-            activeSigningLog = 'p-navigation__link active';
+        switch(token.role) {
+            case Role.Admin:
+                links = linksAdmin;
+                break;
+            case Role.Superuser:
+                links = linksSuperuser;
+                break;
+            case Role.Standard:
+                link = linksStandard
+                break
         }
 
         return (
           <ul className="p-navigation__links">
-              {this.renderLink(token, activeHome, '/', 'home')}
-              {this.renderLink(token, activeModels, '/models', 'models')}
-              {this.renderLink(token, activeAccounts, '/accounts', 'accounts')}
-              {this.renderLink(token, activeSigningLog, '/signinglog', 'signinglog')}
+              {links.map((l) => {
+                  var active = '';
+                  if (this.props.active == l) {
+                      active = ' active'
+                  }
+                  var link = '/' + l;
+                  return (
+                    <li className={'p-navigation__link' + active}><a href={link}>{T(l)}</a></li>
+                  )
+              })}
               {this.renderUser(token)}
               {this.renderUserLogout(token)}
           </ul>
