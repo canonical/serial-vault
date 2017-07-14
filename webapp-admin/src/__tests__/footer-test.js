@@ -19,6 +19,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
+import { createRenderer } from 'react-test-renderer/shallow';
 import Footer from '../components/Footer';
 
 jest.dontMock('../components/Footer');
@@ -29,7 +30,7 @@ describe('footer', function() {
 	var Messages = require('../components/messages').en;
 
 	// Shallow render the component
-	var shallowRenderer = ReactTestUtils.createRenderer();
+	var shallowRenderer = createRenderer();
 
 	// Mock the data retrieval from the API
 	var getVersion = jest.genMockFunction();

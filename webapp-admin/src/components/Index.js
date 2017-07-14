@@ -15,19 +15,23 @@
  *
  */
 
-import React from 'react';
+import React, { Component } from 'react';
 import {FormattedMessage} from 'react-intl'
 import {T, isLoggedIn} from './Utils'
 import AlertBox from './AlertBox'
 
 
-var Index = React.createClass({
+class Index extends Component {
 
-  getInitialState: function() {
-    return {token: this.props.token}
-  },
+  constructor(props) {
 
-  renderUser: function() {
+    super(props)
+    this.state = {
+      token: props.token || {},
+    }
+  }
+
+  renderUser() {
     if (isLoggedIn(this.props.token)) {
       return <div />
     } else {
@@ -37,17 +41,17 @@ var Index = React.createClass({
         </div>
       )
     }
-  },
+  }
 
-  renderError: function() {
+  renderError() {
     if (this.props.error) {
       return (
         <AlertBox message={T('user-not-found')} />
       )
     }
-  },
+  }
 
-  render: function() {
+  render() {
     return (
         <div className="row">
 
@@ -68,6 +72,6 @@ var Index = React.createClass({
         </div>
     );
   }
-});
+}
 
 export default Index;

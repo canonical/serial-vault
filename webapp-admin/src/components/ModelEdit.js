@@ -15,18 +15,26 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import AlertBox from './AlertBox';
 import Models from '../models/models';
 import Keypairs from '../models/keypairs';
 import {T, isUserAdmin} from './Utils';
 
-var ModelEdit = React.createClass({
-    getInitialState: function() {
-        return {title: null, model: {}, error: null, keypairs: []};
-    },
+class ModelEdit extends Component {
 
-    componentDidMount: function() {
+    constructor(props) {
+
+        super(props)
+        this.state = {
+            title: null,
+            model: {},
+            error: null,
+            keypairs: [],
+        }
+    }
+
+    componentDidMount() {
         this.getKeypairs();
 
         if (this.props.id) {
@@ -35,21 +43,21 @@ var ModelEdit = React.createClass({
         } else {
             this.setTitle('new-model');
         }
-    },
+    }
 
-    setTitle: function(title) {
+    setTitle(title) {
         this.setState({title: T(title)});
-    },
+    }
 
-    getModel: function(modelId) {
+    getModel(modelId) {
         var self = this;
         Models.get(modelId).then(function(response) {
             var data = JSON.parse(response.body);
             self.setState({model: data.model});
         });
-    },
+    }
 
-    getKeypairs: function() {
+    getKeypairs() {
         var self = this;
         Keypairs.list().then(function(response) {
             var data = JSON.parse(response.body);
@@ -59,9 +67,9 @@ var ModelEdit = React.createClass({
             }
             self.setState({keypairs: data.keypairs, message: message});
         });
-    },
+    }
 
-    formatError: function(data) {
+    formatError(data) {
         var message = T(data.error_code);
         if (data.error_subcode) {
             message += ': ' + T(data.error_subcode);
@@ -69,33 +77,33 @@ var ModelEdit = React.createClass({
             message += ': ' + data.message;
         }
         return message;
-    },
+    }
 
-    handleChangeBrand: function(e) {
+    handleChangeBrand = (e) => {
         var model = this.state.model;
         model['brand-id'] = e.target.value;
         this.setState({model: model});
-    },
+    }
 
-    handleChangeModel: function(e) {
+    handleChangeModel = (e) => {
         var model = this.state.model;
         model.model = e.target.value;
         this.setState({model: model});
-    },
+    }
 
-    handleChangePrivateKey: function(e) {
+    handleChangePrivateKey = (e) => {
         var model = this.state.model;
         model['keypair-id'] = parseInt(e.target.value, 10);
         this.setState({model: model});
-    },
+    }
 
-    handleChangePrivateKeyUser: function(e) {
+    handleChangePrivateKeyUser = (e) => {
         var model = this.state.model;
         model['keypair-id-user'] = parseInt(e.target.value, 10);
         this.setState({model: model});
-    },
+    }
 
-    handleSaveClick: function(e) {
+    handleSaveClick = (e) => {
         e.preventDefault();
         var self = this;
 
@@ -120,17 +128,17 @@ var ModelEdit = React.createClass({
                 }
             });
         }
-    },
+    }
 
-    renderError: function() {
+    renderError() {
         if (this.state.error) {
             return (
                 <AlertBox message={this.state.error} />
             );
         }
-    },
+    }
 
-    render: function() {
+    render() {
 
         if (!isUserAdmin(this.props.token)) {
             return (
@@ -194,6 +202,6 @@ var ModelEdit = React.createClass({
             </div>
         )
     }
-});
+}
 
 export default ModelEdit;

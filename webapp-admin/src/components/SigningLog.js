@@ -15,7 +15,7 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import SigningLogRow from './SigningLogRow';
 import AlertBox from './AlertBox';
 import SigningLogModel from '../models/signinglog' 
@@ -25,9 +25,11 @@ import {T, isUserAdmin} from './Utils'
 
 const PAGINATION_SIZE = 50;
 
-var SigningLog = React.createClass({
-  getInitialState: function() {
-    return {
+class SigningLog extends Component {
+  constructor(props) {
+
+    super(props)
+    this.state = {
         logs: this.props.logs || [],
         confirmDelete: null,
         message: null,
@@ -39,14 +41,14 @@ var SigningLog = React.createClass({
         startRow: 0,
         endRow: PAGINATION_SIZE,
     };
-  },
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     this.getLogs();
     this.getFilters();
-  },
+  }
 
-  getLogs: function () {
+  getLogs() {
     var self = this;
 
     SigningLogModel.list().then(function(response) {
@@ -58,9 +60,9 @@ var SigningLog = React.createClass({
 
       self.setState({logs: data.logs, message: message});
     });
-  },
+  }
 
-  getFilters: function () {
+  getFilters() {
     var self = this;
 
     SigningLogModel.filters().then(function(response) {
@@ -79,14 +81,14 @@ var SigningLog = React.createClass({
 
       self.setState({makes: makes, models: models, message: message});
     });
-  },
+  }
 
-  handleDelete: function(e) {
+  handleDelete = (e) => {
     e.preventDefault();
     this.setState({confirmDelete: parseInt(e.target.getAttribute('data-key'), 10)});
-  },
+  }
 
-  handleDeleteLog: function(e) {
+  handleDeleteLog = (e) => {
     e.preventDefault();
     var self = this;
     var logs = this.state.logs.filter(function(log) {
@@ -104,38 +106,38 @@ var SigningLog = React.createClass({
         window.location = '/signinglog';
       }
     });
-  },
+  }
 
-  handleDeleteLogCancel: function(e) {
+  handleDeleteLogCancel = (e) => {
     e.preventDefault();
     this.setState({confirmDelete: null});
-  },
+  }
 
-  handleExpansionClick: function(value) {
+  handleExpansionClick = (value) => {
     var expanded = this.state.expanded;
     expanded[value] = !expanded[value]
     this.setState({expanded: expanded})
-  },
+  }
 
-  handleItemClick: function(index, key) {
+  handleItemClick = (index, key) => {
     var items = this.state[key];
     items[index].selected = !items[index].selected;
     this.setState({key: items, startRow: 0, endRow: PAGINATION_SIZE, page: 1});
-  },
+  }
 
-  handleRecordsForPage: function(startRow, endRow) {
+  handleRecordsForPage = (startRow, endRow) => {
     this.setState({startRow: startRow, endRow: endRow});
-  },
+  }
 
-  handleSearchChange: function(e) {
+  handleSearchChange = (e) => {
     this.setState({query: e.target.value});
-  },
+  }
 
-  handleDownload: function() {
+  handleDownload = () => {
     SigningLogModel.download(this.displayRows());
-  },
+  }
 
-  filterRow: function(l, makes, models) {
+  filterRow(l, makes, models) {
 
     // See if it passes the text search test
     if (this.state.query.length > 0) {
@@ -152,9 +154,9 @@ var SigningLog = React.createClass({
     if ((models.length > 0) && (models.indexOf(l.model) < 0)) return false
 
     return true;
-  },
+  }
 
-  selectedFilters: function(name) {
+  selectedFilters(name) {
     var items = [];
     name.map(function(n) {
       if(n.selected) {
@@ -163,9 +165,9 @@ var SigningLog = React.createClass({
       return n.name
     });
     return items;
-  },
+  }
 
-  displayRows: function() {
+  displayRows() {
     var self = this;
     var makes = this.selectedFilters(this.state.makes);
     var models = this.selectedFilters(this.state.models);
@@ -174,9 +176,9 @@ var SigningLog = React.createClass({
       // Check if the row is filtered
       return self.filterRow(l, makes, models);
     })
-  },
+  }
 
-  renderTable: function(items) {
+  renderTable(items) {
 
     if (this.state.logs.length > 0) {
       return (
@@ -198,18 +200,18 @@ var SigningLog = React.createClass({
         <p>No models signed.</p>
       );
     }
-  },
+  }
 
-  renderRows: function(items) {
+  renderRows(items) {
     return items.map((l) => {
       return (
         <SigningLogRow key={l.id} log={l} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
           deleteLog={this.handleDeleteLog} cancelDelete={this.handleDeleteLogCancel} />
       );
     });
-  },
+  }
 
-  render: function() {
+  render() {
 
     if (!isUserAdmin(this.props.token)) {
       return (
@@ -272,6 +274,6 @@ var SigningLog = React.createClass({
 
   }
 
-});
+}
 
 export default SigningLog;

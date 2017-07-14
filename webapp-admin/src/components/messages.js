@@ -91,7 +91,7 @@ var intlData = {
       "new-account-key-assertion": "<Add or Replace Account Key Assertion>",
 
       // Error messages
-      "error-auth": "<You are not authorized to view this page>",
+      "error-auth": "<Unauthorized action>",
       "error-nil-data": "未初始化的POST数据",
       "error-sign-empty": "没有签名提供的数据",
       "error-decode-json": "错误解码JSON",
@@ -198,7 +198,7 @@ var intlData = {
       "new-account-key-assertion": "Add or Replace Account Key Assertion",
 
       // Error messages
-      "error-auth": "You are not authorized to view this page",
+      "error-auth": "Unauthorized action",
       "error-nil-data": "Uninitialized POST data",
       "error-sign-empty": "No data supplied for signing",
       "error-decode-json": "Error decoding JSON",

@@ -19,11 +19,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
+import { createRenderer } from 'react-test-renderer/shallow';
 import SigningLog from '../components/SigningLog';
 import {shallow, mount, render} from 'enzyme';
 
 jest.dontMock('../components/SigningLog');
-jest.dontMock('../components/SigningLogRow');
 jest.dontMock('../components/Navigation');
 jest.dontMock('../components/AlertBox');
 jest.dontMock('../components/SigningLogFilter');
@@ -47,7 +47,7 @@ describe('signing-log list', function() {
         SigningLog.prototype.getFilters = getFilters;
 
         // Shallow render the component
-        var shallowRenderer = ReactTestUtils.createRenderer();
+        var shallowRenderer = createRenderer();
 
         shallowRenderer.render(
             <SigningLog token={token} />
@@ -64,7 +64,7 @@ describe('signing-log list', function() {
     it('displays the signing logs page with some logs', function() {
 
         // Shallow render the component
-        var shallowRenderer = ReactTestUtils.createRenderer();
+        var shallowRenderer = createRenderer();
 
         // Set up a fixture for the model data
         var logs = [
@@ -80,24 +80,12 @@ describe('signing-log list', function() {
         SigningLog.prototype.getFilters = getFilters;
 
         // Render the component
-        shallowRenderer.render(
+        var component = shallow(
             <SigningLog logs={logs} token={token} />
         );
-        var logsPage = shallowRenderer.getRenderOutput();
 
-        var section = logsPage.props.children;
-        expect(section.props.children.length).toBe(4);
-
-        // Check that the logs table is rendered correctly
-        var div = section.props.children[3];
-        var tableDiv = div.props.children[1];
-        var table = tableDiv.props.children[1].props.children;
-        var tbody = table.props.children[1]
-        expect(tbody.props.children.length).toBe(3); // data rows
-        var row1 = tbody.props.children[0];
-
-        expect(row1.type.displayName).toBe('SigningLogRow')
-        expect(row1.props.log).toBe(logs[0])
+        expect(component.find('section')).toHaveLength(1)
+        expect(component.find('SigningLogRow')).toHaveLength(logs.length)
     });
 
     it('displays error with no permissions', function() {

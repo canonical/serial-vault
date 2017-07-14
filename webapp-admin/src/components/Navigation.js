@@ -15,7 +15,7 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import {T, isLoggedIn} from './Utils'
 import {Role} from './Constants'
 
@@ -24,9 +24,9 @@ const linksAdmin = ['models', 'accounts', 'systemuser', 'signinglog'];
 const linksStandard = ['systemuser'];
 
 
-var Navigation = React.createClass({
+class Navigation extends Component {
 
-    renderUser: function(token) {
+    renderUser(token) {
         if (isLoggedIn(token)) {
             // The name is undefined if user authentication is off
             if (token.name) {
@@ -39,9 +39,9 @@ var Navigation = React.createClass({
             <li className="p-navigation__link"><a href="/login" className="p-link--external">{T('login')}</a></li>
             )
         }
-    },
+    }
 
-    renderUserLogout: function(token) {
+    renderUserLogout(token) {
         if (isLoggedIn(token)) {
             // The name is undefined if user authentication is off
             if (token.name) {
@@ -50,9 +50,9 @@ var Navigation = React.createClass({
                 )
             }
         }
-    },
+    }
 
-    render: function() {
+    render() {
 
         var token = this.props.token
         var links;
@@ -88,6 +88,6 @@ var Navigation = React.createClass({
           </ul>
         );
     }
-});
+}
 
 export default Navigation;

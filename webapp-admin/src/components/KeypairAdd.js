@@ -15,39 +15,46 @@
  *
  */
 
-import React from 'react'
+import React, {Component} from 'react'
 import Keypairs from '../models/keypairs'
 import AlertBox from './AlertBox'
 import {T, isUserAdmin} from './Utils';
 
-var KeypairAdd = React.createClass({
-    getInitialState: function() {
-        return {authorityId: null, key: null, error: this.props.error};
-    },
+class KeypairAdd extends Component {
 
-    handleChangeAuthorityId: function(e) {
-        this.setState({authorityId: e.target.value});
-    },
+    constructor(props) {
+        super(props);
 
-    handleChangeKey: function(e) {
-        this.setState({key: e.target.value});
-    },
-
-    handleFileUpload: function(e) {
-        var self = this;
-    var reader = new FileReader();
-    var file = e.target.files[0];
-
-    reader.onload = function(upload) {
-      self.setState({
-        key: upload.target.result.split(',')[1],
-      });
+        this.state = {
+            authorityId: null, 
+            key: null, 
+            error: this.props.error,
+        };
     }
 
-    reader.readAsDataURL(file);
-    },
+    handleChangeAuthorityId = (e) => {
+        this.setState({authorityId: e.target.value});
+    }
 
-    handleSaveClick: function(e) {
+    handleChangeKey = (e) => {
+        this.setState({key: e.target.value});
+    }
+
+    handleFileUpload = (e) => {
+        var self = this;
+        var reader = new FileReader();
+        var file = e.target.files[0];
+
+        reader.onload = function(upload) {
+        self.setState({
+            key: upload.target.result.split(',')[1],
+        });
+        }
+
+        reader.readAsDataURL(file);
+    }
+
+    handleSaveClick = (e) => {
         var self = this;
         e.preventDefault();
 
@@ -59,9 +66,9 @@ var KeypairAdd = React.createClass({
         window.location = '/models';
       }
         });
-    },
+    }
 
-    formatError: function(data) {
+    formatError = (data) => {
         var message = T(data.error_code);
         if (data.error_subcode) {
             message += ': ' + T(data.error_subcode);
@@ -69,9 +76,9 @@ var KeypairAdd = React.createClass({
             message += ': ' + data.message;
         }
         return message;
-    },
+    }
 
-    render: function() {
+    render() {
 
         if (!isUserAdmin(this.props.token)) {
             return (
@@ -112,6 +119,6 @@ var KeypairAdd = React.createClass({
             </div>
         );
     }
-});
+}
 
 export default KeypairAdd;

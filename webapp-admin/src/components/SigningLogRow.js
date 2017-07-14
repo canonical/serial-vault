@@ -15,35 +15,12 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import moment from 'moment';
-import DialogBox from './DialogBox';
-import {T} from './Utils';
 
 
-var SigningLogRow = React.createClass({
-	renderActions: function(msg) {
-
-		if (this.props.log.id !== this.props.confirmDelete) {
-			return (
-				<div>
-					<a href="" onClick={this.props.delete} data-key={this.props.log.id} className="p-button--neutral" title={msg.delete}>
-						<i className="fa fa-trash" data-key={this.props.log.id}></i></a>
-				</div>
-			);
-		} else {
-			return (
-				<DialogBox message={msg.confirmDelete} handleYesClick={this.props.deleteLog} handleCancelClick={this.props.cancelDelete} />
-			);
-		}
-	},
-
-	render: function() {
-		const msg = {
-			delete: T('delete-log'),
-			confirmDelete: T('confirm-log-delete'),
-		}
-
+class SigningLogRow extends Component {
+	render() {
 		return (
 			<tr>
 				<td className="wrap">{this.props.log.make}</td>
@@ -55,6 +32,6 @@ var SigningLogRow = React.createClass({
 			</tr>
 		)
 	}
-});
+}
 
 export default SigningLogRow;

@@ -17,7 +17,7 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import ModelRow from './ModelRow';
 import KeypairList from './KeypairList';
 import AlertBox from './AlertBox';
@@ -25,46 +25,56 @@ import Models from '../models/models';
 import Keypairs from '../models/keypairs';
 import {T, isUserAdmin} from './Utils'
 
-var ModelList = React.createClass({
+class ModelList extends Component {
 
-  getInitialState: function() {
-    return {models: this.props.models || [], keypairs: this.props.keypairs || [], confirmDelete: null, message: null};
-  },
+  constructor(props) {
 
-  componentDidMount: function() {
+    super(props)
+    this.state = {
+      models: this.props.models || [],
+      keypairs: this.props.keypairs || [],
+      confirmDelete: null,
+      message: null,
+    }
+  }
+
+  componentDidMount() {
     this.refresh();
-  },
+  }
 
-  refresh: function() {
+  refresh() {
     this.getModels();
     this.getKeypairs();
-  },
+  }
 
-  getModels: function() {
-    var self = this;
-    Models.list().then(function(response) {
+  handleRefresh = () => {
+    console.log('handleRefresh')
+    this.refresh()
+  }
+
+  getModels() {
+    Models.list().then((response) => {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
         message = data.message;
       }
-      self.setState({models: data.models, message: message});
+      this.setState({models: data.models, message: message});
     });
-  },
+  }
 
-  getKeypairs: function() {
-    var self = this;
-    Keypairs.list().then(function(response) {
+  getKeypairs() {
+    Keypairs.list().then((response) => {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
         message = data.message;
       }
-      self.setState({keypairs: data.keypairs, message: message});
+      this.setState({keypairs: data.keypairs, message: message});
     });
-  },
+  }
 
-  formatError: function(data) {
+  formatError(data) {
     var message = T(data.error_code);
     if (data.error_subcode) {
       message += ': ' + T(data.error_subcode);
@@ -72,40 +82,38 @@ var ModelList = React.createClass({
       message += ': ' + data.message;
     }
     return message;
-  },
+  }
 
-  handleDelete: function(e) {
+  handleDelete = (e) => {
     e.preventDefault();
     this.setState({confirmDelete: parseInt(e.target.getAttribute('data-key'), 10)});
-  },
+  }
 
-  handleDeleteModel: function(e) {
+  handleDeleteModel = (e) => {
     e.preventDefault();
-    var self = this;
-    var models = this.state.models.filter(function(mdl) {
-      return mdl.id === self.state.confirmDelete;
+    var models = this.state.models.filter((mdl) => {
+      return mdl.id === this.state.confirmDelete;
     });
     if (models.length === 0) {
       return;
     }
 
-    Models.delete(models[0]).then(function(response) {
+    Models.delete(models[0]).then((response) => {
       var data = JSON.parse(response.body);
       if ((response.statusCode >= 300) || (!data.success)) {
-        self.setState({message: self.formatError(data)});
+        this.setState({message: this.formatError(data)});
       } else {
         window.location = '/models';
       }
     });
-  },
+  }
 
-  handleDeleteModelCancel: function(e) {
+  handleDeleteModelCancel = (e) => {
     e.preventDefault();
     this.setState({confirmDelete: null});
-  },
+  }
 
-  renderTable: function() {
-    var self = this;
+  renderTable() {
 
     if (this.state.models.length > 0) {
       return (
@@ -117,10 +125,10 @@ var ModelList = React.createClass({
             </tr>
           </thead>
           <tbody>
-            {this.state.models.map(function(mdl) {
+            {this.state.models.map((mdl) => {
               return (
-                <ModelRow key={mdl.id} model={mdl} delete={self.handleDelete} confirmDelete={self.state.confirmDelete}
-                  deleteModel={self.handleDeleteModel} cancelDelete={self.handleDeleteModelCancel} />
+                <ModelRow key={mdl.id} model={mdl} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
+                  deleteModel={this.handleDeleteModel} cancelDelete={this.handleDeleteModelCancel} />
               );
             })}
           </tbody>
@@ -131,9 +139,9 @@ var ModelList = React.createClass({
         <p>No models found.</p>
       );
     }
-  },
+  }
 
-  render: function() {
+  render() {
     if (!isUserAdmin(this.props.token)) {
       return (
         <div className="row">
@@ -175,13 +183,13 @@ var ModelList = React.createClass({
               </div>
             </div>
             <div className="col-12">
-              <KeypairList keypairs={this.state.keypairs} refresh={this.refresh} />
+              <KeypairList keypairs={this.state.keypairs} refresh={this.handleRefresh} />
             </div>
           </section>
 
         </div>
     );
   }
-});
+}
 
 export default ModelList;

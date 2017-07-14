@@ -14,37 +14,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-import React from 'react';
+import React, {Component} from 'react';
 import Vault from '../models/vault';
 import {T} from './Utils';
 
 
-var Footer = React.createClass({
-	getInitialState: function() {
-      return {version: null};
-  },
+class Footer extends Component {
 
-  componentDidMount: function() {
+  constructor(props) {
+      super(props)
+      this.state = {version: null};
+  }
+
+  componentDidMount() {
     this.getVersion();
-  },
+  }
 
-  getVersion: function() {
+  getVersion() {
     var self = this;
     Vault.version().then(function(response) {
       var data = JSON.parse(response.body);
       self.setState({version: data.version});
     });
-  },
+  }
 
-	render: function() {
-		return (
-			<footer className="spacer">
-				<div className="row">
-					<p><small>{T('version')}: {this.state.version}</small></p>
-				</div>
-			</footer>
-		);
-	}
-});
+  render() {
+    return (
+      <footer className="spacer">
+        <div className="row">
+          <p><small>{T('version')}: {this.state.version}</small></p>
+        </div>
+      </footer>
+    );
+  }
+}
 
 export default Footer;

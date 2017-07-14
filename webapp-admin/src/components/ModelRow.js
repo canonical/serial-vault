@@ -15,12 +15,12 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import DialogBox from './DialogBox';
 import {T} from './Utils'
 
-var ModelRow = React.createClass({
-	renderActions: function() {
+class ModelRow extends Component {
+	renderActions() {
 		if (this.props.model.id !== this.props.confirmDelete) {
 			return (
 				<div>
@@ -35,9 +35,9 @@ var ModelRow = React.createClass({
 				<DialogBox message={T('confirm-model-delete')} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} />
 			);
 		}
-	},
+	}
 
-	render: function() {
+	render() {
 		var fingerprint = this.props.model['authority-id'] + '/' + this.props.model['key-id'];
 		var fingerprintUser = this.props.model['authority-id-user'] + '/' + this.props.model['key-id-user'];
 		return (
@@ -53,6 +53,6 @@ var ModelRow = React.createClass({
 			</tr>
 		)
 	}
-});
+}
 
 export default ModelRow;

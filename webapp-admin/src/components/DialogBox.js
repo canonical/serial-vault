@@ -15,31 +15,32 @@
  *
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import {T} from './Utils';
 
-var DialogBox = React.createClass({
-	render: function() {
+class DialogBox extends Component {
 
-		if (this.props.message) {
-			return (
-				<div className="p-card warning">
-					<p>{this.props.message}</p>
-					<div>
-						<a href="" onClick={this.props.handleCancelClick} className="p-button--neutral">
-							{T('cancel')}
-						</a>
-						&nbsp;
-						<a href="" onClick={this.props.handleYesClick} className="p-button--brand">
-							{T('yes')}
-						</a>
-					</div>
-				</div>
-			);
-		} else {
-			return <span />;
-		}
-	}
-});
+    render() {
+
+        if (this.props.message) {
+            return (
+                <div className="p-card warning">
+                    <p>{this.props.message}</p>
+                    <div>
+                        <a href="" onClick={this.props.handleCancelClick} className="p-button--neutral">
+                            {T('cancel')}
+                        </a>
+                        &nbsp;
+                        <a href="" onClick={this.props.handleYesClick} className="p-button--brand">
+                            {T('yes')}
+                        </a>
+                    </div>
+                </div>
+            );
+        } else {
+            return <span />;
+        }
+    }
+}
 
 export default DialogBox;

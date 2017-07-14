@@ -20,6 +20,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {shallow, mount, render} from 'enzyme';
 import ReactTestUtils from 'react-dom/test-utils';
+import { createRenderer } from 'react-test-renderer/shallow';
 import KeypairAdd from '../components/KeypairAdd';
 
 jest.dontMock('../components/KeypairAdd');
@@ -79,7 +80,7 @@ describe('keypair add', function() {
 
     it('displays the alert box on error', function() {
 
-        var shallowRenderer = ReactTestUtils.createRenderer();
+        var shallowRenderer = createRenderer();
 
         // Render the component
         shallowRenderer.render(

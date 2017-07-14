@@ -14,37 +14,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-import React from 'react';
+import React, {Component} from 'react';
 import Keypairs from '../models/keypairs';
 import {T} from './Utils'
 
 
-var KeypairList = React.createClass({
+class KeypairList extends Component {
 
-	handleDeactivate: function(e) {
-		var self = this;
-		Keypairs.disable(e.target.getAttribute('data-key')).then(self.props.refresh);
-	},
+  handleDeactivate = (e) => {
+    Keypairs.disable(e.target.getAttribute('data-key')).then(this.props.refresh);
+  }
 
-	handleActivate: function(e) {
-		var self = this;
-		Keypairs.enable(e.target.getAttribute('data-key')).then(self.props.refresh);
-	},
+  handleActivate = (e) => {
+    Keypairs.enable(e.target.getAttribute('data-key')).then(this.props.refresh);
+  }
 
-	renderRow: function(keypr) {
-		return (
-			<tr key={keypr.ID}>
-				<td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral">{T('activate')}</button>}</td>
-				<td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
-				<td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
-				<td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
-			</tr>
-		);
-	},
+  renderRow(keypr) {
+    return (
+      <tr key={keypr.ID}>
+        <td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral">{T('activate')}</button>}</td>
+        <td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
+        <td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
+        <td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
+      </tr>
+    );
+  }
 
-	render: function() {
-
-    var self = this;
+  render() {
 
     if (this.props.keypairs.length > 0) {
       return (
@@ -55,8 +51,8 @@ var KeypairList = React.createClass({
             </tr>
           </thead>
           <tbody>
-            {this.props.keypairs.map(function(keypr) {
-              return self.renderRow(keypr);
+            {this.props.keypairs.map((keypr) => {
+              return this.renderRow(keypr);
             })}
           </tbody>
         </table>
@@ -66,8 +62,8 @@ var KeypairList = React.createClass({
         <p>{T('no-signing-keys-found')}</p>
       );
     }
-	}
+  }
 
-});
+}
 
 export default KeypairList;

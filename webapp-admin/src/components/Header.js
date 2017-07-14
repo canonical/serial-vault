@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-import React from 'react';
+import React, {Component} from 'react';
 import Navigation from './Navigation'
 import {T} from './Utils';
 
@@ -23,19 +23,23 @@ const LANGUAGES = {
     zh: 'Chinese'
 }
 
-var Header = React.createClass({
-    getInitialState: function() {
-        return {language: window.AppState.getLocale()}
-    },
+class Header extends Component {
 
-    handleLanguageChange: function(e) {
+    constructor(props) {
+        super(props)
+        this.state = {
+            language: window.AppState.getLocale()
+        }
+    }
+
+    handleLanguageChange = (e) => {
         e.preventDefault();
         this.setState({language: e.target.value});
         window.AppState.setLocale(e.target.value);
         window.AppState.rerender();
-    },
+    }
 
-    renderLanguage: function(lang) {
+    renderLanguage(lang) {
         if (this.state.language === lang) {
             return (
                 <button onClick={this.handleLanguageChange} value={lang} className="p-button--neutral">{LANGUAGES[lang]}</button>
@@ -45,39 +49,39 @@ var Header = React.createClass({
                 <button onClick={this.handleLanguageChange} value={lang}>{LANGUAGES[lang]}</button>
             );
         }
-    },
+    }
 
-  render: function() {
+    render() {
 
-    return (
-      <div>
-        <header className="p-navigation--light" role="banner">
-            <div className="row">
-                <div className="p-navigation__logo">
-                        <div className="nav_logo">
-                            <a href="/" className="p-navigation__link">
-                                <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
-                                <span>{T("title")}</span>
-                            </a>
-                        </div>
+        return (
+        <div>
+            <header className="p-navigation--light" role="banner">
+                <div className="row">
+                    <div className="p-navigation__logo">
+                            <div className="nav_logo">
+                                <a href="/" className="p-navigation__link">
+                                    <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
+                                    <span>{T("title")}</span>
+                                </a>
+                            </div>
+                    </div>
+
+                    <nav className="p-navigation__nav">
+                        <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
+                        <Navigation token={this.props.token} />
+                            {/*<form id="language-form" className="header-search">*/}
+                                    {/* Add more languages here */}
+                                    {/* this.renderLanguage('en') */}
+                                    {/* this.renderLanguage('zh') */}
+                            {/*</form>*/}
+
+                    </nav>
                 </div>
+            </header>
 
-                <nav className="p-navigation__nav">
-                    <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
-                    <Navigation token={this.props.token} />
-                        {/*<form id="language-form" className="header-search">*/}
-                                {/* Add more languages here */}
-                                {/* this.renderLanguage('en') */}
-                                {/* this.renderLanguage('zh') */}
-                        {/*</form>*/}
-
-                </nav>
-            </div>
-        </header>
-
-      </div>
-    )
-  }
-});
+        </div>
+        )
+    }
+}
 
 export default Header;

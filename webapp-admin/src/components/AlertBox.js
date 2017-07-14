@@ -15,20 +15,21 @@
  *
  */
 
-var React = require('react');
+import React, {Component} from 'react';
 
-var AlertBox = React.createClass({
-	render: function() {
-		if (this.props.message) {
-			return (
-				<div className="p-notification--negative">
-					<p className="p-notification__response">{this.props.message}</p>
-				</div>
-			);
-		} else {
-			return <span />;
-		}
-	}
-});
+
+class AlertBox extends Component {
+    render() {
+        if (this.props.message) {
+            return (
+                <div className="p-notification--negative">
+                    <p className="p-notification__response">{this.props.message}</p>
+                </div>
+            );
+        } else {
+            return <span />;
+        }
+    }
+}
 
 export default AlertBox;
