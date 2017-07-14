@@ -17,7 +17,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 import Pagination from '../components/Pagination'
 
 // Mock the AppState method for locale
@@ -36,14 +36,14 @@ describe('pagination', function() {
     it('displays the pagination component with no rows', function() {
 
         // Render the component
-        var component = TestUtils.renderIntoDocument(
+        var component = ReactTestUtils.renderIntoDocument(
             <Pagination page={1} displayRows={[]} />
         );
 
-        expect(TestUtils.isCompositeComponent(component)).toBeTruthy();
+        expect(ReactTestUtils.isCompositeComponent(component)).toBeTruthy();
 
         // Just the download button shown
-        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(component, 'button');
+        var buttons = ReactTestUtils.scryRenderedDOMComponentsWithTag(component, 'button');
         expect(buttons.length).toBe(1)
         expect(buttons[0].textContent).toBe('Download')
     })
@@ -51,20 +51,20 @@ describe('pagination', function() {
     it('displays the pagination component with with page count', function() {
 
         // Render the component
-        var component = TestUtils.renderIntoDocument(
+        var component = ReactTestUtils.renderIntoDocument(
             <Pagination page={1} displayRows={generateRows()} />
         );
 
-        expect(TestUtils.isCompositeComponent(component)).toBeTruthy();
+        expect(ReactTestUtils.isCompositeComponent(component)).toBeTruthy();
 
         // Paging buttons shown
-        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(component, 'button');
+        var buttons = ReactTestUtils.scryRenderedDOMComponentsWithTag(component, 'button');
         expect(buttons.length).toBe(3)
         expect(buttons[0].textContent).toBe('«')
         expect(buttons[1].textContent).toBe('»')
         expect(buttons[2].textContent).toBe('Download')
 
-        var span = TestUtils.findRenderedDOMComponentWithTag(component, 'span');
+        var span = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'span');
         expect(span.textContent).toContain('1 of 3')
     })
 

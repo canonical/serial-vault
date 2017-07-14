@@ -80,7 +80,7 @@ var Navigation = React.createClass({
                   }
                   var link = '/' + l;
                   return (
-                    <li className={'p-navigation__link' + active}><a href={link}>{T(l)}</a></li>
+                    <li key={l} className={'p-navigation__link' + active}><a href={link}>{T(l)}</a></li>
                   )
               })}
               {this.renderUser(token)}

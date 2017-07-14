@@ -17,7 +17,7 @@
 
 import React from 'react'
 import {shallow, mount, render} from 'enzyme';
-
+import ReactTestUtils from 'react-dom/test-utils';
 import AccountList from '../components/AccountList'
 
 jest.dontMock('../components/AccountList');

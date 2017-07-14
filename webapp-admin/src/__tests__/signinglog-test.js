@@ -18,7 +18,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 import SigningLog from '../components/SigningLog';
 import {shallow, mount, render} from 'enzyme';
 
@@ -43,11 +43,11 @@ describe('signing-log list', function() {
         // Mock the data retrieval from the API
         var getLogs = jest.genMockFunction();
         var getFilters = jest.genMockFunction();
-        SigningLog.prototype.__reactAutoBindMap.getLogs = getLogs;
-        SigningLog.prototype.__reactAutoBindMap.getFilters = getFilters;
+        SigningLog.prototype.getLogs = getLogs;
+        SigningLog.prototype.getFilters = getFilters;
 
         // Shallow render the component
-        var shallowRenderer = TestUtils.createRenderer();
+        var shallowRenderer = ReactTestUtils.createRenderer();
 
         shallowRenderer.render(
             <SigningLog token={token} />
@@ -64,7 +64,7 @@ describe('signing-log list', function() {
     it('displays the signing logs page with some logs', function() {
 
         // Shallow render the component
-        var shallowRenderer = TestUtils.createRenderer();
+        var shallowRenderer = ReactTestUtils.createRenderer();
 
         // Set up a fixture for the model data
         var logs = [
@@ -76,8 +76,8 @@ describe('signing-log list', function() {
         // Mock the data retrieval from the API
         var getLogs = jest.genMockFunction();
         var getFilters = jest.genMockFunction();
-        SigningLog.prototype.__reactAutoBindMap.getLogs = getLogs;
-        SigningLog.prototype.__reactAutoBindMap.getFilters = getFilters;
+        SigningLog.prototype.getLogs = getLogs;
+        SigningLog.prototype.getFilters = getFilters;
 
         // Render the component
         shallowRenderer.render(

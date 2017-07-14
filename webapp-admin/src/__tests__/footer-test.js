@@ -18,23 +18,22 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
-
+import ReactTestUtils from 'react-dom/test-utils';
+import Footer from '../components/Footer';
 
 jest.dontMock('../components/Footer');
 jest.dontMock('../components/Utils');
 
 describe('footer', function() {
  it('displays the footer', function() {
-	var Footer = require('../components/Footer');
 	var Messages = require('../components/messages').en;
 
 	// Shallow render the component
-	var shallowRenderer = TestUtils.createRenderer();
+	var shallowRenderer = ReactTestUtils.createRenderer();
 
 	// Mock the data retrieval from the API
 	var getVersion = jest.genMockFunction();
-	Footer.prototype.__reactAutoBindMap.getVersion = getVersion;
+	Footer.prototype.getVersion = getVersion;
 	window.AppState = {getLocale: function() {return 'en'}};
 
 	shallowRenderer.render(

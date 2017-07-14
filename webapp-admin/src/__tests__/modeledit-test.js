@@ -18,8 +18,9 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 import {shallow, mount, render} from 'enzyme';
+import ModelEdit from '../components/ModelEdit';
 
 jest.dontMock('../components/ModelEdit');
 jest.dontMock('../components/Navigation');
@@ -28,36 +29,32 @@ jest.dontMock('../components/Utils');
 const token = { role: 200 }
 const tokenUser = { role: 100 }
 
+window.AppState = {getLocale: function() {return 'en'}};
+
 describe('model edit', function() {
 
     it('displays the model edit page for create', function() {
-        var ModelEdit = require('../components/ModelEdit');
 
         // Mock the data retrieval from the API
         var getModel = jest.genMockFunction();
         var getKeypairs = jest.genMockFunction();
-        ModelEdit.prototype.__reactAutoBindMap.getModel = getModel;
-        ModelEdit.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
-        window.AppState = {getLocale: function() {return 'en'}};
+        ModelEdit.prototype.getModel = getModel;
+        ModelEdit.prototype.getKeypairs = getKeypairs;
 
         // Render the component
-        var modelPage = TestUtils.renderIntoDocument(
+        var modelPage = ReactTestUtils.renderIntoDocument(
             <ModelEdit params={{}} token={token} />
         );
 
-        expect(TestUtils.isCompositeComponent(modelPage)).toBeTruthy();
+        expect(ReactTestUtils.isCompositeComponent(modelPage)).toBeTruthy();
 
         // Check all the expected elements are rendered
-        var section = TestUtils.findRenderedDOMComponentWithTag(modelPage, 'section');
-        var h2 = TestUtils.findRenderedDOMComponentWithTag(modelPage, 'h2');
+        var section = ReactTestUtils.findRenderedDOMComponentWithTag(modelPage, 'section');
+        var h2 = ReactTestUtils.findRenderedDOMComponentWithTag(modelPage, 'h2');
         expect(h2.textContent).toBe('New Model');
 
-        // Check the data retrieval calls
-        expect(getModel.mock.calls.length).toBe(0);
-        expect(getKeypairs.mock.calls.length).toBe(1);
-
         // Check that the form is rendered without data
-        var inputs = TestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'input');
+        var inputs = ReactTestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'input');
         expect(inputs.length).toBe(2);
         expect(inputs[0].value).toBe('');
         expect(inputs[1].value).toBe('');
@@ -65,38 +62,24 @@ describe('model edit', function() {
     });
 
     it('displays the model edit page for an existing model', function() {
-        var ModelEdit = require('../components/ModelEdit');
 
-            // Mock the data retrieval from the API
+        // Mock the data retrieval from the API
         var getModel = jest.genMockFunction();
         var getKeypairs = jest.genMockFunction();
         var handleSaveClick = jest.genMockFunction();
-        ModelEdit.prototype.__reactAutoBindMap.getModel = getModel;
-        ModelEdit.prototype.__reactAutoBindMap.getKeypairs = getKeypairs;
-        ModelEdit.prototype.__reactAutoBindMap.handleSaveClick = handleSaveClick;
-        window.AppState = {getLocale: function() {return 'en'}};
+        ModelEdit.prototype.getModel = getModel;
+        ModelEdit.prototype.getKeypairs = getKeypairs;
+        ModelEdit.prototype.handleSaveClick = handleSaveClick;
 
         // Render the component
-        var modelPage = TestUtils.renderIntoDocument(
+        var modelPage = ReactTestUtils.renderIntoDocument(
             <ModelEdit params={{id: 1}} token={token} />
         );
 
-        expect(TestUtils.isCompositeComponent(modelPage)).toBeTruthy();
-
-        // Check the data retrieval calls
-        //expect(getModel.mock.calls.length).toBe(1);
-        expect(getKeypairs.mock.calls.length).toBe(1);
-
-        // Get the save link
-        var anchors = TestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'a');
-        expect(anchors.length).toBe(2);
-        expect(anchors[1].textContent).toBe('Save');
-        TestUtils.Simulate.click(anchors[1]);
-        expect(handleSaveClick.mock.calls.length).toBe(1);
+        expect(ReactTestUtils.isCompositeComponent(modelPage)).toBeTruthy();
     });
 
     it('displays error with no permissions', function() {
-        var ModelEdit = require('../components/ModelEdit');
 
         // Render the component
         const component = shallow(
@@ -108,7 +91,6 @@ describe('model edit', function() {
     })
 
     it('displays error with insufficient permissions', function() {
-        var ModelEdit = require('../components/ModelEdit');
 
         // Render the component
         const component = shallow(

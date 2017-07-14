@@ -17,7 +17,8 @@
 
 import React from 'react';
 import {shallow, mount, render} from 'enzyme';
-import AccountKeyForm from '../components/AccountKeyForm'
+import ReactTestUtils from 'react-dom/test-utils';
+import AccountForm from '../components/AccountForm'
 
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
@@ -25,12 +26,12 @@ window.AppState = {getLocale: function() {return 'en'}};
 const token = { role: 200 }
 const tokenUser = { role: 100 }
 
-describe('account key form', function() {
-    it('displays the new account key form', function() {
+describe('account form', function() {
+    it('displays the new account form', function() {
 
         // Render the component
         const component = shallow(
-            <AccountKeyForm token={token} />
+            <AccountForm token={token} />
         );
 
         expect(component.find('section')).toHaveLength(1)
@@ -41,7 +42,7 @@ describe('account key form', function() {
 
         // Render the component
         const component = shallow(
-            <AccountKeyForm />
+            <AccountForm />
         );
 
         expect(component.find('div')).toHaveLength(1)
@@ -52,7 +53,7 @@ describe('account key form', function() {
 
         // Render the component
         const component = shallow(
-            <AccountKeyForm token={tokenUser} />
+            <AccountForm token={tokenUser} />
         );
 
         expect(component.find('div')).toHaveLength(1)

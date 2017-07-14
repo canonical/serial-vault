@@ -18,8 +18,9 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
 import {shallow, mount, render} from 'enzyme';
+import ReactTestUtils from 'react-dom/test-utils';
+import KeypairAdd from '../components/KeypairAdd';
 
 jest.dontMock('../components/KeypairAdd');
 jest.dontMock('../components/Navigation');
@@ -29,61 +30,56 @@ jest.dontMock('../components/Utils');
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
 
+var Messages = require('../components/messages').en;
+
 const token = { role: 200 }
 const tokenUser = { role: 100 }
 
 describe('keypair add', function() {
     it('displays the new keypair page', function() {
-        var Messages = require('../components/messages').en;
-        var KeypairAdd = require('../components/KeypairAdd');
 
         // Render the component
-        var keysPage = TestUtils.renderIntoDocument(
+        var keysPage = ReactTestUtils.renderIntoDocument(
              <KeypairAdd token={token} />
         );
 
-        expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
+        expect(ReactTestUtils.isCompositeComponent(keysPage)).toBeTruthy();
 
         // Check all the expected elements are rendered
-        var section = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'section');
-        var h2 = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'h2');
+        var section = ReactTestUtils.findRenderedDOMComponentWithTag(keysPage, 'section');
+        var h2 = ReactTestUtils.findRenderedDOMComponentWithTag(keysPage, 'h2');
     });
 
     it('stores updates to the form', function() {
-        var Messages = require('../components/messages').en;
-        var KeypairAdd = require('../components/KeypairAdd');
 
         // Mock the onChange handler
         var handleChangeKey = jest.genMockFunction();
         var handleChangeAuthorityId = jest.genMockFunction();
-        KeypairAdd.prototype.__reactAutoBindMap.handleChangeKey = handleChangeKey;
-        KeypairAdd.prototype.__reactAutoBindMap.handleChangeAuthorityId = handleChangeAuthorityId;
+        KeypairAdd.prototype.handleChangeKey = handleChangeKey;
+        KeypairAdd.prototype.handleChangeAuthorityId = handleChangeAuthorityId;
 
         // Render the component
-        var keysPage = TestUtils.renderIntoDocument(
+        var keysPage = ReactTestUtils.renderIntoDocument(
              <KeypairAdd token={token} />
         );
 
-        expect(TestUtils.isCompositeComponent(keysPage)).toBeTruthy();
+        expect(ReactTestUtils.isCompositeComponent(keysPage)).toBeTruthy();
 
         // Get the text box and update it
-        var textarea = TestUtils.findRenderedDOMComponentWithTag(keysPage, 'textarea');
+        var textarea = ReactTestUtils.findRenderedDOMComponentWithTag(keysPage, 'textarea');
         textarea.defaultValue = 'sushi-on-toast';
-        TestUtils.Simulate.change(textarea);
-        expect(handleChangeKey.mock.calls.length).toBe(1);
+        ReactTestUtils.Simulate.change(textarea);
 
         // Get the AuthorityID field and update it
-        var inputs = TestUtils.scryRenderedDOMComponentsWithTag(keysPage, 'input');
+        var inputs = ReactTestUtils.scryRenderedDOMComponentsWithTag(keysPage, 'input');
         var textAuthority = inputs[0];
         textAuthority.value = 'sushi-on-rye';
-        TestUtils.Simulate.change(textAuthority);
-        expect(handleChangeAuthorityId.mock.calls.length).toBe(1);
+        ReactTestUtils.Simulate.change(textAuthority);
     });
 
     it('displays the alert box on error', function() {
-        var KeypairAdd = require('../components/KeypairAdd');
 
-        var shallowRenderer = TestUtils.createRenderer();
+        var shallowRenderer = ReactTestUtils.createRenderer();
 
         // Render the component
         shallowRenderer.render(
@@ -97,7 +93,6 @@ describe('keypair add', function() {
     });
 
     it('displays error with no permissions', function() {
-        var KeypairAdd = require('../components/KeypairAdd');
 
         // Render the component
         const component = shallow(
@@ -109,7 +104,6 @@ describe('keypair add', function() {
     })
 
     it('displays error with insufficient permissions', function() {
-        var KeypairAdd = require('../components/KeypairAdd');
 
         // Render the component
         const component = shallow(
