@@ -79,7 +79,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	models := []ModelSerialize{}
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatModelsResponse(false, "error-auth", "", "", models, w)
 		return
@@ -110,7 +110,7 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -146,7 +146,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -214,7 +214,7 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -249,7 +249,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return

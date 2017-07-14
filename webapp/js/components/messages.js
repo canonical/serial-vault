@@ -121,7 +121,13 @@ var intlData = {
       "error-validate-signingkey": "<The Signing Key must be selected>",
       "error-validate-userkey": "<The System-User Key must be selected>",
       "error-keypair-store": "<Error storing the signing key>",
-      "error-no-permissions": "<You do not have permissions to access this page>"
+      "error-no-permissions": "<You do not have permissions to access this page>",
+      "error-fetch-users": "抓取用户时出错",
+      "error-invalid-user": "用户ID无效",
+      "error-get-user": "找不到用户",
+      "error-user-data": "没有提供用户数据",
+      "error-creating-user": "创建用户时出错",
+      "error-updating-user": "更新用户时出错"
     },
 
     en: {
@@ -227,7 +233,13 @@ var intlData = {
       "error-validate-signingkey": "The Serial Assertion Key must be selected",
       "error-validate-userkey": "The System-User Assertion Key must be selected",
       "error-keypair-store": "Error storing the signing key",
-      "error-no-permissions": "You do not have permissions to access this page"
+      "error-no-permissions": "You do not have permissions to access this page",
+      "error-fetch-users": "Error fetching the users",
+      "error-invalid-user": "Invalid user ID",
+      "error-get-user": "Cannot find the user",
+      "error-user-data": "No user data supplied",
+      "error-creating-user": "Error creating the user",
+      "error-updating-user": "Error updating the user"
     }
 };
 

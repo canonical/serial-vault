@@ -45,7 +45,7 @@ const createAccountUserLinkTableSQL = `
 const listUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo order by username"
 const getUserSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username=$1"
 const findUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
-const createUserSQL = "insert into userinfo (username, openid_identity, name, email, userrole) values ($1,$2,$3,$4,$5)"
+const createUserSQL = "insert into userinfo (username, openid_identity, name, email, userrole) values ($1,$2,$3,$4,$5) RETURNING id"
 const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, userrole=$5 where username=$6"
 const deleteUserSQL = "delete from userinfo where username=$1"
 
@@ -147,15 +147,15 @@ func (db *DB) GetUser(username string) (User, error) {
 	return user, nil
 }
 
-// CreateUser adds a new record to User database table
-func (db *DB) CreateUser(user User) error {
-	_, err := db.Exec(createUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role)
+// CreateUser adds a new record to User database table, Returns new record identifier if success
+func (db *DB) CreateUser(user User) (int, error) {
+	var createdUserID int
+	err := db.QueryRow(createUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role).Scan(&createdUserID)
 	if err != nil {
 		log.Printf("Error creating user %v: %v\n", user.Username, err)
-		return err
+		return 0, err
 	}
-
-	return nil
+	return createdUserID, nil
 }
 
 // UpdateUser sets user new values for an existing record.

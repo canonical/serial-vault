@@ -48,7 +48,7 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -71,7 +71,7 @@ func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
 		return

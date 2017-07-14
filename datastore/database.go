@@ -70,7 +70,7 @@ type Datastore interface {
 	CreateOpenidNonceTable() error
 	CreateOpenidNonce(nonce OpenidNonce) error
 
-	CreateUser(user User) error
+	CreateUser(user User) (int, error)
 	ListUsers() ([]User, error)
 	FindUsers(query string) ([]User, error)
 	GetUser(username string) (User, error)

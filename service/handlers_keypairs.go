@@ -46,7 +46,7 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatKeypairsResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -72,7 +72,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -150,7 +150,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -184,7 +184,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -215,7 +215,7 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Check the user and role from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
