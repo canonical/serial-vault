@@ -40,7 +40,7 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Superuser)
+	_, err := checkUserPermissions(w, r, datastore.Superuser)
 	if err != nil {
 		formatUsersResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -58,12 +58,12 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	formatUsersResponse(true, "", "", "", users, w)
 }
 
-// UsersCreateHandler is the API method to create or update a user
-func UsersCreateHandler(w http.ResponseWriter, r *http.Request) {
+// UserCreateHandler is the API method to create a user
+func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Superuser)
+	_, err := checkUserPermissions(w, r, datastore.Superuser)
 	if err != nil {
 		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
 		return
@@ -121,7 +121,6 @@ func UsersCreateHandler(w http.ResponseWriter, r *http.Request) {
 	user.ID, err = datastore.Environ.DB.CreateUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
 		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
 		return
 	}
@@ -129,4 +128,16 @@ func UsersCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
 	formatUserResponse(true, "", "", "", user, w)
+}
+
+// UserGetHandler is the API method to retrieve user info
+func UserGetHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+// UserUpdateHandler is the API method to update user info
+func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+// UserDeleteHandler is the API method to delete a user
+func UserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }

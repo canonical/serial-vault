@@ -217,16 +217,19 @@ func validateUsername(username string) error {
 }
 
 func validateUserRole(role int) error {
-	return role == datastore.Standard || role == datastore.Admin || role == datastore.Superuser
+	if role != datastore.Standard && role != datastore.Admin && role != datastore.Superuser {
+		return errors.New("Role is not amongst valid ones")
+	}
+	return nil
 }
 
-func validateSyntax(fieldName, fieldValue, pattern string) error {
-	if len(name) == 0 {
-		return errors.Newf("%v must not be empty", fieldName)
+func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
+	if len(fieldName) == 0 {
+		return fmt.Errorf("%v must not be empty", fieldName)
 	}
 
 	if strings.ToLower(fieldValue) != fieldValue {
-		return errors.New("%v must not contain uppercase characters", fieldName)
+		return fmt.Errorf("%v must not contain uppercase characters", fieldName)
 	}
 
 	if !pattern.MatchString(fieldValue) {

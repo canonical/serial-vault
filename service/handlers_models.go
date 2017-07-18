@@ -200,8 +200,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	errorSubcode, err := datastore.Environ.DB.UpdateModel(model, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := fmt.Sprintf("%v", err)
-		formatModelResponse(false, "error-updating-model", errorSubcode, errorMessage, mdl, w)
+		formatModelResponse(false, "error-updating-model", errorSubcode, err.Error(), mdl, w)
 		return
 	}
 
