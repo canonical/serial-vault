@@ -43,11 +43,11 @@ const createAccountUserLinkTableSQL = `
 `
 
 const listUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo order by username"
-const getUserSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username=$1"
+const getUserSQL = "select id, username, openid_identity, name, email, userrole from userinfo where id=$1"
 const findUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
 const createUserSQL = "insert into userinfo (username, openid_identity, name, email, userrole) values ($1,$2,$3,$4,$5) RETURNING id"
-const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, userrole=$5 where username=$6"
-const deleteUserSQL = "delete from userinfo where username=$1"
+const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, userrole=$5 where id=$6"
+const deleteUserSQL = "delete from userinfo where id=$1"
 
 const listAccountUsersSQL = `
 	select id, username, openid_identity, name, email, userrole
@@ -134,8 +134,21 @@ func (db *DB) FindUsers(query string) ([]User, error) {
 	return users, nil
 }
 
-// GetUser fetches a single user from the database by the username
-func (db *DB) GetUser(username string) (User, error) {
+// GetUser fetches a single user from database
+func (db *DB) GetUser(userID int) (User, error) {
+	user := User{}
+
+	err := db.QueryRow(getUserSQL, userID).Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	if err != nil {
+		log.Printf("Error retrieving user %v: %v\n", userID, err)
+		return user, err
+	}
+
+	return user, nil
+}
+
+// GetUserByUsername fetches a single user from database
+func (db *DB) GetUserByUsername(username string) (User, error) {
 	user := User{}
 
 	err := db.QueryRow(getUserSQL, username).Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
@@ -159,21 +172,21 @@ func (db *DB) CreateUser(user User) (int, error) {
 }
 
 // UpdateUser sets user new values for an existing record.
-func (db *DB) UpdateUser(username string, user User) error {
-	_, err := db.Exec(updateUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role, username)
+func (db *DB) UpdateUser(user User) error {
+	_, err := db.Exec(updateUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role, user.ID)
 	if err != nil {
-		log.Printf("Error updating database user %v: %v\n", username, err)
+		log.Printf("Error updating database user %v: %v\n", user.ID, err)
 		return err
 	}
 
 	return nil
 }
 
-// DeleteUser deletes user matching username param
-func (db *DB) DeleteUser(username string) error {
-	_, err := db.Exec(deleteUserSQL, username)
+// DeleteUser deletes a user
+func (db *DB) DeleteUser(userID int) error {
+	_, err := db.Exec(deleteUserSQL, userID)
 	if err != nil {
-		log.Printf("Error deleting database user %v: %v\n", username, err)
+		log.Printf("Error deleting database user %v: %v\n", userID, err)
 		return err
 	}
 
@@ -225,7 +238,7 @@ func (db *DB) RoleForUser(username string) int {
 		return Admin
 	}
 
-	user, err := db.GetUser(username)
+	user, err := db.GetUserByUsername(username)
 	if err != nil {
 		return 0
 	}

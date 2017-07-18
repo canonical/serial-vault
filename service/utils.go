@@ -224,7 +224,7 @@ func validateUserRole(role int) error {
 }
 
 func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
-	if len(fieldName) == 0 {
+	if len(fieldValue) == 0 {
 		return fmt.Errorf("%v must not be empty", fieldName)
 	}
 

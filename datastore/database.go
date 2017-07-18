@@ -73,9 +73,10 @@ type Datastore interface {
 	CreateUser(user User) (int, error)
 	ListUsers() ([]User, error)
 	FindUsers(query string) ([]User, error)
-	GetUser(username string) (User, error)
-	UpdateUser(username string, user User) error
-	DeleteUser(username string) error
+	GetUser(userID int) (User, error)
+	GetUserByUsername(username string) (User, error)
+	UpdateUser(user User) error
+	DeleteUser(userID int) error
 	CreateUserTable() error
 	CreateAccountUserLinkTable() error
 	CheckUserInAccount(username, authorityID string) bool

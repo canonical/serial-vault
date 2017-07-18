@@ -340,8 +340,8 @@ func (mdb *MockDB) CreateAccountUserLinkTable() error {
 }
 
 // CreateUser mock for create user operation
-func (mdb *MockDB) CreateUser(user User) error {
-	return nil
+func (mdb *MockDB) CreateUser(user User) (int, error) {
+	return 0, nil
 }
 
 // ListUsers mock returning a fixed list of users
@@ -391,8 +391,19 @@ func (mdb *MockDB) FindUsers(query string) ([]User, error) {
 	return returnArray, nil
 }
 
-// GetUser mock returning the user if found by username in a fixed list of users
-func (mdb *MockDB) GetUser(username string) (User, error) {
+// GetUser mock returning the user if found by id in a fixed list of users
+func (mdb *MockDB) GetUser(userID int) (User, error) {
+	users, _ := mdb.ListUsers()
+	for _, u := range users {
+		if u.ID == userID {
+			return u, nil
+		}
+	}
+	return User{}, errors.New("Cannot find the user")
+}
+
+// GetUserByUsername mock returning the user if found by username in a fixed list of users
+func (mdb *MockDB) GetUserByUsername(username string) (User, error) {
 	users, _ := mdb.ListUsers()
 	for _, u := range users {
 		if u.Username == username {
@@ -403,14 +414,14 @@ func (mdb *MockDB) GetUser(username string) (User, error) {
 }
 
 // UpdateUser mock for update user operation. Returns error if user not found in a fixed list of users
-func (mdb *MockDB) UpdateUser(username string, user User) error {
-	_, err := mdb.GetUser(username)
+func (mdb *MockDB) UpdateUser(user User) error {
+	_, err := mdb.GetUser(user.ID)
 	return err
 }
 
 // DeleteUser mock for delete user operation. Returns error if user not found in a fixed list of users
-func (mdb *MockDB) DeleteUser(username string) error {
-	_, err := mdb.GetUser(username)
+func (mdb *MockDB) DeleteUser(userID int) error {
+	_, err := mdb.GetUser(userID)
 	return err
 }
 
@@ -631,8 +642,8 @@ func (mdb *ErrorMockDB) CreateAccountUserLinkTable() error {
 }
 
 // CreateUser error mock for create user operation
-func (mdb *ErrorMockDB) CreateUser(user User) error {
-	return errors.New("Cannot create user")
+func (mdb *ErrorMockDB) CreateUser(user User) (int, error) {
+	return 0, errors.New("Cannot create user")
 }
 
 // ListUsers mock returning an error for list users operation
@@ -646,17 +657,22 @@ func (mdb *ErrorMockDB) FindUsers(query string) ([]User, error) {
 }
 
 // GetUser mock returning an error for get user operation
-func (mdb *ErrorMockDB) GetUser(username string) (User, error) {
+func (mdb *ErrorMockDB) GetUser(userID int) (User, error) {
+	return User{}, errors.New("Cannot get the user")
+}
+
+// GetUserByUsername returns error for get user by username operation
+func (mdb *ErrorMockDB) GetUserByUsername(username string) (User, error) {
 	return User{}, errors.New("Cannot get the user")
 }
 
 // UpdateUser mock returning an error for update user operation
-func (mdb *ErrorMockDB) UpdateUser(username string, user User) error {
+func (mdb *ErrorMockDB) UpdateUser(user User) error {
 	return errors.New("Cannot update the user")
 }
 
 // DeleteUser mock returning an error for delete user operation
-func (mdb *ErrorMockDB) DeleteUser(username string) error {
+func (mdb *ErrorMockDB) DeleteUser(userID int) error {
 	return errors.New("Cannot delete the user")
 }
 
