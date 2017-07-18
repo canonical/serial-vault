@@ -43,6 +43,12 @@ func (s *ServiceSuite) TestUsersHandlerWithError(c *check.C) {
 	s.sendRequestRepliesUsersListError("GET", "/v1/users", nil, c)
 }
 
+func (s *ServiceSuite) TestUsersHandlerWithoutPermissions(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	s.sendRequestWithoutPermissions("GET", "/v1/users", nil, c)
+}
+
 func (s *ServiceSuite) TestGetUserHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
@@ -58,6 +64,12 @@ func (s *ServiceSuite) TestGetUserHandlerWithError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
 	s.sendRequestRepliesUserError("GET", "/v1/users/2", nil, c)
+}
+
+func (s *ServiceSuite) TestGetUserHandlerWithoutPermissions(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	s.sendRequestWithoutPermissions("GET", "/v1/users/2", nil, c)
 }
 
 func (s *ServiceSuite) TestCreateUserHandler(c *check.C) {
@@ -89,6 +101,20 @@ func (s *ServiceSuite) TestCreateUserHandlerWithError(c *check.C) {
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
 	s.sendRequestRepliesUserError("POST", "/v1/users", bytes.NewReader(data), c)
+}
+
+func (s *ServiceSuite) TestCreateUserHandlerWithoutPermissions(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	user := UserRequest{
+		Username: "theusername",
+		Name:     "The Name",
+		Email:    "theemail@mydb.com",
+		Role:     datastore.Standard,
+	}
+	data, err := json.Marshal(user)
+	c.Assert(err, check.IsNil)
+	s.sendRequestWithoutPermissions("POST", "/v1/users", bytes.NewReader(data), c)
 }
 
 func (s *ServiceSuite) TestUpdateUserHandler(c *check.C) {
@@ -125,6 +151,20 @@ func (s *ServiceSuite) TestUpdateUserHandlerWithError(c *check.C) {
 	s.sendRequestRepliesUserError("PUT", "/v1/users/2", bytes.NewReader(data), c)
 }
 
+func (s *ServiceSuite) TestUpdateUserHandlerWithoutPermissions(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	user := UserRequest{
+		Username: "theusername",
+		Name:     "The Name",
+		Email:    "theemail@mydb.com",
+		Role:     datastore.Standard,
+	}
+	data, err := json.Marshal(user)
+	c.Assert(err, check.IsNil)
+	s.sendRequestWithoutPermissions("PUT", "/v1/users/2", bytes.NewReader(data), c)
+}
+
 func (s *ServiceSuite) TestDeleteUserHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
@@ -135,6 +175,12 @@ func (s *ServiceSuite) TestDeleteUserHandlerWithError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
 	s.sendRequestRepliesUserError("DELETE", "/v1/users/2", nil, c)
+}
+
+func (s *ServiceSuite) TestDeleteUserHandlerWithoutPermissions(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	s.sendRequestWithoutPermissions("DELETE", "/v1/users/2", nil, c)
 }
 
 func (s *ServiceSuite) createSuperuserJWT(r *http.Request, c *check.C) {
@@ -191,6 +237,17 @@ func (s *ServiceSuite) sendRequestRepliesUsersListError(method, url string, data
 	body := s.sendRequest(method, url, data, c)
 	result := UsersResponse{}
 	err := json.NewDecoder(body).Decode(&result)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, false)
+}
+
+func (s *ServiceSuite) sendRequestWithoutPermissions(method, url string, data io.Reader, c *check.C) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	AdminRouter().ServeHTTP(w, r)
+
+	result := UserResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
 	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)
 }
