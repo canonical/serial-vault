@@ -253,7 +253,7 @@ func checkUserPermissions(w http.ResponseWriter, r *http.Request, minimumAuthori
 	if !datastore.Environ.Config.EnableUserAuth {
 		// Superuser permissions don't allow turned off authentication
 		if minimumAuthorizedRole == datastore.Superuser {
-			return "", errors.New("The user is not authorized")
+			return "", errors.New("A The user is not authorized")
 		}
 		return "", nil
 	}

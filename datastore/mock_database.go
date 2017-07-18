@@ -326,7 +326,8 @@ func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
 
 // RoleForUser fetches the user's permissions
 func (mdb *MockDB) RoleForUser(username string) int {
-	return Admin
+	user, _ := mdb.GetUserByUsername(username)
+	return user.Role
 }
 
 // CreateUserTable mock for creating database User table operation
@@ -341,7 +342,7 @@ func (mdb *MockDB) CreateAccountUserLinkTable() error {
 
 // CreateUser mock for create user operation
 func (mdb *MockDB) CreateUser(user User) (int, error) {
-	return 0, nil
+	return 740, nil
 }
 
 // ListUsers mock returning a fixed list of users
@@ -360,20 +361,27 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcysrrtt",
 		Name:           "Nancy Reagan",
 		Email:          "nancy.reagan@usa.gov",
-		Role:           Admin})
+		Role:           Standard})
 	users = append(users, User{
 		ID:             3,
 		Username:       "sv",
 		OpenIDIdentity: "https://login.ubuntu.com/+id/Stfnvlter",
 		Name:           "Steven Vault",
 		Email:          "sv@example.com",
-		Role:           Standard})
+		Role:           Admin})
 	users = append(users, User{
 		ID:             4,
 		Username:       "a",
 		OpenIDIdentity: "https://login.ubuntu.com/+id/AAAAAA",
 		Name:           "A",
 		Email:          "a@example.com",
+		Role:           Standard})
+	users = append(users, User{
+		ID:             5,
+		Username:       "root",
+		OpenIDIdentity: "https://login.ubuntu.com/+id/Soperrtma",
+		Name:           "Root User",
+		Email:          "the_root_user@thisdb.com",
 		Role:           Superuser})
 	return users, nil
 }
@@ -628,6 +636,10 @@ func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
 
 // RoleForUser fetches the user's permissions
 func (mdb *ErrorMockDB) RoleForUser(username string) int {
+	// in case username is 'root' return a valid value, as that is used for auth
+	if username == "root" {
+		return Superuser
+	}
 	return 0
 }
 
