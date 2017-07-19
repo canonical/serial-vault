@@ -75,6 +75,9 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler))).Methods("GET")
 	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsUpsertHandler))).Methods("POST")
 
+	// API routes: system-user assertion
+	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
+
 	// API routes: users management
 	router.Handle("/v1/users", Middleware(http.HandlerFunc(UsersHandler))).Methods("GET")
 	router.Handle("/v1/users", Middleware(http.HandlerFunc(UserCreateHandler))).Methods("POST")
@@ -94,6 +97,7 @@ func AdminRouter() *mux.Router {
 	router.PathPrefix("/keypairs").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/systemuser").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/notfound").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler))).Methods("GET")
 

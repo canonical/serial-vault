@@ -1,0 +1,166 @@
+/*
+ * Copyright (C) 2017-2018 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+// Main theme changes
+$color-brand: #E95420;
+$color-link: #E95420;
+
+$button-text-color: #fff;
+
+@import 'node_modules/vanilla-framework/scss/build';
+
+
+// Customise theme
+
+
+.p-button--brand {
+    color: $button-text-color;
+
+    &:visited {
+        color: $button-text-color;
+    }
+}
+
+div.alert {
+	color: $color-negative;
+	border-color: $color-negative;
+}
+
+div.warning {
+	border-color: $color-warning;
+}
+
+i.warning {
+    color: $color-warning;
+}
+
+footer {
+    border-top: 1px solid $color-mid-light;
+}
+
+footer div {
+	padding-left: 10px;
+}
+
+.button--primary.small, .button--secondary.small {
+	padding: 0px 5px !important;
+	width: auto;
+}
+
+table {
+	table-layout: fixed;
+}
+
+table th.small {
+	width: 10%;
+}
+
+table td.wrap {
+	word-wrap: break-word;
+}
+
+table td.overflow {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+// Filter box
+.filter {
+    padding: 0.5em 5px;
+}
+
+.filter h4 {
+    font-weight: bold;
+    color: $color-mid-dark;
+}
+
+.filter-section {
+    border-bottom: 1px dotted $color-mid-light;
+    padding: 5px 0;
+}
+
+div.filter-section:last-of-type {
+    border: None;
+}
+
+.filter-section h5 {
+    padding-bottom: 5px;
+    font-weight: normal;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: right top;
+    color: $color-mid-dark;
+    opacity: 0.8;
+}
+
+.filter-section h5.expanded {
+    background-image: url(../images/chevron-up.png);
+}
+.filter-section h5.collapsed {
+    background-image: url(../images/chevron-down.png);
+}
+
+.filter-section li {
+    width: 100%;
+    list-style: none;
+    line-height: 1em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.filter-section li span.checked {
+    background-repeat: no-repeat;
+    background-image: url(../images/checkbox_checked_16.png);
+    height: 20px;
+    display: inline-block; 
+    vertical-align: middle;
+    position:relative;
+    padding-left: 20px;
+}
+.filter-section li span.unchecked {
+    background-repeat: no-repeat;
+    background-image: url(../images/checkbox_unchecked_16.png);
+    height: 20px;
+    display: inline-block; 
+    vertical-align: middle;
+    position:relative;
+    padding-left: 20px;
+}
+
+.p-card .label {
+    font-weight: bold;
+    color: $color-mid-dark;
+}
+
+.spacer {
+    margin-top: 1em;
+}
+
+.code {
+    height: 200px;
+    overflow-y: scroll;
+}
+
+// Date picker fixes
+.react-datepicker__day, .react-datepicker__day-name {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.react-datepicker__week, .react-datepicker__day-names, .react-datepicker__navigation,
+.react-datepicker__header__dropdown, .react-datepicker__month-container {
+    margin-top: 0;
+}

@@ -129,7 +129,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check that the user has permissions for the authority-id
 	if !datastore.Environ.DB.CheckUserInAccount(username, assertion.AuthorityID()) {
-		formatBooleanResponse(false, "error-auth", "", "", w)
+		formatBooleanResponse(false, "error-auth", "", "You do not have permissions for that authority", w)
 		return
 	}
 
