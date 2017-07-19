@@ -13,19 +13,21 @@ import (
 
 // UserRequest is the JSON version of the request to create a user
 type UserRequest struct {
-	Username string `json:"username"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Role     int    `json:"role"`
+	Username string   `json:"username"`
+	Name     string   `json:"name"`
+	Email    string   `json:"email"`
+	Role     int      `json:"role"`
+	Accounts []string `json:"accounts"`
 }
 
 // UserResponse is the response from a user creation/update
 type UserResponse struct {
-	Success      bool           `json:"success"`
-	ErrorCode    string         `json:"error_code"`
-	ErrorSubcode string         `json:"error_subcode"`
-	ErrorMessage string         `json:"message"`
-	User         datastore.User `json:"user"`
+	Success      bool                `json:"success"`
+	ErrorCode    string              `json:"error_code"`
+	ErrorSubcode string              `json:"error_subcode"`
+	ErrorMessage string              `json:"message"`
+	User         datastore.User      `json:"user"`
+	Accounts     []datastore.Account `json:"accounts"`
 }
 
 // UsersResponse is the response from a user list request

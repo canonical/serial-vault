@@ -123,3 +123,22 @@ func OpenSysDatabase(driver, dataSource string) {
 	Environ.DB = &DB{db}
 	OpenidNonceStore.DB = &DB{db}
 }
+
+func (db *DB) transaction(txFunc func(*sql.Tx) error) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p) // re-throw panic after Rollback
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+	err = txFunc(tx)
+	return err
+}
