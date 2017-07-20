@@ -52,12 +52,29 @@ func (s *ServiceSuite) TestUsersHandlerWithoutPermissions(c *check.C) {
 func (s *ServiceSuite) TestGetUserHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
+	result := s.sendRequestRepliesUser("GET", "/v1/users/4", nil, c)
+	c.Assert(result.User.ID, check.Equals, 4)
+	c.Assert(result.User.Username, check.Equals, "a")
+	c.Assert(result.User.Name, check.Equals, "A")
+	c.Assert(result.User.OpenIDIdentity, check.Equals, "https://login.ubuntu.com/+id/AAAAAA")
+	c.Assert(result.User.Email, check.Equals, "a@example.com")
+	c.Assert(result.User.Role, check.Equals, datastore.Standard)
+	c.Assert(len(result.User.Accounts), check.Equals, 0)
+}
+
+func (s *ServiceSuite) TestGetUserHandlerWithAccount(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
 	result := s.sendRequestRepliesUser("GET", "/v1/users/2", nil, c)
 	c.Assert(result.User.ID, check.Equals, 2)
 	c.Assert(result.User.Username, check.Equals, "user2")
 	c.Assert(result.User.Name, check.Equals, "Nancy Reagan")
 	c.Assert(result.User.Email, check.Equals, "nancy.reagan@usa.gov")
 	c.Assert(result.User.Role, check.Equals, datastore.Standard)
+	c.Assert(len(result.User.Accounts), check.Equals, 1)
+	c.Assert(result.User.Accounts[0].ID, check.Equals, 2)
+	c.Assert(result.User.Accounts[0].AuthorityID, check.Equals, "authority2")
+	c.Assert(result.User.Accounts[0].Assertion, check.Equals, "assertioncontent2")
 }
 
 func (s *ServiceSuite) TestGetUserHandlerWithError(c *check.C) {
@@ -89,6 +106,42 @@ func (s *ServiceSuite) TestCreateUserHandler(c *check.C) {
 	c.Assert(result.User.Username, check.Equals, "theusername")
 }
 
+func (s *ServiceSuite) TestCreateUserHandlerWithOneAccount(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	user := UserRequest{
+		Username: "theusername",
+		Name:     "The Name",
+		Email:    "theemail@mydb.com",
+		Role:     datastore.Standard,
+		Accounts: []string{"theauthorityid1"},
+	}
+	data, err := json.Marshal(user)
+	c.Assert(err, check.IsNil)
+
+	result := s.sendRequestRepliesUser("POST", "/v1/users", bytes.NewReader(data), c)
+	c.Assert(result.User.ID, check.Equals, 740)
+	c.Assert(result.User.Username, check.Equals, "theusername")
+}
+
+func (s *ServiceSuite) TestCreateUserHandlerWithAccounts(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	user := UserRequest{
+		Username: "theusername",
+		Name:     "The Name",
+		Email:    "theemail@mydb.com",
+		Role:     datastore.Standard,
+		Accounts: []string{"theauthorityid1", "theauthorityid2"},
+	}
+	data, err := json.Marshal(user)
+	c.Assert(err, check.IsNil)
+
+	result := s.sendRequestRepliesUser("POST", "/v1/users", bytes.NewReader(data), c)
+	c.Assert(result.User.ID, check.Equals, 740)
+	c.Assert(result.User.Username, check.Equals, "theusername")
+}
+
 func (s *ServiceSuite) TestCreateUserHandlerWithError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
@@ -97,6 +150,7 @@ func (s *ServiceSuite) TestCreateUserHandlerWithError(c *check.C) {
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -111,6 +165,7 @@ func (s *ServiceSuite) TestCreateUserHandlerWithoutPermissions(c *check.C) {
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -125,6 +180,48 @@ func (s *ServiceSuite) TestUpdateUserHandler(c *check.C) {
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
+	}
+	data, err := json.Marshal(user)
+	c.Assert(err, check.IsNil)
+
+	result := s.sendRequestRepliesUser("PUT", "/v1/users/2", bytes.NewReader(data), c)
+	c.Assert(result.User.ID, check.Equals, 2)
+	c.Assert(result.User.Username, check.Equals, "theusername")
+	c.Assert(result.User.Name, check.Equals, "The Name")
+	c.Assert(result.User.Email, check.Equals, "theemail@mydb.com")
+	c.Assert(result.User.Role, check.Equals, datastore.Standard)
+}
+
+func (s *ServiceSuite) TestUpdateUserHandlerWithAccount(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	user := UserRequest{
+		Username: "theusername",
+		Name:     "The Name",
+		Email:    "theemail@mydb.com",
+		Role:     datastore.Standard,
+		Accounts: []string{"theauthorityid1"},
+	}
+	data, err := json.Marshal(user)
+	c.Assert(err, check.IsNil)
+
+	result := s.sendRequestRepliesUser("PUT", "/v1/users/2", bytes.NewReader(data), c)
+	c.Assert(result.User.ID, check.Equals, 2)
+	c.Assert(result.User.Username, check.Equals, "theusername")
+	c.Assert(result.User.Name, check.Equals, "The Name")
+	c.Assert(result.User.Email, check.Equals, "theemail@mydb.com")
+	c.Assert(result.User.Role, check.Equals, datastore.Standard)
+}
+
+func (s *ServiceSuite) TestUpdateUserHandlerWithAccounts(c *check.C) {
+	datastore.Environ.DB = &datastore.MockDB{}
+
+	user := UserRequest{
+		Username: "theusername",
+		Name:     "The Name",
+		Email:    "theemail@mydb.com",
+		Role:     datastore.Standard,
+		Accounts: []string{"theauthorityid1", "theauthorityid2"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)

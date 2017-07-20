@@ -22,12 +22,11 @@ type UserRequest struct {
 
 // UserResponse is the response from a user creation/update
 type UserResponse struct {
-	Success      bool                `json:"success"`
-	ErrorCode    string              `json:"error_code"`
-	ErrorSubcode string              `json:"error_subcode"`
-	ErrorMessage string              `json:"message"`
-	User         datastore.User      `json:"user"`
-	Accounts     []datastore.Account `json:"accounts"`
+	Success      bool           `json:"success"`
+	ErrorCode    string         `json:"error_code"`
+	ErrorSubcode string         `json:"error_subcode"`
+	ErrorMessage string         `json:"message"`
+	User         datastore.User `json:"user"`
 }
 
 // UsersResponse is the response from a user list request
