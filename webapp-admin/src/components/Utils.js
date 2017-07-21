@@ -20,7 +20,7 @@ import Ajax from '../models/Ajax'
 import {Role} from './Constants'
 
 
-const sections = ['models', 'keypairs', 'accounts', 'signinglog', 'systemuser', 'notfound']
+const sections = ['models', 'keypairs', 'accounts', 'signinglog', 'systemuser', 'users', 'notfound']
 
 
 export function sectionFromPath(path) {

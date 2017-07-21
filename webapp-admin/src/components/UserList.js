@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -18,21 +18,17 @@
  */
 
 import React, {Component} from 'react';
-import ModelRow from './ModelRow';
-import KeypairList from './KeypairList';
+import UserRow from './UserRow';
 import AlertBox from './AlertBox';
-import Models from '../models/models';
-import Keypairs from '../models/keypairs';
-import {T, isUserAdmin} from './Utils'
+import Users from '../models/users';
+import {T, isUserSuperuser} from './Utils'
 
-class ModelList extends Component {
+class UserList extends Component {
 
   constructor(props) {
-
     super(props)
     this.state = {
-      models: this.props.models || [],
-      keypairs: this.props.keypairs || [],
+      users: this.props.users || [],
       confirmDelete: null,
       message: null,
     }
@@ -43,36 +39,24 @@ class ModelList extends Component {
   }
 
   refresh() {
-    this.getModels();
-    this.getKeypairs();
+    this.getUsers();
   }
 
   handleRefresh = () => {
-    console.log('handleRefresh')
     this.refresh()
   }
 
-  getModels() {
-    Models.list().then((response) => {
-      //TODO TRACE
-      console.log("MODELS:"+response.body)
-      var data = JSON.parse(response.body);
-      var message = "";
-      if (!data.success) {
-        message = data.message;
-      }
-      this.setState({models: data.models, message: message});
-    });
-  }
+  getUsers() {
+    Users.list().then((response) => {
+       //TODO TRACE
+      console.log("USERS:"+response.body)
 
-  getKeypairs() {
-    Keypairs.list().then((response) => {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
         message = data.message;
       }
-      this.setState({keypairs: data.keypairs, message: message});
+      this.setState({users: data.users, message: message});
     });
   }
 
@@ -91,46 +75,46 @@ class ModelList extends Component {
     this.setState({confirmDelete: parseInt(e.target.getAttribute('data-key'), 10)});
   }
 
-  handleDeleteModel = (e) => {
+  handleDeleteUser = (e) => {
     e.preventDefault();
-    var models = this.state.models.filter((mdl) => {
-      return mdl.id === this.state.confirmDelete;
+    var users = this.state.users.filter((user) => {
+      return user.id === this.state.confirmDelete;
     });
-    if (models.length === 0) {
+    if (users.length === 0) {
       return;
     }
 
-    Models.delete(models[0]).then((response) => {
+    Users.delete(users[0]).then((response) => {
       var data = JSON.parse(response.body);
       if ((response.statusCode >= 300) || (!data.success)) {
         this.setState({message: this.formatError(data)});
       } else {
-        window.location = '/models';
+        window.location = '/users';
       }
     });
   }
 
-  handleDeleteModelCancel = (e) => {
+  handleDeleteUserCancel = (e) => {
     e.preventDefault();
     this.setState({confirmDelete: null});
   }
 
   renderTable() {
 
-    if (this.state.models.length > 0) {
+    if (this.state.users.length > 0) {
       return (
         <table>
           <thead>
             <tr>
-              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('private-key-short')}</th><th>{T('private-key-user-short')}</th>
+              <th></th><th>{T('username')}</th><th>{T('name')}</th><th>{T('email')}</th><th>{T('role')}</th>
               <th className="small">{T('active')}</th>
             </tr>
           </thead>
           <tbody>
-            {this.state.models.map((mdl) => {
+            {this.state.users.map((user) => {
               return (
-                <ModelRow key={mdl.id} model={mdl} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
-                  deleteModel={this.handleDeleteModel} cancelDelete={this.handleDeleteModelCancel} />
+                <UserRow key={user.id} user={user} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
+                  deleteUser={this.handleDeleteUser} cancelDelete={this.handleDeleteUserCancel} />
               );
             })}
           </tbody>
@@ -138,13 +122,13 @@ class ModelList extends Component {
       );
     } else {
       return (
-        <p>No models found.</p>
+        <p>No users found.</p>
       );
     }
   }
 
   render() {
-    if (!isUserAdmin(this.props.token)) {
+    if (!isUserSuperuser(this.props.token)) {
       return (
         <div className="row">
           <AlertBox message={T('error-no-permissions')} />
@@ -157,14 +141,14 @@ class ModelList extends Component {
 
           <section className="row">
             <div className="u-equal-height">
-              <h2 className="col-3">{T('models')}</h2>
+              <h2 className="col-3">{T('users')}</h2>
               &nbsp;
-              <div className="col-1"><a href="/models/new" className="p-button--brand" title={T('add-new-model')}>
+              <div className="col-1"><a href="/users/new" className="p-button--brand" title={T('add-new-user')}>
                 <i className="fa fa-plus"></i>
               </a></div>
             </div>
             <div className="col-12">
-              <p>{T('models_available')}:</p>
+              <p>{T('users_available')}:</p>
             </div>
             <div className="col-12">
               <AlertBox message={this.state.message} />
@@ -174,24 +158,9 @@ class ModelList extends Component {
             </div>
           </section>
 
-          <section className="row">
-            <div className="u-equal-height spacer">
-              <h2 className="col-3">{T('signing-keys')}</h2>
-              &nbsp;
-              <div className="col-1">
-                <a href="/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
-                  <i className="fa fa-plus"></i>
-                </a>
-              </div>
-            </div>
-            <div className="col-12">
-              <KeypairList keypairs={this.state.keypairs} refresh={this.handleRefresh} />
-            </div>
-          </section>
-
         </div>
     );
   }
 }
 
-export default ModelList;
+export default UserList;
