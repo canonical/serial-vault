@@ -121,6 +121,25 @@ export function isUserSuperuser(token) {
     return isUser(Role.Superuser, token)
 }
 
+export function roleAsString(role) {
+    var str
+    switch (role) {
+        case Role.Standard:
+            str = "Standard"	
+            break;
+        case Role.Admin:
+            str = "Admin"
+            break;
+        case Role.Superuser:
+            str = "Superuser"
+            break
+        default:
+            str= "invalid role"
+            break;
+    }
+    return str
+}
+
 function isUser(role, token) {
     if (!token) return false
     if (!token.role) return false

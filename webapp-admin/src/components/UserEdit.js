@@ -23,7 +23,6 @@ import {T, isUserSuperuser} from './Utils';
 class UserEdit extends Component {
 
     constructor(props) {
-
         super(props)
         this.state = {
             title: null,

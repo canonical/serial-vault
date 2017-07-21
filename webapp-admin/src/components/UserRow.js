@@ -17,17 +17,17 @@
 
 import React, {Component} from 'react';
 import DialogBox from './DialogBox';
-import {T} from './Utils'
+import {T, roleAsString} from './Utils'
 
 class UserRow extends Component {
 	renderActions() {
-		if (this.props.user.id !== this.props.confirmDelete) {
+		if (this.props.user.ID !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href={'/users/'.concat(this.props.user.id, '/edit')} className="p-button--brand" title={T('edit-user')}><i className="fa fa-pencil"></i></a>
+					<a href={'/users/'.concat(this.props.user.ID, '/edit')} className="p-button--brand" title={T('edit-user')}><i className="fa fa-pencil"></i></a>
 					&nbsp;
-					<a href="" onClick={this.props.delete} data-key={this.props.user.id} className="p-button--neutral" title={T('delete-user')}>
-						<i className="fa fa-trash" data-key={this.props.user.id}></i></a>
+					<a href="" onClick={this.props.delete} data-key={this.props.user.ID} className="p-button--neutral" title={T('delete-user')}>
+						<i className="fa fa-trash" data-key={this.props.user.ID}></i></a>
 				</div>
 			);
 		} else {
@@ -43,10 +43,10 @@ class UserRow extends Component {
 				<td>
 					{this.renderActions()}
 				</td>
-				<td className="overflow" title={this.props.user['username']}>{this.props.user['username']}</td>
-				<td className="overflow" title={this.props.user['name']}>{this.props.user['name']}</td>
-				<td className="overflow" title={this.props.user['username']}>{this.props.user['email']}</td>
-				<td className="overflow" title={this.props.user['role']}>{this.props.user['role']}</td>
+				<td className="overflow" title={this.props.user.Username}>{this.props.user.Username}</td>
+				<td className="overflow" title={this.props.user.Name}>{this.props.user.Name}</td>
+				<td className="overflow" title={this.props.user.Email}>{this.props.user.Email}</td>
+				<td className="overflow" title={roleAsString(this.props.user.Role)}>{roleAsString(this.props.user.Role)}</td>
 			</tr>
 		)
 	}

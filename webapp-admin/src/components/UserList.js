@@ -48,9 +48,6 @@ class UserList extends Component {
 
   getUsers() {
     Users.list().then((response) => {
-       //TODO TRACE
-      console.log("USERS:"+response.body)
-
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
@@ -107,13 +104,12 @@ class UserList extends Component {
           <thead>
             <tr>
               <th></th><th>{T('username')}</th><th>{T('name')}</th><th>{T('email')}</th><th>{T('role')}</th>
-              <th className="small">{T('active')}</th>
             </tr>
           </thead>
           <tbody>
             {this.state.users.map((user) => {
               return (
-                <UserRow key={user.id} user={user} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
+                <UserRow key={user.ID} user={user} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
                   deleteUser={this.handleDeleteUser} cancelDelete={this.handleDeleteUserCancel} />
               );
             })}
