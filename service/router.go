@@ -98,6 +98,7 @@ func AdminRouter() *mux.Router {
 	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/systemuser").Handler(Middleware(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/users").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/notfound").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler))).Methods("GET")
 
