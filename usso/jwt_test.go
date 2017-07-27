@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/juju/usso/openid"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type testJWT struct {
@@ -72,21 +73,22 @@ func expectedToken(t *testing.T, jwtToken string, resp *openid.Response, usernam
 	if err != nil {
 		t.Errorf("Error validating JWT: %v", err)
 	}
-
-	if token.Claims[ClaimsIdentity] != resp.ID {
-		t.Errorf("JWT ID does not match: %v", token.Claims[ClaimsIdentity])
+	
+	claims := token.Claims.(jwt.MapClaims)
+	if claims[ClaimsIdentity] != resp.ID {
+		t.Errorf("JWT ID does not match: %v", claims[ClaimsIdentity])
 	}
-	if token.Claims[ClaimsUsername] != username {
-		t.Errorf("JWT username does not match: %v", token.Claims[ClaimsUsername])
+	if claims[ClaimsUsername] != username {
+		t.Errorf("JWT username does not match: %v", claims[ClaimsUsername])
 	}
-	if token.Claims[ClaimsEmail] != email {
-		t.Errorf("JWT email does not match: %v", token.Claims[ClaimsEmail])
+	if claims[ClaimsEmail] != email {
+		t.Errorf("JWT email does not match: %v", claims[ClaimsEmail])
 	}
-	if token.Claims[ClaimsName] != name {
-		t.Errorf("JWT name does not match: %v", token.Claims[ClaimsName])
+	if claims[ClaimsName] != name {
+		t.Errorf("JWT name does not match: %v", claims[ClaimsName])
 	}
-	if int(token.Claims[ClaimsRole].(float64)) != role {
-		t.Errorf("JWT role does not match: expected %v but got %v", role, token.Claims[ClaimsRole])
+	if int(claims[ClaimsRole].(float64)) != role {
+		t.Errorf("JWT role does not match: expected %v but got %v", role, claims[ClaimsRole])
 	}
 }
 
