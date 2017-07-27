@@ -31,6 +31,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/snapcore/snapd/asserts"
+	"github.com/dgrijalva/jwt-go"
 )
 
 // DeviceAssertion defines the device identity.
@@ -217,7 +218,8 @@ func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error
 	}
 
 	// Get the user from the token
-	username := token.Claims[usso.ClaimsUsername].(string)
+	claims := token.Claims.(jwt.MapClaims)
+	username := claims[usso.ClaimsUsername].(string)
 
 	// Check that the role is at least an Admin
 	role := datastore.Environ.DB.RoleForUser(username)

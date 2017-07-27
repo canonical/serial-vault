@@ -33,13 +33,14 @@ import (
 
 func createJWT(username, name, email, identity string, role int, expires int64) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
-
-	token.Claims[ClaimsUsername] = username
-	token.Claims[ClaimsName] = name
-	token.Claims[ClaimsEmail] = email
-	token.Claims[ClaimsIdentity] = identity
-	token.Claims[ClaimsRole] = role
-	token.Claims[StandardClaimExpiresAt] = expires
+	
+	claims := token.Claims.(jwt.MapClaims)
+	claims[ClaimsUsername] = username
+	claims[ClaimsName] = name
+	claims[ClaimsEmail] = email
+	claims[ClaimsIdentity] = identity
+	claims[ClaimsRole] = role
+	claims[StandardClaimExpiresAt] = expires
 
 	tokenString, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
