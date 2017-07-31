@@ -47,9 +47,10 @@ type AssertionRequest struct {
 
 // AccountsHandler is the API method to list the account assertions
 func AccountsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatAccountsResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -72,7 +73,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r)
+	username, err := checkUserPermissions(w, r, datastore.Admin)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return

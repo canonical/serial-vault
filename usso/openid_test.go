@@ -90,7 +90,7 @@ func TestLoginHandlerReturn(t *testing.T) {
 	response, _ := verifySuccess(url)
 
 	// Get User Role
-	user, err := datastore.Environ.DB.GetUser(response.SReg["nickname"])
+	user, err := datastore.Environ.DB.GetUserByUsername(response.SReg["nickname"])
 
 	if err != nil {
 		t.Errorf("Could not get datastore user %v: %v\n", response.SReg["nickname"], err)

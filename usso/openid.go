@@ -89,7 +89,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	User, err := datastore.Environ.DB.GetUser(username)
+	User, err := datastore.Environ.DB.GetUserByUsername(username)
 	if err != nil {
 		// Cannot find the user, so redirect to the login page
 		log.Printf("Error retrieving user from datastore: %v\n", err)

@@ -158,6 +158,28 @@ func formatRequestIDResponse(success bool, message string, nonce datastore.Devic
 	return nil
 }
 
+func formatUserResponse(success bool, errorCode, errorSubcode, message string, user datastore.User, w http.ResponseWriter) error {
+	response := UserResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, User: user}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the user response.")
+		return err
+	}
+	return nil
+}
+
+func formatUsersResponse(success bool, errorCode, errorSubcode, message string, users []datastore.User, w http.ResponseWriter) error {
+	response := UsersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Users: users}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the users response.")
+		return err
+	}
+	return nil
+}
+
 // checkAPIKey the API key header to make sure it is an allowed header
 func checkAPIKey(apiKey string) error {
 	if datastore.Environ.Config.APIKeys == nil || len(datastore.Environ.Config.APIKeys) == 0 {
@@ -178,23 +200,40 @@ func logMessage(method, code, reason string) {
 	log.Printf("%s %s %s\n", method, code, reason)
 }
 
-// define pattern for model name validation
+// define patterns for validation
 const validModelAllowed = "^[a-z0-9](?:-?[a-z0-9])*$"
+const validUsernameAllowed = validModelAllowed
 
 var validModelNamePattern = regexp.MustCompile(validModelAllowed)
+var validUsernamePattern = regexp.MustCompile(validUsernameAllowed)
 
 // validateModelName validates
 func validateModelName(name string) error {
-	if len(name) == 0 {
-		return errors.New("Name must not be empty")
+	return validateSyntax("Name", name, validModelNamePattern)
+}
+
+func validateUsername(username string) error {
+	return validateSyntax("Username", username, validUsernamePattern)
+}
+
+func validateUserRole(role int) error {
+	if role != datastore.Standard && role != datastore.Admin && role != datastore.Superuser {
+		return errors.New("Role is not amongst valid ones")
+	}
+	return nil
+}
+
+func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
+	if len(fieldValue) == 0 {
+		return fmt.Errorf("%v must not be empty", fieldName)
 	}
 
-	if strings.ToLower(name) != name {
-		return errors.New("Name must not contain uppercase characters")
+	if strings.ToLower(fieldValue) != fieldValue {
+		return fmt.Errorf("%v must not contain uppercase characters", fieldName)
 	}
 
-	if !validModelNamePattern.MatchString(name) {
-		return fmt.Errorf("Name contains invalid characters, allowed %q", validModelAllowed)
+	if !pattern.MatchString(fieldValue) {
+		return fmt.Errorf("%v contains invalid characters, allowed %q", fieldName, validModelAllowed)
 	}
 
 	return nil
@@ -202,11 +241,20 @@ func validateModelName(name string) error {
 
 // checkUserPermissions retrieves the user from the JWT.
 // The user will be restricted by the accounts the username can access and their role i.e. only Admin and Superuser
-// If user authentication is turned off, the JWT will irrelevant. In this case the username is returned as "".
-func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error) {
-
+// These are the rules:
+//
+// 	- If user authentication is turned off, the JWT will irrelevant. In this case the username is returned as "" if Admin
+// 		is allowed, or error if only Superuser is allowed.
+//	- If database user role is less than allowed role, an error is returned
+//	- If there is no database user, role is considered Admin
+//
+func checkUserPermissions(w http.ResponseWriter, r *http.Request, minimumAuthorizedRole int) (string, error) {
+	// User authentication is turned off
 	if !datastore.Environ.Config.EnableUserAuth {
-		// User authentication is turned off
+		// Superuser permissions don't allow turned off authentication
+		if minimumAuthorizedRole == datastore.Superuser {
+			return "", errors.New("A The user is not authorized")
+		}
 		return "", nil
 	}
 
@@ -219,9 +267,10 @@ func checkUserPermissions(w http.ResponseWriter, r *http.Request) (string, error
 	// Get the user from the token
 	username := token.Claims[usso.ClaimsUsername].(string)
 
-	// Check that the role is at least an Admin
+	// Check that the role is at least the authorized one.
+	// NOTE: Take into account that RoleForUser() returns Admin in case username is empty
 	role := datastore.Environ.DB.RoleForUser(username)
-	if role < datastore.Admin {
+	if role < minimumAuthorizedRole {
 		return username, errors.New("The user is not authorized")
 	}
 

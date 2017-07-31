@@ -78,6 +78,13 @@ func AdminRouter() *mux.Router {
 	// API routes: system-user assertion
 	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
 
+	// API routes: users management
+	router.Handle("/v1/users", Middleware(http.HandlerFunc(UsersHandler))).Methods("GET")
+	router.Handle("/v1/users", Middleware(http.HandlerFunc(UserCreateHandler))).Methods("POST")
+	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserGetHandler))).Methods("GET")
+	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserDeleteHandler))).Methods("DELETE")
+
 	// OpenID routes: using Ubuntu SSO
 	router.Handle("/login", Middleware(http.HandlerFunc(usso.LoginHandler)))
 	router.Handle("/logout", Middleware(http.HandlerFunc(usso.LogoutHandler)))
@@ -91,6 +98,7 @@ func AdminRouter() *mux.Router {
 	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/systemuser").Handler(Middleware(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/users").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/notfound").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler))).Methods("GET")
 
