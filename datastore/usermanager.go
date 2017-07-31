@@ -44,6 +44,7 @@ const createAccountUserLinkTableSQL = `
 
 const listUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo order by username"
 const getUserSQL = "select id, username, openid_identity, name, email, userrole from userinfo where id=$1"
+const getUserByUsernameSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username=$1"
 const findUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
 const createUserSQL = "insert into userinfo (username, openid_identity, name, email, userrole) values ($1,$2,$3,$4,$5) RETURNING id"
 const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, userrole=$5 where id=$6"
@@ -65,6 +66,9 @@ const findAccountUserSQL = `
 	where u.username=$1 and a.authority_id=$2
 `
 
+const deleteUserAccountsSQL = "delete from useraccountlink where user_id=$1"
+const linkAccountToUserSQL = "insert into useraccountlink (user_id, account_id) values ($1,$2)"
+
 // Available user roles:
 //
 // * Standard:	role for regular users. This is the less privileged role
@@ -85,6 +89,7 @@ type User struct {
 	Name           string
 	Email          string
 	Role           int
+	Accounts       []Account
 }
 
 // CreateUserTable creates User table in database
@@ -108,13 +113,11 @@ func (db *DB) ListUsers() ([]User, error) {
 	}
 	defer rows.Close()
 
-	return rowsToUsers(rows)
+	return db.rowsToUsers(rows)
 }
 
 // FindUsers returns array of users matching query string in username or name
 func (db *DB) FindUsers(query string) ([]User, error) {
-	users := []User{}
-
 	rows, err := db.Query(findUsersSQL, query)
 	if err != nil {
 		log.Printf("Error searching for database users: %v\n", err)
@@ -122,75 +125,94 @@ func (db *DB) FindUsers(query string) ([]User, error) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	return users, nil
+	return db.rowsToUsers(rows)
 }
 
 // GetUser fetches a single user from database
 func (db *DB) GetUser(userID int) (User, error) {
-	user := User{}
-
-	err := db.QueryRow(getUserSQL, userID).Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	row := db.QueryRow(getUserSQL, userID)
+	user, err := db.rowToUser(row)
 	if err != nil {
 		log.Printf("Error retrieving user %v: %v\n", userID, err)
-		return user, err
 	}
-
-	return user, nil
+	return user, err
 }
 
 // GetUserByUsername fetches a single user from database
 func (db *DB) GetUserByUsername(username string) (User, error) {
-	user := User{}
-
-	err := db.QueryRow(getUserSQL, username).Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	row := db.QueryRow(getUserByUsernameSQL, username)
+	user, err := db.rowToUser(row)
 	if err != nil {
 		log.Printf("Error retrieving user %v: %v\n", username, err)
-		return user, err
 	}
-
-	return user, nil
+	return user, err
 }
 
 // CreateUser adds a new record to User database table, Returns new record identifier if success
 func (db *DB) CreateUser(user User) (int, error) {
-	var createdUserID int
-	err := db.QueryRow(createUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role).Scan(&createdUserID)
-	if err != nil {
-		log.Printf("Error creating user %v: %v\n", user.Username, err)
-		return 0, err
-	}
-	return createdUserID, nil
+
+	createdUserID := 0
+
+	err := db.transaction(func(tx *sql.Tx) error {
+
+		err := tx.QueryRow(createUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role).Scan(&createdUserID)
+		if err != nil {
+			log.Printf("Error creating user %v: %v\n", user.Username, err)
+			return err
+		}
+
+		err = db.putUserAccounts(createdUserID, user.Accounts, tx)
+		if err != nil {
+			log.Printf("Error creating user %v: %v\n", user.Username, err)
+			return err
+		}
+
+		return nil
+	})
+
+	return createdUserID, err
 }
 
-// UpdateUser sets user new values for an existing record.
+// UpdateUser sets user new values for an existing record. Also updates useraccount link. All that in a transaction
 func (db *DB) UpdateUser(user User) error {
-	_, err := db.Exec(updateUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role, user.ID)
-	if err != nil {
-		log.Printf("Error updating database user %v: %v\n", user.ID, err)
-		return err
-	}
 
-	return nil
+	return db.transaction(func(tx *sql.Tx) error {
+
+		_, err := tx.Exec(updateUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role, user.ID)
+		if err != nil {
+			log.Printf("Error updating database user %v: %v\n", user.ID, err)
+			return err
+		}
+
+		err = db.putUserAccounts(user.ID, user.Accounts, tx)
+		if err != nil {
+			log.Printf("Error creating user %v: %v\n", user.Username, err)
+			return err
+		}
+
+		return nil
+	})
 }
 
 // DeleteUser deletes a user
 func (db *DB) DeleteUser(userID int) error {
-	_, err := db.Exec(deleteUserSQL, userID)
-	if err != nil {
-		log.Printf("Error deleting database user %v: %v\n", userID, err)
-		return err
-	}
 
-	return nil
+	return db.transaction(func(tx *sql.Tx) error {
+
+		_, err := tx.Exec(deleteUserSQL, userID)
+		if err != nil {
+			log.Printf("Error deleting database user %v: %v\n", userID, err)
+			return err
+		}
+
+		_, err = tx.Exec(deleteUserAccountsSQL, userID)
+		if err != nil {
+			log.Printf("Error deleting user accounts: %v", err)
+			return err
+		}
+
+		return nil
+	})
 }
 
 // ListAccountUsers returns list of User related with certain account
@@ -203,21 +225,6 @@ func (db *DB) ListAccountUsers(authorityID string) ([]User, error) {
 		return nil, err
 	}
 	defer rows.Close()
-
-	for rows.Next() {
-		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	return users, nil
-}
-
-func rowsToUsers(rows *sql.Rows) ([]User, error) {
-	users := []User{}
 
 	for rows.Next() {
 		user := User{}
@@ -261,4 +268,80 @@ func (db *DB) CheckUserInAccount(username, authorityID string) bool {
 	}
 
 	return count > 0
+}
+
+func (db *DB) putUserAccounts(userID int, accounts []Account, tx *sql.Tx) error {
+	// first, delete previous registers if any
+	_, err := tx.Exec(deleteUserAccountsSQL, userID)
+	if err != nil {
+		log.Printf("Could not delete user accounts: %v", err)
+		return err
+	}
+
+	// link received data
+	for _, account := range accounts {
+
+		// if account id is not a valid identifier, fetch Account from DB using autorithyID field
+		if account.ID == 0 {
+			account, err = db.GetAccount(account.AuthorityID)
+			if err != nil {
+				log.Printf("Invalid account: %v", err)
+				return err
+			}
+		}
+
+		_, err := tx.Exec(linkAccountToUserSQL, userID, account.ID)
+		if err != nil {
+			log.Printf("Could not complete linking user to account transaction: %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (db *DB) rowToUser(row *sql.Row) (User, error) {
+	user := User{}
+	err := row.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	if err != nil {
+		return User{}, err
+	}
+
+	// Get related accounts and fill related User field
+	user.Accounts, err = db.ListAccounts(user.Username)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (db *DB) rowsToUser(rows *sql.Rows) (User, error) {
+	user := User{}
+	err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	if err != nil {
+		return User{}, err
+	}
+
+	// Get related accounts and fill related User field
+	user.Accounts, err = db.ListAccounts(user.Username)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (db *DB) rowsToUsers(rows *sql.Rows) ([]User, error) {
+	users := []User{}
+
+	for rows.Next() {
+		user, err := db.rowsToUser(rows)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }

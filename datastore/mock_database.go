@@ -354,21 +354,47 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcyssfmr",
 		Name:           "Rigoberto Picaporte",
 		Email:          "rigoberto.picaporte@ubuntu.com",
-		Role:           Standard})
+		Role:           Standard,
+		Accounts: []Account{
+			Account{
+				ID:          1,
+				AuthorityID: "authority1",
+				Assertion:   "assertioncontent1",
+			},
+		}})
 	users = append(users, User{
 		ID:             2,
 		Username:       "user2",
 		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcysrrtt",
 		Name:           "Nancy Reagan",
 		Email:          "nancy.reagan@usa.gov",
-		Role:           Standard})
+		Role:           Standard,
+		Accounts: []Account{
+			Account{
+				ID:          2,
+				AuthorityID: "authority2",
+				Assertion:   "assertioncontent2",
+			},
+		}})
 	users = append(users, User{
 		ID:             3,
 		Username:       "sv",
 		OpenIDIdentity: "https://login.ubuntu.com/+id/Stfnvlter",
 		Name:           "Steven Vault",
 		Email:          "sv@example.com",
-		Role:           Admin})
+		Role:           Admin,
+		Accounts: []Account{
+			Account{
+				ID:          3,
+				AuthorityID: "authority3",
+				Assertion:   "assertioncontent3",
+			},
+			Account{
+				ID:          4,
+				AuthorityID: "authority4",
+				Assertion:   "assertioncontent4",
+			},
+		}})
 	users = append(users, User{
 		ID:             4,
 		Username:       "a",
