@@ -113,7 +113,7 @@ func (mdb *MockDB) ListModels(username string) ([]Model, error) {
 }
 
 // FindModel mocks the database response for finding a model
-func (mdb *MockDB) FindModel(brandID, modelName string) (Model, error) {
+func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{ID: 1, BrandID: "System", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	if modelName == "inactive" {
 		model = Model{ID: 1, BrandID: "System", Name: "inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
@@ -121,7 +121,18 @@ func (mdb *MockDB) FindModel(brandID, modelName string) (Model, error) {
 	if model.BrandID != brandID || model.Name != modelName {
 		return model, errors.New("Cannot find a model for that brand and model")
 	}
+	if apiKey == "NoModelForApiKey" {
+		return model, errors.New("Cannot find a model for that brand and model for the API key")
+	}
 	return model, nil
+}
+
+// CheckAPIKey mocks the database response to check the API key
+func (mdb *MockDB) CheckAPIKey(apiKey string) bool {
+	if apiKey == "InvalidAPIKey" {
+		return false
+	}
+	return true
 }
 
 // GetModel mocks the model from the database by ID.
@@ -543,8 +554,13 @@ func (mdb *ErrorMockDB) ListModels(username string) ([]Model, error) {
 }
 
 // FindModel mocks the database response for finding a model, returning an invalid signing-key
-func (mdb *ErrorMockDB) FindModel(brandID, modelName string) (Model, error) {
+func (mdb *ErrorMockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	return Model{}, errors.New("Error finding the model")
+}
+
+// CheckAPIKey mocks the database response to check the API key
+func (mdb *ErrorMockDB) CheckAPIKey(apiKey string) bool {
+	return true
 }
 
 // GetModel mocks the model from the database by ID, returning an error.

@@ -36,7 +36,7 @@ const createModelTableSQL = `
 		name             varchar(200) not null,
 		keypair_id       int references keypair not null,
 		user_keypair_id  int references keypair not null,
-		api_key          varchar(200) not null unique
+		api_key          varchar(200) not null
 	)
 `
 const listModelsSQL = `
@@ -62,7 +62,7 @@ const findModelSQL = `
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
-	where brand_id=$1 and name=$2`
+	where brand_id=$1 and name=$2 and api_key=$3`
 const getModelSQL = `
 	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
@@ -101,6 +101,18 @@ const checkBrandsMatchSQL = `
 	where m.brand_id=$1 and k.id=$2 and ku.id=$3
 `
 
+const checkAPIKeyExistsSQL = `
+	select exists(
+		select * from model where api_key=$1
+	)
+`
+
+const checkModelExistsSQL = `
+	select exists(
+		select * from model where brand_id=$1 and name=$2
+	)
+`
+
 // Add the user keypair to the models table (nullable)
 const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
 
@@ -114,9 +126,7 @@ const alterModelAPIKey = "alter table model add column api_key varchar(200) defa
 // Make the API key not-nullable
 const alterModelAPIKeyNotNullable = `alter table model
 	alter column api_key set not null,
-	alter column api_key drop default,
-	drop constraint if exists api_key_unique,
-	add constraint api_key_unique unique (api_key)
+	alter column api_key drop default
 `
 
 // Indexes
@@ -155,6 +165,12 @@ func (db *DB) AlterModelTable() error {
 	}
 
 	err = db.addAPIKeyField()
+	if err != nil {
+		return err
+	}
+
+	// Create the index on the API key
+	_, err = db.Exec(createModelAPIKeyIndexSQL)
 	if err != nil {
 		return err
 	}
@@ -198,8 +214,7 @@ func (db *DB) addAPIKeyField() error {
 	// Default the API key for any records where it is empty
 	models, err := db.ListModels("")
 	if err != nil {
-		// Field already exists so skip
-		return nil
+		return err
 	}
 	for _, model := range models {
 		if len(model.APIKey) > 0 {
@@ -276,10 +291,10 @@ func (db *DB) ListModels(username string) ([]Model, error) {
 }
 
 // FindModel retrieves the model from the database.
-func (db *DB) FindModel(brandID, modelName string) (Model, error) {
+func (db *DB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{}
 
-	err := db.QueryRow(findModelSQL, brandID, modelName).Scan(
+	err := db.QueryRow(findModelSQL, brandID, modelName, apiKey).Scan(
 		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
 		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	switch {
@@ -369,14 +384,13 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 	}
 
 	// Check that the model does not exist
-	_, err := db.FindModel(model.BrandID, model.Name)
-	if err == nil {
+	if found := db.checkModelExists(model.BrandID, model.Name); found {
 		return model, "error-model-exists", errors.New("A device with the same Brand and Model already exists")
 	}
 
 	// Create the model in the database
 	var createdModelID int
-	err = db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
+	err := db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)
 		return model, "", err
@@ -423,4 +437,28 @@ func (db *DB) checkBrandsMatch(username, brandID string, keypairID, keypairIDUse
 	}
 
 	return count > 0
+}
+
+// CheckAPIKey validates that there is a model for the supplied API key
+func (db *DB) CheckAPIKey(apiKey string) bool {
+	row := db.QueryRow(checkAPIKeyExistsSQL, apiKey)
+	return db.checkBoolQuery(row)
+}
+
+// CheckAPIKey validates that there is a model for the supplied API key
+func (db *DB) checkModelExists(brandID, name string) bool {
+	row := db.QueryRow(checkModelExistsSQL, brandID, name)
+	return db.checkBoolQuery(row)
+}
+
+func (db *DB) checkBoolQuery(row *sql.Row) bool {
+	var found bool
+
+	err := row.Scan(&found)
+	if err != nil {
+		log.Printf("Error with the boolean query: %v\n", err)
+		return false
+	}
+
+	return found
 }

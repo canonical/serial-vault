@@ -182,12 +182,11 @@ func formatUsersResponse(success bool, errorCode, errorSubcode, message string, 
 
 // checkAPIKey the API key header to make sure it is an allowed header
 func checkAPIKey(apiKey string) error {
-	if datastore.Environ.Config.APIKeys == nil || len(datastore.Environ.Config.APIKeys) == 0 {
-		log.Println("No API key authorisation defined - default policy is allow")
-		return nil
+	if len(apiKey) == 0 {
+		return errors.New("Blank API key used")
 	}
 
-	if _, ok := datastore.Environ.Config.APIKeysMap[apiKey]; !ok {
+	if ok := datastore.Environ.DB.CheckAPIKey(apiKey); !ok {
 		return errors.New("Unauthorized API key used")
 	}
 
