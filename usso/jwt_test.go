@@ -73,7 +73,7 @@ func expectedToken(t *testing.T, jwtToken string, resp *openid.Response, usernam
 	if err != nil {
 		t.Errorf("Error validating JWT: %v", err)
 	}
-	
+
 	claims := token.Claims.(jwt.MapClaims)
 	if claims[ClaimsIdentity] != resp.ID {
 		t.Errorf("JWT ID does not match: %v", claims[ClaimsIdentity])
