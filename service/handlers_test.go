@@ -92,12 +92,7 @@ func TestSignHandlerNoData(t *testing.T) {
 }
 
 func TestSignHandlerInvalidAPIKey(t *testing.T) {
-	// Set up the API key
-	apiKeySlice := []string{"InbuiltAPIKey"}
-	apiKeys := make(map[string]struct{})
-	apiKeys["InbuiltAPIKey"] = struct{}{}
-
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -124,13 +119,8 @@ func TestSignHandlerInactive(t *testing.T) {
 }
 
 func TestSignHandler(t *testing.T) {
-	// Set up the API key
-	apiKeySlice := []string{"InbuiltAPIKey"}
-	apiKeys := make(map[string]struct{})
-	apiKeys["InbuiltAPIKey"] = struct{}{}
-
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -157,13 +147,8 @@ func TestSignHandler(t *testing.T) {
 }
 
 func TestSignHandlerSerialInBody(t *testing.T) {
-	// Set up the API key
-	apiKeySlice := []string{"InbuiltAPIKey"}
-	apiKeys := make(map[string]struct{})
-	apiKeys["InbuiltAPIKey"] = struct{}{}
-
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -497,13 +482,8 @@ func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiK
 }
 
 func TestRequestIDHandler(t *testing.T) {
-	// Set up the API key
-	apiKeySlice := []string{"InbuiltAPIKey"}
-	apiKeys := make(map[string]struct{})
-	apiKeys["InbuiltAPIKey"] = struct{}{}
-
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -522,12 +502,7 @@ func TestRequestIDHandler(t *testing.T) {
 }
 
 func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
-	// Set up the API key
-	apiKeySlice := []string{"InbuiltAPIKey"}
-	apiKeys := make(map[string]struct{})
-	apiKeys["InbuiltAPIKey"] = struct{}{}
-
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -535,12 +510,7 @@ func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
 }
 
 func TestRequestIDHandlerError(t *testing.T) {
-	// Set up the API key
-	apiKeySlice := []string{"InbuiltAPIKey"}
-	apiKeys := make(map[string]struct{})
-	apiKeys["InbuiltAPIKey"] = struct{}{}
-
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", APIKeys: apiKeySlice, APIKeysMap: apiKeys}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
