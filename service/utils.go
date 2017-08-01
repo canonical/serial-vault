@@ -30,6 +30,7 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -265,7 +266,8 @@ func checkUserPermissions(w http.ResponseWriter, r *http.Request, minimumAuthori
 	}
 
 	// Get the user from the token
-	username := token.Claims[usso.ClaimsUsername].(string)
+	claims := token.Claims.(jwt.MapClaims)
+	username := claims[usso.ClaimsUsername].(string)
 
 	// Check that the role is at least the authorized one.
 	// NOTE: Take into account that RoleForUser() returns Admin in case username is empty
