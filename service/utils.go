@@ -30,8 +30,8 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
-	"github.com/snapcore/snapd/asserts"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // DeviceAssertion defines the device identity.

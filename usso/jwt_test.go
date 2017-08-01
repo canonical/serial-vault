@@ -24,8 +24,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/juju/usso/openid"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/juju/usso/openid"
 )
 
 type testJWT struct {
