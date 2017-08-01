@@ -23,7 +23,10 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"regexp"
 	"strings"
+
+	"github.com/CanonicalLtd/serial-vault/random"
 )
 
 const createModelTableSQL = `
@@ -32,18 +35,19 @@ const createModelTableSQL = `
 		brand_id         varchar(200) not null,
 		name             varchar(200) not null,
 		keypair_id       int references keypair not null,
-		user_keypair_id  int references keypair not null
+		user_keypair_id  int references keypair not null,
+		api_key          varchar(200) not null unique
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
 const listModelsForUserSQL = `
-	select m.id, brand_id, m.name, keypair_id, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, m.name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -54,19 +58,19 @@ const listModelsForUserSQL = `
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where brand_id=$1 and name=$2`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where m.id=$1`
 const getModelForUserSQL = `
-	select m.id, m.brand_id, m.name, m.keypair_id, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, m.brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -74,14 +78,14 @@ const getModelForUserSQL = `
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
 	where m.id=$1 and u.username=$2 and u.userrole >= $3`
-const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5 where id=$1"
+const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6 where id=$1"
 const updateModelForUserSQL = `
-	update model m set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5
+	update model m set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6
 	from account acc
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$6 and u.userrole >= $7`
-const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id) values ($1,$2,$3,$4) RETURNING id"
+	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7 and u.userrole >= $8`
+const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key) values ($1,$2,$3,$4,$5) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 const deleteModelForUserSQL = `
 	delete from model m
@@ -104,12 +108,27 @@ const alterModelUserKeypairNullable = "alter table model add column user_keypair
 const populateModelUserKeypair = "update model set user_keypair_id=keypair_id where user_keypair_id is null"
 const alterModelUserKeypairNotNullable = "alter table model alter column user_keypair_id set not null"
 
+// Add the API key field to the models table (nullable)
+const alterModelAPIKey = "alter table model add column api_key varchar(200) default ''"
+
+// Make the API key not-nullable
+const alterModelAPIKeyNotNullable = `alter table model
+	alter column api_key set not null,
+	alter column api_key drop default,
+	drop constraint if exists api_key_unique,
+	add constraint api_key_unique unique (api_key)
+`
+
+// Indexes
+const createModelAPIKeyIndexSQL = "CREATE INDEX IF NOT EXISTS api_key_idx ON model (api_key)"
+
 // Model holds the model details in the local database
 type Model struct {
 	ID              int
 	BrandID         string
 	Name            string
 	KeypairID       int
+	APIKey          string
 	AuthorityID     string // from the signing keypair
 	KeyID           string // from the signing keypair
 	KeyActive       bool   // from the signing keypair
@@ -128,8 +147,23 @@ func (db *DB) CreateModelTable() error {
 	return err
 }
 
-// AlterModelTable adds the user keypair link to an existing model table.
+// AlterModelTable updates an existing database model table with additional fields
 func (db *DB) AlterModelTable() error {
+	err := db.addUserKeypairFields()
+	if err != nil {
+		return err
+	}
+
+	err = db.addAPIKeyField()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// addUserKeypairFields adds the user keypair link to an existing model table.
+func (db *DB) addUserKeypairFields() error {
 	_, err := db.Exec(alterModelUserKeypairNullable)
 	if err != nil {
 		// Field already exists so skip
@@ -149,6 +183,61 @@ func (db *DB) AlterModelTable() error {
 		return err
 	}
 	return nil
+}
+
+// addAPIKeyField adds and defaults the API key field to the model table
+func (db *DB) addAPIKeyField() error {
+
+	// Add the API key field to the model table
+	_, err := db.Exec(alterModelAPIKey)
+	if err != nil {
+		// Field already exists so skip
+		return nil
+	}
+
+	// Default the API key for any records where it is empty
+	models, err := db.ListModels("")
+	if err != nil {
+		// Field already exists so skip
+		return nil
+	}
+	for _, model := range models {
+		if len(model.APIKey) > 0 {
+			continue
+		}
+
+		// Generate an random API key and update the record
+		apiKey, err := db.generateAPIKey()
+		if err != nil {
+			log.Printf("Could not generate random string for the API key")
+			return errors.New("Error generating random string for the API key")
+		}
+
+		// Update the API key on the model
+		model.APIKey = apiKey
+		db.UpdateModel(model, "")
+	}
+
+	// Add the constraints to the API key field
+	_, err = db.Exec(alterModelAPIKeyNotNullable)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DB) generateAPIKey() (string, error) {
+	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
+
+	// Generate an random API key and update the record
+	apiKey, err := random.GenerateRandomString(40)
+	if err != nil {
+		log.Printf("Could not generate random string for the API key")
+		return "", errors.New("Error generating random string for the API key")
+	}
+
+	return reg.ReplaceAllString(apiKey, ""), nil
 }
 
 // ListModels fetches the full catalogue of models from the database.
@@ -175,7 +264,7 @@ func (db *DB) ListModels(username string) ([]Model, error) {
 
 	for rows.Next() {
 		model := Model{}
-		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive,
+		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive,
 			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser)
 		if err != nil {
 			return nil, err
@@ -191,7 +280,7 @@ func (db *DB) FindModel(brandID, modelName string) (Model, error) {
 	model := Model{}
 
 	err := db.QueryRow(findModelSQL, brandID, modelName).Scan(
-		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
+		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
 		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	switch {
 	case err == sql.ErrNoRows:
@@ -216,7 +305,7 @@ func (db *DB) GetModel(modelID int, username string) (Model, error) {
 		row = db.QueryRow(getModelForUserSQL, modelID, username, Admin)
 	}
 
-	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
+	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
 		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
@@ -247,9 +336,9 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 	var err error
 
 	if len(username) == 0 {
-		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser)
+		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey)
 	} else {
-		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, username, Admin)
+		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, username, Admin)
 	}
 	if err != nil {
 		log.Printf("Error updating the database model: %v\n", err)
@@ -287,7 +376,7 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 
 	// Create the model in the database
 	var createdModelID int
-	err = db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser).Scan(&createdModelID)
+	err = db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)
 		return model, "", err
