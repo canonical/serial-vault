@@ -81,6 +81,9 @@ const (
 	Superuser              // 300
 )
 
+// RoleName holds the names for each of the roles
+var RoleName = map[int]string{0: "", 100: "standard", 200: "admin", 300: "superuser"}
+
 // User holds user personal, authentication and authorization info
 type User struct {
 	ID             int
