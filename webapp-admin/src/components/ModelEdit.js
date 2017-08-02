@@ -148,6 +148,9 @@ class ModelEdit extends Component {
             )
         }
 
+        //TODO TRACE
+        console.log("KEYPAIRS:" + this.state.keypairs)
+
         return (
             <div className="row">
                 <section className="row">

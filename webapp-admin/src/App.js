@@ -79,9 +79,6 @@ class App extends Component {
   renderUsers() {
     const id = sectionIdFromPath(window.location.pathname, 'users')
 
-    //TODO TRACE
-    console.log("ID:"+id)
-
     switch(id) {
       case 'new':
         return <UserEdit token={this.props.token} />

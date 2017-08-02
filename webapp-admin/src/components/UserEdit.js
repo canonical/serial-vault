@@ -28,6 +28,10 @@ class UserEdit extends Component {
             title: null,
             user: {},
             error: null,
+            // TODO temporary move user.Accounts to userAccounts, as backend provides accounts for the user 
+            // that way. In future this will be get in an independant call.
+            userAccounts: [],
+            nonUserAccounts: [],
         }
     }
 
@@ -47,8 +51,12 @@ class UserEdit extends Component {
     getUser(userId) {
         var self = this;
         Users.get(userId).then(function(response) {
+
+            //TODO TRACE
+            console.log("RESPONSE: " + response.body)
+
             var data = JSON.parse(response.body);
-            self.setState({user: data.user});
+            self.setState({user: data.user, userAccounts: data.user.Accounts});
         });
     }
 
@@ -64,26 +72,36 @@ class UserEdit extends Component {
 
     handleChangeUsername = (e) => {
         var user = this.state.user;
-        user['username'] = e.target.value;
+        user.Username = e.target.value;
         this.setState({user: user});
     }
 
     handleChangeName = (e) => {
         var user = this.state.user;
-        user['name'] = e.target.value;
+        user.Name = e.target.value;
         this.setState({user: user});
     }
 
     handleChangeEmail = (e) => {
         var user = this.state.user;
-        user['email'] = e.target.value;
+        user.Email = e.target.value;
         this.setState({user: user});
     }
 
     handleChangeRole = (e) => {
         var user = this.state.user;
-        user['role'] = parseInt(e.target.value, 10);
+        user.Role = parseInt(e.target.value, 10);
         this.setState({user: user});
+    }
+
+    handleAddAccountClick = (e) => {
+        //TODO TRACE
+        console.log("HANDLE ADD")
+    }
+
+    handleRemoveAccountClick = (e) => {
+        //TODO TRACE
+        console.log("HANDLE REMOVE")
     }
 
     handleSaveClick = (e) => {
@@ -142,18 +160,18 @@ class UserEdit extends Component {
                             <fieldset>
                                 <label htmlFor="username">{T('username')}:
                                     <input type="text" id="username" placeholder={T('user-username')}
-                                        value={this.state.user['username']} onChange={this.handleChangeUsername} />
+                                        value={this.state.user.Username} onChange={this.handleChangeUsername} />
                                 </label>
                                 <label htmlFor="name">{T('name')}:
                                     <input type="text" id="name" placeholder={T('user-name')}
-                                        value={this.state.user['name']} onChange={this.handleChangeName}/>
+                                        value={this.state.user.Name} onChange={this.handleChangeName}/>
                                 </label>
                                 <label htmlFor="email">{T('email')}:
                                     <input type="text" id="email" placeholder={T('user-email')}
-                                        value={this.state.user['email']} onChange={this.handleChangeEmail}/>
+                                        value={this.state.user.Email} onChange={this.handleChangeEmail}/>
                                 </label>
                                 <label htmlFor="role">{T('role')}:
-                                    <select value={this.state.user['role']} id="role" onChange={this.handleChangeRole}>
+                                    <select value={this.state.user.Role} id="role" onChange={this.handleChangeRole}>
                                         <option></option>
                                         <option key="standard" value="100">Standard</option>
                                         <option key="admin" value="200">Admin</option>
@@ -161,13 +179,28 @@ class UserEdit extends Component {
                                     </select>
                                 </label>
                                 <label htmlFor="accounts">{T('accounts')}:
-                                    <select id="accounts">
+                                    <select multiple id="accounts">
                                         <option></option>
-                                        {this.state.user.accounts.map(function(acc) {
+                                         {this.state.userAccounts.map(function(acc) {
                                             return <option key={acc.AuthorityID} value={acc.AuthorityID}></option>;
                                         })}
                                     </select>
-                                </label>
+                                </label> 
+
+                                
+                                    <button onclick={this.handleAddAssertionClick} className="p-button--positive">{T('↑ add ↑')}</button>
+                                    &nbsp;
+                                    <button onClick={this.handleRemoveAccountClick} className="p-button--negative">{T('↓ remove ↓')}</button>
+                             
+
+                                <label htmlFor="otherAccounts">{T('other-accounts')}:
+                                    <select multiple id="other-accounts">
+                                        <option></option>
+                                        {this.state.nonUserAccounts.map(function(acc) {
+                                            return <option key={acc.AuthorityID} value={acc.AuthorityID}></option>;
+                                        })}
+                                    </select>
+                                </label> 
                             </fieldset>
                         </form>
 
