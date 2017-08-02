@@ -30,8 +30,8 @@ class UserEdit extends Component {
             error: null,
             // TODO temporary move user.Accounts to userAccounts, as backend provides accounts for the user 
             // that way. In future this will be get in an independant call.
-            userAccounts: [],
-            nonUserAccounts: [],
+            userAccountsOptions: [],
+            nonUserAccountsOptions: [],
         }
     }
 
@@ -51,13 +51,23 @@ class UserEdit extends Component {
     getUser(userId) {
         var self = this;
         Users.get(userId).then(function(response) {
-
-            //TODO TRACE
-            console.log("RESPONSE: " + response.body)
-
             var data = JSON.parse(response.body);
-            self.setState({user: data.user, userAccounts: data.user.Accounts});
+            self.setState({
+                user: data.user, 
+                userAccountsOptions: self.buildSelectBoxOptions(data.user.Accounts)});
         });
+    }
+
+    buildSelectBoxOptions(accounts) {
+        var options = [];
+        for (var i = 0; i < accounts.length; ++i) {
+            options.push(this.buildSelectBoxOption(accounts[i].AuthorityID))
+        }
+        return options
+    }
+
+    buildSelectBoxOption = (val) => {
+        return <option key={val} value={val}>{val}</option>; 
     }
 
     formatError(data) {
@@ -95,13 +105,44 @@ class UserEdit extends Component {
     }
 
     handleAddAccountClick = (e) => {
-        //TODO TRACE
-        console.log("HANDLE ADD")
+        e.preventDefault();
+
+        // TODO COMPLETE
     }
 
     handleRemoveAccountClick = (e) => {
-        //TODO TRACE
-        console.log("HANDLE REMOVE")
+        e.preventDefault();
+
+        this.moveSelectBoxesOption(
+            this.state.userAccountsOptions, 
+            this.state.nonUserAccountsOptions, 
+            this.getSelectBoxSelectedIndex(this.refs.userAccounts));
+
+        this.setState({
+            userAccountsOptions: this.state.userAccountsOptions, 
+            nonUserAccountsOptions: this.state.nonUserAccountsOptions,
+        })
+    }
+
+    moveSelectBoxesOption = (src, dst, index) => {
+        this.addOption(dst, src[index]);
+        this.removeOption(src, index);
+    }
+
+    getSelectBoxSelectedIndex = (selectBox) => {
+        return selectBox.selectedIndex;
+    }
+
+    addOption = (options, val) => {
+        options.push(
+            <option key={val} value={val}>{val}</option>
+        );
+    }
+
+    removeOption = (options, index) => {
+        if (index > -1) {
+            options.splice(index, 1);
+        }
     }
 
     handleSaveClick = (e) => {
@@ -179,27 +220,13 @@ class UserEdit extends Component {
                                     </select>
                                 </label>
                                 <label htmlFor="accounts">{T('accounts')}:
-                                    <select multiple id="accounts">
-                                        <option></option>
-                                         {this.state.userAccounts.map(function(acc) {
-                                            return <option key={acc.AuthorityID} value={acc.AuthorityID}></option>;
-                                        })}
-                                    </select>
+                                    <select multiple id="accounts" ref="userAccounts">{this.state.userAccountsOptions}</select>
                                 </label> 
-
-                                
-                                    <button onclick={this.handleAddAssertionClick} className="p-button--positive">{T('↑ add ↑')}</button>
-                                    &nbsp;
-                                    <button onClick={this.handleRemoveAccountClick} className="p-button--negative">{T('↓ remove ↓')}</button>
-                             
-
+                                <button onClick={this.handleAddAssertionClick} className="p-button--positive">{T('↑ add ↑')}</button>
+                                &nbsp;
+                                <button onClick={this.handleRemoveAccountClick} className="p-button--negative">{T('↓ remove ↓')}</button>
                                 <label htmlFor="otherAccounts">{T('other-accounts')}:
-                                    <select multiple id="other-accounts">
-                                        <option></option>
-                                        {this.state.nonUserAccounts.map(function(acc) {
-                                            return <option key={acc.AuthorityID} value={acc.AuthorityID}></option>;
-                                        })}
-                                    </select>
+                                    <select multiple id="other-accounts" ref="nonUserAccounts">{this.state.nonUserAccountsOptions}</select>
                                 </label> 
                             </fieldset>
                         </form>
