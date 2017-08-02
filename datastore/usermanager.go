@@ -84,6 +84,9 @@ const (
 // RoleName holds the names for each of the roles
 var RoleName = map[int]string{0: "", 100: "standard", 200: "admin", 300: "superuser"}
 
+// RoleID holds the ID for each of the named roles
+var RoleID = map[string]int{"": 0, "standard": 100, "admin": 200, "superuser": 300}
+
 // User holds user personal, authentication and authorization info
 type User struct {
 	ID             int

@@ -19,13 +19,42 @@
 
 package manage
 
-import "log"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/CanonicalLtd/serial-vault/datastore"
+)
 
 // UserAddCommand handles adding a new user for the manage command
-type UserAddCommand struct{}
+type UserAddCommand struct {
+	Name           string `short:"n" long:"name" description:"Full name of the user" required:"yes"`
+	RoleName       string `short:"r" long:"role" description:"Role of the user" required:"yes" choice:"standard" choice:"admin" choice:"superuser"`
+	Email          string `short:"e" long:"email" description:"Email of the user"`
+	OpenIDIdentity string `short:"i" long:"identity" description:"OpenID Identity of the user"`
+}
 
 // Execute the adding a new user
 func (cmd UserAddCommand) Execute(args []string) error {
-	log.Println("Executing the user add command")
+	if len(args) != 1 {
+		return errors.New("Add user expects a single 'username' argument")
+	}
+
+	// Convert the rolename to an ID
+	roleID, ok := datastore.RoleID[cmd.RoleName]
+	if !ok {
+		return fmt.Errorf("Cannot find the role ID for role '%s'", cmd.RoleName)
+	}
+
+	// Open the database and create the user
+	openDatabase()
+	user := datastore.User{Username: args[0], Name: cmd.Name, Role: roleID, Email: cmd.Email, OpenIDIdentity: cmd.OpenIDIdentity, Accounts: []datastore.Account{}}
+
+	_, err := datastore.Environ.DB.CreateUser(user)
+	if err != nil {
+		return fmt.Errorf("Error creating the user: %v", err)
+	}
+
+	fmt.Printf("User '%s' created successfully\n", user.Username)
 	return nil
 }
