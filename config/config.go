@@ -33,17 +33,15 @@ const version = "1.5.0"
 // Settings defines the parsed config file settings.
 type Settings struct {
 	Version        string
-	Title          string   `yaml:"title"`
-	Logo           string   `yaml:"logo"`
-	DocRoot        string   `yaml:"docRoot"`
-	Driver         string   `yaml:"driver"`
-	DataSource     string   `yaml:"datasource"`
-	KeyStoreType   string   `yaml:"keystore"`
-	KeyStorePath   string   `yaml:"keystorePath"`
-	KeyStoreSecret string   `yaml:"keystoreSecret"`
-	Mode           string   `yaml:"mode"`
-	APIKeys        []string `yaml:"apiKeys"`
-	APIKeysMap     map[string]struct{}
+	Title          string `yaml:"title"`
+	Logo           string `yaml:"logo"`
+	DocRoot        string `yaml:"docRoot"`
+	Driver         string `yaml:"driver"`
+	DataSource     string `yaml:"datasource"`
+	KeyStoreType   string `yaml:"keystore"`
+	KeyStorePath   string `yaml:"keystorePath"`
+	KeyStoreSecret string `yaml:"keystoreSecret"`
+	Mode           string `yaml:"mode"`
 	CSRFAuthKey    string `yaml:"csrfAuthKey"`
 	URLHost        string `yaml:"urlHost"`
 	URLScheme      string `yaml:"urlScheme"`
@@ -83,12 +81,6 @@ func ReadConfig(settings *Settings, filePath string) error {
 	// Set the service mode from the config file if it is not set
 	if ServiceMode == "" {
 		ServiceMode = settings.Mode
-	}
-
-	// Migrate the API keys to a map for more efficient lookups
-	settings.APIKeysMap = make(map[string]struct{})
-	for _, key := range settings.APIKeys {
-		settings.APIKeysMap[key] = struct{}{}
 	}
 
 	return nil

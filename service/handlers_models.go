@@ -37,6 +37,7 @@ type ModelSerialize struct {
 	Name            string `json:"model"`
 	Type            string `json:"type"`
 	KeypairID       int    `json:"keypair-id"`
+	APIKey          string `json:"api-key"`
 	AuthorityID     string `json:"authority-id"`
 	KeyID           string `json:"key-id"`
 	KeyActive       bool   `json:"key-active"`
@@ -67,7 +68,7 @@ type ModelResponse struct {
 func modelForDisplay(model datastore.Model) ModelSerialize {
 	return ModelSerialize{
 		ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType,
-		KeypairID: model.KeypairID, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive,
+		KeypairID: model.KeypairID, APIKey: model.APIKey, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive,
 		KeypairIDUser: model.KeypairIDUser, AuthorityIDUser: model.AuthorityIDUser, KeyIDUser: model.KeyIDUser, KeyActiveUser: model.KeyActiveUser,
 	}
 }

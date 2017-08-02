@@ -24,9 +24,8 @@ $SNAP/usr/bin/createdb -h 127.0.0.1 $USER
 # ALTER USER $USER WITH PASSWORD '$db_password';
 # SQL
 
-# Generate the serial-vault secrets and API key
+# Generate the serial-vault secrets
 keystore_secret=$(cat /dev/urandom | tr -dc A-Z-a-z-0-9 | head -c64)
-api_key=$(cat /dev/urandom | tr -dc A-Z-a-z-0-9 | head -c64)
 csrf_key=$(cat /dev/urandom | tr -dc A-Z-a-z-0-9 | head -c64)
 
 
@@ -41,9 +40,6 @@ datasource: "dbname=$USER user=$USER sslmode=disable"
 
 keystore: "database"
 keystoreSecret: "$keystore_secret"
-
-apiKeys:
-    - $api_key
 
 csrfAuthKey: "$csrf_key"
 SETTINGS

@@ -151,7 +151,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	}
 
 	// Validate the model by checking that it exists on the database
-	model, err := datastore.Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"))
+	model, err := datastore.Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), r.Header.Get("api-key"))
 	if err != nil {
 		logMessage("SIGN", "invalid-model", "Cannot find model with the matching brand and model")
 		return ErrorInvalidModel
