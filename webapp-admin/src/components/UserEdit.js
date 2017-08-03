@@ -107,7 +107,12 @@ class UserEdit extends Component {
     handleAddAccountClick = (e) => {
         e.preventDefault();
 
-        // TODO COMPLETE
+        this.moveSelectBoxesOption(
+            this.state.nonUserAccountsOptions, 
+            this.state.userAccountsOptions, 
+            this.getSelectBoxSelectedIndex(this.refs.nonUserAccounts));
+        
+        this.forceUpdate();
     }
 
     handleRemoveAccountClick = (e) => {
@@ -118,13 +123,13 @@ class UserEdit extends Component {
             this.state.nonUserAccountsOptions, 
             this.getSelectBoxSelectedIndex(this.refs.userAccounts));
 
-        this.setState({
-            userAccountsOptions: this.state.userAccountsOptions, 
-            nonUserAccountsOptions: this.state.nonUserAccountsOptions,
-        })
+        this.forceUpdate();
     }
 
     moveSelectBoxesOption = (src, dst, index) => {
+        if (index == -1) {
+            return
+        }
         this.addOption(dst, src[index]);
         this.removeOption(src, index);
     }
@@ -222,7 +227,7 @@ class UserEdit extends Component {
                                 <label htmlFor="accounts">{T('accounts')}:
                                     <select multiple id="accounts" ref="userAccounts">{this.state.userAccountsOptions}</select>
                                 </label> 
-                                <button onClick={this.handleAddAssertionClick} className="p-button--positive">{T('↑ add ↑')}</button>
+                                <button onClick={this.handleAddAccountClick} className="p-button--positive">{T('↑ add ↑')}</button>
                                 &nbsp;
                                 <button onClick={this.handleRemoveAccountClick} className="p-button--negative">{T('↓ remove ↓')}</button>
                                 <label htmlFor="otherAccounts">{T('other-accounts')}:
