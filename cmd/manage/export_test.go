@@ -19,29 +19,12 @@
 
 package main
 
-import (
-	"fmt"
-	"os"
+import "os"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/manage"
-	"github.com/jessevdk/go-flags"
-)
+var RunMain = run
 
-func main() {
-	datastore.Environ = &datastore.Env{}
-
-	err := run()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-}
-
-func run() error {
-	// Parse the command line arguments and execute the command
-	parser := flags.NewParser(&manage.Manage, flags.HelpFlag)
-	_, err := parser.Parse()
-	return err
+func mockArgs(args ...string) (restore func()) {
+	old := os.Args
+	os.Args = args
+	return func() { os.Args = old }
 }

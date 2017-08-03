@@ -35,6 +35,11 @@ type Command struct {
 var Manage Command
 
 func openDatabase() {
+	// Check that the database has not been set e.g. by a mock
+	if datastore.Environ.DB != nil {
+		return
+	}
+
 	config.ReadConfig(&datastore.Environ.Config, Manage.SettingsFile)
 
 	// Open the connection to the database
