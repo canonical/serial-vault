@@ -13,11 +13,11 @@ import (
 
 // UserRequest is the JSON version of the request to create a user
 type UserRequest struct {
-	Username string              `json:"username"`
-	Name     string              `json:"name"`
-	Email    string              `json:"email"`
-	Role     int                 `json:"role"`
-	Accounts []datastore.Account `json:"accounts"`
+	Username string   `json:"username"`
+	Name     string   `json:"name"`
+	Email    string   `json:"email"`
+	Role     int      `json:"role"`
+	Accounts []string `json:"accounts"`
 }
 
 // UserResponse is the response from a user creation/update
