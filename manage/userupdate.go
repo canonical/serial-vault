@@ -26,18 +26,18 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// UserAddCommand handles adding a new user for the manage command
-type UserAddCommand struct {
-	Name           string `short:"n" long:"name" description:"Full name of the user" required:"yes"`
-	RoleName       string `short:"r" long:"role" description:"Role of the user" required:"yes" choice:"standard" choice:"admin" choice:"superuser"`
+// UserUpdateCommand handles adding a new user for the manage command
+type UserUpdateCommand struct {
+	Name           string `short:"n" long:"name" description:"Full name of the user"`
+	RoleName       string `short:"r" long:"role" description:"Role of the user" choice:"standard" choice:"admin" choice:"superuser"`
 	Email          string `short:"e" long:"email" description:"Email of the user"`
 	OpenIDIdentity string `short:"i" long:"identity" description:"OpenID Identity of the user"`
 }
 
 // Execute the adding a new user
-func (cmd UserAddCommand) Execute(args []string) error {
+func (cmd UserUpdateCommand) Execute(args []string) error {
 	if len(args) != 1 {
-		return errors.New("Add user expects a single 'username' argument")
+		return errors.New("Update user expects a single 'username' argument")
 	}
 
 	// Convert the rolename to an ID
@@ -46,15 +46,32 @@ func (cmd UserAddCommand) Execute(args []string) error {
 		return fmt.Errorf("Cannot find the role ID for role '%s'", cmd.RoleName)
 	}
 
-	// Open the database and create the user
+	// Open the database and get the user from the database
 	openDatabase()
-	user := datastore.User{Username: args[0], Name: cmd.Name, Role: roleID, Email: cmd.Email, OpenIDIdentity: cmd.OpenIDIdentity, Accounts: []datastore.Account{}}
-
-	_, err := datastore.Environ.DB.CreateUser(user)
+	user, err := datastore.Environ.DB.GetUserByUsername(args[0])
 	if err != nil {
-		return fmt.Errorf("Error creating the user: %v", err)
+		return fmt.Errorf("Error finding the user '%s'", args[0])
 	}
 
-	fmt.Printf("User '%s' created successfully\n", user.Username)
+	// Only update the fields that have been supplied
+	if len(cmd.Name) > 0 {
+		user.Name = cmd.Name
+	}
+	if roleID > 0 {
+		user.Role = roleID
+	}
+	if len(cmd.Email) > 0 {
+		user.Email = cmd.Email
+	}
+	if len(cmd.OpenIDIdentity) > 0 {
+		user.OpenIDIdentity = cmd.OpenIDIdentity
+	}
+
+	err = datastore.Environ.DB.UpdateUser(user)
+	if err != nil {
+		return fmt.Errorf("Error updating the user: %v", err)
+	}
+
+	fmt.Printf("User '%s' updated successfully\n", user.Username)
 	return nil
 }
