@@ -26,6 +26,7 @@ type UserCommand struct {
 	List   UserListCommand   `command:"list" alias:"ls" alias:"l" description:"List the users"`
 	Add    UserAddCommand    `command:"add" alias:"a" description:"Add a new user"`
 	Update UserUpdateCommand `command:"update" alias:"a" description:"Update an existing user"`
+	Delete UserDeleteCommand `command:"delete" alias:"d" description:"Delete an existing user"`
 }
 
 // Execute a

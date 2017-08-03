@@ -26,7 +26,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// UserUpdateCommand handles adding a new user for the manage command
+// UserUpdateCommand handles updating a user for the manage command
 type UserUpdateCommand struct {
 	Name           string `short:"n" long:"name" description:"Full name of the user"`
 	RoleName       string `short:"r" long:"role" description:"Role of the user" choice:"standard" choice:"admin" choice:"superuser"`
@@ -34,7 +34,7 @@ type UserUpdateCommand struct {
 	OpenIDIdentity string `short:"i" long:"identity" description:"OpenID Identity of the user"`
 }
 
-// Execute the adding a new user
+// Execute the user update
 func (cmd UserUpdateCommand) Execute(args []string) error {
 	if len(args) != 1 {
 		return errors.New("Update user expects a single 'username' argument")
