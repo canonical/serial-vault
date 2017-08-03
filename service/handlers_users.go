@@ -13,11 +13,11 @@ import (
 
 // UserRequest is the JSON version of the request to create a user
 type UserRequest struct {
-	Username string   `json:"username"`
-	Name     string   `json:"name"`
-	Email    string   `json:"email"`
-	Role     int      `json:"role"`
-	Accounts []string `json:"accounts"`
+	Username string              `json:"username"`
+	Name     string              `json:"name"`
+	Email    string              `json:"email"`
+	Role     int                 `json:"role"`
+	Accounts []datastore.Account `json:"accounts"`
 }
 
 // UserResponse is the response from a user creation/update
@@ -80,8 +80,9 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// Decode the JSON body
-	userRequest := UserRequest{}
+	// TODO decoding JSON body directly to User struct for now. In future, when managing Accounts
+	// separatedly, we'll use UserRequest struct instead
+	userRequest := datastore.User{}
 	err = json.NewDecoder(r.Body).Decode(&userRequest)
 	switch {
 
@@ -120,6 +121,7 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     userRequest.Name,
 		Email:    userRequest.Email,
 		Role:     userRequest.Role,
+		Accounts: userRequest.Accounts,
 	}
 	user.ID, err = datastore.Environ.DB.CreateUser(user)
 	if err != nil {
@@ -166,6 +168,47 @@ func UserGetHandler(w http.ResponseWriter, r *http.Request) {
 	formatUserResponse(true, "", "", "", user, w)
 }
 
+// UserOtherAccountsGetHandler is the API method to retrieve accounts not belonging to the user
+func UserOtherAccountsGetHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the user from the JWT
+	_, err := checkUserPermissions(w, r, datastore.Superuser)
+	if err != nil {
+		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars)
+		formatAccountsResponse(false, "error-invalid-user", "", errorMessage, nil, w)
+		return
+	}
+
+	user, err := datastore.Environ.DB.GetUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("User ID: %d.", id)
+		formatAccountsResponse(false, "error-get-user", "", errorMessage, nil, w)
+		return
+	}
+
+	accounts, err := datastore.Environ.DB.ListNotUserAccounts(user.Username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formatAccountsResponse(false, "error-get-non-user-accounts", "", err.Error(), nil, w)
+		return
+	}
+
+	// Format the model for output and return JSON response
+	w.WriteHeader(http.StatusOK)
+	formatAccountsResponse(true, "", "", "", accounts, w)
+}
+
 // UserUpdateHandler is the API method to update user info
 func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -195,7 +238,9 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	userRequest := UserRequest{}
+	// TODO decoding JSON body directly to User struct for now. In future, when managing Accounts
+	// separatedly, we'll use UserRequest struct instead
+	userRequest := datastore.User{}
 	err = json.NewDecoder(r.Body).Decode(&userRequest)
 	switch {
 	// Check we have some data
@@ -232,6 +277,7 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		Username: userRequest.Username,
 		Email:    userRequest.Email,
 		Role:     userRequest.Role,
+		Accounts: userRequest.Accounts,
 	}
 	err = datastore.Environ.DB.UpdateUser(user)
 	if err != nil {

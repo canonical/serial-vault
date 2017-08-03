@@ -466,6 +466,13 @@ func (mdb *MockDB) ListUserAccounts(username string) ([]Account, error) {
 	return accounts, nil
 }
 
+// ListNotUserAccounts mock returning a fixed list of accounts
+func (mdb *MockDB) ListNotUserAccounts(username string) ([]Account, error) {
+	var accounts []Account
+	accounts = append(accounts, Account{ID: 2, AuthorityID: "Other", Assertion: "other assertion\n"})
+	return accounts, nil
+}
+
 // ListAccountUsers mock returning a fixed list of users
 func (mdb *MockDB) ListAccountUsers(authorityID string) ([]User, error) {
 	return mdb.ListUsers()
@@ -717,6 +724,11 @@ func (mdb *ErrorMockDB) DeleteUser(userID int) error {
 // ListUserAccounts mock returning an error for list user accounts operation
 func (mdb *ErrorMockDB) ListUserAccounts(username string) ([]Account, error) {
 	return []Account{}, errors.New("Could not get accounts for that user")
+}
+
+// ListNotUserAccounts mock returning an error for list non-user accounts operation
+func (mdb *ErrorMockDB) ListNotUserAccounts(username string) ([]Account, error) {
+	return []Account{}, errors.New("Could not get accounts not related to that user")
 }
 
 // ListAccountUsers mock returning an error for list account users operation

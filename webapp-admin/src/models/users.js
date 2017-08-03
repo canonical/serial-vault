@@ -27,12 +27,16 @@ var Users = {
 		return Ajax.get(this.url + '/' + userId);
 	},
 
+	getotheraccounts: function(userId) {
+		return Ajax.get(this.url + '/' + userId + '/otheraccounts');
+	},
+
 	update:  function(user) {
-		return Ajax.put(this.url + '/' + user.id, user);
+		return Ajax.put(this.url + '/' + user.ID, user);
 	},
 
 	delete:  function(user) {
-		return Ajax.delete(this.url + '/' + user.id, {});
+		return Ajax.delete(this.url + '/' + user.ID, {});
 	},
 
 	create:  function(user) {

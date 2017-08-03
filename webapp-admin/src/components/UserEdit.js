@@ -18,6 +18,7 @@
 import React, {Component} from 'react';
 import AlertBox from './AlertBox';
 import Users from '../models/users';
+import Accounts from '../models/accounts';
 import {T, isUserSuperuser} from './Utils';
 
 class UserEdit extends Component {
@@ -30,8 +31,8 @@ class UserEdit extends Component {
             error: null,
             // TODO temporary move user.Accounts to userAccounts, as backend provides accounts for the user 
             // that way. In future this will be get in an independant call.
-            userAccountsOptions: [],
-            nonUserAccountsOptions: [],
+            userAccounts: [],
+            nonUserAccounts: [],
         }
     }
 
@@ -39,8 +40,10 @@ class UserEdit extends Component {
         if (this.props.id) {
             this.setTitle('edit-user');
             this.getUser(this.props.id);
+            this.getNonUserAccounts(this.props.id);
         } else {
             this.setTitle('new-user');
+            this.getAllAccounts();
         }
     }
 
@@ -54,8 +57,70 @@ class UserEdit extends Component {
             var data = JSON.parse(response.body);
             self.setState({
                 user: data.user, 
-                userAccountsOptions: self.buildSelectBoxOptions(data.user.Accounts)});
+                userAccounts: data.user.Accounts,
+            });
         });
+    }
+
+    getNonUserAccounts(userId) {
+        var self = this;
+        Users.getotheraccounts(userId).then(function(response) {
+            var data = JSON.parse(response.body);
+            self.setState({
+                nonUserAccounts: data.accounts,
+            });
+        });
+    }
+
+    getAllAccounts() {
+        var self = this;
+        Accounts.list().then(function(response) {
+            var data = JSON.parse(response.body);
+            self.setState({
+                nonUserAccounts: data.accounts,
+            });
+        });
+    }
+
+    formatError(data) {
+        var message = T(data.error_code);
+        if (data.error_subcode) {
+            message += ': ' + T(data.error_subcode);
+        } else if (data.message) {
+            message += ': ' + data.message;
+        }
+        return message;
+    }
+
+    moveLocalArraysAccount = (index, src, dst) => {
+        if (index === -1) {
+            return
+        }
+        this.addLocalArrayAccount(dst, src[index]);
+        this.removeLocalArrayAccount(src, index);
+    }
+
+    getSelectBoxSelectedIndex = (selectBox) => {
+        return selectBox.selectedIndex;
+    }
+
+    addLocalArrayAccount = (arr, account) => {
+        arr.push(account);
+    }
+
+    removeLocalArrayAccount = (arr, index) => {
+        if (index === -1) {
+            return
+        }
+        arr.splice(index, 1);
+    }
+
+    buildUserAccountsOptions() {
+        return this.buildSelectBoxOptions(this.state.userAccounts);
+    }
+
+    buildNonUserAccountsOptions() {
+        return this.buildSelectBoxOptions(this.state.nonUserAccounts);
     }
 
     buildSelectBoxOptions(accounts) {
@@ -68,16 +133,6 @@ class UserEdit extends Component {
 
     buildSelectBoxOption = (val) => {
         return <option key={val} value={val}>{val}</option>; 
-    }
-
-    formatError(data) {
-        var message = T(data.error_code);
-        if (data.error_subcode) {
-            message += ': ' + T(data.error_subcode);
-        } else if (data.message) {
-            message += ': ' + data.message;
-        }
-        return message;
     }
 
     handleChangeUsername = (e) => {
@@ -104,57 +159,43 @@ class UserEdit extends Component {
         this.setState({user: user});
     }
 
+    populateUserAccounts = (e) => {
+        var user = this.state.user;
+        user.Accounts = this.state.userAccounts;
+        this.setState({user: user});
+    }
+
     handleAddAccountClick = (e) => {
         e.preventDefault();
 
-        this.moveSelectBoxesOption(
-            this.state.nonUserAccountsOptions, 
-            this.state.userAccountsOptions, 
-            this.getSelectBoxSelectedIndex(this.refs.nonUserAccounts));
-        
+        this.moveLocalArraysAccount(
+            this.getSelectBoxSelectedIndex(this.refs.nonUserAccountsSelectBox),
+            this.state.nonUserAccounts, 
+            this.state.userAccounts
+        );
+
         this.forceUpdate();
     }
 
     handleRemoveAccountClick = (e) => {
         e.preventDefault();
 
-        this.moveSelectBoxesOption(
-            this.state.userAccountsOptions, 
-            this.state.nonUserAccountsOptions, 
-            this.getSelectBoxSelectedIndex(this.refs.userAccounts));
+        this.moveLocalArraysAccount(
+            this.getSelectBoxSelectedIndex(this.refs.userAccountsSelectBox),
+            this.state.userAccounts, 
+            this.state.nonUserAccounts, 
+        );
 
         this.forceUpdate();
-    }
-
-    moveSelectBoxesOption = (src, dst, index) => {
-        if (index == -1) {
-            return
-        }
-        this.addOption(dst, src[index]);
-        this.removeOption(src, index);
-    }
-
-    getSelectBoxSelectedIndex = (selectBox) => {
-        return selectBox.selectedIndex;
-    }
-
-    addOption = (options, val) => {
-        options.push(
-            <option key={val} value={val}>{val}</option>
-        );
-    }
-
-    removeOption = (options, index) => {
-        if (index > -1) {
-            options.splice(index, 1);
-        }
     }
 
     handleSaveClick = (e) => {
         e.preventDefault();
         var self = this;
 
-        if (this.state.user.id) {
+        this.populateUserAccounts();
+
+        if (this.state.user.ID) {
             // Update the existing user
             Users.update(this.state.user).then(function(response) {
                 var data = JSON.parse(response.body);
@@ -224,14 +265,14 @@ class UserEdit extends Component {
                                         <option key="superuser" value="300">Superuser</option>
                                     </select>
                                 </label>
-                                <label htmlFor="accounts">{T('accounts')}:
-                                    <select multiple id="accounts" ref="userAccounts">{this.state.userAccountsOptions}</select>
+                                <label htmlFor="accounts">{T('user-accounts')}:
+                                    <select multiple id="accounts" ref="userAccountsSelectBox">{this.buildUserAccountsOptions()}</select>
                                 </label> 
-                                <button onClick={this.handleAddAccountClick} className="p-button--positive">{T('↑ add ↑')}</button>
+                                <button onClick={this.handleRemoveAccountClick} className="p-button--neutral">↓ {T('remove')} ↓</button>
                                 &nbsp;
-                                <button onClick={this.handleRemoveAccountClick} className="p-button--negative">{T('↓ remove ↓')}</button>
+                                <button onClick={this.handleAddAccountClick} className="p-button--neutral">↑ {T('add')} ↑</button>
                                 <label htmlFor="otherAccounts">{T('other-accounts')}:
-                                    <select multiple id="other-accounts" ref="nonUserAccounts">{this.state.nonUserAccountsOptions}</select>
+                                    <select multiple id="other-accounts" ref="nonUserAccountsSelectBox">{this.buildNonUserAccountsOptions()}</select>
                                 </label> 
                             </fieldset>
                         </form>

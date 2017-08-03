@@ -54,8 +54,6 @@ class ModelList extends Component {
 
   getModels() {
     Models.list().then((response) => {
-      //TODO TRACE
-      console.log("MODELS:"+response.body)
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {

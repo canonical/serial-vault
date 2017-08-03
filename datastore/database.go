@@ -83,6 +83,7 @@ type Datastore interface {
 	RoleForUser(username string) int
 
 	ListUserAccounts(username string) ([]Account, error)
+	ListNotUserAccounts(username string) ([]Account, error)
 	ListAccountUsers(authorityID string) ([]User, error)
 }
 

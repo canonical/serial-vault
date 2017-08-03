@@ -20,6 +20,8 @@ var intlData = {
     zh: {
       "login": "<Login>",
       "logout": "<Logout>",
+      "add": "<Add>",
+      "remove": "<Remove>",
       "user-not-found": "<You do not have permissions to access this site>",
       "title": "串行库",
       "description": "<The Serial Vault is a web service that generates cryptographically-signed serial assertions.>",
@@ -38,7 +40,8 @@ var intlData = {
       "fingerprint": "<Fingerprint>",
       "models_available": "以下型号可供选择",
       "accounts": "<Account Assertions>",
-      "other-accounts": "<Other Account Assertions>",
+      "user-accounts": "<User Accounts>",
+      "other-accounts": "<Other Accounts>",
       "signinglog": "<Signing Log>",
       "signinglog-description": "<Log of the serial numbers and device-key fingerprints that have been used>",
       "systemuser": "<System-User>",
@@ -140,6 +143,7 @@ var intlData = {
       "error-fetch-users": "抓取用户时出错",
       "error-invalid-user": "用户ID无效",
       "error-get-user": "找不到用户",
+      "error-get-non-user-accounts": "无法获取用户没有关联的帐户",
       "error-user-data": "没有提供用户数据",
       "error-creating-user": "创建用户时出错",
       "error-updating-user": "更新用户时出错"
@@ -148,6 +152,8 @@ var intlData = {
     en: {
       "login": "Login",
       "logout": "Logout",
+      "add": "Add",
+      "remove": "Remove",
       "user-not-found": "You do not have permissions to access this site",
       "title": "Serial Vault",
       "description": "The Serial Vault is a web service that generates cryptographically-signed serial assertions.",
@@ -167,7 +173,8 @@ var intlData = {
       "models_available": "The following models are available",
       "users_available": "The following users are available",
       "accounts": "Account Assertions",
-      "other-accounts": "Other Account Assertions",
+      "user-accounts": "User Accounts",
+      "other-accounts": "Other Accounts",
       "signinglog": "Signing Log",
       "signinglog-description": "Log of the serial numbers and device-key fingerprints that have been used",
       "systemuser": "System-User",
@@ -269,6 +276,7 @@ var intlData = {
       "error-fetch-users": "Error fetching the users",
       "error-invalid-user": "Invalid user ID",
       "error-get-user": "Cannot find the user",
+      "error-get-non-user-accounts": "Cannot get user not related accounts",
       "error-user-data": "No user data supplied",
       "error-creating-user": "Error creating the user",
       "error-updating-user": "Error updating the user"

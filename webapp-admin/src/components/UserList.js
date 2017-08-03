@@ -75,7 +75,7 @@ class UserList extends Component {
   handleDeleteUser = (e) => {
     e.preventDefault();
     var users = this.state.users.filter((user) => {
-      return user.id === this.state.confirmDelete;
+      return user.ID === this.state.confirmDelete;
     });
     if (users.length === 0) {
       return;
