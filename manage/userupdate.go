@@ -59,6 +59,8 @@ func (cmd UserUpdateCommand) Execute(args []string) error {
 	if len(cmd.Username) == 0 && len(cmd.Name) == 0 && roleID == 0 && len(cmd.Email) == 0 {
 		return errors.New("No changes requested. Please supply user details to change")
 	}
+
+	originalUsername := user.Username
 	if len(cmd.Username) > 0 {
 		user.Username = cmd.Username
 	}
@@ -77,6 +79,10 @@ func (cmd UserUpdateCommand) Execute(args []string) error {
 		return fmt.Errorf("Error updating the user: %v", err)
 	}
 
-	fmt.Printf("User '%s' updated successfully\n", user.Username)
+	if len(cmd.Username) > 0 && user.Username != originalUsername {
+		fmt.Printf("User '%s' updated successfully to '%s'\n", originalUsername, user.Username)
+	} else {
+		fmt.Printf("User '%s' updated successfully\n", user.Username)
+	}
 	return nil
 }

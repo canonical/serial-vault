@@ -82,6 +82,9 @@ func (s *ManageSuite) TestUser(c *check.C) {
 			Args:         []string{"manage", "user", "update", "sv", "-n", "Simon Vault"},
 			ErrorMessage: ""},
 		manTest{
+			Args:         []string{"manage", "user", "update", "sv", "-u", "svault"},
+			ErrorMessage: ""},
+		manTest{
 			Args:         []string{"manage", "user", "delete"},
 			ErrorMessage: "Delete user expects a 'username' argument"},
 		manTest{
