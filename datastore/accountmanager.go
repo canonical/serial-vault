@@ -55,6 +55,18 @@ const listUserAccountsSQL = `
 	where u.username=$1
 `
 
+const listNotUserAccountsSQL = `
+	select id, authority_id, assertion 
+	from account
+	where id not in (
+		select a.id 
+		from account a
+		inner join useraccountlink l on a.id = l.account_id
+		inner join userinfo u on l.user_id = u.id
+		where u.username=$1
+	)
+`
+
 // Account holds the store account assertion in the local database
 type Account struct {
 	ID          int
@@ -135,6 +147,18 @@ func (db *DB) ListUserAccounts(username string) ([]Account, error) {
 	rows, err := db.Query(listUserAccountsSQL, username)
 	if err != nil {
 		log.Printf("Error retrieving database accounts of certain user: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	return rowsToAccounts(rows)
+}
+
+// ListNotUserAccounts returns a list of Account objects that are not related with certain user
+func (db *DB) ListNotUserAccounts(username string) ([]Account, error) {
+	rows, err := db.Query(listNotUserAccountsSQL, username)
+	if err != nil {
+		log.Printf("Error retrieving database accounts not belonging to certain user: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()

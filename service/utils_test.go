@@ -141,3 +141,63 @@ func TestModelNameUpperChar(t *testing.T) {
 		t.Error("Error happening is not the one searched for")
 	}
 }
+
+func TestUserName(t *testing.T) {
+	username := "myusername"
+	err := validateUsername(username)
+	if err != nil {
+		t.Errorf("Not a valid username: %v", err)
+	}
+}
+
+func TestUsernameEmpty(t *testing.T) {
+	username := ""
+	err := validateUsername(username)
+	if err == nil {
+		t.Error("Expected username not to be valid, but it is")
+	}
+	if err.Error() != "Username must not be empty" {
+		t.Error("Error happening is not the one searched for")
+	}
+}
+
+func TestUsernameInvalidChar(t *testing.T) {
+	username := "myusername_"
+	err := validateUsername(username)
+	if err == nil {
+		t.Error("Expected username not to be valid, but it is")
+	}
+	if !strings.Contains(err.Error(), "Username contains invalid characters") {
+		t.Error("Error happening is not the one searched for")
+	}
+}
+
+func TestUsernameUpperChar(t *testing.T) {
+	username := "myUsername"
+	err := validateUsername(username)
+	if err == nil {
+		t.Error("Expected username not to be valid, but it is")
+	}
+	if err.Error() != "Username must not contain uppercase characters" {
+		t.Error("Error happening is not the one searched for")
+	}
+}
+
+func TestUserFullName(t *testing.T) {
+	name := "Federico Martín Bahamontes"
+	err := validateUserFullName(name)
+	if err != nil {
+		t.Errorf("Not a valid name: %v", err)
+	}
+}
+
+func TestUserFullNameEmpty(t *testing.T) {
+	name := ""
+	err := validateUserFullName(name)
+	if err == nil {
+		t.Error("Expected name not to be valid, but it is")
+	}
+	if err.Error() != "Name must not be empty" {
+		t.Error("Error happening is not the one searched for")
+	}
+}

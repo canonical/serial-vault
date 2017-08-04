@@ -20,7 +20,7 @@ import Ajax from '../models/Ajax'
 import {Role} from './Constants'
 
 
-const sections = ['models', 'keypairs', 'accounts', 'signinglog', 'systemuser', 'notfound']
+const sections = ['models', 'keypairs', 'accounts', 'signinglog', 'systemuser', 'users', 'notfound']
 
 
 export function sectionFromPath(path) {
@@ -119,6 +119,25 @@ export function isUserAdmin(token) {
 
 export function isUserSuperuser(token) {
     return isUser(Role.Superuser, token)
+}
+
+export function roleAsString(role) {
+    var str
+    switch (role) {
+        case Role.Standard:
+            str = "Standard"	
+            break;
+        case Role.Admin:
+            str = "Admin"
+            break;
+        case Role.Superuser:
+            str = "Superuser"
+            break
+        default:
+            str= "invalid role"
+            break;
+    }
+    return str
 }
 
 function isUser(role, token) {

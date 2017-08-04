@@ -223,9 +223,24 @@ func validateUserRole(role int) error {
 	return nil
 }
 
-func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
+func validateUserFullName(name string) error {
+	return validateNotEmpty("Name", name)
+}
+
+func validateUserEmail(email string) error {
+	return validateNotEmpty("Email", email)
+}
+
+func validateNotEmpty(fieldName, fieldValue string) error {
 	if len(fieldValue) == 0 {
 		return fmt.Errorf("%v must not be empty", fieldName)
+	}
+	return nil
+}
+
+func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
+	if err := validateNotEmpty(fieldName, fieldValue); err != nil {
+		return err
 	}
 
 	if strings.ToLower(fieldValue) != fieldValue {

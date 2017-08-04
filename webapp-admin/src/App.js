@@ -26,6 +26,8 @@ import AccountForm from './components/AccountForm'
 import AccountKeyForm from './components/AccountKeyForm'
 import SigningLog from './components/SigningLog'
 import SystemUserForm from './components/SystemUserForm'
+import UserList from './components/UserList'
+import UserEdit from './components/UserEdit'
 import {sectionFromPath, sectionIdFromPath} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
@@ -74,6 +76,19 @@ class App extends Component {
     }
   }
 
+  renderUsers() {
+    const id = sectionIdFromPath(window.location.pathname, 'users')
+
+    switch(id) {
+      case 'new':
+        return <UserEdit token={this.props.token} />
+      case '':
+        return <UserList token={this.props.token} />
+      default:
+        return <UserEdit token={this.props.token} id={id} />
+    }
+  }
+
 
   render() {
 
@@ -96,6 +111,8 @@ class App extends Component {
           {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
 
           {currentSection==='systemuser'? <SystemUserForm token={this.props.token} /> : ''}
+
+          {currentSection==='users'? this.renderUsers() : ''}
 
           <Footer />
       </div>

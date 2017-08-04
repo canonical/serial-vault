@@ -84,6 +84,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserGetHandler))).Methods("GET")
 	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserUpdateHandler))).Methods("PUT")
 	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserDeleteHandler))).Methods("DELETE")
+	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", Middleware(http.HandlerFunc(UserOtherAccountsGetHandler))).Methods("GET")
 
 	// OpenID routes: using Ubuntu SSO
 	router.Handle("/login", Middleware(http.HandlerFunc(usso.LoginHandler)))
