@@ -85,20 +85,6 @@ func (s *UserSuite) TestUser(c *check.C) {
 	}
 
 	for _, t := range tests {
-		s.runTest(c, t.Args, t.ErrorMessage)
-	}
-}
-
-func (s *UserSuite) runTest(c *check.C, args []string, errorMessage string) {
-
-	restore := mockArgs(args...)
-	defer restore()
-
-	err := RunMain()
-
-	if len(errorMessage) == 0 {
-		c.Check(err, check.IsNil)
-	} else {
-		c.Assert(err, check.ErrorMatches, errorMessage)
+		runTest(c, t.Args, t.ErrorMessage)
 	}
 }

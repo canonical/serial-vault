@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,12 +17,12 @@
  *
  */
 
-package main
+package manage
 
 import (
+	"fmt"
 	"log"
 
-	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
@@ -42,7 +42,7 @@ func execOne(method func() error, action, tableName string) {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		log.Printf("%sd the '%s' table.", action, tableName)
+		fmt.Printf("%sd the '%s' table.\n", action, tableName)
 	}
 }
 
@@ -52,14 +52,21 @@ func exec(operations []operation) {
 	}
 }
 
-func main() {
-	datastore.Environ = &datastore.Env{}
-	// Parse the command line arguments
-	config.ParseArgs()
-	config.ReadConfig(&datastore.Environ.Config, config.SettingsFile)
+// DatabaseCommand is the main command for database management
+type DatabaseCommand struct{}
 
-	// Open the connection to the local database
-	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
+// Execute the database schema updates
+func (cmd DatabaseCommand) Execute(args []string) error {
+	fmt.Println("Update the database schema...")
+
+	openDatabase()
+
+	updateDatabase()
+
+	return nil
+}
+
+func updateDatabase() {
 
 	// Execute all create and alter table operations
 	operations := []operation{
@@ -107,12 +114,12 @@ func main() {
 
 	// Initalize the TPM store, authenticating with the TPM 2.0 module
 	if datastore.Environ.Config.KeyStoreType == datastore.TPM20Store.Name {
-		log.Println("Initialize the TPM2.0 store")
+		fmt.Println("Initialize the TPM2.0 store")
 		err := datastore.TPM2InitializeKeystore(nil)
 		if err != nil {
 			log.Fatal(err)
 		} else {
-			log.Println("Initialized TPM 2.0 module.")
+			fmt.Println("Initialized TPM 2.0 module.")
 		}
 	}
 

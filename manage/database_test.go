@@ -20,32 +20,47 @@
 package manage
 
 import (
-	"github.com/CanonicalLtd/serial-vault/account"
+	"log"
+
+	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+
 	"gopkg.in/check.v1"
 )
 
-type AccountSuite struct{}
+type databaseSuite struct{}
 
-var _ = check.Suite(&AccountSuite{})
+var _ = check.Suite(&databaseSuite{})
 
-func (s *AccountSuite) SetUpTest(c *check.C) {
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+func (s *databaseSuite) SetUpTest(c *check.C) {
 
-	// Mock the retrieval of the assertion from the store (using a fixed assertion)
-	account.FetchAssertionFromStore = account.MockFetchAssertionFromStore
+	mockDB := datastore.MockDB{}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &mockDB, Config: config}
+	datastore.OpenKeyStore(config)
 }
 
-func (s *AccountSuite) TestAccount(c *check.C) {
+func (s *databaseSuite) TestDoTable(c *check.C) {
+	m1 := func() error {
+		log.Println("Successful execution 1")
+		return nil
+	}
+
+	m2 := func() error {
+		log.Println("Successful execution 2")
+		return nil
+	}
+
+	exec([]operation{
+		{m1, create, "the table 1"},
+		{m2, update, "the table 2"},
+	})
+}
+
+func (s *databaseSuite) TestDatabase(c *check.C) {
 	tests := []manTest{
 		manTest{
-			Args:         []string{"manage", "account"},
-			ErrorMessage: "Please specify the cache command"},
-		manTest{
-			Args:         []string{"manage", "account", "invalid"},
-			ErrorMessage: "Unknown command `invalid'. You should use the cache command"},
-		manTest{
-			Args:         []string{"manage", "account", "cache"},
+			Args:         []string{"manage", "database"},
 			ErrorMessage: ""},
 	}
 

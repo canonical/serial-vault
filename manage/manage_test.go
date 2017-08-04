@@ -48,3 +48,17 @@ func RunMain() error {
 	_, err := parser.Parse()
 	return err
 }
+
+func runTest(c *check.C, args []string, errorMessage string) {
+
+	restore := mockArgs(args...)
+	defer restore()
+
+	err := RunMain()
+
+	if len(errorMessage) == 0 {
+		c.Check(err, check.IsNil)
+	} else {
+		c.Assert(err, check.ErrorMatches, errorMessage)
+	}
+}

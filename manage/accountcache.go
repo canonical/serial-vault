@@ -30,7 +30,7 @@ import (
 // This command would normally be run as a cron
 type AccountCacheCommand struct{}
 
-// Execute the list of users
+// Execute the caching of account assertions
 func (cmd AccountCacheCommand) Execute(args []string) error {
 	fmt.Println("Update account assertions from the Ubuntu store...")
 
