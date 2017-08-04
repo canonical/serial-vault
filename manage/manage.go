@@ -28,7 +28,8 @@ import (
 type Command struct {
 	SettingsFile string `short:"c" long:"config" description:"Path to the config file" default:"./settings.yaml"`
 
-	User UserCommand `command:"user" alias:"u" description:"User management"`
+	User    UserCommand    `command:"user" alias:"u" description:"User management"`
+	Account AccountCommand `command:"account" alias:"a" description:"Account management"`
 }
 
 // Manage is the implementation of the command configuration for the manage command-line

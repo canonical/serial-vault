@@ -17,29 +17,27 @@
  *
  */
 
-package main
+package manage
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/CanonicalLtd/serial-vault/account"
-	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-func main() {
-	datastore.Environ = &datastore.Env{}
+// AccountCacheCommand handles the caching of account assertions from the store.
+// This command would normally be run as a cron
+type AccountCacheCommand struct{}
 
-	// Parse the command line arguments
-	account.ParseArgs()
-	err := config.ReadConfig(&datastore.Environ.Config, account.SettingsFile)
-	if err != nil {
-		log.Fatalf("Error parsing the config file: %v\n", err)
-	}
+// Execute the list of users
+func (cmd AccountCacheCommand) Execute(args []string) error {
+	fmt.Println("Update account assertions from the Ubuntu store...")
 
-	// Open the connection to the local database
-	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
+	openDatabase()
 
 	// Cache the account assertions from the store in the database
 	account.CacheAccountAssertions(datastore.Environ)
+
+	return nil
 }

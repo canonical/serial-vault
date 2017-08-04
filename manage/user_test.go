@@ -17,33 +17,22 @@
  *
  */
 
-package main
+package manage
 
 import (
-	"testing"
-
 	"github.com/CanonicalLtd/serial-vault/datastore"
-
 	"gopkg.in/check.v1"
 )
 
-// Hook up check.v1 into the "go test" runner
-func Test(t *testing.T) { check.TestingT(t) }
+type UserSuite struct{}
 
-type manTest struct {
-	Args         []string
-	ErrorMessage string
-}
+var _ = check.Suite(&UserSuite{})
 
-type ManageSuite struct{}
-
-var _ = check.Suite(&ManageSuite{})
-
-func (s *ManageSuite) SetUpTest(c *check.C) {
+func (s *UserSuite) SetUpTest(c *check.C) {
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 }
 
-func (s *ManageSuite) TestUser(c *check.C) {
+func (s *UserSuite) TestUser(c *check.C) {
 	tests := []manTest{
 		manTest{
 			Args:         []string{"manage", "user"},
@@ -100,7 +89,7 @@ func (s *ManageSuite) TestUser(c *check.C) {
 	}
 }
 
-func (s *ManageSuite) runTest(c *check.C, args []string, errorMessage string) {
+func (s *UserSuite) runTest(c *check.C, args []string, errorMessage string) {
 
 	restore := mockArgs(args...)
 	defer restore()
