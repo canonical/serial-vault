@@ -235,6 +235,7 @@ func validateNotEmpty(fieldName, fieldValue string) error {
 	if len(fieldValue) == 0 {
 		return fmt.Errorf("%v must not be empty", fieldName)
 	}
+	return nil
 }
 
 func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
