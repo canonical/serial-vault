@@ -117,15 +117,26 @@ class UserEdit extends Component {
         this.setState({user: user});
     }
 
+    buildRequestData() {
+        var requestData = {}
+        var user = this.state.user
+        requestData['username'] = user.Username
+        requestData['name'] = user.Name
+        requestData['email'] = user.Email
+        requestData['role'] = user.Role
+        requestData['accounts'] = this.state.assignedAccounts
+        return requestData
+    }
+
     handleSaveClick = (e) => {
         e.preventDefault();
         var self = this;
 
-        this.populateUserAccounts();
+        var requestData = this.buildRequestData()
 
         if (this.state.user.ID) {
             // Update the existing user
-            Users.update(this.state.user).then(function(response) {
+            Users.update(requestData).then(function(response) {
                 var data = JSON.parse(response.body);
                 if (response.statusCode >= 300) {
                     self.setState({error: self.formatError(data)});
@@ -135,7 +146,7 @@ class UserEdit extends Component {
             });
         } else {
             // Create a new user
-            Users.create(this.state.user).then(function(response) {
+            Users.create(requestData).then(function(response) {
                 var data = JSON.parse(response.body);
                 if (response.statusCode >= 300) {
                     self.setState({error: self.formatError(data)});

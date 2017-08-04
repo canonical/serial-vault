@@ -80,9 +80,7 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// TODO decoding JSON body directly to User struct for now. In future, when managing Accounts
-	// separatedly, we'll use UserRequest struct instead
-	userRequest := datastore.User{}
+	userRequest := UserRequest{}
 	err = json.NewDecoder(r.Body).Decode(&userRequest)
 	switch {
 
@@ -137,7 +135,7 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     userRequest.Name,
 		Email:    userRequest.Email,
 		Role:     userRequest.Role,
-		Accounts: userRequest.Accounts,
+		Accounts: datastore.BuildAccountsFromAuthorityIDs(userRequest.Accounts),
 	}
 	user.ID, err = datastore.Environ.DB.CreateUser(user)
 	if err != nil {
@@ -254,9 +252,7 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// TODO decoding JSON body directly to User struct for now. In future, when managing Accounts
-	// separatedly, we'll use UserRequest struct instead
-	userRequest := datastore.User{}
+	userRequest := UserRequest{}
 	err = json.NewDecoder(r.Body).Decode(&userRequest)
 	switch {
 	// Check we have some data
@@ -289,11 +285,11 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	// Update the database
 	user := datastore.User{
 		ID:       id,
-		Name:     userRequest.Name,
 		Username: userRequest.Username,
+		Name:     userRequest.Name,
 		Email:    userRequest.Email,
 		Role:     userRequest.Role,
-		Accounts: userRequest.Accounts,
+		Accounts: datastore.BuildAccountsFromAuthorityIDs(userRequest.Accounts),
 	}
 	err = datastore.Environ.DB.UpdateUser(user)
 	if err != nil {
