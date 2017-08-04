@@ -19,10 +19,23 @@
 
 package manage
 
+import "fmt"
+
 // UserCommand is the main command for user management
 type UserCommand struct {
 	List   UserListCommand   `command:"list" alias:"ls" alias:"l" description:"List the users"`
 	Add    UserAddCommand    `command:"add" alias:"a" description:"Add a new user"`
 	Update UserUpdateCommand `command:"update" alias:"a" description:"Update an existing user"`
 	Delete UserDeleteCommand `command:"delete" alias:"d" description:"Delete an existing user"`
+}
+
+func checkUsernameArg(args []string, action string) error {
+	switch len(args) {
+	case 0:
+		return fmt.Errorf("%s user expects a 'username' argument", action)
+	case 1:
+		return nil
+	default:
+		return fmt.Errorf("%s user expects a single 'username' argument", action)
+	}
 }

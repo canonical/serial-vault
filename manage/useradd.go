@@ -20,7 +20,6 @@
 package manage
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
@@ -28,16 +27,17 @@ import (
 
 // UserAddCommand handles adding a new user for the manage command
 type UserAddCommand struct {
-	Name           string `short:"n" long:"name" description:"Full name of the user" required:"yes"`
-	RoleName       string `short:"r" long:"role" description:"Role of the user" required:"yes" choice:"standard" choice:"admin" choice:"superuser"`
-	Email          string `short:"e" long:"email" description:"Email of the user"`
-	OpenIDIdentity string `short:"i" long:"identity" description:"OpenID Identity of the user"`
+	Name     string `short:"n" long:"name" description:"Full name of the user" required:"yes"`
+	RoleName string `short:"r" long:"role" description:"Role of the user" required:"yes" choice:"standard" choice:"admin" choice:"superuser"`
+	Email    string `short:"e" long:"email" description:"Email of the user"`
 }
 
 // Execute the adding a new user
 func (cmd UserAddCommand) Execute(args []string) error {
-	if len(args) != 1 {
-		return errors.New("Add user expects a single 'username' argument")
+
+	err := checkUsernameArg(args, "Add")
+	if err != nil {
+		return err
 	}
 
 	// Convert the rolename to an ID
@@ -49,15 +49,14 @@ func (cmd UserAddCommand) Execute(args []string) error {
 	// Open the database and create the user
 	openDatabase()
 	user := datastore.User{
-		Username:       args[0],
-		Name:           cmd.Name,
-		Role:           roleID,
-		Email:          cmd.Email,
-		OpenIDIdentity: cmd.OpenIDIdentity,
-		Accounts:       []datastore.Account{},
+		Username: args[0],
+		Name:     cmd.Name,
+		Role:     roleID,
+		Email:    cmd.Email,
+		Accounts: []datastore.Account{},
 	}
 
-	_, err := datastore.Environ.DB.CreateUser(user)
+	_, err = datastore.Environ.DB.CreateUser(user)
 	if err != nil {
 		return fmt.Errorf("Error creating the user: %v", err)
 	}

@@ -20,7 +20,6 @@
 package manage
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
@@ -31,8 +30,9 @@ type UserDeleteCommand struct{}
 
 // Execute user deletion
 func (cmd UserDeleteCommand) Execute(args []string) error {
-	if len(args) != 1 {
-		return errors.New("Delete user expects a single 'username' argument")
+	err := checkUsernameArg(args, "Delete")
+	if err != nil {
+		return err
 	}
 
 	// Open the database and get the user from the database

@@ -62,7 +62,7 @@ func (s *ManageSuite) TestUser(c *check.C) {
 			ErrorMessage: "Invalid value `invalid' for option `-r, --role'. Allowed values are: standard, admin or superuser"},
 		manTest{
 			Args:         []string{"manage", "user", "add", "-n", "John Smith", "-r", "admin"},
-			ErrorMessage: "Add user expects a single 'username' argument"},
+			ErrorMessage: "Add user expects a 'username' argument"},
 		manTest{
 			Args:         []string{"manage", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin"},
 			ErrorMessage: ""},
@@ -71,15 +71,21 @@ func (s *ManageSuite) TestUser(c *check.C) {
 			ErrorMessage: "unknown flag `b'"},
 		manTest{
 			Args:         []string{"manage", "user", "update"},
+			ErrorMessage: "Update user expects a 'username' argument"},
+		manTest{
+			Args:         []string{"manage", "user", "update", "john", "smith"},
 			ErrorMessage: "Update user expects a single 'username' argument"},
 		manTest{
 			Args:         []string{"manage", "user", "update", "sv"},
-			ErrorMessage: ""},
+			ErrorMessage: "No changes requested. Please supply user details to change"},
 		manTest{
 			Args:         []string{"manage", "user", "update", "sv", "-n", "Simon Vault"},
 			ErrorMessage: ""},
 		manTest{
 			Args:         []string{"manage", "user", "delete"},
+			ErrorMessage: "Delete user expects a 'username' argument"},
+		manTest{
+			Args:         []string{"manage", "user", "delete", "john", "smith"},
 			ErrorMessage: "Delete user expects a single 'username' argument"},
 		manTest{
 			Args:         []string{"manage", "user", "delete", "sv"},

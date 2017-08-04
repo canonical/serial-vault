@@ -28,16 +28,18 @@ import (
 
 // UserUpdateCommand handles updating a user for the manage command
 type UserUpdateCommand struct {
-	Name           string `short:"n" long:"name" description:"Full name of the user"`
-	RoleName       string `short:"r" long:"role" description:"Role of the user" choice:"standard" choice:"admin" choice:"superuser"`
-	Email          string `short:"e" long:"email" description:"Email of the user"`
-	OpenIDIdentity string `short:"i" long:"identity" description:"OpenID Identity of the user"`
+	Name     string `short:"n" long:"name" description:"Full name of the user"`
+	Username string `short:"u" long:"username" description:"Username of the user"`
+	RoleName string `short:"r" long:"role" description:"Role of the user" choice:"standard" choice:"admin" choice:"superuser"`
+	Email    string `short:"e" long:"email" description:"Email of the user"`
 }
 
 // Execute the user update
 func (cmd UserUpdateCommand) Execute(args []string) error {
-	if len(args) != 1 {
-		return errors.New("Update user expects a single 'username' argument")
+
+	err := checkUsernameArg(args, "Update")
+	if err != nil {
+		return err
 	}
 
 	// Convert the rolename to an ID
@@ -54,6 +56,12 @@ func (cmd UserUpdateCommand) Execute(args []string) error {
 	}
 
 	// Only update the fields that have been supplied
+	if len(cmd.Username) == 0 && len(cmd.Name) == 0 && roleID == 0 && len(cmd.Email) == 0 {
+		return errors.New("No changes requested. Please supply user details to change")
+	}
+	if len(cmd.Username) > 0 {
+		user.Username = cmd.Username
+	}
 	if len(cmd.Name) > 0 {
 		user.Name = cmd.Name
 	}
@@ -62,9 +70,6 @@ func (cmd UserUpdateCommand) Execute(args []string) error {
 	}
 	if len(cmd.Email) > 0 {
 		user.Email = cmd.Email
-	}
-	if len(cmd.OpenIDIdentity) > 0 {
-		user.OpenIDIdentity = cmd.OpenIDIdentity
 	}
 
 	err = datastore.Environ.DB.UpdateUser(user)
