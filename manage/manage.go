@@ -29,6 +29,7 @@ type Command struct {
 	SettingsFile string `short:"c" long:"config" description:"Path to the config file" default:"./settings.yaml"`
 
 	Account  AccountCommand  `command:"account" alias:"a" description:"Account management"`
+	Client   ClientCommand   `command:"client" alias:"c" description:"Serial-Vault Client to generate a test serial assertion request"`
 	Database DatabaseCommand `command:"database" alias:"d" description:"Database schema update"`
 	User     UserCommand     `command:"user" alias:"u" description:"User management"`
 }

@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,70 +17,54 @@
  *
  */
 
-package main
+package manage
 
 import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"flag"
+	"errors"
+	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-
-	"log"
-
-	"fmt"
-
-	"errors"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/snapcore/snapd/asserts"
 )
 
-type requestParams struct {
-	Brand        string
-	Model        string
-	SerialNumber string
-	URL          string
-	APIKey       string
+// ClientCommand is the command for the serial-vault test client
+type ClientCommand struct {
+	Brand        string `short:"b" long:"brand" description:"The brand-id of the device" required:"yes"`
+	Model        string `short:"m" long:"model" description:"The model name of the device" required:"yes"`
+	SerialNumber string `short:"s" long:"serial" description:"The serial number of the device" required:"yes"`
+	URL          string `short:"u" long:"url" description:"The base URL of the serial vault API" required:"yes"`
+	APIKey       string `short:"a" long:"api" description:"The API Key for the serial vault" required:"yes"`
 }
 
-var request requestParams
-
-func main() {
-	// Get the parameters from the command line
-	parseCommandLine()
-
+// Execute the database schema updates
+func (cmd ClientCommand) Execute(args []string) error {
 	// Create a serial-request assertion
-	serialRequest, err := generateSerialRequestAssertion()
+	serialRequest, err := cmd.generateSerialRequestAssertion()
 	if err != nil {
 		log.Println(err.Error())
 		os.Exit(1)
 	}
 
 	// Send it to the serial vault via HTTPS
-	serialAssertion, err := getSerial(serialRequest)
+	serialAssertion, err := cmd.getSerial(serialRequest)
 	if err != nil {
 		log.Println(err.Error())
 		os.Exit(1)
 	}
 
 	fmt.Println(serialAssertion)
-	os.Exit(0)
+	return nil
 }
 
-func parseCommandLine() {
-	flag.StringVar(&request.Brand, "brand", "", "The brand-id of the device")
-	flag.StringVar(&request.Model, "model", "", "The model name of the device")
-	flag.StringVar(&request.SerialNumber, "serial", "", "The serial number of the device")
-	flag.StringVar(&request.URL, "url", "", "The base URL of the serial vault API")
-	flag.StringVar(&request.APIKey, "api", "", "The API Key for the serial vault")
-	flag.Parse()
-}
-
-func generatePrivateKey() (asserts.PrivateKey, error) {
+func (cmd ClientCommand) generatePrivateKey() (asserts.PrivateKey, error) {
 	signingKey, err := ioutil.ReadFile("./keystore/TestDeviceKey.asc")
 	if err != nil {
 		return nil, err
@@ -91,8 +75,8 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func generateSerialRequestAssertion() (string, error) {
-	privateKey, err := generatePrivateKey()
+func (cmd ClientCommand) generateSerialRequestAssertion() (string, error) {
+	privateKey, err := cmd.generatePrivateKey()
 	if err != nil {
 		return "", err
 	}
@@ -102,14 +86,14 @@ func generateSerialRequestAssertion() (string, error) {
 	}
 
 	// Generate a request-id
-	r, _ := getRequestID()
+	r, _ := cmd.getRequestID()
 
 	headers := map[string]interface{}{
-		"brand-id":   request.Brand,
+		"brand-id":   cmd.Brand,
 		"device-key": string(encodedPubKey),
 		"request-id": r,
-		"model":      request.Model,
-		"serial":     request.SerialNumber,
+		"model":      cmd.Model,
+		"serial":     cmd.SerialNumber,
 	}
 
 	sreq, err := asserts.SignWithoutAuthority(asserts.SerialRequestType, headers, []byte(""), privateKey)
@@ -121,9 +105,9 @@ func generateSerialRequestAssertion() (string, error) {
 	return string(assertSR), nil
 }
 
-func getRequestID() (string, error) {
+func (cmd ClientCommand) getRequestID() (string, error) {
 	// Format the URL and headers for the HTTP call
-	req := getHTTPRequest("request-id", "")
+	req := cmd.getHTTPRequest("request-id", "")
 
 	// Call the /request-id API
 	client := &http.Client{}
@@ -145,9 +129,9 @@ func getRequestID() (string, error) {
 	return result.RequestID, nil
 }
 
-func getSerial(serialRequest string) (string, error) {
+func (cmd ClientCommand) getSerial(serialRequest string) (string, error) {
 	// Format the URL and headers for the HTTP call
-	req := getHTTPRequest("serial", serialRequest)
+	req := cmd.getHTTPRequest("serial", serialRequest)
 
 	// Call the /request-id API
 	client := &http.Client{}
@@ -177,11 +161,11 @@ func getSerial(serialRequest string) (string, error) {
 	return string(body), err
 }
 
-func getHTTPRequest(method, body string) *http.Request {
+func (cmd ClientCommand) getHTTPRequest(method, body string) *http.Request {
 	// Format the URL and headers for the HTTP call
-	url := fmt.Sprintf("%s%s", request.URL, method)
+	url := fmt.Sprintf("%s%s", cmd.URL, method)
 	req, _ := http.NewRequest("POST", url, bytes.NewBufferString(body))
-	req.Header.Set("api-key", request.APIKey)
+	req.Header.Set("api-key", cmd.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	return req
