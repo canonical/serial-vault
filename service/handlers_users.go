@@ -107,6 +107,22 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate name; the rule is: not empty
+	err = validateUserFullName(userRequest.Name)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
+		return
+	}
+
+	// Validate email; the rule is: not empty
+	err = validateUserEmail(userRequest.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
+		return
+	}
+
 	// Validate role; the rule is the role is 100, 200 or 300
 	err = validateUserRole(userRequest.Role)
 	if err != nil {
