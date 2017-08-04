@@ -6,6 +6,7 @@ github.com/gorilla/handlers	git	a5775781a543af3c6b9f5baf10995e4d14168950	2016-08
 github.com/gorilla/mux	git	757bef944d0f21880861c2dd9c871ca543023cba	2016-09-20T23:08:13Z
 github.com/gorilla/securecookie	git	fa5329f913702981df43dcb2a380bac429c810b5	2016-10-03T05:16:01Z
 github.com/juju/usso	git	5b79b358f4bb6735c1b00f6ad051c07c1a1a03e9	2016-04-18T12:10:39Z
+github.com/jessevdk/go-flags	git	96dc06278ce32a0e9d957d590bb987c81ee66407	2017-07-20T12:40:56Z
 github.com/lib/pq	git	50761b0867bd1d9d069276790bcd4a3bccf2324a	2016-08-31T22:25:20Z
 github.com/mattn/go-runewidth	git	14207d285c6c197daabb5c9793d63e7af9ab2d50	2017-02-01T02:35:40Z
 github.com/ojii/gettext.go	git	b6dae1d7af8a8441285e42661565760b530a8a57	2017-01-20T06:14:37Z

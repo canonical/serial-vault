@@ -118,8 +118,6 @@ func OpenSysDatabase(driver, dataSource string) {
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Error accessing the database: %v\n", err)
-	} else {
-		log.Println("Database opened successfully.")
 	}
 
 	Environ.DB = &DB{db}
