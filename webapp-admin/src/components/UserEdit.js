@@ -31,8 +31,8 @@ class UserEdit extends Component {
             error: null,
             // TODO temporary move user.Accounts to userAccounts, as backend provides accounts for the user 
             // that way. In future this will be get in an independant call.
-            userAccounts: [],
-            nonUserAccounts: [],
+            assignedAccounts: [],
+            availableAccounts: [],
         }
     }
 
@@ -40,11 +40,10 @@ class UserEdit extends Component {
         if (this.props.id) {
             this.setTitle('edit-user');
             this.getUser(this.props.id);
-            this.getNonUserAccounts(this.props.id);
         } else {
             this.setTitle('new-user');
-            this.getAllAccounts();
         }
+        this.getAllAccounts();
     }
 
     setTitle(title) {
@@ -57,17 +56,7 @@ class UserEdit extends Component {
             var data = JSON.parse(response.body);
             self.setState({
                 user: data.user, 
-                userAccounts: data.user.Accounts,
-            });
-        });
-    }
-
-    getNonUserAccounts(userId) {
-        var self = this;
-        Users.getotheraccounts(userId).then(function(response) {
-            var data = JSON.parse(response.body);
-            self.setState({
-                nonUserAccounts: data.accounts,
+                assignedAccounts: self.accountsToAuthorityIDs(data.user.Accounts),
             });
         });
     }
@@ -77,9 +66,17 @@ class UserEdit extends Component {
         Accounts.list().then(function(response) {
             var data = JSON.parse(response.body);
             self.setState({
-                nonUserAccounts: data.accounts,
+                availableAccounts: self.accountsToAuthorityIDs(data.accounts),
             });
         });
+    }
+
+    accountsToAuthorityIDs(accounts) {
+        var accs = [];
+        for (var i = 0; i < accounts.length; ++i) {
+            accs.push(accounts[i].AuthorityID)
+        }
+        return accs;
     }
 
     formatError(data) {
@@ -90,45 +87,6 @@ class UserEdit extends Component {
             message += ': ' + data.message;
         }
         return message;
-    }
-
-    moveLocalArraysAccount = (index, src, dst) => {
-        if (index === -1) {
-            return
-        }
-        this.addLocalArrayAccount(dst, src[index]);
-        this.removeLocalArrayAccount(src, index);
-    }
-
-    getSelectBoxSelectedIndex = (selectBox) => {
-        return selectBox.selectedIndex;
-    }
-
-    addLocalArrayAccount = (arr, account) => {
-        arr.push(account);
-    }
-
-    removeLocalArrayAccount = (arr, index) => {
-        if (index === -1) {
-            return
-        }
-        arr.splice(index, 1);
-    }
-
-    buildUserAccountsOptions() {
-        return this.buildSelectBoxOptions(this.state.userAccounts);
-    }
-
-    buildNonUserAccountsOptions() {
-        return this.buildSelectBoxOptions(this.state.nonUserAccounts);
-    }
-
-    buildSelectBoxOptions(accounts) {
-        var options = [];
-        for (var i = 0; i < accounts.length; ++i) {
-            options.push(this.buildSelectBoxOption(accounts[i].AuthorityID))
-        }
-        return options
     }
 
     buildSelectBoxOption = (val) => {
@@ -157,36 +115,6 @@ class UserEdit extends Component {
         var user = this.state.user;
         user.Role = parseInt(e.target.value, 10);
         this.setState({user: user});
-    }
-
-    populateUserAccounts = (e) => {
-        var user = this.state.user;
-        user.Accounts = this.state.userAccounts;
-        this.setState({user: user});
-    }
-
-    handleAddAccountClick = (e) => {
-        e.preventDefault();
-
-        this.moveLocalArraysAccount(
-            this.getSelectBoxSelectedIndex(this.refs.nonUserAccountsSelectBox),
-            this.state.nonUserAccounts, 
-            this.state.userAccounts
-        );
-
-        this.forceUpdate();
-    }
-
-    handleRemoveAccountClick = (e) => {
-        e.preventDefault();
-
-        this.moveLocalArraysAccount(
-            this.getSelectBoxSelectedIndex(this.refs.userAccountsSelectBox),
-            this.state.userAccounts, 
-            this.state.nonUserAccounts, 
-        );
-
-        this.forceUpdate();
     }
 
     handleSaveClick = (e) => {
@@ -218,6 +146,35 @@ class UserEdit extends Component {
         }
     }
 
+    handleClickAccount = (e) => {
+        e.preventDefault();
+        var acc = e.target.getAttribute('data-account');
+        var accounts = this.state.assignedAccounts;
+
+        var index = this.state.assignedAccounts.indexOf(acc);
+        if (index < 0) {
+            // Not found, so select it
+            accounts.push(acc);
+        } else {
+            // Found, so remove it
+            accounts.splice(index, 1);
+        }
+        this.setState({assignedAccounts: accounts});
+    }
+
+    renderAccountSelect(acc) {
+        var style = 'p-button--neutral';
+        if (this.state.assignedAccounts.indexOf(acc) >= 0) {
+            style = 'p-button--brand';
+        }
+
+        return (
+            <button key={acc} data-account={acc} onClick={this.handleClickAccount} className={style}>
+                {acc}
+            </button>
+        );
+    }
+
     renderError() {
         if (this.state.error) {
             return (
@@ -227,6 +184,7 @@ class UserEdit extends Component {
     }
 
     render() {
+        var self = this;
 
         if (!isUserSuperuser(this.props.token)) {
             return (
@@ -265,15 +223,17 @@ class UserEdit extends Component {
                                         <option key="superuser" value="300">Superuser</option>
                                     </select>
                                 </label>
-                                <label htmlFor="accounts">{T('user-accounts')}:
-                                    <select multiple id="accounts" ref="userAccountsSelectBox">{this.buildUserAccountsOptions()}</select>
-                                </label> 
-                                <button onClick={this.handleRemoveAccountClick} className="p-button--neutral">↓ {T('remove')} ↓</button>
-                                &nbsp;
-                                <button onClick={this.handleAddAccountClick} className="p-button--neutral">↑ {T('add')} ↑</button>
-                                <label htmlFor="otherAccounts">{T('other-accounts')}:
-                                    <select multiple id="other-accounts" ref="nonUserAccountsSelectBox">{this.buildNonUserAccountsOptions()}</select>
-                                </label> 
+                            </fieldset>
+
+                            <h3>{T('user-accounts')}</h3>
+                            
+                            <fieldset>
+                                <p>{T('select-accounts')}</p>
+                                <div className="hotspot">
+                                    {this.state.availableAccounts.map(function(acc) {
+                                        return self.renderAccountSelect(acc);
+                                    })}
+                                </div>
                             </fieldset>
                         </form>
 
