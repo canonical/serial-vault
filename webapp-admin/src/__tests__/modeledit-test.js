@@ -55,7 +55,7 @@ describe('model edit', function() {
 
         // Check that the form is rendered without data
         var inputs = ReactTestUtils.scryRenderedDOMComponentsWithTag(modelPage, 'input');
-        expect(inputs.length).toBe(2);
+        expect(inputs.length).toBe(3);
         expect(inputs[0].value).toBe('');
         expect(inputs[1].value).toBe('');
 
