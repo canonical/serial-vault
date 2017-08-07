@@ -79,14 +79,13 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	models := []ModelSerialize{}
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatModelsResponse(false, "error-auth", "", "", models, w)
 		return
 	}
 
-	dbModels, err := datastore.Environ.DB.ListModels(username)
+	dbModels, err := listAllowedModels(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -97,6 +96,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	// Format the database records for output
+
 	for _, model := range dbModels {
 		mdl := modelForDisplay(model)
 		models = append(models, mdl)
@@ -106,21 +106,39 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 	formatModelsResponse(true, "", "", "", models, w)
 }
 
+func listAllowedModels(authUser datastore.User) ([]datastore.Model, error) {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return listAllModels()
+	case datastore.Admin:
+		return listModelsFilteredByUser(authUser.Username)
+	}
+	return []datastore.Model{}, nil
+}
+
+// TODO: Move these two listAllModels and listModelsFilteredByUser to datastore
+func listAllModels() ([]datastore.Model, error) {
+	return datastore.Environ.DB.ListModels("")
+}
+
+func listModelsFilteredByUser(username string) ([]datastore.Model, error) {
+	return datastore.Environ.DB.ListModels(username)
+}
+
 // ModelGetHandler is the API method to get a model by ID.
 func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
 	}
 
 	vars := mux.Vars(r)
-
 	modelID, err := strconv.Atoi(vars["id"])
-
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("%v", vars)
@@ -128,7 +146,7 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	model, err := datastore.Environ.DB.GetModel(modelID, username)
+	model, err := getAllowedModel(modelID, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("Model ID: %d.", modelID)
@@ -142,12 +160,31 @@ func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	formatModelResponse(true, "", "", "", mdl, w)
 }
 
+func getAllowedModel(modelID int, authUser datastore.User) (datastore.Model, error) {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return getModel(modelID)
+	case datastore.Admin:
+		return getModelFilteredByUser(modelID, authUser.Username)
+	}
+	return datastore.Model{}, nil
+}
+
+func getModel(modelID int) (datastore.Model, error) {
+	return datastore.Environ.DB.GetModel(modelID, "")
+}
+
+func getModelFilteredByUser(modelID int, username string) (datastore.Model, error) {
+	return datastore.Environ.DB.GetModel(modelID, username)
+}
+
 // ModelUpdateHandler is the API method to update a model.
 func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -198,7 +235,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
-	errorSubcode, err := datastore.Environ.DB.UpdateModel(model, username)
+	errorSubcode, err := updateAllowedModel(model, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatModelResponse(false, "error-updating-model", errorSubcode, err.Error(), mdl, w)
@@ -209,12 +246,31 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	formatModelResponse(true, "", "", "", mdl, w)
 }
 
+func updateAllowedModel(model datastore.Model, authUser datastore.User) (string, error) {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return updateModel(model)
+	case datastore.Admin:
+		return updateModelFilteredByUser(model, authUser.Username)
+	}
+	return "", nil
+}
+
+func updateModel(model datastore.Model) (string, error) {
+	return datastore.Environ.DB.UpdateModel(model, "")
+}
+
+func updateModelFilteredByUser(model datastore.Model, username string) (string, error) {
+	return datastore.Environ.DB.UpdateModel(model, username)
+}
+
 // ModelDeleteHandler is the API method to delete a model.
 func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -232,7 +288,7 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Update the database
 	model := datastore.Model{ID: modelID}
-	errorSubcode, err := datastore.Environ.DB.DeleteModel(model, username)
+	errorSubcode, err := deleteAllowedModel(model, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -244,12 +300,31 @@ func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	formatModelResponse(true, "", "", "", ModelSerialize{}, w)
 }
 
+func deleteAllowedModel(model datastore.Model, authUser datastore.User) (string, error) {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return deleteModel(model)
+	case datastore.Admin:
+		return deleteModelFilteredByUser(model, authUser.Username)
+	}
+	return "", nil
+}
+
+func deleteModel(model datastore.Model) (string, error) {
+	return datastore.Environ.DB.DeleteModel(model, "")
+}
+
+func deleteModelFilteredByUser(model datastore.Model, username string) (string, error) {
+	return datastore.Environ.DB.DeleteModel(model, username)
+}
+
 // ModelCreateHandler is the API method to create a new model.
 func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -291,7 +366,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a new model, linked to the existing signing-key
 	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
-	model, errorSubcode, err = datastore.Environ.DB.CreateModel(model, username)
+	model, errorSubcode, err = createAllowedModel(model, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
@@ -302,4 +377,24 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
 	formatModelResponse(true, "", "", "", modelForDisplay(model), w)
+}
+
+func createAllowedModel(model datastore.Model, authUser datastore.User) (datastore.Model, string, error) {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return createModel(model)
+	case datastore.Admin:
+		return createModelFilteredByUser(model, authUser.Username)
+	}
+	return datastore.Model{}, "", nil
+}
+
+func createModel(model datastore.Model) (datastore.Model, string, error) {
+	return datastore.Environ.DB.CreateModel(model, "")
+}
+
+func createModelFilteredByUser(model datastore.Model, username string) (datastore.Model, string, error) {
+	return datastore.Environ.DB.CreateModel(model, username)
 }

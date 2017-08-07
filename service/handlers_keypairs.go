@@ -45,14 +45,13 @@ type KeypairWithPrivateKey struct {
 func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatKeypairsResponse(false, "error-auth", "", "", nil, w)
 		return
 	}
 
-	keypairs, err := datastore.Environ.DB.ListKeypairs(username)
+	keypairs, err := listAllowedKeypairs(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatKeypairsResponse(false, "error-fetch-keypairs", "", err.Error(), nil, w)
@@ -64,6 +63,26 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	formatKeypairsResponse(true, "", "", "", keypairs, w)
 }
 
+func listAllowedKeypairs(authUser datastore.User) ([]datastore.Keypair, error) {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return listAllKeypairs()
+	case datastore.Admin:
+		return listKeypairsFilteredByUser(authUser.Username)
+	}
+	return []datastore.Keypair{}, nil
+}
+
+func listAllKeypairs() ([]datastore.Keypair, error) {
+	return datastore.Environ.DB.ListKeypairs("")
+}
+
+func listKeypairsFilteredByUser(username string) ([]datastore.Keypair, error) {
+	return datastore.Environ.DB.ListKeypairs(username)
+}
+
 // KeypairCreateHandler is the API method to create a new keypair that can be used
 // for signing serial assertions. The keypairs are stored in the signing database
 // and the authority-id/key-id is stored in the models database. Models can then be
@@ -71,8 +90,7 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -111,7 +129,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(username, keypairWithKey.AuthorityID) {
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, keypairWithKey.AuthorityID) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
 		return
@@ -149,8 +167,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -167,7 +184,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, false, username)
+	err = updateAllowedKeypairActive(keypairID, false, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -183,8 +200,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -201,7 +217,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, true, username)
+	err = updateAllowedKeypairActive(keypairID, true, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -210,12 +226,31 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	formatBooleanResponse(true, "", "", "", w)
 }
 
+func updateAllowedKeypairActive(keypairID int, active bool, authUser datastore.User) error {
+	switch authUser.Role {
+	case 0:
+		fallthrough
+	case datastore.Superuser:
+		return updateKeypairActive(keypairID, active)
+	case datastore.Admin:
+		return updateKeypairActiveFilteredByUser(keypairID, active, authUser.Username)
+	}
+	return nil
+}
+
+func updateKeypairActive(keypairID int, active bool) error {
+	return datastore.Environ.DB.UpdateKeypairActive(keypairID, false, "")
+}
+
+func updateKeypairActiveFilteredByUser(keypairID int, active bool, username string) error {
+	return datastore.Environ.DB.UpdateKeypairActive(keypairID, false, username)
+}
+
 // KeypairAssertionHandler updates the account key assertion on a keypair
 func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Check the user and role from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetAuthUser(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -278,7 +313,7 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(username, assertion.AuthorityID()) {
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, assertion.AuthorityID()) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Authority", w)
 		return

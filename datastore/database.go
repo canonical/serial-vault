@@ -81,7 +81,6 @@ type Datastore interface {
 	CreateUserTable() error
 	CreateAccountUserLinkTable() error
 	CheckUserInAccount(username, authorityID string) bool
-	RoleForUser(username string) int
 	AlterUserTable() error
 
 	ListUserAccounts(username string) ([]Account, error)

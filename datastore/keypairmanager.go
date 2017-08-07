@@ -43,7 +43,7 @@ const listKeypairsForUserSQL = `
 	inner join account acc on acc.authority_id=k.authority_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where u.username=$1 and u.userrole >= $2
+	where u.username=$1
 	order by authority_id, key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
@@ -53,7 +53,7 @@ const toggleKeypairForUserSQL = `
 	from account acc 
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where k.id=$1 and u.username=$3 and u.userrole >= $4 and acc.authority_id=k.authority_id`
+	where k.id=$1 and u.username=$3 and acc.authority_id=k.authority_id`
 const upsertKeypairSQL = `
 	WITH upsert AS (
 		update keypair set authority_id=$1, key_id=$2, sealed_key=$3, assertion=$4
@@ -104,7 +104,7 @@ func (db *DB) ListKeypairs(username string) ([]Keypair, error) {
 	if len(username) == 0 {
 		rows, err = db.Query(listKeypairsSQL)
 	} else {
-		rows, err = db.Query(listKeypairsForUserSQL, username, Admin)
+		rows, err = db.Query(listKeypairsForUserSQL, username)
 	}
 	if err != nil {
 		log.Printf("Error retrieving database keypairs: %v\n", err)
@@ -160,7 +160,7 @@ func (db *DB) UpdateKeypairActive(keypairID int, active bool, username string) e
 	if len(username) == 0 {
 		_, err = db.Exec(toggleKeypairSQL, keypairID, active)
 	} else {
-		_, err = db.Exec(toggleKeypairForUserSQL, keypairID, active, username, Admin)
+		_, err = db.Exec(toggleKeypairForUserSQL, keypairID, active, username)
 	}
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)

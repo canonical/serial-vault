@@ -54,7 +54,7 @@ const listModelsForUserSQL = `
 	inner join account acc on acc.authority_id=m.brand_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where u.username=$1 and u.userrole >= $2
+	where u.username=$1
 	order by name
 `
 const findModelSQL = `
@@ -77,14 +77,14 @@ const getModelForUserSQL = `
 	inner join account acc on acc.authority_id=m.brand_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where m.id=$1 and u.username=$2 and u.userrole >= $3`
+	where m.id=$1 and u.username=$2`
 const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6 where id=$1"
 const updateModelForUserSQL = `
 	update model m set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6
 	from account acc
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7 and u.userrole >= $8`
+	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7`
 const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key) values ($1,$2,$3,$4,$5) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 const deleteModelForUserSQL = `
@@ -92,7 +92,7 @@ const deleteModelForUserSQL = `
 	using account acc
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where m.id=$1 and acc.authority_id=m.brand_id and u.username=$2 and u.userrole >= $3`
+	where m.id=$1 and acc.authority_id=m.brand_id and u.username=$2`
 
 const checkBrandsMatchSQL = `
 	select count(*) from model m
@@ -269,7 +269,7 @@ func (db *DB) ListModels(username string) ([]Model, error) {
 	if len(username) == 0 {
 		rows, err = db.Query(listModelsSQL)
 	} else {
-		rows, err = db.Query(listModelsForUserSQL, username, Admin)
+		rows, err = db.Query(listModelsForUserSQL, username)
 	}
 	if err != nil {
 		log.Printf("Error retrieving database models: %v\n", err)
@@ -317,7 +317,7 @@ func (db *DB) GetModel(modelID int, username string) (Model, error) {
 	if len(username) == 0 {
 		row = db.QueryRow(getModelSQL, modelID)
 	} else {
-		row = db.QueryRow(getModelForUserSQL, modelID, username, Admin)
+		row = db.QueryRow(getModelForUserSQL, modelID, username)
 	}
 
 	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
@@ -332,7 +332,6 @@ func (db *DB) GetModel(modelID int, username string) (Model, error) {
 
 // UpdateModel updates the model.
 func (db *DB) UpdateModel(model Model, username string) (string, error) {
-
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" {
 		return "error-validate-model", errors.New("The Brand and Model must be supplied")
@@ -353,7 +352,7 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 	if len(username) == 0 {
 		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey)
 	} else {
-		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, username, Admin)
+		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, username)
 	}
 	if err != nil {
 		log.Printf("Error updating the database model: %v\n", err)
@@ -365,11 +364,6 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 
 // CreateModel updates the model.
 func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
-
-	if db.RoleForUser(username) < Admin {
-		return model, "error-auth", errors.New("The user does not have permissions to create a model")
-	}
-
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.KeypairID <= 0 || model.KeypairIDUser <= 0 {
 		return model, "error-validate-new-model", errors.New("The Brand, Model and Signing-Keys must be supplied")
@@ -412,7 +406,7 @@ func (db *DB) DeleteModel(model Model, username string) (string, error) {
 	if len(username) == 0 {
 		_, err = db.Exec(deleteModelSQL, model.ID)
 	} else {
-		_, err = db.Exec(deleteModelForUserSQL, model.ID, username, Admin)
+		_, err = db.Exec(deleteModelForUserSQL, model.ID, username)
 	}
 	if err != nil {
 		log.Printf("Error deleting the database model: %v\n", err)

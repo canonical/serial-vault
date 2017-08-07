@@ -250,20 +250,6 @@ func (db *DB) ListAccountUsers(authorityID string) ([]User, error) {
 	return users, nil
 }
 
-// RoleForUser checks the user role against the database
-// If user authentication is turned off, the role defaults to Admin
-func (db *DB) RoleForUser(username string) int {
-	if username == "" {
-		return Admin
-	}
-
-	user, err := db.GetUserByUsername(username)
-	if err != nil {
-		return 0
-	}
-	return user.Role
-}
-
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (db *DB) CheckUserInAccount(username, authorityID string) bool {
 	if username == "" {
