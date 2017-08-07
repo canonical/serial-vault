@@ -56,7 +56,6 @@ func (s *ServiceSuite) TestGetUserHandler(c *check.C) {
 	c.Assert(result.User.ID, check.Equals, 4)
 	c.Assert(result.User.Username, check.Equals, "a")
 	c.Assert(result.User.Name, check.Equals, "A")
-	c.Assert(result.User.OpenIDIdentity, check.Equals, "https://login.ubuntu.com/+id/AAAAAA")
 	c.Assert(result.User.Email, check.Equals, "a@example.com")
 	c.Assert(result.User.Role, check.Equals, datastore.Standard)
 	c.Assert(len(result.User.Accounts), check.Equals, 0)
@@ -109,14 +108,12 @@ func (s *ServiceSuite) TestCreateUserHandler(c *check.C) {
 func (s *ServiceSuite) TestCreateUserHandlerWithOneAccount(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-		},
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -129,15 +126,12 @@ func (s *ServiceSuite) TestCreateUserHandlerWithOneAccount(c *check.C) {
 func (s *ServiceSuite) TestCreateUserHandlerWithAccounts(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-			datastore.Account{ID: 2, AuthorityID: "theauthorityid2"},
-		},
+		Accounts: []string{"theauthorityid1", "theauthorityid2"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -150,14 +144,12 @@ func (s *ServiceSuite) TestCreateUserHandlerWithAccounts(c *check.C) {
 func (s *ServiceSuite) TestCreateUserHandlerWithError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-		},
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -167,14 +159,12 @@ func (s *ServiceSuite) TestCreateUserHandlerWithError(c *check.C) {
 func (s *ServiceSuite) TestCreateUserHandlerWithoutPermissions(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-		},
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -184,14 +174,12 @@ func (s *ServiceSuite) TestCreateUserHandlerWithoutPermissions(c *check.C) {
 func (s *ServiceSuite) TestUpdateUserHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-		},
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -207,14 +195,12 @@ func (s *ServiceSuite) TestUpdateUserHandler(c *check.C) {
 func (s *ServiceSuite) TestUpdateUserHandlerWithAccount(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-		},
+		Accounts: []string{"theauthorityid1"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -230,15 +216,12 @@ func (s *ServiceSuite) TestUpdateUserHandlerWithAccount(c *check.C) {
 func (s *ServiceSuite) TestUpdateUserHandlerWithAccounts(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
 		Role:     datastore.Standard,
-		Accounts: []datastore.Account{
-			datastore.Account{ID: 1, AuthorityID: "theauthorityid1"},
-			datastore.Account{ID: 2, AuthorityID: "theauthorityid2"},
-		},
+		Accounts: []string{"theauthorityid1", "theauthorityid2"},
 	}
 	data, err := json.Marshal(user)
 	c.Assert(err, check.IsNil)
@@ -254,7 +237,7 @@ func (s *ServiceSuite) TestUpdateUserHandlerWithAccounts(c *check.C) {
 func (s *ServiceSuite) TestUpdateUserHandlerWithError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",
@@ -268,7 +251,7 @@ func (s *ServiceSuite) TestUpdateUserHandlerWithError(c *check.C) {
 func (s *ServiceSuite) TestUpdateUserHandlerWithoutPermissions(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
-	user := datastore.User{
+	user := UserRequest{
 		Username: "theusername",
 		Name:     "The Name",
 		Email:    "theemail@mydb.com",

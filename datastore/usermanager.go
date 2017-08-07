@@ -28,7 +28,6 @@ const createUserTableSQL = `
 	CREATE TABLE IF NOT EXISTS userinfo (
 		id               serial primary key not null,
 		username         varchar(200) not null unique,
-		openid_identity  text not null,
 		name             varchar(200),
 		email            varchar(255) not null,
 		userrole         int not null
@@ -42,16 +41,16 @@ const createAccountUserLinkTableSQL = `
 	)
 `
 
-const listUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo order by username"
-const getUserSQL = "select id, username, openid_identity, name, email, userrole from userinfo where id=$1"
-const getUserByUsernameSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username=$1"
-const findUsersSQL = "select id, username, openid_identity, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
-const createUserSQL = "insert into userinfo (username, openid_identity, name, email, userrole) values ($1,$2,$3,$4,$5) RETURNING id"
-const updateUserSQL = "update userinfo set username=$1, openid_identity=$2, name=$3, email=$4, userrole=$5 where id=$6"
+const listUsersSQL = "select id, username, name, email, userrole from userinfo order by username"
+const getUserSQL = "select id, username, name, email, userrole from userinfo where id=$1"
+const getUserByUsernameSQL = "select id, username, name, email, userrole from userinfo where username=$1"
+const findUsersSQL = "select id, username, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
+const createUserSQL = "insert into userinfo (username, name, email, userrole) values ($1,$2,$3,$4) RETURNING id"
+const updateUserSQL = "update userinfo set username=$1, name=$2, email=$3, userrole=$4 where id=$5"
 const deleteUserSQL = "delete from userinfo where id=$1"
 
 const listAccountUsersSQL = `
-	select id, username, openid_identity, name, email, userrole
+	select id, username, name, email, userrole
 	from userinfo u
 	inner join useraccountlink l on u.id = l.user_id
 	inner join account a on l.account_id = a.id
@@ -68,6 +67,8 @@ const findAccountUserSQL = `
 
 const deleteUserAccountsSQL = "delete from useraccountlink where user_id=$1"
 const linkAccountToUserSQL = "insert into useraccountlink (user_id, account_id) values ($1,$2)"
+
+const alterUserRemoveOpenIDIdentity = "alter table userinfo drop column openid_identity"
 
 // Available user roles:
 //
@@ -89,13 +90,12 @@ var RoleID = map[string]int{"": 0, "standard": 100, "admin": 200, "superuser": 3
 
 // User holds user personal, authentication and authorization info
 type User struct {
-	ID             int
-	Username       string
-	OpenIDIdentity string
-	Name           string
-	Email          string
-	Role           int
-	Accounts       []Account
+	ID       int
+	Username string
+	Name     string
+	Email    string
+	Role     int
+	Accounts []Account
 }
 
 // CreateUserTable creates User table in database
@@ -107,6 +107,12 @@ func (db *DB) CreateUserTable() error {
 // CreateAccountUserLinkTable creates table to link User and Account tables in a m-m relationship
 func (db *DB) CreateAccountUserLinkTable() error {
 	_, err := db.Exec(createAccountUserLinkTableSQL)
+	return err
+}
+
+// AlterUserTable includes all user table definition modifications
+func (db *DB) AlterUserTable() error {
+	_, err := db.Exec(alterUserRemoveOpenIDIdentity)
 	return err
 }
 
@@ -161,7 +167,7 @@ func (db *DB) CreateUser(user User) (int, error) {
 
 	err := db.transaction(func(tx *sql.Tx) error {
 
-		err := tx.QueryRow(createUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role).Scan(&createdUserID)
+		err := tx.QueryRow(createUserSQL, user.Username, user.Name, user.Email, user.Role).Scan(&createdUserID)
 		if err != nil {
 			log.Printf("Error creating user %v: %v\n", user.Username, err)
 			return err
@@ -184,7 +190,7 @@ func (db *DB) UpdateUser(user User) error {
 
 	return db.transaction(func(tx *sql.Tx) error {
 
-		_, err := tx.Exec(updateUserSQL, user.Username, user.OpenIDIdentity, user.Name, user.Email, user.Role, user.ID)
+		_, err := tx.Exec(updateUserSQL, user.Username, user.Name, user.Email, user.Role, user.ID)
 		if err != nil {
 			log.Printf("Error updating database user %v: %v\n", user.ID, err)
 			return err
@@ -234,7 +240,7 @@ func (db *DB) ListAccountUsers(authorityID string) ([]User, error) {
 
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+		err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role)
 		if err != nil {
 			return nil, err
 		}
@@ -308,7 +314,7 @@ func (db *DB) putUserAccounts(userID int, accounts []Account, tx *sql.Tx) error 
 
 func (db *DB) rowToUser(row *sql.Row) (User, error) {
 	user := User{}
-	err := row.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	err := row.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role)
 	if err != nil {
 		return User{}, err
 	}
@@ -324,7 +330,7 @@ func (db *DB) rowToUser(row *sql.Row) (User, error) {
 
 func (db *DB) rowsToUser(rows *sql.Rows) (User, error) {
 	user := User{}
-	err := rows.Scan(&user.ID, &user.Username, &user.OpenIDIdentity, &user.Name, &user.Email, &user.Role)
+	err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role)
 	if err != nil {
 		return User{}, err
 	}

@@ -32,7 +32,7 @@ var Users = {
 	},
 
 	update:  function(user) {
-		return Ajax.put(this.url + '/' + user.ID, user);
+		return Ajax.put(this.url + '/' + user.id, user);
 	},
 
 	delete:  function(user) {

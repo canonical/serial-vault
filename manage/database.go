@@ -102,6 +102,9 @@ func updateDatabase() {
 
 		// Create the AccountUserLink table, if it does not exist
 		{datastore.Environ.DB.CreateAccountUserLinkTable, create, "account-user link"},
+
+		// Update the User table, removing not needed openid_identity field
+		{datastore.Environ.DB.AlterUserTable, update, "userinfo"},
 	}
 
 	exec(operations)

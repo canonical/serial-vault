@@ -180,3 +180,17 @@ func rowsToAccounts(rows *sql.Rows) ([]Account, error) {
 
 	return accounts, nil
 }
+
+// BuildAccountsFromAuthorityIDs from a list of strings representing authority ids, build related datastore.Account objects
+func BuildAccountsFromAuthorityIDs(authorityIDs []string) []Account {
+	var accounts []Account
+	for _, authorityID := range authorityIDs {
+		accounts = append(accounts, BuildAccountFromAuthorityID(authorityID))
+	}
+	return accounts
+}
+
+// BuildAccountFromAuthorityID from a string representing authority id, build related datastore.Account object
+func BuildAccountFromAuthorityID(authorityID string) Account {
+	return Account{AuthorityID: authorityID}
+}
