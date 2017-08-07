@@ -63,10 +63,8 @@ describe('user edit', function() {
         expect(inputs[2].value).toBe('');
 
         var selects = ReactTestUtils.scryRenderedDOMComponentsWithTag(userPage, 'select');
-        expect(selects.length).toBe(3);
+        expect(selects.length).toBe(1);
         expect(selects[0].value).toBe('');
-        expect(selects[1].value).toBe('');
-        expect(selects[2].value).toBe('');
     });
 
     it('displays the edit page for an existing user', function() {
