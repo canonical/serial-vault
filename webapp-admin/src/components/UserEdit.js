@@ -120,6 +120,7 @@ class UserEdit extends Component {
     buildRequestData() {
         var requestData = {}
         var user = this.state.user
+        requestData['id'] = user.ID
         requestData['username'] = user.Username
         requestData['name'] = user.Name
         requestData['email'] = user.Email
@@ -134,7 +135,7 @@ class UserEdit extends Component {
 
         var requestData = this.buildRequestData()
 
-        if (this.state.user.ID) {
+        if (requestData.id) {
             // Update the existing user
             Users.update(requestData).then(function(response) {
                 var data = JSON.parse(response.body);
