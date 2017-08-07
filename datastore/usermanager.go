@@ -68,7 +68,7 @@ const findAccountUserSQL = `
 const deleteUserAccountsSQL = "delete from useraccountlink where user_id=$1"
 const linkAccountToUserSQL = "insert into useraccountlink (user_id, account_id) values ($1,$2)"
 
-const alterUserRemoveOpenIDIdentity = "alter userinfo remove column openid_identity"
+const alterUserRemoveOpenIDIdentity = "alter table userinfo drop column openid_identity"
 
 // Available user roles:
 //
