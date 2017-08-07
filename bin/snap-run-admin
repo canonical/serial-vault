@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd $SNAP
+
+bin/serial-vault-admin $@
