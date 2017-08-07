@@ -351,6 +351,11 @@ func (mdb *MockDB) CreateAccountUserLinkTable() error {
 	return nil
 }
 
+// AlterUserTable mock for modifications on User table operation
+func (mdb *MockDB) AlterUserTable() error {
+	return nil
+}
+
 // CreateUser mock for create user operation
 func (mdb *MockDB) CreateUser(user User) (int, error) {
 	return 740, nil
@@ -360,12 +365,11 @@ func (mdb *MockDB) CreateUser(user User) (int, error) {
 func (mdb *MockDB) ListUsers() ([]User, error) {
 	var users []User
 	users = append(users, User{
-		ID:             1,
-		Username:       "user1",
-		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcyssfmr",
-		Name:           "Rigoberto Picaporte",
-		Email:          "rigoberto.picaporte@ubuntu.com",
-		Role:           Standard,
+		ID:       1,
+		Username: "user1",
+		Name:     "Rigoberto Picaporte",
+		Email:    "rigoberto.picaporte@ubuntu.com",
+		Role:     Standard,
 		Accounts: []Account{
 			Account{
 				ID:          1,
@@ -374,12 +378,11 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 			},
 		}})
 	users = append(users, User{
-		ID:             2,
-		Username:       "user2",
-		OpenIDIdentity: "https://login.ubuntu.com/+id/Abcysrrtt",
-		Name:           "Nancy Reagan",
-		Email:          "nancy.reagan@usa.gov",
-		Role:           Standard,
+		ID:       2,
+		Username: "user2",
+		Name:     "Nancy Reagan",
+		Email:    "nancy.reagan@usa.gov",
+		Role:     Standard,
 		Accounts: []Account{
 			Account{
 				ID:          2,
@@ -388,12 +391,11 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 			},
 		}})
 	users = append(users, User{
-		ID:             3,
-		Username:       "sv",
-		OpenIDIdentity: "https://login.ubuntu.com/+id/Stfnvlter",
-		Name:           "Steven Vault",
-		Email:          "sv@example.com",
-		Role:           Admin,
+		ID:       3,
+		Username: "sv",
+		Name:     "Steven Vault",
+		Email:    "sv@example.com",
+		Role:     Admin,
 		Accounts: []Account{
 			Account{
 				ID:          3,
@@ -407,19 +409,17 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 			},
 		}})
 	users = append(users, User{
-		ID:             4,
-		Username:       "a",
-		OpenIDIdentity: "https://login.ubuntu.com/+id/AAAAAA",
-		Name:           "A",
-		Email:          "a@example.com",
-		Role:           Standard})
+		ID:       4,
+		Username: "a",
+		Name:     "A",
+		Email:    "a@example.com",
+		Role:     Standard})
 	users = append(users, User{
-		ID:             5,
-		Username:       "root",
-		OpenIDIdentity: "https://login.ubuntu.com/+id/Soperrtma",
-		Name:           "Root User",
-		Email:          "the_root_user@thisdb.com",
-		Role:           Superuser})
+		ID:       5,
+		Username: "root",
+		Name:     "Root User",
+		Email:    "the_root_user@thisdb.com",
+		Role:     Superuser})
 	return users, nil
 }
 
@@ -700,6 +700,11 @@ func (mdb *ErrorMockDB) CreateUserTable() error {
 // CreateAccountUserLinkTable mock for creating database AccountUserLink table operation
 func (mdb *ErrorMockDB) CreateAccountUserLinkTable() error {
 	return errors.New("Could not create AccountUserLink table")
+}
+
+// AlterUserTable mock for modifications on User table operation
+func (mdb *ErrorMockDB) AlterUserTable() error {
+	return errors.New("Could not alter User table")
 }
 
 // CreateUser error mock for create user operation
