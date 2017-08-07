@@ -224,7 +224,7 @@ func (db *DB) addAPIKeyField() error {
 		}
 
 		// Generate an random API key and update the record
-		apiKey, err := db.generateAPIKey()
+		apiKey, err := generateAPIKey()
 		if err != nil {
 			log.Printf("Could not generate random string for the API key")
 			return errors.New("Error generating random string for the API key")
@@ -242,19 +242,6 @@ func (db *DB) addAPIKeyField() error {
 	}
 
 	return nil
-}
-
-func (db *DB) generateAPIKey() (string, error) {
-	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
-
-	// Generate an random API key and update the record
-	apiKey, err := random.GenerateRandomString(40)
-	if err != nil {
-		log.Printf("Could not generate random string for the API key")
-		return "", errors.New("Error generating random string for the API key")
-	}
-
-	return reg.ReplaceAllString(apiKey, ""), nil
 }
 
 // ListModels fetches the full catalogue of models from the database.
@@ -351,7 +338,7 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 	}
 
 	// Check the API key and default it if it is invalid
-	err := db.defaultAPIKey(&model)
+	err := buildValidOrDefaultAPIKey(&model)
 	if err != nil {
 		return "error-model-apikey", errors.New("Error in generating a valid API key")
 	}
@@ -390,7 +377,7 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 	}
 
 	// Check the API key and default it if it is invalid
-	err := db.defaultAPIKey(&model)
+	err := buildValidOrDefaultAPIKey(&model)
 	if err != nil {
 		return model, "error-model-apikey", errors.New("Error in generating a valid API key")
 	}
@@ -475,8 +462,8 @@ func (db *DB) checkBoolQuery(row *sql.Row) bool {
 	return found
 }
 
-// defaultAPIKey creates a default API key if the field is empty
-func (db *DB) defaultAPIKey(model *Model) error {
+// buildValidOrDefaultAPIKey checks the API key and creates a default API key if the field is empty
+func buildValidOrDefaultAPIKey(model *Model) error {
 	// Remove all whitespace from the API key
 	model.APIKey = strings.Replace(model.APIKey, " ", "", -1)
 
@@ -485,10 +472,23 @@ func (db *DB) defaultAPIKey(model *Model) error {
 		return nil
 	}
 
-	apiKey, err := db.generateAPIKey()
+	apiKey, err := generateAPIKey()
 	if err != nil {
 		return err
 	}
 	model.APIKey = apiKey
 	return nil
+}
+
+func generateAPIKey() (string, error) {
+	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
+
+	// Generate an random API key and update the record
+	apiKey, err := random.GenerateRandomString(40)
+	if err != nil {
+		log.Printf("Could not generate random string for the API key")
+		return "", errors.New("Error generating random string for the API key")
+	}
+
+	return reg.ReplaceAllString(apiKey, ""), nil
 }
