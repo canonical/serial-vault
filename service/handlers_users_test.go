@@ -56,7 +56,6 @@ func (s *ServiceSuite) TestGetUserHandler(c *check.C) {
 	c.Assert(result.User.ID, check.Equals, 4)
 	c.Assert(result.User.Username, check.Equals, "a")
 	c.Assert(result.User.Name, check.Equals, "A")
-	c.Assert(result.User.OpenIDIdentity, check.Equals, "https://login.ubuntu.com/+id/AAAAAA")
 	c.Assert(result.User.Email, check.Equals, "a@example.com")
 	c.Assert(result.User.Role, check.Equals, datastore.Standard)
 	c.Assert(len(result.User.Accounts), check.Equals, 0)
