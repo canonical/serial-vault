@@ -16,6 +16,7 @@
  */
 import React, {Component} from 'react';
 import Navigation from './Navigation'
+import NavigationUser from './NavigationUser'
 import {T} from './Utils';
 
 const LANGUAGES = {
@@ -56,7 +57,7 @@ class Header extends Component {
         return (
         <div>
             <header className="p-navigation--light" role="banner">
-                <div className="row">
+                {/* <div className="row"> */}
                     <div className="p-navigation__logo">
                             <div className="nav_logo">
                                 <a href="/" className="p-navigation__link">
@@ -69,6 +70,7 @@ class Header extends Component {
                     <nav className="p-navigation__nav">
                         <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
                         <Navigation token={this.props.token} />
+                        <NavigationUser token={this.props.token} />
                             {/*<form id="language-form" className="header-search">*/}
                                     {/* Add more languages here */}
                                     {/* this.renderLanguage('en') */}
@@ -76,7 +78,7 @@ class Header extends Component {
                             {/*</form>*/}
 
                     </nav>
-                </div>
+                {/* </div> */}
             </header>
 
         </div>

@@ -17,11 +17,6 @@
 
 import React, {Component} from 'react';
 import {T, isLoggedIn} from './Utils'
-import {Role} from './Constants'
-
-const linksSuperuser = ['models', 'accounts', 'systemuser', 'signinglog', "users"];
-const linksAdmin = ['models', 'accounts', 'systemuser', 'signinglog'];
-const linksStandard = ['systemuser'];
 
 
 class Navigation extends Component {
@@ -55,36 +50,11 @@ class Navigation extends Component {
     render() {
 
         var token = this.props.token
-        var links;
-
-        switch(token.role) {
-            case Role.Admin:
-                links = linksAdmin;
-                break;
-            case Role.Superuser:
-                links = linksSuperuser;
-                break;
-            case Role.Standard:
-                links = linksStandard
-                break
-            default:
-                links = []
-        }
 
         return (
-          <ul className="p-navigation__links">
-              {links.map((l) => {
-                  var active = '';
-                  if (this.props.active === l) {
-                      active = ' active'
-                  }
-                  var link = '/' + l;
-                  return (
-                    <li key={l} className={'p-navigation__link' + active}><a href={link}>{T(l)}</a></li>
-                  )
-              })}
-              {/* {this.renderUser(token)}
-              {this.renderUserLogout(token)} */}
+          <ul className="p-navigation__links u-float-right">
+              {this.renderUser(token)}
+              {this.renderUserLogout(token)}
           </ul>
         );
     }
