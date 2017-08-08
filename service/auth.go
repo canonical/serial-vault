@@ -35,34 +35,19 @@ func getAuthUser(w http.ResponseWriter, r *http.Request) (datastore.User, error)
 		return datastore.User{}, err
 	}
 
-	// nil token means auth is not enabled.
+	// Null token means that auth is not enabled.
 	if token == nil {
 		return datastore.User{}, nil
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
 	username := claims[usso.ClaimsUsername].(string)
-
-	if len(username) == 0 {
-		return datastore.User{}, nil
-	}
+	role := int(claims[usso.ClaimsRole].(float64))
 
 	return datastore.User{
 		Username: username,
-		Role:     roleForUser(username),
+		Role:     role,
 	}, nil
-}
-
-func roleForUser(username string) int {
-	if len(username) == 0 {
-		return 0
-	}
-
-	user, err := datastore.Environ.DB.GetUserByUsername(username)
-	if err != nil {
-		return 0
-	}
-	return user.Role
 }
 
 func checkUserPermissions(user datastore.User, minimumAuthorizedRole int) error {
