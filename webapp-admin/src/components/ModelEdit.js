@@ -73,7 +73,8 @@ class ModelEdit extends Component {
         var message = T(data.error_code);
         if (data.error_subcode) {
             message += ': ' + T(data.error_subcode);
-        } else if (data.message) {
+        }
+        if (data.message) {
             message += ': ' + data.message;
         }
         return message;
@@ -88,6 +89,12 @@ class ModelEdit extends Component {
     handleChangeModel = (e) => {
         var model = this.state.model;
         model.model = e.target.value;
+        this.setState({model: model});
+    }
+
+    handleChangeAPIKey = (e) => {
+        var model = this.state.model;
+        model['api-key'] = e.target.value;
         this.setState({model: model});
     }
 
@@ -164,6 +171,10 @@ class ModelEdit extends Component {
                                 <label htmlFor="model">{T('model')}:
                                     <input type="text" id="model" placeholder={T('model-description')}
                                         value={this.state.model.model} onChange={this.handleChangeModel}/>
+                                </label>
+                                <label htmlFor="model">{T('api-key')}:
+                                    <input type="text" id="api-key" placeholder={T('api-key-description')}
+                                        value={this.state.model['api-key']} onChange={this.handleChangeAPIKey}/>
                                 </label>
                                 <label htmlFor="keypair">{T('private-key')}:
                                     <select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
