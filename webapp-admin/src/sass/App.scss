@@ -164,3 +164,20 @@ div.filter-section:last-of-type {
 .react-datepicker__header__dropdown, .react-datepicker__month-container {
     margin-top: 0;
 }
+
+// Show/hide menu for small devices
+@media (min-width: 768px) {
+    .p-navigation__toggle--open {
+        display: none;
+    }
+}
+
+.p-navigation--light .p-navigation__toggle--open {
+    float: right;
+    margin: 1rem;
+    position: relative;
+}
+
+.show {
+    display: block !important;
+}
