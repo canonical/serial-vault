@@ -60,15 +60,6 @@ func roleForUser(username string) int {
 	return user.Role
 }
 
-// checkUserPermissions retrieves the user from the JWT.
-// The user will be restricted by the accounts the username can access and their role i.e. only Admin and Superuser
-// These are the rules:
-//
-// 	- If user authentication is turned off, the JWT will irrelevant. In this case the username is returned as "" if Admin
-// 		is allowed, or error if only Superuser is allowed.
-//	- If database user role is less than allowed role, an error is returned
-//	- If there is no database user, role is considered Admin
-//
 func checkUserPermissions(user datastore.User, minimumAuthorizedRole int) error {
 	// User authentication is turned off
 	if !datastore.Environ.Config.EnableUserAuth {
