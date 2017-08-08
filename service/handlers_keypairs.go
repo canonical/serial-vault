@@ -239,11 +239,11 @@ func updateAllowedKeypairActive(keypairID int, active bool, authUser datastore.U
 }
 
 func updateKeypairActive(keypairID int, active bool) error {
-	return datastore.Environ.DB.UpdateKeypairActive(keypairID, false, "")
+	return datastore.Environ.DB.UpdateKeypairActive(keypairID, active, "")
 }
 
 func updateKeypairActiveFilteredByUser(keypairID int, active bool, username string) error {
-	return datastore.Environ.DB.UpdateKeypairActive(keypairID, false, username)
+	return datastore.Environ.DB.UpdateKeypairActive(keypairID, active, username)
 }
 
 // KeypairAssertionHandler updates the account key assertion on a keypair
