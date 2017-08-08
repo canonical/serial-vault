@@ -136,6 +136,9 @@ func TestAccountsHandlerWithoutPermissions(t *testing.T) {
 	if result.Success {
 		t.Error("Expected error, got success")
 	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
+	}
 }
 
 func TestAccountsHandlerError(t *testing.T) {
@@ -275,6 +278,9 @@ func TestAccountsUpsertHandlerWithoutPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected failure, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 

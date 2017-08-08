@@ -88,6 +88,37 @@ func TestKeypairListHandlerWithPermissions(t *testing.T) {
 	}
 }
 
+func TestKeypairListHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/keypairs", nil)
+
+	// Create a JWT and add it to the request
+	err := createJWTWithRole(r, datastore.Standard)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+
+	http.HandlerFunc(KeypairListHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := KeypairsResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the keypairs response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected failure, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
+	}
+}
+
 func TestKeypairListHandlerWithError(t *testing.T) {
 	// Mock the database
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
@@ -130,6 +161,35 @@ func TestKeypairHandlerWithPermissions(t *testing.T) {
 	}
 	if !result.Success {
 		t.Errorf("Expected an success, got error: %s", result.ErrorCode)
+	}
+}
+
+func TestKeypairHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory", EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
+
+	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
+	if err != nil {
+		t.Errorf("Error reading the signing-key file: %v", err)
+	}
+	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
+
+	keypair := KeypairWithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "System"}
+	data, _ := json.Marshal(keypair)
+
+	// Check the JSON response
+	result, err := sendKeypairCreateWithoutPermissions(t, bytes.NewReader(data))
+	if err != nil {
+		t.Errorf("Error decoding the keypair response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected failure, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 
@@ -339,6 +399,24 @@ func sendKeypairCreate(t *testing.T, body io.Reader) (BooleanResponse, error) {
 	return result, err
 }
 
+func sendKeypairCreateWithoutPermissions(t *testing.T, body io.Reader) (BooleanResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/keypairs", body)
+
+	// Create a JWT and add it to the request
+	err := createJWTWithRole(r, datastore.Standard)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+
+	http.HandlerFunc(KeypairCreateHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := BooleanResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
 func TestKeypairHandlerValidPrivateKeyDataStoreError(t *testing.T) {
 	// Mock the database and the keystore
 	config := config.Settings{KeyStoreType: "memory"}
@@ -429,6 +507,9 @@ func TestKeypairDisableHandlerWithoutPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected a fail, got success response")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 
@@ -539,6 +620,12 @@ func TestKeypairEnableHandlerWithoutPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected a fail, got success response")
+	}
+	if result.Success {
+		t.Error("Expected failure, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 
@@ -691,6 +778,9 @@ func TestKeypairAssertionHandlerWithoutPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected failure, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 

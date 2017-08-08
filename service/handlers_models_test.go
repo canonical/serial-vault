@@ -85,6 +85,38 @@ func TestModelsHandlerWithPermissions(t *testing.T) {
 	}
 }
 
+func TestModelsHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/v1/models", nil)
+
+	// Create a JWT and add it to the request
+	err := createJWTWithRole(r, datastore.Standard)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+
+	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := ModelsResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+
+	if err != nil {
+		t.Errorf("Error decoding the models response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success response")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
+	}
+}
+
 func TestModelsHandlerWithError(t *testing.T) {
 
 	// Mock the database
@@ -135,6 +167,15 @@ func TestModelGetHandlerWithPermissions(t *testing.T) {
 	if result.Model.Name != "alder" {
 		t.Errorf("Expected model name 'alder', got %s", result.Model.Name)
 	}
+}
+
+func TestModelGetHandlerWithoutPermissions(t *testing.T) {
+
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	sendRequestWithoutPermissions(t, "GET", "/v1/models/1", nil)
 }
 
 func TestModelGetHandlerWithError(t *testing.T) {
@@ -200,6 +241,24 @@ func TestModelUpdateHandlerWithPermissions(t *testing.T) {
 	if result.Model.Name != "the-model" {
 		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
 	}
+}
+
+func TestModelUpdateHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// Update a model
+	data := `
+	{
+		"id": 1,
+		"brand-id": "System",
+		"model":"the-model",
+		"serial":"A1234-L",
+		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+	}`
+
+	sendRequestWithoutPermissions(t, "PUT", "/v1/models/1", bytes.NewBufferString(data))
 }
 
 func TestModelUpdateHandlerWithPermissionsNotFound(t *testing.T) {
@@ -284,6 +343,16 @@ func TestModelDeleteHandlerWithPermissions(t *testing.T) {
 	sendRequest(t, "DELETE", "/v1/models/1", bytes.NewBufferString(data))
 }
 
+func TestModelDeleteHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// Delete a model
+	data := "{}"
+	sendRequestWithoutPermissions(t, "DELETE", "/v1/models/1", bytes.NewBufferString(data))
+}
+
 func TestModelDeleteHandlerWithPermissionsNotFound(t *testing.T) {
 	// Mock the database
 	c := config.Settings{EnableUserAuth: true}
@@ -327,6 +396,36 @@ func TestModelCreateHandler(t *testing.T) {
 	if result.Model.Name != "the-model" {
 		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
 	}
+}
+
+func TestModelCreateHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	// Define a model linked with the signing-key as JSON
+	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
+	data, _ := json.Marshal(model)
+
+	result, _ := sendRequest(t, "POST", "/v1/models", bytes.NewReader(data))
+	if result.Model.ID != 7 {
+		t.Errorf("Expected model with ID 7, got %d", result.Model.ID)
+	}
+	if result.Model.Name != "the-model" {
+		t.Errorf("Expected model name 'the-model', got %s", result.Model.Name)
+	}
+}
+
+func TestModelCreateHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", EnableUserAuth: true}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	// Define a model linked with the signing-key as JSON
+	model := ModelSerialize{BrandID: "System", Name: "the-model", KeypairID: 1}
+	data, _ := json.Marshal(model)
+
+	sendRequestWithoutPermissions(t, "POST", "/v1/models", bytes.NewReader(data))
 }
 
 func TestModelCreateHandlerWithError(t *testing.T) {
@@ -394,6 +493,34 @@ func sendRequest(t *testing.T, method, url string, data io.Reader) (ModelRespons
 	}
 	if !result.Success {
 		t.Errorf("Expected success, got error: %s", result.ErrorMessage)
+	}
+
+	return result, err
+}
+
+func sendRequestWithoutPermissions(t *testing.T, method, url string, data io.Reader) (ModelResponse, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+
+	// Create a JWT and add it to the request
+	err := createJWTWithRole(r, datastore.Standard)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
+
+	AdminRouter().ServeHTTP(w, r)
+
+	// Check the JSON response
+	result := ModelResponse{}
+	err = json.NewDecoder(w.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("Error decoding the model response: %v", err)
+	}
+	if result.Success {
+		t.Error("Expected error, got success response")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 
 	return result, err
