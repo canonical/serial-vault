@@ -45,7 +45,7 @@ type KeypairWithPrivateKey struct {
 func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatKeypairsResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -71,8 +71,9 @@ func listAllowedKeypairs(authUser datastore.User) ([]datastore.Keypair, error) {
 		return listAllKeypairs()
 	case datastore.Admin:
 		return listKeypairsFilteredByUser(authUser.Username)
+	default:
+		return []datastore.Keypair{}, nil
 	}
-	return []datastore.Keypair{}, nil
 }
 
 func listAllKeypairs() ([]datastore.Keypair, error) {
@@ -90,7 +91,7 @@ func listKeypairsFilteredByUser(username string) ([]datastore.Keypair, error) {
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -167,7 +168,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -200,7 +201,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -250,7 +251,7 @@ func updateKeypairActiveFilteredByUser(keypairID int, active bool, username stri
 func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return

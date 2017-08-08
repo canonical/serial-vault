@@ -79,7 +79,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	models := []ModelSerialize{}
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatModelsResponse(false, "error-auth", "", "", models, w)
 		return
@@ -131,7 +131,7 @@ func listModelsFilteredByUser(username string) ([]datastore.Model, error) {
 func ModelGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -184,7 +184,7 @@ func getModelFilteredByUser(modelID int, username string) (datastore.Model, erro
 func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -270,7 +270,7 @@ func updateModelFilteredByUser(model datastore.Model, username string) (string, 
 func ModelDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return
@@ -324,7 +324,7 @@ func deleteModelFilteredByUser(model datastore.Model, username string) (string, 
 func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatModelResponse(false, "error-auth", "", "", ModelSerialize{}, w)
 		return

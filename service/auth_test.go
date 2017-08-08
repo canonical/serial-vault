@@ -20,14 +20,14 @@ func (s *authSuite) TestGetUserAuthWhenAuthEnabled(c *check.C) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
 
-	_, err := getAuthUser(w, r)
+	_, err := getUserFromJWT(w, r)
 	c.Assert(err, check.NotNil)
 
 	theRoles := []int{datastore.Standard, datastore.Admin, datastore.Superuser}
 	for _, role := range theRoles {
 		err := createJWTWithRole(r, role)
 		c.Assert(err, check.IsNil)
-		user, err := getAuthUser(w, r)
+		user, err := getUserFromJWT(w, r)
 		c.Assert(err, check.IsNil)
 		c.Assert(user.Username, check.Equals, "sv")
 		c.Assert(user.Role, check.Equals, role)
@@ -41,7 +41,7 @@ func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
 
-	user, err := getAuthUser(w, r)
+	user, err := getUserFromJWT(w, r)
 	c.Assert(err, check.IsNil)
 	c.Assert(user.Username, check.Equals, "")
 	c.Assert(user.Role, check.Equals, 0)
@@ -50,7 +50,7 @@ func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
 	for _, role := range roles {
 		err := createJWTWithRole(r, role)
 		c.Assert(err, check.IsNil)
-		user, err := getAuthUser(w, r)
+		user, err := getUserFromJWT(w, r)
 		c.Assert(err, check.IsNil)
 		c.Assert(user.Username, check.Equals, "")
 		c.Assert(user.Role, check.Equals, 0)

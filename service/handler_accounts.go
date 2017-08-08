@@ -49,7 +49,7 @@ type AssertionRequest struct {
 func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatAccountsResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -92,7 +92,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return

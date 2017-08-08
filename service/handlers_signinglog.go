@@ -47,7 +47,7 @@ type SigningLogFiltersResponse struct {
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -89,7 +89,7 @@ func listSigningLogsFilteredByUser(username string) ([]datastore.SigningLog, err
 func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetAuthUser(w, r)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
 		return

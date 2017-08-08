@@ -9,16 +9,16 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func checkIsAdminAndGetAuthUser(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetAuthUser(w, r, datastore.Admin)
+func checkIsAdminAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
+	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Admin)
 }
 
-func checkIsSuperuserAndGetAuthUser(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetAuthUser(w, r, datastore.Superuser)
+func checkIsSuperuserAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
+	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Superuser)
 }
 
-func checkPermissionsAndGetAuthUser(w http.ResponseWriter, r *http.Request, minimumAuthorizedRole int) (datastore.User, error) {
-	user, err := getAuthUser(w, r)
+func checkPermissionsAndGetUserFromJWT(w http.ResponseWriter, r *http.Request, minimumAuthorizedRole int) (datastore.User, error) {
+	user, err := getUserFromJWT(w, r)
 	if err != nil {
 		return user, err
 	}
@@ -29,7 +29,7 @@ func checkPermissionsAndGetAuthUser(w http.ResponseWriter, r *http.Request, mini
 	return user, nil
 }
 
-func getAuthUser(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
+func getUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
 	token, err := JWTCheck(w, r)
 	if err != nil {
 		return datastore.User{}, err

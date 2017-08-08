@@ -42,7 +42,7 @@ type UsersResponse struct {
 func UsersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	_, err := checkIsSuperuserAndGetAuthUser(w, r)
+	_, err := checkIsSuperuserAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatUsersResponse(false, "error-auth", "", "", nil, w)
 		return
@@ -64,7 +64,7 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
 func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	_, err := checkIsSuperuserAndGetAuthUser(w, r)
+	_, err := checkIsSuperuserAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
 		return
@@ -151,7 +151,7 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 func UserGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	_, err := checkIsSuperuserAndGetAuthUser(w, r)
+	_, err := checkIsSuperuserAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
 		return
@@ -183,7 +183,7 @@ func UserGetHandler(w http.ResponseWriter, r *http.Request) {
 func UserOtherAccountsGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	_, err := checkIsSuperuserAndGetAuthUser(w, r)
+	_, err := checkIsSuperuserAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
 		return
@@ -223,7 +223,7 @@ func UserOtherAccountsGetHandler(w http.ResponseWriter, r *http.Request) {
 func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	_, err := checkIsSuperuserAndGetAuthUser(w, r)
+	_, err := checkIsSuperuserAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
 		return
@@ -301,7 +301,7 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 func UserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	_, err := checkIsSuperuserAndGetAuthUser(w, r)
+	_, err := checkIsSuperuserAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatUserResponse(false, "error-auth", "", "", datastore.User{}, w)
 		return
