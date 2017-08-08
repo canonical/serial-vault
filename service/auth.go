@@ -35,6 +35,11 @@ func getAuthUser(w http.ResponseWriter, r *http.Request) (datastore.User, error)
 		return datastore.User{}, err
 	}
 
+	// nil token means auth is not enabled.
+	if token == nil {
+		return datastore.User{}, nil
+	}
+
 	claims := token.Claims.(jwt.MapClaims)
 	username := claims[usso.ClaimsUsername].(string)
 
@@ -65,7 +70,7 @@ func checkUserPermissions(user datastore.User, minimumAuthorizedRole int) error 
 	if !datastore.Environ.Config.EnableUserAuth {
 		// Superuser permissions don't allow turned off authentication
 		if minimumAuthorizedRole == datastore.Superuser {
-			return errors.New("A The user is not authorized")
+			return errors.New("The user is not authorized")
 		}
 		return nil
 	}
