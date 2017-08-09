@@ -16,7 +16,7 @@
  */
 
 import React, {Component} from 'react';
-import {T, isLoggedIn} from './Utils'
+import {T} from './Utils'
 import {Role} from './Constants'
 
 const linksSuperuser = ['models', 'accounts', 'systemuser', 'signinglog', "users"];
@@ -25,32 +25,6 @@ const linksStandard = ['systemuser'];
 
 
 class Navigation extends Component {
-
-    renderUser(token) {
-        if (isLoggedIn(token)) {
-            // The name is undefined if user authentication is off
-            if (token.name) {
-                return (
-                    <li className="p-navigation__link"><a href="https://login.ubuntu.com/" className="p-link--external">{token.name}</a></li>
-                )
-            }
-        } else {
-            return (
-            <li className="p-navigation__link"><a href="/login" className="p-link--external">{T('login')}</a></li>
-            )
-        }
-    }
-
-    renderUserLogout(token) {
-        if (isLoggedIn(token)) {
-            // The name is undefined if user authentication is off
-            if (token.name) {
-                return (
-                    <li className="p-navigation__link"><a href="/logout">{T('logout')}</a></li>
-                )
-            }
-        }
-    }
 
     render() {
 
@@ -83,8 +57,6 @@ class Navigation extends Component {
                     <li key={l} className={'p-navigation__link' + active}><a href={link}>{T(l)}</a></li>
                   )
               })}
-              {this.renderUser(token)}
-              {this.renderUserLogout(token)}
           </ul>
         );
     }
