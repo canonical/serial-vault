@@ -201,9 +201,11 @@ func logMessage(method, code, reason string) {
 // define patterns for validation
 const validModelAllowed = "^[a-z0-9](?:-?[a-z0-9])*$"
 const validUsernameAllowed = validModelAllowed
+const validEmailAllowed = `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
 
 var validModelNamePattern = regexp.MustCompile(validModelAllowed)
 var validUsernamePattern = regexp.MustCompile(validUsernameAllowed)
+var validEmailPattern = regexp.MustCompile(validEmailAllowed)
 
 // validateModelName validates
 func validateModelName(name string) error {
@@ -226,7 +228,7 @@ func validateUserFullName(name string) error {
 }
 
 func validateUserEmail(email string) error {
-	return validateNotEmpty("Email", email)
+	return validateSyntax("Email", email, validEmailPattern)
 }
 
 func validateNotEmpty(fieldName, fieldValue string) error {
@@ -246,7 +248,7 @@ func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error 
 	}
 
 	if !pattern.MatchString(fieldValue) {
-		return fmt.Errorf("%v contains invalid characters, allowed %q", fieldName, validModelAllowed)
+		return fmt.Errorf("%v contains invalid characters, allowed %q", fieldName, pattern)
 	}
 
 	return nil

@@ -95,32 +95,7 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate username; the rule is: lowercase with no spaces
-	err = validateUsername(userRequest.Username)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
-		return
-	}
-
-	// Validate name; the rule is: not empty
-	err = validateUserFullName(userRequest.Name)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
-		return
-	}
-
-	// Validate email; the rule is: not empty
-	err = validateUserEmail(userRequest.Email)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
-		return
-	}
-
-	// Validate role; the rule is the role is 100, 200 or 300
-	err = validateUserRole(userRequest.Role)
+	err = validateUser(userRequest)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
@@ -262,15 +237,7 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// lowercase with no spaces
-	err = validateUsername(userRequest.Username)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatUserResponse(false, "error-updating-user", "", err.Error(), datastore.User{}, w)
-		return
-	}
-
-	err = validateUserRole(userRequest.Role)
+	err = validateUser(userRequest)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatUserResponse(false, "error-updating-user", "", err.Error(), datastore.User{}, w)
@@ -326,4 +293,31 @@ func UserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	formatUserResponse(true, "", "", "", datastore.User{}, w)
+}
+
+func validateUser(userRequest UserRequest) error {
+	// Validate username; the rule is: lowercase with no spaces
+	err := validateUsername(userRequest.Username)
+	if err != nil {
+		return err
+	}
+
+	// Validate name; the rule is: not empty
+	err = validateUserFullName(userRequest.Name)
+	if err != nil {
+		return err
+	}
+
+	// Validate email; the rule is: not empty
+	err = validateUserEmail(userRequest.Email)
+	if err != nil {
+		return err
+	}
+
+	// Validate role; the rule is the role is 100, 200 or 300
+	err = validateUserRole(userRequest.Role)
+	if err != nil {
+		return err
+	}
+	return nil
 }
