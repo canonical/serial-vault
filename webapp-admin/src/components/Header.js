@@ -16,6 +16,7 @@
  */
 import React, {Component} from 'react';
 import Navigation from './Navigation'
+import NavigationUser from './NavigationUser'
 import {T} from './Utils';
 
 const LANGUAGES = {
@@ -51,32 +52,40 @@ class Header extends Component {
         }
     }
 
+    handleToggleMenu = (e) => {
+        e.preventDefault();
+
+        var navPrimary = document.querySelector('.p-navigation__nav');
+        navPrimary.classList.toggle('show');
+    }
+
     render() {
 
         return (
         <div>
             <header className="p-navigation--light" role="banner">
-                <div className="row">
-                    <div className="p-navigation__logo">
-                            <div className="nav_logo">
-                                <a href="/" className="p-navigation__link">
-                                    <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
-                                    <span>{T("title")}</span>
-                                </a>
-                            </div>
-                    </div>
-
-                    <nav className="p-navigation__nav">
-                        <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
-                        <Navigation token={this.props.token} />
-                            {/*<form id="language-form" className="header-search">*/}
-                                    {/* Add more languages here */}
-                                    {/* this.renderLanguage('en') */}
-                                    {/* this.renderLanguage('zh') */}
-                            {/*</form>*/}
-
-                    </nav>
+                <div className="p-navigation__logo">
+                        <div className="nav_logo">
+                            <a href="/" className="p-navigation__link">
+                                <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
+                                <span>{T("title")}</span>
+                            </a>
+                        </div>
                 </div>
+                <a href="#navigation" className="p-navigation__toggle--open" title="menu" onClick={this.handleToggleMenu}>
+                    <img src="/static/images/navigation-menu-plain.svg" width="30px" alt="menu" />
+                </a>
+                <nav className="p-navigation__nav">
+                    <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
+                    <Navigation token={this.props.token} />
+                    <NavigationUser token={this.props.token} />
+                        {/*<form id="language-form" className="header-search">*/}
+                                {/* Add more languages here */}
+                                {/* this.renderLanguage('en') */}
+                                {/* this.renderLanguage('zh') */}
+                        {/*</form>*/}
+
+                </nav>
             </header>
 
         </div>

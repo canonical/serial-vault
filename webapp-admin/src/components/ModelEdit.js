@@ -30,6 +30,7 @@ class ModelEdit extends Component {
             title: null,
             model: {},
             error: null,
+            hideForm: false,
             keypairs: [],
         }
     }
@@ -50,10 +51,14 @@ class ModelEdit extends Component {
     }
 
     getModel(modelId) {
-        var self = this;
-        Models.get(modelId).then(function(response) {
+        Models.get(modelId).then((response) => {
             var data = JSON.parse(response.body);
-            self.setState({model: data.model});
+
+            if (response.statusCode >= 300) {
+                this.setState({error: this.formatError(data), hideForm: true});
+            } else {
+                this.setState({model: data.model, hideForm: false});
+            }
         });
     }
 
@@ -151,6 +156,14 @@ class ModelEdit extends Component {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
+
+        if (this.state.hideForm) {
+            return (
+                <div className="row">
+                <AlertBox message={this.state.error} />
                 </div>
             )
         }
