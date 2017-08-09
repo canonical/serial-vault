@@ -25,7 +25,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// UserDeleteCommand handles user delete for the manage command
+// UserDeleteCommand handles user delete for the serial-vault-admin command
 type UserDeleteCommand struct{}
 
 // Execute user deletion

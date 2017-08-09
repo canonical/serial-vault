@@ -1,5 +1,5 @@
 name: serial-vault
-version: 1.5
+version: 1.6
 summary: Serial Vault Service
 description: Service for the Serial Vault that signs serial assertions.
 confinement: strict
@@ -14,8 +14,8 @@ apps:
       daemon: simple
     config:
       command: bin/set-config
-    vaultclient:
-      command: bin/snap-run-vaultclient
+    serial-vault-admin:
+      command: bin/snap-run-admin
       plugs:
         - network
 parts:

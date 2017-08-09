@@ -27,7 +27,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// UserListCommand handles the list of users for the manage command
+// UserListCommand handles the list of users for the serial-vault-admin command
 type UserListCommand struct{}
 
 // Execute the list of users

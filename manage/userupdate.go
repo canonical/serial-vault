@@ -26,7 +26,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// UserUpdateCommand handles updating a user for the manage command
+// UserUpdateCommand handles updating a user for the serial-vault-admin command
 type UserUpdateCommand struct {
 	Name     string `short:"n" long:"name" description:"Full name of the user"`
 	Username string `short:"u" long:"username" description:"Username of the user"`

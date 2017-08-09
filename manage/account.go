@@ -17,14 +17,9 @@
  *
  */
 
-package main
+package manage
 
-import "os"
-
-var RunMain = run
-
-func mockArgs(args ...string) (restore func()) {
-	old := os.Args
-	os.Args = args
-	return func() { os.Args = old }
+// AccountCommand is the main command for account management
+type AccountCommand struct {
+	Cache AccountCacheCommand `command:"cache" alias:"c" description:"Cache the account assertions from the store in the database"`
 }
