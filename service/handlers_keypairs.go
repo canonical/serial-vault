@@ -51,7 +51,7 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keypairs, err := listAllowedKeypairs(authUser)
+	keypairs, err := datastore.Environ.DB.ListAllowedKeypairs(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatKeypairsResponse(false, "error-fetch-keypairs", "", err.Error(), nil, w)
@@ -61,27 +61,6 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
 	formatKeypairsResponse(true, "", "", "", keypairs, w)
-}
-
-func listAllowedKeypairs(authUser datastore.User) ([]datastore.Keypair, error) {
-	switch authUser.Role {
-	case 0:
-		fallthrough
-	case datastore.Superuser:
-		return listAllKeypairs()
-	case datastore.Admin:
-		return listKeypairsFilteredByUser(authUser.Username)
-	default:
-		return []datastore.Keypair{}, nil
-	}
-}
-
-func listAllKeypairs() ([]datastore.Keypair, error) {
-	return datastore.Environ.DB.ListKeypairs("")
-}
-
-func listKeypairsFilteredByUser(username string) ([]datastore.Keypair, error) {
-	return datastore.Environ.DB.ListKeypairs(username)
 }
 
 // KeypairCreateHandler is the API method to create a new keypair that can be used
@@ -185,7 +164,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = updateAllowedKeypairActive(keypairID, false, authUser)
+	err = datastore.Environ.DB.UpdateAllowedKeypairActive(keypairID, false, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -218,33 +197,13 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = updateAllowedKeypairActive(keypairID, true, authUser)
+	err = datastore.Environ.DB.UpdateAllowedKeypairActive(keypairID, true, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
 		return
 	}
 	formatBooleanResponse(true, "", "", "", w)
-}
-
-func updateAllowedKeypairActive(keypairID int, active bool, authUser datastore.User) error {
-	switch authUser.Role {
-	case 0:
-		fallthrough
-	case datastore.Superuser:
-		return updateKeypairActive(keypairID, active)
-	case datastore.Admin:
-		return updateKeypairActiveFilteredByUser(keypairID, active, authUser.Username)
-	}
-	return nil
-}
-
-func updateKeypairActive(keypairID int, active bool) error {
-	return datastore.Environ.DB.UpdateKeypairActive(keypairID, active, "")
-}
-
-func updateKeypairActiveFilteredByUser(keypairID int, active bool, username string) error {
-	return datastore.Environ.DB.UpdateKeypairActive(keypairID, active, username)
 }
 
 // KeypairAssertionHandler updates the account key assertion on a keypair

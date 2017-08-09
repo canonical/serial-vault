@@ -92,8 +92,11 @@ func (db *DB) AlterKeypairTable() error {
 	return nil
 }
 
-// ListKeypairs fetches the available keypairs from the database.
-func (db *DB) ListKeypairs(username string) ([]Keypair, error) {
+func (db *DB) listAllKeypairs() ([]Keypair, error) {
+	return db.listKeypairsFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) listKeypairsFilteredByUser(username string) ([]Keypair, error) {
 	var keypairs []Keypair
 
 	var (
@@ -153,8 +156,11 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 	return "", nil
 }
 
-// UpdateKeypairActive sets the active state of a keypair
-func (db *DB) UpdateKeypairActive(keypairID int, active bool, username string) error {
+func (db *DB) updateKeypairActive(keypairID int, active bool) error {
+	return db.updateKeypairActiveFilteredByUser(keypairID, active, anyUserFilter)
+}
+
+func (db *DB) updateKeypairActiveFilteredByUser(keypairID int, active bool, username string) error {
 	var err error
 
 	if len(username) == 0 {

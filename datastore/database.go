@@ -27,22 +27,24 @@ import (
 	_ "github.com/lib/pq" // postgresql driver
 )
 
+const anyUserFilter = ""
+
 // Datastore interface for the database logic
 type Datastore interface {
-	ListModels(username string) ([]Model, error)
+	ListAllowedModels(authorization User) ([]Model, error)
 	FindModel(brandID, modelName, apiKey string) (Model, error)
-	GetModel(modelID int, username string) (Model, error)
-	UpdateModel(model Model, username string) (string, error)
-	DeleteModel(model Model, username string) (string, error)
-	CreateModel(model Model, username string) (Model, string, error)
+	GetAllowedModel(modelID int, authorization User) (Model, error)
+	UpdateAllowedModel(model Model, authorization User) (string, error)
+	DeleteAllowedModel(model Model, authorization User) (string, error)
+	CreateAllowedModel(model Model, authorization User) (Model, string, error)
 	CreateModelTable() error
 	AlterModelTable() error
 	CheckAPIKey(apiKey string) bool
 
-	ListKeypairs(username string) ([]Keypair, error)
+	ListAllowedKeypairs(authorization User) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
-	UpdateKeypairActive(keypairID int, active bool, username string) error
+	UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error
 	UpdateKeypairAssertion(keypairID int, assertion string) error
 	CreateKeypairTable() error
 	AlterKeypairTable() error
@@ -54,8 +56,8 @@ type Datastore interface {
 	CreateSigningLogTable() error
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
-	ListSigningLog(username string) ([]SigningLog, error)
-	SigningLogFilterValues(username string) (SigningLogFilters, error)
+	ListAllowedSigningLog(authorization User) ([]SigningLog, error)
+	AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error
 	DeleteExpiredDeviceNonces() error
@@ -63,7 +65,7 @@ type Datastore interface {
 	ValidateDeviceNonce(nonce string) error
 
 	CreateAccountTable() error
-	ListAccounts(username string) ([]Account, error)
+	ListAllowedAccounts(authorization User) ([]Account, error)
 	GetAccount(authorityID string) (Account, error)
 	UpdateAccountAssertion(authorityID, assertion string) error
 	PutAccount(account Account) (string, error)

@@ -167,9 +167,11 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
-// ListSigningLog returns a list of signing log records from a specific date/time.
-// The fromId parameter is used enables the use of indexes for more efficient pagination.
-func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
+func (db *DB) listAllSigningLog() ([]SigningLog, error) {
+	return db.listSigningLogFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) listSigningLogFilteredByUser(username string) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
 	var (
@@ -200,8 +202,11 @@ func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
 	return signingLogs, nil
 }
 
-// SigningLogFilterValues returns the unique values of the main filterable columns
-func (db *DB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
+func (db *DB) allSigningLogFilterValues() (SigningLogFilters, error) {
+	return db.signingLogFilterValuesFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) signingLogFilterValuesFilteredByUser(username string) (SigningLogFilters, error) {
 	filters := SigningLogFilters{}
 
 	var (

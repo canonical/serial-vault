@@ -214,7 +214,7 @@ func (db *DB) addAPIKeyField() error {
 	}
 
 	// Default the API key for any records where it is empty
-	models, err := db.ListModels("")
+	models, err := db.listAllModels()
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func (db *DB) addAPIKeyField() error {
 
 		// Update the API key on the model
 		model.APIKey = apiKey
-		db.UpdateModel(model, "")
+		db.updateModel(model)
 	}
 
 	// Add the constraints to the API key field
@@ -244,10 +244,14 @@ func (db *DB) addAPIKeyField() error {
 	return nil
 }
 
-// ListModels fetches the full catalogue of models from the database.
+func (db *DB) listAllModels() ([]Model, error) {
+	return db.listModelsFilteredByUser(anyUserFilter)
+}
+
+// listModels fetches the full catalogue of models from the database.
 // If a username is supplied, then only show the models for the user
 // [Permissions: Admin]
-func (db *DB) ListModels(username string) ([]Model, error) {
+func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 	models := []Model{}
 
 	var (
@@ -297,8 +301,11 @@ func (db *DB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	return model, nil
 }
 
-// GetModel retrieves the model from the database by ID.
-func (db *DB) GetModel(modelID int, username string) (Model, error) {
+func (db *DB) getModel(modelID int) (Model, error) {
+	return db.getModelFilteredByUser(modelID, anyUserFilter)
+}
+
+func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error) {
 	model := Model{}
 
 	var row *sql.Row
@@ -319,8 +326,11 @@ func (db *DB) GetModel(modelID int, username string) (Model, error) {
 	return model, nil
 }
 
-// UpdateModel updates the model.
-func (db *DB) UpdateModel(model Model, username string) (string, error) {
+func (db *DB) updateModel(model Model) (string, error) {
+	return db.updateModelFilteredByUser(model, anyUserFilter)
+}
+
+func (db *DB) updateModelFilteredByUser(model Model, username string) (string, error) {
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" {
 		return "error-validate-model", errors.New("The Brand and Model must be supplied")
@@ -355,8 +365,11 @@ func (db *DB) UpdateModel(model Model, username string) (string, error) {
 	return "", nil
 }
 
-// CreateModel updates the model.
-func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
+func (db *DB) createModel(model Model) (Model, string, error) {
+	return db.createModelFilteredByUser(model, anyUserFilter)
+}
+
+func (db *DB) createModelFilteredByUser(model Model, username string) (Model, string, error) {
 	// Validate the data
 	if strings.TrimSpace(model.BrandID) == "" || strings.TrimSpace(model.Name) == "" || model.KeypairID <= 0 || model.KeypairIDUser <= 0 {
 		return model, "error-validate-new-model", errors.New("The Brand, Model and Signing-Keys must be supplied")
@@ -390,7 +403,7 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 	}
 
 	// Return the created model
-	mdl, err := db.GetModel(createdModelID, username)
+	mdl, err := db.getModelFilteredByUser(createdModelID, username)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)
 		return model, "", err
@@ -398,8 +411,11 @@ func (db *DB) CreateModel(model Model, username string) (Model, string, error) {
 	return mdl, "", nil
 }
 
-// DeleteModel deletes a model record.
-func (db *DB) DeleteModel(model Model, username string) (string, error) {
+func (db *DB) deleteModel(model Model) (string, error) {
+	return db.deleteModelFilteredByUser(model, anyUserFilter)
+}
+
+func (db *DB) deleteModelFilteredByUser(model Model, username string) (string, error) {
 	var err error
 
 	if len(username) == 0 {

@@ -55,7 +55,7 @@ func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accounts, err := listAllowedAccounts(authUser)
+	accounts, err := datastore.Environ.DB.ListAllowedAccounts(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
@@ -65,26 +65,6 @@ func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
 	formatAccountsResponse(true, "", "", "", accounts, w)
-}
-
-func listAllowedAccounts(authUser datastore.User) ([]datastore.Account, error) {
-	switch authUser.Role {
-	case 0:
-		fallthrough
-	case datastore.Superuser:
-		return listAllAccounts()
-	case datastore.Admin:
-		return listAccountsFilteredByUser(authUser.Username)
-	}
-	return []datastore.Account{}, nil
-}
-
-func listAllAccounts() ([]datastore.Account, error) {
-	return datastore.Environ.DB.ListAccounts("")
-}
-
-func listAccountsFilteredByUser(username string) ([]datastore.Account, error) {
-	return datastore.Environ.DB.ListAccounts(username)
 }
 
 // AccountsUpsertHandler creates or updates an account assertion

@@ -53,7 +53,7 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logs, err := listAllowedSigningLog(authUser)
+	logs, err := datastore.Environ.DB.ListAllowedSigningLog(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
@@ -63,26 +63,6 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
 	formatSigningLogResponse(true, "", "", "", logs, w)
-}
-
-func listAllowedSigningLog(authUser datastore.User) ([]datastore.SigningLog, error) {
-	switch authUser.Role {
-	case 0:
-		fallthrough
-	case datastore.Superuser:
-		return listAllSigningLogs()
-	case datastore.Admin:
-		return listSigningLogsFilteredByUser(authUser.Username)
-	}
-	return []datastore.SigningLog{}, nil
-}
-
-func listAllSigningLogs() ([]datastore.SigningLog, error) {
-	return datastore.Environ.DB.ListSigningLog("")
-}
-
-func listSigningLogsFilteredByUser(username string) ([]datastore.SigningLog, error) {
-	return datastore.Environ.DB.ListSigningLog(username)
 }
 
 // SigningLogFiltersHandler is the API method to fetch the log filter values
@@ -95,7 +75,7 @@ func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filters, err := allowedSigningLogFilterValues(authUser)
+	filters, err := datastore.Environ.DB.AllowedSigningLogFilterValues(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogFiltersResponse(false, "error-fetch-signinglogfilters", "", err.Error(), filters, w)
@@ -105,24 +85,4 @@ func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	// Encode the response as JSON
 	w.WriteHeader(http.StatusOK)
 	formatSigningLogFiltersResponse(true, "", "", "", filters, w)
-}
-
-func allowedSigningLogFilterValues(authUser datastore.User) (datastore.SigningLogFilters, error) {
-	switch authUser.Role {
-	case 0:
-		fallthrough
-	case datastore.Superuser:
-		return allAllowedSigningLogFilterValues()
-	case datastore.Admin:
-		return signingLogFilterValuesFilteredByUser(authUser.Username)
-	}
-	return datastore.SigningLogFilters{}, nil
-}
-
-func allAllowedSigningLogFilterValues() (datastore.SigningLogFilters, error) {
-	return datastore.Environ.DB.SigningLogFilterValues("")
-}
-
-func signingLogFilterValuesFilteredByUser(username string) (datastore.SigningLogFilters, error) {
-	return datastore.Environ.DB.SigningLogFilterValues(username)
 }

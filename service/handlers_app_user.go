@@ -100,9 +100,10 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the model
-	// TODO: fix this so we respect user permissions here
-	model, err := datastore.Environ.DB.GetModel(user.ModelID, "")
+	// Get the model:
+	// NOTE: As this operation is available regardless of authentication enabled/disabled, we pass
+	// an empty authorization object that should allow us getting any model.
+	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
 		logMessage("USER", "invalid-model", "Cannot find model with the selected ID")
 		formatBooleanResponse(false, "invalid-model", "", "Cannot find model with the selected ID", w)

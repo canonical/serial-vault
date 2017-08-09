@@ -50,8 +50,8 @@ var FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []s
 // CacheAccountAssertions fetches the account assertions from the store and caches them in the database
 func CacheAccountAssertions(env *datastore.Env) {
 
-	// Get the active signing-keys from the database
-	keypairs, err := env.DB.ListKeypairs("")
+	// Get the active signing-keys from the database. This operation is not filtered by authorization
+	keypairs, err := env.DB.ListAllowedKeypairs(datastore.User{})
 	if err != nil {
 		log.Fatalf("Error retrieving the keypairs: %v\n", err)
 	}
