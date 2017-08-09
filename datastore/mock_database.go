@@ -68,7 +68,7 @@ func (mdb *MockDB) CreateAccountTable() error {
 
 // GetAccount mock to return a single account key
 func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
-	accounts, _ := mdb.ListAccounts("")
+	accounts, _ := mdb.ListAllowedAccounts(User{})
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -78,8 +78,8 @@ func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
 	return Account{}, errors.New("Cannot found the account assertion")
 }
 
-// ListAccounts mock to return a list of the available accounts
-func (mdb *MockDB) ListAccounts(username string) ([]Account, error) {
+// ListAllowedAccounts mock to return a list of the available accounts
+func (mdb *MockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	var accounts []Account
 	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
 	return accounts, nil
@@ -95,16 +95,16 @@ func (mdb *MockDB) UpdateAccountAssertion(authorityID, assertion string) error {
 	return nil
 }
 
-// ListModels Mock the database response for a list of models
-func (mdb *MockDB) ListModels(username string) ([]Model, error) {
+// ListAllowedModels Mock the database response for a list of models
+func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 
 	var models []Model
-	if username == "" || username == "sv" {
+	if authorization.Username == "" || authorization.Username == "sv" {
 		models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
 		models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: false})
 		models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
 	}
-	if username == "" {
+	if authorization.Username == "" {
 		models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
 		models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
 		models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
@@ -135,12 +135,12 @@ func (mdb *MockDB) CheckAPIKey(apiKey string) bool {
 	return true
 }
 
-// GetModel mocks the model from the database by ID.
-func (mdb *MockDB) GetModel(modelID int, username string) (Model, error) {
+// GetAllowedModel mocks the model from the database by ID.
+func (mdb *MockDB) GetAllowedModel(modelID int, authorization User) (Model, error) {
 
 	var model Model
 	found := false
-	models, _ := mdb.ListModels(username)
+	models, _ := mdb.ListAllowedModels(authorization)
 
 	for _, mdl := range models {
 		if mdl.ID == modelID {
@@ -157,9 +157,9 @@ func (mdb *MockDB) GetModel(modelID int, username string) (Model, error) {
 	return model, nil
 }
 
-// UpdateModel mocks the model update.
-func (mdb *MockDB) UpdateModel(model Model, username string) (string, error) {
-	models, _ := mdb.ListModels(username)
+// UpdateAllowedModel mocks the model update.
+func (mdb *MockDB) UpdateAllowedModel(model Model, authorization User) (string, error) {
+	models, _ := mdb.ListAllowedModels(authorization)
 	found := false
 
 	for _, mdl := range models {
@@ -175,9 +175,9 @@ func (mdb *MockDB) UpdateModel(model Model, username string) (string, error) {
 	return "", nil
 }
 
-// DeleteModel mocks the model deletion.
-func (mdb *MockDB) DeleteModel(model Model, username string) (string, error) {
-	models, _ := mdb.ListModels(username)
+// DeleteAllowedModel mocks the model deletion.
+func (mdb *MockDB) DeleteAllowedModel(model Model, authorization User) (string, error) {
+	models, _ := mdb.ListAllowedModels(authorization)
 	found := false
 
 	for _, mdl := range models {
@@ -193,8 +193,8 @@ func (mdb *MockDB) DeleteModel(model Model, username string) (string, error) {
 	return "", nil
 }
 
-// CreateModel mocks creating a new model.
-func (mdb *MockDB) CreateModel(model Model, username string) (Model, string, error) {
+// CreateAllowedModel mocks creating a new model.
+func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
 	model = Model{ID: 7, BrandID: "System", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
 
 	return model, "", nil
@@ -206,14 +206,14 @@ func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 	return keypair, nil
 }
 
-// ListKeypairs mocks listing the keypairs
-func (mdb *MockDB) ListKeypairs(username string) ([]Keypair, error) {
+// ListAllowedKeypairs mocks listing the keypairs
+func (mdb *MockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 	var keypairs []Keypair
-	if username == "" || username == "sv" {
+	if authorization.Username == "" || authorization.Username == "sv" {
 		keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
 		keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
 	}
-	if username == "" {
+	if authorization.Username == "" {
 		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "61abf588e52be7a3", Active: true})
 		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "system", KeyID: "inactiveone", Active: false})
 	}
@@ -225,8 +225,8 @@ func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", nil
 }
 
-// UpdateKeypairActive database mock
-func (mdb *MockDB) UpdateKeypairActive(keypairID int, active bool, username string) error {
+// UpdateAllowedKeypairActive database mock
+func (mdb *MockDB) UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error {
 	return nil
 }
 
@@ -280,12 +280,12 @@ func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
-// ListSigningLog database mock
-func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
+// ListAllowedSigningLog database mock
+func (mdb *MockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var fromID = 11
 	signingLog := []SigningLog{}
 
-	if len(username) > 0 {
+	if len(authorization.Username) > 0 {
 		fromID = 5
 	}
 
@@ -295,8 +295,8 @@ func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
 	return signingLog, nil
 }
 
-// SigningLogFilterValues database mock
-func (mdb *MockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
+// AllowedSigningLogFilterValues database mock
+func (mdb *MockDB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
 	return SigningLogFilters{Makes: []string{"System"}, Models: []string{"Router 3400"}}, nil
 }
 
@@ -333,12 +333,6 @@ func (mdb *MockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
-}
-
-// RoleForUser fetches the user's permissions
-func (mdb *MockDB) RoleForUser(username string) int {
-	user, _ := mdb.GetUserByUsername(username)
-	return user.Role
 }
 
 // CreateUserTable mock for creating database User table operation
@@ -530,7 +524,7 @@ func (mdb *ErrorMockDB) CreateAccountTable() error {
 // GetAccount mock to return a single account key
 func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
-	accounts, _ := mdb.ListAccounts("")
+	accounts, _ := mdb.ListAllowedAccounts(User{})
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -540,8 +534,8 @@ func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 	return Account{}, errors.New("Cannot found the account assertion")
 }
 
-// ListAccounts mock to return a list of the available accounts
-func (mdb *ErrorMockDB) ListAccounts(username string) ([]Account, error) {
+// ListAllowedAccounts mock to return a list of the available accounts
+func (mdb *ErrorMockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	return nil, errors.New("Error getting the accounts")
 }
 
@@ -555,8 +549,8 @@ func (mdb *ErrorMockDB) UpdateAccountAssertion(authorityID, assertion string) er
 	return nil
 }
 
-// ListModels ModelsList Mock the database response for a list of models
-func (mdb *ErrorMockDB) ListModels(username string) ([]Model, error) {
+// ListAllowedModels ModelsList Mock the database response for a list of models
+func (mdb *ErrorMockDB) ListAllowedModels(authorization User) ([]Model, error) {
 	return nil, errors.New("Error getting the models")
 }
 
@@ -570,23 +564,23 @@ func (mdb *ErrorMockDB) CheckAPIKey(apiKey string) bool {
 	return true
 }
 
-// GetModel mocks the model from the database by ID, returning an error.
-func (mdb *ErrorMockDB) GetModel(modelID int, username string) (Model, error) {
+// GetAllowedModel mocks the model from the database by ID, returning an error.
+func (mdb *ErrorMockDB) GetAllowedModel(modelID int, authorization User) (Model, error) {
 	return Model{}, errors.New("Error retrieving the model")
 }
 
-// UpdateModel mocks the model update, returning an error.
-func (mdb *ErrorMockDB) UpdateModel(model Model, username string) (string, error) {
+// UpdateAllowedModel mocks the model update, returning an error.
+func (mdb *ErrorMockDB) UpdateAllowedModel(model Model, authorization User) (string, error) {
 	return "", errors.New("Error updating the database model")
 }
 
-// DeleteModel mocks the model deletion, returning an error.
-func (mdb *ErrorMockDB) DeleteModel(model Model, username string) (string, error) {
+// DeleteAllowedModel mocks the model deletion, returning an error.
+func (mdb *ErrorMockDB) DeleteAllowedModel(model Model, authorization User) (string, error) {
 	return "", errors.New("Error deleting the database model")
 }
 
-// CreateModel mocks creating a new model, returning an error.
-func (mdb *ErrorMockDB) CreateModel(model Model, username string) (Model, string, error) {
+// CreateAllowedModel mocks creating a new model, returning an error.
+func (mdb *ErrorMockDB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
 	return Model{}, "", errors.New("Error creating the database model")
 }
 
@@ -596,8 +590,8 @@ func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
 	return keypair, errors.New("Error fetching from the database")
 }
 
-// ListKeypairs error mock for the database
-func (mdb *ErrorMockDB) ListKeypairs(username string) ([]Keypair, error) {
+// ListAllowedKeypairs error mock for the database
+func (mdb *ErrorMockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 	var keypairs []Keypair
 	return keypairs, errors.New("MOCK Error fetching from the database")
 }
@@ -607,8 +601,8 @@ func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", errors.New("Error updating the database")
 }
 
-// UpdateKeypairActive error mock for the database
-func (mdb *ErrorMockDB) UpdateKeypairActive(keypairID int, active bool, username string) error {
+// UpdateAllowedKeypairActive error mock for the database
+func (mdb *ErrorMockDB) UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error {
 	return errors.New("Error updating the database")
 }
 
@@ -637,14 +631,14 @@ func (mdb *ErrorMockDB) CreateSigningLogTable() error {
 	return nil
 }
 
-// ListSigningLog error mock for the database
-func (mdb *ErrorMockDB) ListSigningLog(username string) ([]SigningLog, error) {
+// ListAllowedSigningLog error mock for the database
+func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
 }
 
-// SigningLogFilterValues error mock for the database
-func (mdb *ErrorMockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
+// AllowedSigningLogFilterValues error mock for the database
+func (mdb *ErrorMockDB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
 	return SigningLogFilters{}, errors.New("Error retrieving the signing log filters")
 }
 
@@ -681,15 +675,6 @@ func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
-}
-
-// RoleForUser fetches the user's permissions
-func (mdb *ErrorMockDB) RoleForUser(username string) int {
-	// in case username is 'root' return a valid value, as that is used for auth
-	if username == "root" {
-		return Superuser
-	}
-	return 0
 }
 
 // CreateUserTable mock for creating database User table operation

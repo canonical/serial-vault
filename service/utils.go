@@ -29,8 +29,6 @@ import (
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/usso"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -252,43 +250,4 @@ func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error 
 	}
 
 	return nil
-}
-
-// checkUserPermissions retrieves the user from the JWT.
-// The user will be restricted by the accounts the username can access and their role i.e. only Admin and Superuser
-// These are the rules:
-//
-// 	- If user authentication is turned off, the JWT will irrelevant. In this case the username is returned as "" if Admin
-// 		is allowed, or error if only Superuser is allowed.
-//	- If database user role is less than allowed role, an error is returned
-//	- If there is no database user, role is considered Admin
-//
-func checkUserPermissions(w http.ResponseWriter, r *http.Request, minimumAuthorizedRole int) (string, error) {
-	// User authentication is turned off
-	if !datastore.Environ.Config.EnableUserAuth {
-		// Superuser permissions don't allow turned off authentication
-		if minimumAuthorizedRole == datastore.Superuser {
-			return "", errors.New("A The user is not authorized")
-		}
-		return "", nil
-	}
-
-	// Check the authentication token
-	token, err := JWTCheck(w, r)
-	if err != nil {
-		return "", err
-	}
-
-	// Get the user from the token
-	claims := token.Claims.(jwt.MapClaims)
-	username := claims[usso.ClaimsUsername].(string)
-
-	// Check that the role is at least the authorized one.
-	// NOTE: Take into account that RoleForUser() returns Admin in case username is empty
-	role := datastore.Environ.DB.RoleForUser(username)
-	if role < minimumAuthorizedRole {
-		return username, errors.New("The user is not authorized")
-	}
-
-	return username, nil
 }

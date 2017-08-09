@@ -255,6 +255,7 @@ class UserEdit extends Component {
                             
                             <fieldset>
                                 <p>{T('select-accounts')}</p>
+
                                 <div>
                                     {this.state.availableAccounts.map(function(acc) {
                                         return self.renderAccountSelect(acc);

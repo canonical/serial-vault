@@ -49,14 +49,13 @@ type AssertionRequest struct {
 func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatAccountsResponse(false, "error-auth", "", "", nil, w)
 		return
 	}
 
-	accounts, err := datastore.Environ.DB.ListAccounts(username)
+	accounts, err := datastore.Environ.DB.ListAllowedAccounts(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
@@ -73,7 +72,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -128,7 +127,7 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the user has permissions for the authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(username, assertion.AuthorityID()) {
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, assertion.AuthorityID()) {
 		formatBooleanResponse(false, "error-auth", "", "You do not have permissions for that authority", w)
 		return
 	}

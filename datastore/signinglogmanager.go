@@ -60,7 +60,7 @@ const listSigningLogForUserSQL = `
 		SELECT * FROM account acc
 		INNER JOIN useraccountlink ua on ua.account_id=acc.id
 		INNER JOIN userinfo u on ua.user_id=u.id
-		WHERE acc.authority_id=s.make and u.username=$2 and u.userrole >= $3
+		WHERE acc.authority_id=s.make and u.username=$2
 	)
 	ORDER BY id DESC LIMIT 10000`
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
@@ -71,7 +71,7 @@ const filterValuesMakeSigningLogForUserSQL = `
 		SELECT * FROM account acc
 		INNER JOIN useraccountlink ua on ua.account_id=acc.id
 		INNER JOIN userinfo u on ua.user_id=u.id
-		WHERE acc.authority_id=s.make and u.username=$1 and u.userrole >= $2
+		WHERE acc.authority_id=s.make and u.username=$1
 	)
 	ORDER BY make`
 const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
@@ -81,7 +81,7 @@ const filterValuesModelSigningLogForUserSQL = `
 		SELECT * FROM account acc
 		INNER JOIN useraccountlink ua on ua.account_id=acc.id
 		INNER JOIN userinfo u on ua.user_id=u.id
-		WHERE acc.authority_id=s.make and u.username=$1 and u.userrole >= $2
+		WHERE acc.authority_id=s.make and u.username=$1
 	)
 	ORDER BY model`
 
@@ -167,9 +167,11 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
-// ListSigningLog returns a list of signing log records from a specific date/time.
-// The fromId parameter is used enables the use of indexes for more efficient pagination.
-func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
+func (db *DB) listAllSigningLog() ([]SigningLog, error) {
+	return db.listSigningLogFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) listSigningLogFilteredByUser(username string) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
 	var (
@@ -180,7 +182,7 @@ func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
 	if len(username) == 0 {
 		rows, err = db.Query(listSigningLogSQL, MaxFromID)
 	} else {
-		rows, err = db.Query(listSigningLogForUserSQL, MaxFromID, username, Admin)
+		rows, err = db.Query(listSigningLogForUserSQL, MaxFromID, username)
 	}
 	if err != nil {
 		log.Printf("Error retrieving signing logs: %v\n", err)
@@ -200,8 +202,11 @@ func (db *DB) ListSigningLog(username string) ([]SigningLog, error) {
 	return signingLogs, nil
 }
 
-// SigningLogFilterValues returns the unique values of the main filterable columns
-func (db *DB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
+func (db *DB) allSigningLogFilterValues() (SigningLogFilters, error) {
+	return db.signingLogFilterValuesFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) signingLogFilterValuesFilteredByUser(username string) (SigningLogFilters, error) {
 	filters := SigningLogFilters{}
 
 	var (
@@ -243,7 +248,7 @@ func (db *DB) filterValuesForField(username string, sqlQuery string, fieldValues
 	if len(username) == 0 {
 		rows, err = db.Query(sqlQuery)
 	} else {
-		rows, err = db.Query(sqlQuery, username, Admin)
+		rows, err = db.Query(sqlQuery, username)
 	}
 
 	if err != nil {

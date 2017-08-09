@@ -94,13 +94,16 @@ func TestSigningLogFilterValuesWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
 
 	// Create a JWT and add it to the request
-	createJWT(r, t)
+	err := createJWTWithRole(r, datastore.Admin)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SigningLogFiltersResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	err = json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the signing log filters response: %v", err)
 	}
@@ -126,6 +129,9 @@ func TestSigningLogFilterValuesWithNoPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected error, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 
@@ -153,13 +159,16 @@ func sendSigningLogRequest(t *testing.T, method, url string, data io.Reader) (Si
 	r, _ := http.NewRequest(method, url, data)
 
 	// Create a JWT and add it to the request
-	createJWT(r, t)
+	err := createJWTWithRole(r, datastore.Admin)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
 
 	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SigningLogResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	err = json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the signing log response: %v", err)
 	}

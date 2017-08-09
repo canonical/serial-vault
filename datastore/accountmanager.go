@@ -80,8 +80,11 @@ func (db *DB) CreateAccountTable() error {
 	return err
 }
 
-// ListAccounts fetches the available accounts from the database.
-func (db *DB) ListAccounts(username string) ([]Account, error) {
+func (db *DB) listAllAccounts() ([]Account, error) {
+	return db.listAccountsFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) listAccountsFilteredByUser(username string) ([]Account, error) {
 
 	var (
 		rows *sql.Rows

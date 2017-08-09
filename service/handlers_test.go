@@ -24,6 +24,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -425,14 +426,21 @@ func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (Versi
 }
 
 func createJWT(r *http.Request, t *testing.T) {
-	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
-	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
-	jwtToken, err := usso.NewJWTToken(&resp, datastore.Standard)
-
+	err := createJWTWithRole(r, datastore.Standard)
 	if err != nil {
 		t.Errorf("Error creating a JWT: %v", err)
 	}
+}
+
+func createJWTWithRole(r *http.Request, role int) error {
+	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
+	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
+	jwtToken, err := usso.NewJWTToken(&resp, role)
+	if err != nil {
+		return fmt.Errorf("Error creating a JWT: %v", err)
+	}
 	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	return nil
 }
 
 func sendRequestToken(t *testing.T, method, url string, data io.Reader) (TokenResponse, error) {

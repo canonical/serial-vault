@@ -347,4 +347,5 @@ func (s *ServiceSuite) sendRequestWithoutPermissions(method, url string, data io
 	err := json.NewDecoder(w.Body).Decode(&result)
 	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)
+	c.Assert(result.ErrorCode, check.Equals, "error-auth")
 }

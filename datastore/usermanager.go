@@ -72,11 +72,12 @@ const alterUserRemoveOpenIDIdentity = "alter table userinfo drop column if exist
 
 // Available user roles:
 //
+// * Invalid:	default value set in case there is no authentication previous process for this user and thus not got a valid role.
 // * Standard:	role for regular users. This is the less privileged role
 // * Admin:		role for admin users, including standard role permissions but not superuser ones
 // * Superuser:	role for users having all the permissions
 const (
-	_         = iota
+	Invalid   = iota       // 0
 	Standard  = 100 * iota // 100
 	Admin                  // 200
 	Superuser              // 300
@@ -250,20 +251,6 @@ func (db *DB) ListAccountUsers(authorityID string) ([]User, error) {
 	return users, nil
 }
 
-// RoleForUser checks the user role against the database
-// If user authentication is turned off, the role defaults to Admin
-func (db *DB) RoleForUser(username string) int {
-	if username == "" {
-		return Admin
-	}
-
-	user, err := db.GetUserByUsername(username)
-	if err != nil {
-		return 0
-	}
-	return user.Role
-}
-
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (db *DB) CheckUserInAccount(username, authorityID string) bool {
 	if username == "" {
@@ -320,7 +307,7 @@ func (db *DB) rowToUser(row *sql.Row) (User, error) {
 	}
 
 	// Get related accounts and fill related User field
-	user.Accounts, err = db.ListAccounts(user.Username)
+	user.Accounts, err = db.listAccountsFilteredByUser(user.Username)
 	if err != nil {
 		return User{}, err
 	}
@@ -336,7 +323,7 @@ func (db *DB) rowsToUser(rows *sql.Rows) (User, error) {
 	}
 
 	// Get related accounts and fill related User field
-	user.Accounts, err = db.ListAccounts(user.Username)
+	user.Accounts, err = db.listAccountsFilteredByUser(user.Username)
 	if err != nil {
 		return User{}, err
 	}

@@ -47,14 +47,13 @@ type SigningLogFiltersResponse struct {
 func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
 		return
 	}
 
-	logs, err := datastore.Environ.DB.ListSigningLog(username)
+	logs, err := datastore.Environ.DB.ListAllowedSigningLog(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
@@ -70,14 +69,13 @@ func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
 func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
 		return
 	}
 
-	filters, err := datastore.Environ.DB.SigningLogFilterValues(username)
+	filters, err := datastore.Environ.DB.AllowedSigningLogFilterValues(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatSigningLogFiltersResponse(false, "error-fetch-signinglogfilters", "", err.Error(), filters, w)

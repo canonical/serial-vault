@@ -45,14 +45,13 @@ type KeypairWithPrivateKey struct {
 func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatKeypairsResponse(false, "error-auth", "", "", nil, w)
 		return
 	}
 
-	keypairs, err := datastore.Environ.DB.ListKeypairs(username)
+	keypairs, err := datastore.Environ.DB.ListAllowedKeypairs(authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		formatKeypairsResponse(false, "error-fetch-keypairs", "", err.Error(), nil, w)
@@ -71,8 +70,7 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -111,7 +109,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(username, keypairWithKey.AuthorityID) {
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, keypairWithKey.AuthorityID) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
 		return
@@ -149,8 +147,7 @@ func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -167,7 +164,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, false, username)
+	err = datastore.Environ.DB.UpdateAllowedKeypairActive(keypairID, false, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -183,8 +180,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -201,7 +197,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the keypair in the local database
-	err = datastore.Environ.DB.UpdateKeypairActive(keypairID, true, username)
+	err = datastore.Environ.DB.UpdateAllowedKeypairActive(keypairID, true, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-update", "", err.Error(), w)
@@ -214,8 +210,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Check the user and role from the JWT
-	username, err := checkUserPermissions(w, r, datastore.Admin)
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
@@ -278,7 +273,7 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(username, assertion.AuthorityID()) {
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, assertion.AuthorityID()) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Authority", w)
 		return

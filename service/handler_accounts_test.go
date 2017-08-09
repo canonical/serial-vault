@@ -99,13 +99,16 @@ func TestAccountsHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
 
 	// Create a JWT and add it to the request
-	createJWT(r, t)
+	err := createJWTWithRole(r, datastore.Admin)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
 
 	http.HandlerFunc(AccountsHandler).ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := AccountsResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	err = json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the accounts response: %v", err)
 	}
@@ -132,6 +135,9 @@ func TestAccountsHandlerWithoutPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected error, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 
@@ -218,7 +224,10 @@ func TestAccountsUpsertHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
 
 	// Create a JWT and add it to the request
-	createJWT(r, t)
+	err = createJWTWithRole(r, datastore.Admin)
+	if err != nil {
+		t.Errorf("Error creating a JWT: %v", err)
+	}
 
 	http.HandlerFunc(AccountsUpsertHandler).ServeHTTP(w, r)
 
@@ -269,6 +278,9 @@ func TestAccountsUpsertHandlerWithoutPermissions(t *testing.T) {
 	}
 	if result.Success {
 		t.Error("Expected failure, got success")
+	}
+	if result.ErrorCode != "error-auth" {
+		t.Error("Expected error-auth code")
 	}
 }
 
