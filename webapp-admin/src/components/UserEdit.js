@@ -29,6 +29,7 @@ class UserEdit extends Component {
             title: null,
             user: {},
             error: null,
+            hideForm: false,
             // TODO temporary move user.Accounts to userAccounts, as backend provides accounts for the user 
             // that way. In future this will be get in an independant call.
             assignedAccounts: [],
@@ -51,13 +52,18 @@ class UserEdit extends Component {
     }
 
     getUser(userId) {
-        var self = this;
-        Users.get(userId).then(function(response) {
+        Users.get(userId).then((response) => {
             var data = JSON.parse(response.body);
-            self.setState({
-                user: data.user, 
-                assignedAccounts: self.accountsToAuthorityIDs(data.user.Accounts),
-            });
+
+            if (response.statusCode >= 300) {
+                this.setState({error: this.formatError(data), hideForm: true});
+            } else {
+                this.setState({
+                    user: data.user, 
+                    assignedAccounts: this.accountsToAuthorityIDs(data.user.Accounts),
+                    hideForm: false,
+                });
+            }
         });
     }
 
@@ -202,6 +208,14 @@ class UserEdit extends Component {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
+
+        if (this.state.hideForm) {
+            return (
+                <div className="row">
+                <AlertBox message={this.state.error} />
                 </div>
             )
         }
