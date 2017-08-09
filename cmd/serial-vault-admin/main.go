@@ -33,7 +33,6 @@ func main() {
 
 	err := run()
 	if err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 
@@ -43,5 +42,16 @@ func run() error {
 	// Parse the command line arguments and execute the command
 	parser := flags.NewParser(&manage.Manage, flags.HelpFlag)
 	_, err := parser.Parse()
+
+	if err != nil {
+		if e, ok := err.(*flags.Error); ok {
+			if e.Type == flags.ErrHelp || e.Type == flags.ErrCommandRequired {
+				parser.WriteHelp(os.Stdout)
+				return nil
+			}
+		}
+		fmt.Println(err)
+	}
+
 	return err
 }
