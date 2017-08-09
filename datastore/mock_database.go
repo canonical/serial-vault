@@ -68,7 +68,7 @@ func (mdb *MockDB) CreateAccountTable() error {
 
 // GetAccount mock to return a single account key
 func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
-	accounts, _ := mdb.ListAccounts("")
+	accounts, _ := mdb.ListAllowedAccounts(User{})
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -78,8 +78,8 @@ func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
 	return Account{}, errors.New("Cannot found the account assertion")
 }
 
-// ListAccounts mock to return a list of the available accounts
-func (mdb *MockDB) ListAccounts(username string) ([]Account, error) {
+// ListAllowedAccounts mock to return a list of the available accounts
+func (mdb *MockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	var accounts []Account
 	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
 	return accounts, nil
@@ -280,12 +280,12 @@ func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
 	return nil
 }
 
-// ListSigningLog database mock
-func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
+// ListAllowedSigningLog database mock
+func (mdb *MockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var fromID = 11
 	signingLog := []SigningLog{}
 
-	if len(username) > 0 {
+	if len(authorization.Username) > 0 {
 		fromID = 5
 	}
 
@@ -295,8 +295,8 @@ func (mdb *MockDB) ListSigningLog(username string) ([]SigningLog, error) {
 	return signingLog, nil
 }
 
-// SigningLogFilterValues database mock
-func (mdb *MockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
+// AllowedSigningLogFilterValues database mock
+func (mdb *MockDB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
 	return SigningLogFilters{Makes: []string{"System"}, Models: []string{"Router 3400"}}, nil
 }
 
@@ -333,12 +333,6 @@ func (mdb *MockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
-}
-
-// RoleForUser fetches the user's permissions
-func (mdb *MockDB) RoleForUser(username string) int {
-	user, _ := mdb.GetUserByUsername(username)
-	return user.Role
 }
 
 // CreateUserTable mock for creating database User table operation
@@ -530,7 +524,7 @@ func (mdb *ErrorMockDB) CreateAccountTable() error {
 // GetAccount mock to return a single account key
 func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
-	accounts, _ := mdb.ListAccounts("")
+	accounts, _ := mdb.ListAllowedAccounts(User{})
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
@@ -540,8 +534,8 @@ func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 	return Account{}, errors.New("Cannot found the account assertion")
 }
 
-// ListAccounts mock to return a list of the available accounts
-func (mdb *ErrorMockDB) ListAccounts(username string) ([]Account, error) {
+// ListAllowedAccounts mock to return a list of the available accounts
+func (mdb *ErrorMockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	return nil, errors.New("Error getting the accounts")
 }
 
@@ -637,14 +631,14 @@ func (mdb *ErrorMockDB) CreateSigningLogTable() error {
 	return nil
 }
 
-// ListSigningLog error mock for the database
-func (mdb *ErrorMockDB) ListSigningLog(username string) ([]SigningLog, error) {
+// ListAllowedSigningLog error mock for the database
+func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
 }
 
-// SigningLogFilterValues error mock for the database
-func (mdb *ErrorMockDB) SigningLogFilterValues(username string) (SigningLogFilters, error) {
+// AllowedSigningLogFilterValues error mock for the database
+func (mdb *ErrorMockDB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
 	return SigningLogFilters{}, errors.New("Error retrieving the signing log filters")
 }
 
@@ -681,15 +675,6 @@ func (mdb *ErrorMockDB) CreateOpenidNonce(nonce OpenidNonce) error {
 // CheckUserInAccount verifies that a user has permissions to a specific account
 func (mdb *ErrorMockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
-}
-
-// RoleForUser fetches the user's permissions
-func (mdb *ErrorMockDB) RoleForUser(username string) int {
-	// in case username is 'root' return a valid value, as that is used for auth
-	if username == "root" {
-		return Superuser
-	}
-	return 0
 }
 
 // CreateUserTable mock for creating database User table operation
