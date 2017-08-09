@@ -25,7 +25,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// UserAddCommand handles adding a new user for the manage command
+// UserAddCommand handles adding a new user for the serial-vault-admin command
 type UserAddCommand struct {
 	Name     string `short:"n" long:"name" description:"Full name of the user" required:"yes"`
 	RoleName string `short:"r" long:"role" description:"Role of the user" required:"yes" choice:"standard" choice:"admin" choice:"superuser"`

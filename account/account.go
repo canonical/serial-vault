@@ -52,7 +52,7 @@ func CacheAccountAssertions(env *datastore.Env) {
 		fmt.Printf("Processing keypair - %s\n", k.KeyID)
 		if !k.Active {
 			// Ignore disabled keys
-			fmt.Println("Disabled, so skipping")
+			fmt.Printf("Keypair %s disabled, so skipping\n", k.KeyID)
 			continue
 		}
 
