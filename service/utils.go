@@ -22,11 +22,8 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
-	"regexp"
-	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
@@ -196,60 +193,4 @@ func checkAPIKey(apiKey string) error {
 // e.g. "METHOD CODE descriptive reason"
 func logMessage(method, code, reason string) {
 	log.Printf("%s %s %s\n", method, code, reason)
-}
-
-// define patterns for validation
-const validModelAllowed = "^[a-z0-9](?:-?[a-z0-9])*$"
-const validUsernameAllowed = validModelAllowed
-const validEmailAllowed = `^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
-
-var validModelNamePattern = regexp.MustCompile(validModelAllowed)
-var validUsernamePattern = regexp.MustCompile(validUsernameAllowed)
-var validEmailPattern = regexp.MustCompile(validEmailAllowed)
-
-// validateModelName validates
-func validateModelName(name string) error {
-	return validateSyntax("Name", name, validModelNamePattern)
-}
-
-func validateUsername(username string) error {
-	return validateSyntax("Username", username, validUsernamePattern)
-}
-
-func validateUserRole(role int) error {
-	if role != datastore.Standard && role != datastore.Admin && role != datastore.Superuser {
-		return errors.New("Role is not amongst valid ones")
-	}
-	return nil
-}
-
-func validateUserFullName(name string) error {
-	return validateNotEmpty("Name", name)
-}
-
-func validateUserEmail(email string) error {
-	return validateSyntax("Email", email, validEmailPattern)
-}
-
-func validateNotEmpty(fieldName, fieldValue string) error {
-	if len(fieldValue) == 0 {
-		return fmt.Errorf("%v must not be empty", fieldName)
-	}
-	return nil
-}
-
-func validateSyntax(fieldName, fieldValue string, pattern *regexp.Regexp) error {
-	if err := validateNotEmpty(fieldName, fieldValue); err != nil {
-		return err
-	}
-
-	if strings.ToLower(fieldValue) != fieldValue {
-		return fmt.Errorf("%v must not contain uppercase characters", fieldName)
-	}
-
-	if !pattern.MatchString(fieldValue) {
-		return fmt.Errorf("%v contains invalid characters, allowed %q", fieldName, pattern)
-	}
-
-	return nil
 }

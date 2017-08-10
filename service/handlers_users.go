@@ -95,13 +95,6 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validateUser(userRequest)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatUserResponse(false, "error-creating-user", "", err.Error(), datastore.User{}, w)
-		return
-	}
-
 	// Create a new user
 	user := datastore.User{
 		Username: userRequest.Username,
@@ -237,13 +230,6 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validateUser(userRequest)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatUserResponse(false, "error-updating-user", "", err.Error(), datastore.User{}, w)
-		return
-	}
-
 	// Update the database
 	user := datastore.User{
 		ID:       id,
@@ -293,31 +279,4 @@ func UserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	formatUserResponse(true, "", "", "", datastore.User{}, w)
-}
-
-func validateUser(userRequest UserRequest) error {
-	// Validate username; the rule is: lowercase with no spaces
-	err := validateUsername(userRequest.Username)
-	if err != nil {
-		return err
-	}
-
-	// Validate name; the rule is: not empty
-	err = validateUserFullName(userRequest.Name)
-	if err != nil {
-		return err
-	}
-
-	// Validate email; the rule is: not empty
-	err = validateUserEmail(userRequest.Email)
-	if err != nil {
-		return err
-	}
-
-	// Validate role; the rule is the role is 100, 200 or 300
-	err = validateUserRole(userRequest.Role)
-	if err != nil {
-		return err
-	}
-	return nil
 }

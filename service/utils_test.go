@@ -22,7 +22,6 @@ package service
 import (
 	"encoding/json"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -98,106 +97,5 @@ func TestFormatSigningLogResponse(t *testing.T) {
 	}
 	if result.SigningLog[0].Fingerprint != signingLog[0].Fingerprint {
 		t.Errorf("Expected the first fingerprint '%s', got: %s", signingLog[0].Fingerprint, result.SigningLog[0].Fingerprint)
-	}
-}
-
-func TestModelName(t *testing.T) {
-	name := "my-model-01"
-	err := validateModelName(name)
-	if err != nil {
-		t.Errorf("Not a valid model name: %v", err)
-	}
-}
-
-func TestModelNameEmpty(t *testing.T) {
-	name := ""
-	err := validateModelName(name)
-	if err == nil {
-		t.Error("Expected name not to be valid, but it is")
-	}
-	if err.Error() != "Name must not be empty" {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestModelNameInvalidChar(t *testing.T) {
-	name := "my-model-01_"
-	err := validateModelName(name)
-	if err == nil {
-		t.Error("Expected name not to be valid, but it is")
-	}
-	if !strings.Contains(err.Error(), "Name contains invalid characters") {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestModelNameUpperChar(t *testing.T) {
-	name := "my-Model-01"
-	err := validateModelName(name)
-	if err == nil {
-		t.Error("Expected name not to be valid, but it is")
-	}
-	if err.Error() != "Name must not contain uppercase characters" {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestUserName(t *testing.T) {
-	username := "myusername"
-	err := validateUsername(username)
-	if err != nil {
-		t.Errorf("Not a valid username: %v", err)
-	}
-}
-
-func TestUsernameEmpty(t *testing.T) {
-	username := ""
-	err := validateUsername(username)
-	if err == nil {
-		t.Error("Expected username not to be valid, but it is")
-	}
-	if err.Error() != "Username must not be empty" {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestUsernameInvalidChar(t *testing.T) {
-	username := "myusername_"
-	err := validateUsername(username)
-	if err == nil {
-		t.Error("Expected username not to be valid, but it is")
-	}
-	if !strings.Contains(err.Error(), "Username contains invalid characters") {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestUsernameUpperChar(t *testing.T) {
-	username := "myUsername"
-	err := validateUsername(username)
-	if err == nil {
-		t.Error("Expected username not to be valid, but it is")
-	}
-	if err.Error() != "Username must not contain uppercase characters" {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestUserFullName(t *testing.T) {
-	name := "Federico Martín Bahamontes"
-	err := validateUserFullName(name)
-	if err != nil {
-		t.Errorf("Not a valid name: %v", err)
-	}
-}
-
-func TestUserFullNameEmpty(t *testing.T) {
-	name := ""
-	err := validateUserFullName(name)
-	if err == nil {
-		t.Error("Expected name not to be valid, but it is")
-	}
-	if err.Error() != "Name must not be empty" {
-		t.Error("Error happening is not the one searched for")
 	}
 }

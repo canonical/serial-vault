@@ -19,6 +19,14 @@
 
 package datastore
 
+import (
+	"regexp"
+)
+
+const validModelNamePattern = defaultNicknamePattern
+
+var validModelNameRegexp = regexp.MustCompile(validModelNamePattern)
+
 // ListAllowedModels returns the models allowed to be seen to the authorization
 func (db *DB) ListAllowedModels(authorization User) ([]Model, error) {
 	switch authorization.Role {
@@ -49,6 +57,11 @@ func (db *DB) GetAllowedModel(modelID int, authorization User) (Model, error) {
 
 // UpdateAllowedModel updates the model if authorization is allowed to do it
 func (db *DB) UpdateAllowedModel(model Model, authorization User) (string, error) {
+	err := validateModelName(model.Name)
+	if err != nil {
+		return "", err
+	}
+
 	switch authorization.Role {
 	case Invalid: // Authentication is disabled
 		fallthrough
@@ -77,6 +90,11 @@ func (db *DB) DeleteAllowedModel(model Model, authorization User) (string, error
 
 // CreateAllowedModel creates a new model in case authorization is allowed to do it
 func (db *DB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
+	err := validateModelName(model.Name)
+	if err != nil {
+		return Model{}, "", err
+	}
+
 	switch authorization.Role {
 	case Invalid: // Authentication is disabled
 		fallthrough
@@ -87,4 +105,9 @@ func (db *DB) CreateAllowedModel(model Model, authorization User) (Model, string
 	default:
 		return Model{}, "", nil
 	}
+}
+
+// validateModelName validates name for the model; the rule is: lowercase with no spaces
+func validateModelName(name string) error {
+	return validateSyntax("Name", name, validModelNameRegexp)
 }
