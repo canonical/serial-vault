@@ -184,14 +184,6 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate model name; the rule is: lowercase with no spaces
-	err = validateModelName(mdl.Name)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-updating-model", "", err.Error(), ModelSerialize{}, w)
-		return
-	}
-
 	// Update the database
 	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
 	errorSubcode, err := datastore.Environ.DB.UpdateAllowedModel(model, authUser)
@@ -271,14 +263,6 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
 		formatModelResponse(false, "error-decode-json", "", errorMessage, ModelSerialize{}, w)
-		return
-	}
-
-	// Validate model name; the rule is: lowercase with no spaces
-	err = validateModelName(mdlWithKey.Name)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatModelResponse(false, "error-creating-model", "", err.Error(), ModelSerialize{}, w)
 		return
 	}
 

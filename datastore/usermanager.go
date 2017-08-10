@@ -161,10 +161,10 @@ func (db *DB) GetUserByUsername(username string) (User, error) {
 	return user, err
 }
 
-// CreateUser adds a new record to User database table, Returns new record identifier if success
-func (db *DB) CreateUser(user User) (int, error) {
+// createUser adds a new record to User database table, Returns new record identifier if success
+func (db *DB) createUser(user User) (int, error) {
 
-	createdUserID := 0
+	createdUserID := -1
 
 	err := db.transaction(func(tx *sql.Tx) error {
 
@@ -186,8 +186,8 @@ func (db *DB) CreateUser(user User) (int, error) {
 	return createdUserID, err
 }
 
-// UpdateUser sets user new values for an existing record. Also updates useraccount link. All that in a transaction
-func (db *DB) UpdateUser(user User) error {
+// updateUser sets user new values for an existing record. Also updates useraccount link. All that in a transaction
+func (db *DB) updateUser(user User) error {
 
 	return db.transaction(func(tx *sql.Tx) error {
 
