@@ -79,7 +79,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	models := []ModelSerialize{}
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	authUser, err := checkIsStandardAndGetUserFromJWT(w, r)
 	if err != nil {
 		formatModelsResponse(false, "error-auth", "", "", models, w)
 		return
