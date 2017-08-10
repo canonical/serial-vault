@@ -38,7 +38,7 @@ func TestModelNameEmpty(t *testing.T) {
 	if err == nil {
 		t.Error("Expected name not to be valid, but it is")
 	}
-	if err.Error() != "Name must not be empty" {
+	if err.Error() != "Model name must not be empty" {
 		t.Error("Error happening is not the one searched for")
 	}
 }
@@ -49,7 +49,7 @@ func TestModelNameInvalidChar(t *testing.T) {
 	if err == nil {
 		t.Error("Expected name not to be valid, but it is")
 	}
-	if !strings.Contains(err.Error(), "Name contains invalid characters") {
+	if !strings.Contains(err.Error(), "Model name contains invalid characters") {
 		t.Error("Error happening is not the one searched for")
 	}
 }
@@ -60,7 +60,7 @@ func TestModelNameUpperChar(t *testing.T) {
 	if err == nil {
 		t.Error("Expected name not to be valid, but it is")
 	}
-	if err.Error() != "Name must not contain uppercase characters" {
+	if err.Error() != "Model name must not contain uppercase characters" {
 		t.Error("Error happening is not the one searched for")
 	}
 }
