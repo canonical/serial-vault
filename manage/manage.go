@@ -24,14 +24,17 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// Command defines the options for the manage command-line utility
+// Command defines the options for the serial-vault-admin command-line utility
 type Command struct {
 	SettingsFile string `short:"c" long:"config" description:"Path to the config file" default:"./settings.yaml"`
 
-	User UserCommand `command:"user" alias:"u" description:"User management"`
+	Account  AccountCommand  `command:"account" alias:"a" description:"Account management"`
+	Client   ClientCommand   `command:"client" alias:"c" description:"Serial-Vault Client to generate a test serial assertion request"`
+	Database DatabaseCommand `command:"database" alias:"d" description:"Database schema update"`
+	User     UserCommand     `command:"user" alias:"u" description:"User management"`
 }
 
-// Manage is the implementation of the command configuration for the manage command-line
+// Manage is the implementation of the command configuration for the serial-vault-admin command-line
 var Manage Command
 
 func openDatabase() {

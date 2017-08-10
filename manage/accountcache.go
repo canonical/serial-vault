@@ -17,31 +17,27 @@
  *
  */
 
-package main
+package manage
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/manage"
-	"github.com/jessevdk/go-flags"
 )
 
-func main() {
-	datastore.Environ = &datastore.Env{}
+// AccountCacheCommand handles the caching of account assertions from the store.
+// This command would normally be run as a cron
+type AccountCacheCommand struct{}
 
-	err := run()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+// Execute the caching of account assertions
+func (cmd AccountCacheCommand) Execute(args []string) error {
+	fmt.Println("Update account assertions from the Ubuntu store...")
 
-}
+	openDatabase()
 
-func run() error {
-	// Parse the command line arguments and execute the command
-	parser := flags.NewParser(&manage.Manage, flags.HelpFlag)
-	_, err := parser.Parse()
-	return err
+	// Cache the account assertions from the store in the database
+	account.CacheAccountAssertions(datastore.Environ)
+
+	return nil
 }

@@ -4,7 +4,7 @@
 
 cd $SNAP
 
-bin/createdb -config=$SNAP_DATA/settings.yaml
+bin/serial-vault-admin database -config=$SNAP_DATA/settings.yaml
 
 if certificates_are_active; then
     bin/serial-vault -mode=system-user -config=$SNAP_DATA/settings.yaml

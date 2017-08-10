@@ -55,8 +55,8 @@ apps:
     - network-bind
   config:
     command: bin/set-config
-  vaultclient:
-    command: bin/snap-run-vaultclient
+  serial-vault-admin:
+    command: bin/snap-run-admin
     plugs:
       - network
 

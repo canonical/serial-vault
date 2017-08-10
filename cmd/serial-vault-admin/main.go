@@ -20,26 +20,38 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 
-	"github.com/CanonicalLtd/serial-vault/account"
-	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/manage"
+	"github.com/jessevdk/go-flags"
 )
 
 func main() {
 	datastore.Environ = &datastore.Env{}
 
-	// Parse the command line arguments
-	account.ParseArgs()
-	err := config.ReadConfig(&datastore.Environ.Config, account.SettingsFile)
+	err := run()
 	if err != nil {
-		log.Fatalf("Error parsing the config file: %v\n", err)
+		os.Exit(1)
 	}
 
-	// Open the connection to the local database
-	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
+}
 
-	// Cache the account assertions from the store in the database
-	account.CacheAccountAssertions(datastore.Environ)
+func run() error {
+	// Parse the command line arguments and execute the command
+	parser := flags.NewParser(&manage.Manage, flags.HelpFlag)
+	_, err := parser.Parse()
+
+	if err != nil {
+		if e, ok := err.(*flags.Error); ok {
+			if e.Type == flags.ErrHelp || e.Type == flags.ErrCommandRequired {
+				parser.WriteHelp(os.Stdout)
+				return nil
+			}
+		}
+		fmt.Println(err)
+	}
+
+	return err
 }

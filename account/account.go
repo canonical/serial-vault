@@ -20,7 +20,7 @@
 package account
 
 import (
-	"flag"
+	"fmt"
 	"log"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
@@ -28,15 +28,6 @@ import (
 	"github.com/snapcore/snapd/overlord/auth"
 	"github.com/snapcore/snapd/store"
 )
-
-// SettingsFile is the path to the settings YAML file
-var SettingsFile string
-
-// ParseArgs checks the command line arguments
-func ParseArgs() {
-	flag.StringVar(&SettingsFile, "config", "./settings.yaml", "Path to the config file")
-	flag.Parse()
-}
 
 // FetchAssertionFromStore retrieves an assertion from the store
 var FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
@@ -58,36 +49,36 @@ func CacheAccountAssertions(env *datastore.Env) {
 
 	// Get the account assertions from the snap store and cache them locally
 	for _, k := range keypairs {
-		log.Printf("-- Processing keypair - %s\n", k.KeyID)
+		fmt.Printf("Processing keypair - %s\n", k.KeyID)
 		if !k.Active {
 			// Ignore disabled keys
-			log.Println("Disabled, so skipping")
+			fmt.Printf("Keypair %s disabled, so skipping\n", k.KeyID)
 			continue
 		}
 
 		// Get the account assertion from the store
 		accountAssert, err := FetchAssertionFromStore(asserts.AccountType, []string{k.AuthorityID})
 		if err != nil {
-			log.Printf("Error fetching the account assertion from the store: %v\n", err)
+			fmt.Printf("Error fetching the account assertion from the store: %v\n", err)
 			continue
 		}
 
 		_, err = env.DB.PutAccount(datastore.Account{AuthorityID: k.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
 		if err != nil {
-			log.Printf("Error storing the account assertion from the store: %v\n", err)
+			fmt.Printf("Error storing the account assertion from the store: %v\n", err)
 			continue
 		}
 
 		// Get the account-key assertion from the store
 		accountKeyAssert, err := FetchAssertionFromStore(asserts.AccountKeyType, []string{k.KeyID})
 		if err != nil {
-			log.Printf("Error fetching the key assertion from the store: %v\n", err)
+			fmt.Printf("Error fetching the key assertion from the store: %v\n", err)
 			continue
 		}
 
 		err = env.DB.UpdateKeypairAssertion(k.ID, string(asserts.Encode(accountKeyAssert)))
 		if err != nil {
-			log.Printf("Error on saving the account key assertion to the database: %v\n", err)
+			fmt.Printf("Error on saving the account key assertion to the database: %v\n", err)
 		}
 	}
 

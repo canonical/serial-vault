@@ -17,99 +17,74 @@
  *
  */
 
-package main
+package manage
 
 import (
-	"testing"
-
 	"github.com/CanonicalLtd/serial-vault/datastore"
-
 	"gopkg.in/check.v1"
 )
 
-// Hook up check.v1 into the "go test" runner
-func Test(t *testing.T) { check.TestingT(t) }
+type UserSuite struct{}
 
-type manTest struct {
-	Args         []string
-	ErrorMessage string
-}
+var _ = check.Suite(&UserSuite{})
 
-type ManageSuite struct{}
-
-var _ = check.Suite(&ManageSuite{})
-
-func (s *ManageSuite) SetUpTest(c *check.C) {
+func (s *UserSuite) SetUpTest(c *check.C) {
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
 }
 
-func (s *ManageSuite) TestUser(c *check.C) {
+func (s *UserSuite) TestUser(c *check.C) {
 	tests := []manTest{
 		manTest{
-			Args:         []string{"manage", "user"},
+			Args:         []string{"serial-vault-admin", "user"},
 			ErrorMessage: "Please specify one command of: add, delete, list or update"},
 		manTest{
-			Args:         []string{"manage", "user", "list"},
+			Args:         []string{"serial-vault-admin", "user", "list"},
 			ErrorMessage: ""},
 		manTest{
-			Args:         []string{"manage", "user", "add"},
+			Args:         []string{"serial-vault-admin", "user", "add"},
 			ErrorMessage: "the required flags `-n, --name' and `-r, --role' were not specified"},
 		manTest{
-			Args:         []string{"manage", "user", "add", "-n"},
+			Args:         []string{"serial-vault-admin", "user", "add", "-n"},
 			ErrorMessage: "expected argument for flag `-n, --name'"},
 		manTest{
-			Args:         []string{"manage", "user", "add", "-n", "John Smith", "-r", "invalid"},
+			Args:         []string{"serial-vault-admin", "user", "add", "-n", "John Smith", "-r", "invalid"},
 			ErrorMessage: "Invalid value `invalid' for option `-r, --role'. Allowed values are: standard, admin or superuser"},
 		manTest{
-			Args:         []string{"manage", "user", "add", "-n", "John Smith", "-r", "admin"},
+			Args:         []string{"serial-vault-admin", "user", "add", "-n", "John Smith", "-r", "admin"},
 			ErrorMessage: "Add user expects a 'username' argument"},
 		manTest{
-			Args:         []string{"manage", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin"},
+			Args:         []string{"serial-vault-admin", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin"},
 			ErrorMessage: ""},
 		manTest{
-			Args:         []string{"manage", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin", "-bad"},
+			Args:         []string{"serial-vault-admin", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin", "-bad"},
 			ErrorMessage: "unknown flag `b'"},
 		manTest{
-			Args:         []string{"manage", "user", "update"},
+			Args:         []string{"serial-vault-admin", "user", "update"},
 			ErrorMessage: "Update user expects a 'username' argument"},
 		manTest{
-			Args:         []string{"manage", "user", "update", "john", "smith"},
+			Args:         []string{"serial-vault-admin", "user", "update", "john", "smith"},
 			ErrorMessage: "Update user expects a single 'username' argument"},
 		manTest{
-			Args:         []string{"manage", "user", "update", "sv"},
+			Args:         []string{"serial-vault-admin", "user", "update", "sv"},
 			ErrorMessage: "No changes requested. Please supply user details to change"},
 		manTest{
-			Args:         []string{"manage", "user", "update", "sv", "-n", "Simon Vault"},
+			Args:         []string{"serial-vault-admin", "user", "update", "sv", "-n", "Simon Vault"},
 			ErrorMessage: ""},
 		manTest{
-			Args:         []string{"manage", "user", "update", "sv", "-u", "svault"},
+			Args:         []string{"serial-vault-admin", "user", "update", "sv", "-u", "svault"},
 			ErrorMessage: ""},
 		manTest{
-			Args:         []string{"manage", "user", "delete"},
+			Args:         []string{"serial-vault-admin", "user", "delete"},
 			ErrorMessage: "Delete user expects a 'username' argument"},
 		manTest{
-			Args:         []string{"manage", "user", "delete", "john", "smith"},
+			Args:         []string{"serial-vault-admin", "user", "delete", "john", "smith"},
 			ErrorMessage: "Delete user expects a single 'username' argument"},
 		manTest{
-			Args:         []string{"manage", "user", "delete", "sv"},
+			Args:         []string{"serial-vault-admin", "user", "delete", "sv"},
 			ErrorMessage: ""},
 	}
 
 	for _, t := range tests {
-		s.runTest(c, t.Args, t.ErrorMessage)
-	}
-}
-
-func (s *ManageSuite) runTest(c *check.C, args []string, errorMessage string) {
-
-	restore := mockArgs(args...)
-	defer restore()
-
-	err := RunMain()
-
-	if len(errorMessage) == 0 {
-		c.Check(err, check.IsNil)
-	} else {
-		c.Assert(err, check.ErrorMatches, errorMessage)
+		runTest(c, t.Args, t.ErrorMessage)
 	}
 }
