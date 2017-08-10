@@ -19,6 +19,10 @@
 
 package datastore
 
+import (
+	"errors"
+)
+
 // ListAllowedAccounts fetches the available accounts from the database that the user is allowed to see
 func (db *DB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	switch authorization.Role {
@@ -31,4 +35,17 @@ func (db *DB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	default:
 		return []Account{}, nil
 	}
+}
+
+// PutAccount validates permissions and stores an account in the database
+func (db *DB) PutAccount(account Account, authorization User) (string, error) {
+
+	if authorization.Role == Admin {
+		// Check that the user has permissions for the account
+		if !db.CheckUserInAccount(authorization.Username, account.AuthorityID) {
+			return "error-auth", errors.New("You do not have permissions for that authority")
+		}
+	}
+
+	return db.putAccount(account)
 }

@@ -68,7 +68,7 @@ type Datastore interface {
 	ListAllowedAccounts(authorization User) ([]Account, error)
 	GetAccount(authorityID string) (Account, error)
 	UpdateAccountAssertion(authorityID, assertion string) error
-	PutAccount(account Account) (string, error)
+	PutAccount(account Account, authorization User) (string, error)
 
 	CreateOpenidNonceTable() error
 	CreateOpenidNonce(nonce OpenidNonce) error
