@@ -64,7 +64,7 @@ func TestModelsHandlerWithPermissions(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
 
 	// Create a JWT and add it to the request
-	err := createJWTWithRole(r, datastore.Admin)
+	err := createJWTWithRole(r, datastore.Standard)
 	if err != nil {
 		t.Errorf("Error creating a JWT: %v", err)
 	}
@@ -95,7 +95,7 @@ func TestModelsHandlerWithoutPermissions(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
 
 	// Create a JWT and add it to the request
-	err := createJWTWithRole(r, datastore.Standard)
+	err := createJWTWithRole(r, datastore.Invalid)
 	if err != nil {
 		t.Errorf("Error creating a JWT: %v", err)
 	}

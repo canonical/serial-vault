@@ -9,6 +9,10 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+func checkIsStandardAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
+	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Standard)
+}
+
 func checkIsAdminAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
 	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Admin)
 }
