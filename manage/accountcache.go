@@ -32,11 +32,17 @@ type AccountCacheCommand struct{}
 
 // Execute the caching of account assertions
 func (cmd AccountCacheCommand) Execute(args []string) error {
-	fmt.Println("Update account assertions from the Ubuntu store...")
 
 	openDatabase()
 
-	// Cache the account assertions from the store in the database
+	// Cache the account/account-key assertions from the store in the database
+	// (reads through the accounts and refreshes the account assertions)
+	fmt.Println("Update account assertions from the Ubuntu store...")
+	account.CacheAccounts(datastore.Environ)
+
+	// Cache the account/account-key assertions from the store in the database
+	// (This reads through the keypairs to get the accounts)
+	fmt.Println("\nUpdate account/account-key assertions from the Ubuntu store...")
 	account.CacheAccountAssertions(datastore.Environ)
 
 	return nil

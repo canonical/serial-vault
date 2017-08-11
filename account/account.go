@@ -38,7 +38,8 @@ var FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []s
 	return sto.Assertion(modelType, headers, user)
 }
 
-// CacheAccountAssertions fetches the account assertions from the store and caches them in the database
+// CacheAccountAssertions fetches the account/account-key assertions from the store and caches them in the database
+// (reads through the keypairs and refreshes the account/account-key assertions)
 func CacheAccountAssertions(env *datastore.Env) {
 
 	// Get the active signing-keys from the database. This operation is not filtered by authorization
@@ -47,7 +48,7 @@ func CacheAccountAssertions(env *datastore.Env) {
 		log.Fatalf("Error retrieving the keypairs: %v\n", err)
 	}
 
-	// Get the account assertions from the snap store and cache them locally
+	// Get the account/account-key assertions from the snap store and cache them locally
 	for _, k := range keypairs {
 		fmt.Printf("Processing keypair - %s\n", k.KeyID)
 		if !k.Active {
@@ -86,5 +87,34 @@ func CacheAccountAssertions(env *datastore.Env) {
 			fmt.Printf("Error on saving the account key assertion to the database: %v\n", err)
 		}
 	}
+}
 
+// CacheAccounts fetches the account assertions from the store and caches them in the database
+// (reads through the accounts and refreshes the account assertions)
+func CacheAccounts(env *datastore.Env) {
+
+	// Get the accounts from the database. This operation is not filtered by authorization
+	accounts, err := env.DB.ListAllowedAccounts(datastore.User{})
+	if err != nil {
+		log.Fatalf("Error retrieving the keypairs: %v\n", err)
+	}
+
+	// Get the account assertions from the snap store and cache them locally
+	for _, acc := range accounts {
+		fmt.Printf("Processing account - %s\n", acc.AuthorityID)
+
+		// Get the account assertion from the store
+		accountAssert, err := FetchAssertionFromStore(asserts.AccountType, []string{acc.AuthorityID})
+		if err != nil {
+			fmt.Printf("Error fetching the account assertion from the store: %v\n", err)
+			continue
+		}
+
+		_, err = env.DB.PutAccount(datastore.Account{AuthorityID: acc.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
+		if err != nil {
+			fmt.Printf("Error storing the account assertion from the store: %v\n", err)
+			continue
+		}
+
+	}
 }
