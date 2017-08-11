@@ -21,9 +21,7 @@ package datastore
 
 import (
 	"database/sql"
-	"errors"
 	"log"
-	"strings"
 )
 
 const createAccountTableSQL = `
@@ -131,11 +129,6 @@ func (db *DB) UpdateAccountAssertion(authorityID, assertion string) error {
 
 // putAccount stores an account in the database
 func (db *DB) putAccount(account Account) (string, error) {
-	// Validate the data
-	if strings.TrimSpace(account.AuthorityID) == "" {
-		return "error-validate-account", errors.New("The Authority ID must be entered")
-	}
-
 	_, err := db.Exec(upsertAccountSQL, account.AuthorityID, account.Assertion)
 	if err != nil {
 		log.Printf("Error updating the database account: %v\n", err)

@@ -3,11 +3,14 @@ package service
 import (
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	check "gopkg.in/check.v1"
 )
+
+func TestAuth(t *testing.T) { check.TestingT(t) }
 
 type authSuite struct{}
 

@@ -9,8 +9,8 @@ import (
 const defaultNicknamePattern = "^[a-z0-9](?:-?[a-z0-9])*$"
 
 func validateNotEmpty(fieldName, fieldValue string) error {
-	if len(fieldValue) == 0 {
-		return fmt.Errorf("%v must not be empty", fieldName)
+	if len(strings.TrimSpace(fieldValue)) == 0 {
+		return fmt.Errorf("%v must not be empty", normalize(fieldName))
 	}
 	return nil
 }
@@ -21,12 +21,20 @@ func validateSyntax(fieldName, fieldValue string, regularExpression *regexp.Rege
 	}
 
 	if strings.ToLower(fieldValue) != fieldValue {
-		return fmt.Errorf("%v must not contain uppercase characters", fieldName)
+		return fmt.Errorf("%v must not contain uppercase characters", normalize(fieldName))
 	}
 
 	if !regularExpression.MatchString(fieldValue) {
-		return fmt.Errorf("%v contains invalid characters, allowed %q", fieldName, regularExpression)
+		return fmt.Errorf("%v contains invalid characters, allowed %q", normalize(fieldName), regularExpression)
 	}
 
 	return nil
+}
+
+func normalize(fieldName string) string {
+	theFieldName := strings.TrimSpace(fieldName)
+	if len(theFieldName) == 0 {
+		theFieldName = "field"
+	}
+	return theFieldName
 }
