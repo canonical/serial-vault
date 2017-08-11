@@ -86,7 +86,7 @@ func (mdb *MockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 }
 
 // PutAccount mock to update abn account assertion
-func (mdb *MockDB) PutAccount(account Account) (string, error) {
+func (mdb *MockDB) PutAccount(account Account, authorization User) (string, error) {
 	return "", nil
 }
 
@@ -540,7 +540,7 @@ func (mdb *ErrorMockDB) ListAllowedAccounts(authorization User) ([]Account, erro
 }
 
 // PutAccount mock to update abn account assertion
-func (mdb *ErrorMockDB) PutAccount(account Account) (string, error) {
+func (mdb *ErrorMockDB) PutAccount(account Account, authorization User) (string, error) {
 	return "", errors.New("MOCK error upserting the account")
 }
 

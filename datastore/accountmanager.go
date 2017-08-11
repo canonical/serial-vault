@@ -129,8 +129,8 @@ func (db *DB) UpdateAccountAssertion(authorityID, assertion string) error {
 	return nil
 }
 
-// PutAccount stores an account in the database
-func (db *DB) PutAccount(account Account) (string, error) {
+// putAccount stores an account in the database
+func (db *DB) putAccount(account Account) (string, error) {
 	// Validate the data
 	if strings.TrimSpace(account.AuthorityID) == "" {
 		return "error-validate-account", errors.New("The Authority ID must be entered")

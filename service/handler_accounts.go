@@ -126,14 +126,12 @@ func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that the user has permissions for the authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, assertion.AuthorityID()) {
-		formatBooleanResponse(false, "error-auth", "", "You do not have permissions for that authority", w)
-		return
+	account := datastore.Account{
+		AuthorityID: assertion.HeaderString("account-id"),
+		Assertion:   string(decodedAssertion),
 	}
 
-	// Store or update the account assertion in the database
-	errorCode, err := datastore.Environ.DB.PutAccount(datastore.Account{AuthorityID: assertion.HeaderString("account-id"), Assertion: string(decodedAssertion)})
+	errorCode, err := datastore.Environ.DB.PutAccount(account, authUser)
 	if err != nil {
 		logMessage("ACCOUNT", "invalid-assertion", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
