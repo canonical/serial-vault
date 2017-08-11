@@ -91,10 +91,9 @@ const deleteModelForUserSQL = `
 	where m.id=$1 and acc.authority_id=m.brand_id and u.username=$2`
 
 const checkBrandsMatchSQL = `
-	select count(*) from model m
-	inner join keypair k on k.authority_id = m.brand_id
-	inner join keypair ku on ku.authority_id = m.brand_id
-	where m.brand_id=$1 and k.id=$2 and ku.id=$3
+	select count(*) from keypair k
+	inner join keypair ku on ku.authority_id = k.authority_id
+	where k.authority_id=$1 and k.id=$2 and ku.id=$3
 `
 
 const checkAPIKeyExistsSQL = `
@@ -383,10 +382,7 @@ func (db *DB) deleteModelFilteredByUser(model Model, username string) (string, e
 	return "", nil
 }
 
-func (db *DB) checkBrandsMatch(username, brandID string, keypairID, keypairIDUser int) bool {
-	if username == "" {
-		return true
-	}
+func (db *DB) checkBrandsMatch(brandID string, keypairID, keypairIDUser int) bool {
 
 	var count int
 
