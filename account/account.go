@@ -85,6 +85,7 @@ func CacheAccountAssertions(env *datastore.Env) {
 		keypair := datastore.Keypair{
 			ID:          k.ID,
 			AuthorityID: k.AuthorityID,
+			KeyID:       k.KeyID,
 			Assertion:   string(asserts.Encode(accountKeyAssert)),
 		}
 

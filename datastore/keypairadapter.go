@@ -57,6 +57,11 @@ func (db *DB) UpdateKeypairAssertion(keypair Keypair, authorization User) (strin
 		return "invalid-assertion", err
 	}
 
+	err = db.validateAssertionHeaders(keypair)
+	if err != nil {
+		return "invalid-assertion", err
+	}
+
 	if authorization.Role == Admin {
 		// Check that the user has permissions for the account
 		if !db.CheckUserInAccount(authorization.Username, keypair.AuthorityID) {
@@ -65,4 +70,21 @@ func (db *DB) UpdateKeypairAssertion(keypair Keypair, authorization User) (strin
 	}
 
 	return "", db.updateKeypairAssertion(keypair.ID, keypair.Assertion)
+}
+
+func (db *DB) validateAssertionHeaders(keypair Keypair) error {
+	oldKeypair, err := db.GetKeypair(keypair.ID)
+	if err != nil {
+		return err
+	}
+
+	if oldKeypair.AuthorityID != keypair.AuthorityID {
+		return errors.New("Authority ID does not match the existing account key")
+	}
+
+	if oldKeypair.KeyID != keypair.KeyID {
+		return errors.New("Authority ID does not match the existing account key")
+	}
+
+	return nil
 }

@@ -275,6 +275,7 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	keypair := datastore.Keypair{
 		ID:          assertionRequest.ID,
 		AuthorityID: assertion.HeaderString("account-id"),
+		KeyID:       assertion.HeaderString("public-key-sha3-384"),
 		Assertion:   string(decodedAssertion),
 	}
 
