@@ -70,7 +70,7 @@ func (db *DB) UpdateAllowedModel(model Model, authorization User) (string, error
 		return errorSubcode, err
 	}
 
-	if !db.checkBrandsMatch(authorization.Username, model.BrandID, model.KeypairID, model.KeypairIDUser) {
+	if !db.checkBrandsMatch(model.BrandID, model.KeypairID, model.KeypairIDUser) {
 		return "error-auth", errors.New("The model and the keys must have the same brand")
 	}
 
@@ -118,7 +118,7 @@ func (db *DB) CreateAllowedModel(model Model, authorization User) (Model, string
 		return model, "error-auth", errors.New("The user does not have permissions to create a model for this account")
 	}
 
-	if !db.checkBrandsMatch(authorization.Username, model.BrandID, model.KeypairID, model.KeypairIDUser) {
+	if !db.checkBrandsMatch(model.BrandID, model.KeypairID, model.KeypairIDUser) {
 		return model, "error-auth", errors.New("The model and the keys must have the same brand")
 	}
 

@@ -110,7 +110,12 @@ func CacheAccounts(env *datastore.Env) {
 			continue
 		}
 
-		_, err = env.DB.PutAccount(datastore.Account{AuthorityID: acc.AuthorityID, Assertion: string(asserts.Encode(accountAssert))})
+		account := datastore.Account{
+			AuthorityID: acc.AuthorityID,
+			Assertion:   string(asserts.Encode(accountAssert)),
+		}
+
+		_, err = env.DB.PutAccount(account, datastore.User{})
 		if err != nil {
 			fmt.Printf("Error storing the account assertion from the store: %v\n", err)
 			continue
