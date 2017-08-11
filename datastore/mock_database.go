@@ -52,8 +52,8 @@ func (mdb *MockDB) AlterKeypairTable() error {
 }
 
 // UpdateKeypairAssertion mock to update the account-key assertion of a keypair
-func (mdb *MockDB) UpdateKeypairAssertion(keypairID int, assertion string) error {
-	return nil
+func (mdb *MockDB) UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error) {
+	return "", nil
 }
 
 // CreateSettingsTable mock for the create settings table method
@@ -507,8 +507,8 @@ func (mdb *ErrorMockDB) AlterKeypairTable() error {
 }
 
 // UpdateKeypairAssertion mock to update the account-key assertion of a keypair
-func (mdb *ErrorMockDB) UpdateKeypairAssertion(keypairID int, assertion string) error {
-	return errors.New("MOCK Error updating the keypair assertion")
+func (mdb *ErrorMockDB) UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error) {
+	return "invalid-assertion", errors.New("MOCK Error updating the keypair assertion")
 }
 
 // CreateSettingsTable mock for the create settings table method

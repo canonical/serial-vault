@@ -54,7 +54,3 @@ func (db *DB) PutAccount(account Account, authorization User) (string, error) {
 
 	return db.putAccount(account)
 }
-
-func validateAuthorityID(AuthorityID string) error {
-	return validateNotEmpty("Authority ID", AuthorityID)
-}

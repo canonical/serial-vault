@@ -31,6 +31,10 @@ func validateSyntax(fieldName, fieldValue string, regularExpression *regexp.Rege
 	return nil
 }
 
+func validateAuthorityID(AuthorityID string) error {
+	return validateNotEmpty("Authority ID", AuthorityID)
+}
+
 func normalize(fieldName string) string {
 	theFieldName := strings.TrimSpace(fieldName)
 	if len(theFieldName) == 0 {

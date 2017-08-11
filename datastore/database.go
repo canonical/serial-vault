@@ -45,7 +45,7 @@ type Datastore interface {
 	GetKeypair(keypairID int) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error
-	UpdateKeypairAssertion(keypairID int, assertion string) error
+	UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error)
 	CreateKeypairTable() error
 	AlterKeypairTable() error
 

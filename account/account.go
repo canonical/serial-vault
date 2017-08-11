@@ -82,9 +82,15 @@ func CacheAccountAssertions(env *datastore.Env) {
 			continue
 		}
 
-		err = env.DB.UpdateKeypairAssertion(k.ID, string(asserts.Encode(accountKeyAssert)))
+		keypair := datastore.Keypair{
+			ID:          k.ID,
+			AuthorityID: k.AuthorityID,
+			Assertion:   string(asserts.Encode(accountKeyAssert)),
+		}
+
+		errorCode, err := env.DB.UpdateKeypairAssertion(keypair, datastore.User{})
 		if err != nil {
-			fmt.Printf("Error on saving the account key assertion to the database: %v\n", err)
+			fmt.Printf("Error on saving the account key assertion to the database: %v - %v\n", errorCode, err)
 		}
 	}
 }

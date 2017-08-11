@@ -85,3 +85,23 @@ func (vs *validatorSuite) TestValidateSyntaxFieldValueDontMatchPattern(c *check.
 	c.Assert(err, check.NotNil)
 	c.Assert(err.Error(), check.Matches, "fieldName contains invalid characters.*")
 }
+
+func (vs *validatorSuite) TestAuthorityIDHappyPath(c *check.C) {
+	authorityID := "JADNF9478NA84MAPD8"
+	err := validateAuthorityID(authorityID)
+	c.Assert(err, check.IsNil)
+}
+
+func (vs *validatorSuite) TestAuthorityIDEmpty(c *check.C) {
+	authorityID := ""
+	err := validateAuthorityID(authorityID)
+	c.Assert(err, check.NotNil)
+	c.Assert(err.Error(), check.Equals, "Authority ID must not be empty")
+}
+
+func (vs *validatorSuite) TestAuthorityIDTrailingSpace(c *check.C) {
+	authorityID := " "
+	err := validateAuthorityID(authorityID)
+	c.Assert(err, check.NotNil)
+	c.Assert(err.Error(), check.Equals, "Authority ID must not be empty")
+}
