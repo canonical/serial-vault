@@ -40,6 +40,11 @@ func (db *DB) ListAllowedAccounts(authorization User) ([]Account, error) {
 // PutAccount validates permissions and stores an account in the database
 func (db *DB) PutAccount(account Account, authorization User) (string, error) {
 
+	err := validateAuthorityID(account.AuthorityID)
+	if err != nil {
+		return "error-validate-account", err
+	}
+
 	if authorization.Role == Admin {
 		// Check that the user has permissions for the account
 		if !db.CheckUserInAccount(authorization.Username, account.AuthorityID) {

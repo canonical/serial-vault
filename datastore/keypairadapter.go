@@ -19,6 +19,8 @@
 
 package datastore
 
+import "errors"
+
 // ListAllowedKeypairs return the list of keypairs allowed to the user
 func (db *DB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 	switch authorization.Role {
@@ -45,4 +47,22 @@ func (db *DB) UpdateAllowedKeypairActive(keypairID int, active bool, authorizati
 	default:
 		return nil
 	}
+}
+
+// UpdateKeypairAssertion validates user can update and sets the account-key assertion of a keypair
+func (db *DB) UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error) {
+
+	err := validateAuthorityID(keypair.AuthorityID)
+	if err != nil {
+		return "invalid-assertion", err
+	}
+
+	if authorization.Role == Admin {
+		// Check that the user has permissions for the account
+		if !db.CheckUserInAccount(authorization.Username, keypair.AuthorityID) {
+			return "error-auth", errors.New("You do not have permissions for that authority")
+		}
+	}
+
+	return "", db.updateKeypairAssertion(keypair.ID, keypair.Assertion)
 }

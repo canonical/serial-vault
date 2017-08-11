@@ -176,8 +176,8 @@ func (db *DB) updateKeypairActiveFilteredByUser(keypairID int, active bool, user
 	return nil
 }
 
-// UpdateKeypairAssertion sets the account-key assertion of a keypair
-func (db *DB) UpdateKeypairAssertion(keypairID int, assertion string) error {
+// updateKeypairAssertion sets the account-key assertion of a keypair
+func (db *DB) updateKeypairAssertion(keypairID int, assertion string) error {
 	_, err := db.Exec(updateKeypairSQL, keypairID, assertion)
 	if err != nil {
 		log.Printf("Error updating the database keypair assertion: %v\n", err)

@@ -272,19 +272,17 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, assertion.AuthorityID()) {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Authority", w)
-		return
+	keypair := datastore.Keypair{
+		ID:          assertionRequest.ID,
+		AuthorityID: assertion.HeaderString("account-id"),
+		Assertion:   string(decodedAssertion),
 	}
 
-	// Store or update the account assertion in the database
-	err = datastore.Environ.DB.UpdateKeypairAssertion(assertionRequest.ID, string(decodedAssertion))
+	errorCode, err := datastore.Environ.DB.UpdateKeypairAssertion(keypair, authUser)
 	if err != nil {
 		logMessage("KEYPAIR", "invalid-assertion", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "invalid-assertion", "", err.Error(), w)
+		formatBooleanResponse(false, errorCode, "", err.Error(), w)
 		return
 	}
 
