@@ -108,7 +108,6 @@ class App extends Component {
 
           {currentSection==='accounts'? this.renderAccounts() : ''}
           {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
-          {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
 
           {currentSection==='systemuser'? <SystemUserForm token={this.props.token} /> : ''}
 
