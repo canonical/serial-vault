@@ -62,13 +62,13 @@ If you have a Go development environment set up, Go get it:
 - Create the database tables:
   ```bash
   $ cd serial-vault
-  $ go run cmd/createddb/main.go -config=/path/to/settings.yaml
+  $ go run cmd/serial-vault-admin/main.go database --config=/path/to/settings.yaml
   ```
 
 ### Run it:
   ```bash
   $ cd serial-vault
-  $ go run server.go -config=/path/to/settings.yaml -mode=signing
+  $ go run cmd/serial-vault/main.go -config=/path/to/settings.yaml -mode=signing
   ```
 
 The application has an admin service that can be run by using mode=admin.

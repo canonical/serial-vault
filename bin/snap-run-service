@@ -2,5 +2,7 @@
 
 cd $SNAP
 
-bin/serial-vault-admin database -config=$SNAP_DATA/settings.yaml
+bin/serial-vault-admin database --config=$SNAP_DATA/settings.yaml
+#TODO It is needed to modify serial-vault params to be set in same way as admin tool.
+#That would set coherence in both services using -- or - for long and short params.
 bin/serial-vault -config=$SNAP_DATA/settings.yaml
