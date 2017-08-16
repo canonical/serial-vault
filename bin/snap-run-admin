@@ -2,4 +2,4 @@
 
 cd $SNAP
 
-bin/serial-vault-admin $@
+bin/serial-vault-admin --config=$SNAP_DATA/settings.yaml $@
