@@ -1,6 +1,6 @@
-name: serial-vault
-version: 1.6
-summary: Serial Vault Service
+name: serial-vault-server
+version: 1.7
+summary: Serial Vault Server
 description: Service for the Serial Vault that signs serial assertions.
 confinement: strict
 grade: stable
