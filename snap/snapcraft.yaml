@@ -13,7 +13,7 @@ confinement: strict
 grade: stable
 
 apps:
-  service:
+  serial-vault:
     command: bin/snap-run-service
     plugs:
       - network

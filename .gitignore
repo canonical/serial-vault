@@ -17,3 +17,4 @@ stage
 *.snap
 *.tar.bz2
 snap/.snapcraft
+.tests-extras

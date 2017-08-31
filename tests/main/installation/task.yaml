@@ -1,0 +1,8 @@
+summary: Test serial-vault-server snap installation was successful
+
+execute: |
+    . $TESTSLIB/utilities.sh
+
+    # Ensure all necessary plugs/slots are connected
+    snap interfaces | grep -Pzq ":network-bind +[a-z,-]*serial-vault-server"
+    snap interfaces | grep -Pzq ":network +[a-z,-]*serial-vault-server"
