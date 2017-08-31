@@ -6,7 +6,7 @@ confinement: strict
 grade: stable
 
 apps:
-    serial-vault:
+    service:
       command: bin/snap-run-service
       plugs:
         - network
@@ -14,7 +14,7 @@ apps:
       daemon: simple
     config:
       command: bin/set-config
-    serial-vault-admin:
+    admin:
       command: bin/snap-run-admin
       plugs:
         - network
