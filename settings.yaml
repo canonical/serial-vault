@@ -2,14 +2,14 @@ title: "Serial Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
 
 # Service mode: signing or admin or system-user
-mode: admin
+mode: signing
 
 # Path to the assets (${docRoot}/static)
 docRoot: "."
 
 # Backend database details
 driver: "postgres"
-datasource: "dbname=serialvault sslmode=disable user=rmescandon password=rmescandon"
+datasource: "dbname=serialvault sslmode=disable"
 
 # Signing Key Store
 #keystore: "filesystem"
