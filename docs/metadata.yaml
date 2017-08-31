@@ -1,0 +1,34 @@
+site_title: serial-vault documentation
+site_logo_url: https://assets.ubuntu.com/v1/c5cb0f8e-picto-ubuntu.svg
+navigation:
+  - title: Introduction
+    children:
+      - title: About Serial Vault
+        location: index.md
+      - title: Services Design
+        location: design.md
+  - title: Install & Configure
+    children:
+      - title: Installation
+        location: installation.md
+      - title: Configuration
+        location: config.md
+      - title: Install the Snap
+        location: snap.md
+      - title: Try it as Docker
+        location: docker.md
+  - title: Reference
+    children:
+      - title: Commands
+        location: reference/commands.md
+      - title: API Documentation
+        location: reference/rest-api.md
+        children:
+          - title: /v1/version
+            location: reference/rest-api/v1-version.md
+          - title: /v1/request-id
+            location: reference/rest-api/v1-request-id.md
+          - title: /v1/serial
+            location: reference/rest-api/v1-serial.md
+  - title: Report a Bug
+    location: report-bug.md
