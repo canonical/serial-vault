@@ -1,0 +1,61 @@
+name: serial-vault-server
+version: 1.7-1-dev
+summary: Service for the Serial Vault that signs serial assertions
+description: |
+  The Serial Vault is a web service that generates signed serial assertions for devices. 
+  It can be run in a data centre or on premises on a factory LAN.
+  The Serial Vault holds a list of approved models for a manufacturer, and the encrypted 
+  signing key(s) for the models. The service validates the model and logs if the serial 
+  number and device-key fingerprint have been previously used.
+  Please find the source of this snap at:
+  https://github.com/CanonicalLtd/serial-vault
+confinement: strict
+grade: stable
+
+apps:
+  service:
+    command: bin/snap-run-service
+    plugs:
+      - network
+      - network-bind
+    daemon: simple
+  config:
+    command: bin/set-config
+  admin:
+    command: bin/snap-run-admin
+    plugs:
+      - network
+parts:
+  service:
+    plugin: go
+    source: .
+    go-importpath: github.com/CanonicalLtd/serial-vault
+    build-packages:
+      # needed by go get
+      - bzr
+    install: |
+      # set environment var SKIP_TESTS to 'y' or 'yes' if you want not to execute
+      # this part unit tests in your next compilation.
+      if [ "$SKIP_TESTS" = "yes" ] || [ "$SKIP_TESTS" = "y" ]; then
+        echo "skipping unit tests"
+      else 
+        export GOPATH=$PWD/../go
+        cd $GOPATH/src/github.com/CanonicalLtd/serial-vault
+        ./run-checks all
+      fi
+  bin:
+    source: bin
+    plugin: dump
+    organize:
+      "*": bin/
+  static:
+    source: static
+    plugin: dump
+    organize:
+      "*": static/
+  # Private key for the vaultclient
+  keystore:
+    source: keystore
+    plugin: dump
+    organize:
+      TestDeviceKey.asc: keystore/TestDeviceKey.asc

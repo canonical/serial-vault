@@ -11,3 +11,7 @@ keystore/.pub*
 tags
 .tags
 coverage/
+parts
+prime
+stage
+*.snap
