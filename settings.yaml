@@ -28,8 +28,9 @@ keystoreSecret: "secret code to encrypt the auth-key hash"
 csrfAuthKey: "2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
 
 # Return URL of the service (needed for OpenID)
-urlHost: "localhost:8081"
+urlHost: "serial-vault"
 urlScheme: http
 
 # Enable user authentication using Ubuntu SSO
-enableUserAuth: true
+enableUserAuth: True
+

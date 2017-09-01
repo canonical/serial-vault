@@ -11,3 +11,10 @@ keystore/.pub*
 tags
 .tags
 coverage/
+parts
+prime
+stage
+*.snap
+*.tar.bz2
+snap/.snapcraft
+.tests-extras
