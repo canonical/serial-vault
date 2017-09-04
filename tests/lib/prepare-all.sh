@@ -6,7 +6,7 @@ if [ -n "$SNAP_CHANNEL" ] ; then
 	exit 0
 fi
 
-# If there is a serial-vault-server snap prebuilt for us, lets take
+# If there is a serial-vault snap prebuilt for us, lets take
 # that one to speed things up.
 if [ -e ${PROJECT_PATH}/${SNAP_NAME}_*_${SNAP_ARCH}.snap ] ; then
 	exit 0
