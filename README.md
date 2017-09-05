@@ -19,7 +19,7 @@ Are you using one of the many systems that support [snaps](https://snapcraft.io/
 A pre-built snap is available from the [Snap store](https://uappexplorer.com/app/serial-vault.james).
 
 ```bash
-$ sudo snap install serial-vault-server
+$ sudo snap install serial-vault
 ```
 
 The service needs a PostgreSQL database to run, so:
@@ -28,8 +28,8 @@ The service needs a PostgreSQL database to run, so:
 - Configure the snap using the ```settings.yaml``` file:
 
 ```bash
-$ cat /path/to/settings.yaml | sudo /snap/bin/serial-vault-server.config
-$ sudo systemctl restart snap.serial-vault-server.serial-vault.service
+$ cat /path/to/settings.yaml | sudo /snap/bin/serial-vault.config
+$ sudo systemctl restart snap.serial-vault.service.service
 ```
 
 The snap will create the tables in the database on restart, as soon as it has a valid database connection.

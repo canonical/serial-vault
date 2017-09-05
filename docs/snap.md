@@ -10,7 +10,7 @@ A pre-built snap is available from the Snap store.
 You can easily install it by typing 
 
 ```
-sudo snap install serial-vault-server
+sudo snap install serial-vault
 ```
 
 The service needs a PostgreSQL database instance to run so, you'll also
@@ -81,7 +81,7 @@ alter user THEUSER with password 'THEPASSWORD';
 ### Install and configure the snap
 
 ```
-sudo snap install serial-vault-server
+sudo snap install serial-vault
 ```
 
 Create a snapcraft.yaml like:
@@ -118,8 +118,8 @@ enableUserAuth: True
 inject the configuration by using config app of the snap, and restart service to apply:
 
 ```
-cat /path/to/settings.yaml | sudo /snap/bin/serial-vault-server.config
-sudo systemctl restart snap.serial-vault-server.serial-vault.service
+cat /path/to/settings.yaml | sudo /snap/bin/serial-vault.config
+sudo systemctl restart snap.serial-vault.service.service
 ```
 
 Deploy and configure an apache https frontend at _serial-vault_ dns et voilá!. You should see 

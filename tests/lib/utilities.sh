@@ -48,7 +48,7 @@ wait_for_systemd_service() {
 }
 
 wait_for_serial_vault() {
-	wait_for_systemd_service snap.serial-vault-server.serial-vault.service
+	wait_for_systemd_service snap.serial-vault.service.service
 }
 
 stop_after_first_reboot() {
