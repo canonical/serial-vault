@@ -8,7 +8,7 @@ description: |
   signing key(s) for the models. The service validates the model and logs if the serial 
   number and device-key fingerprint have been previously used.
   Please find the source of this snap at:
-  https://github.com/CanonicalLtd/serial-vault
+  https://code.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/serial-vault
 confinement: strict
 grade: stable
 
