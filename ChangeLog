@@ -1,0 +1,224 @@
+2017-09-05 serial-vault 2.0-0
+
+  [ unknown ]
+  * Added TravisCI support
+    
+  * See more information in merge proposal
+    
+  * See more information in merge proposal
+    
+  * Updated the README for the models API method and configuring the app.
+    
+  * Fix empty data checks for SignHandler
+    
+  * Added the basic web application to load the HTML template.
+    
+  * See more information in merge proposal
+    
+  * Validate the model against the accepted models before signing.
+    
+  * Add create, update and get methods for a model.
+    
+  * Resolve conflicts from merging master.
+    
+  * Use react-intl for i18n
+    
+  * API and UI to view, create and remove authorized public keys.
+    
+  * Resolve conflicts from merging master.
+    
+  * i18n for the user interface and API
+    
+  * Use Ubuntu-core assertions module for core operations
+    
+  * Keypair frontend
+    
+  * See more information in merge proposal
+    
+  * Show models that are linked to inactive keypairs.
+    
+  * See more information in merge proposal
+    
+  * Update dependencies and fixed code after Serial assertion renamed 
+    
+  * See more information in merge proposal
+    
+  * Use TPM 2.0 for keypair storage
+    
+  * See more information in merge proposal
+    
+  * Service refactor to split into a signing service and admin service
+    
+  * See more information in merge proposal
+    
+  * Add document root config setting to aid deployment.
+    
+  * See more information in merge proposal
+    
+  * Docker compose 1.5.2
+    
+  * Improve launch options when running as a snap
+    
+  * Check that the serial number and the device-key fingerprint are not re-used when signing assertions.
+    
+  * Update version to 0.4
+    
+  * Signing API protected by an API key
+    
+  * Set the version from a constant not the config file.
+    
+  * Update the snap version to 0.6
+    
+  * Formatted log messages for signing requests, so they can be parsed later
+    
+  * Update settings in docker-compose
+    
+  * Nonce generation and accepting a serial-request assertion instead of a serial assertion.
+    
+  * Refactor error handling for sign and nonce services
+    
+  * Fix PSQL syntax error when creating the model table
+    
+  * KeypairManager no longer needs the authority-id.
+    snapd uses request-id to refer to the nonce, so fit in with the naming approach.
+    Remove references to model revision (fixes #34).
+    
+  * The sign method becomes serial.
+    
+  * Use the serial number from the header
+    
+  * Log duplicate serial numbers, but allow the serial to be generated
+    
+  * Store the revision in the signing log
+    
+  * Update the version number.
+    
+  * Snap the vault client
+    
+  * 	Optimizes Docker/Docker-compose setup
+    
+  * Filter signing log
+    
+  * Substituted math lib by crypto one when generating random nonces.
+    
+  * See more information in merge proposal
+    
+  * Xpired nonces mgmt
+    
+  * increased digits for random generated numbers up to 10 to pass the te…
+    
+  * See more information in merge proposal
+    
+  * Model name validation
+    
+  * Update the installation and deployment instructions
+    
+  * See more information in merge proposal
+    
+  * See more information in merge proposal
+    
+  * See more information in merge proposal
+    
+  * Csrf prevention
+    
+  * Improve csrf protection
+    
+  * See more information in merge proposal
+    
+  * System user service
+    
+  * Composite system-user assertion
+    
+  * Convert the admin webapp to the vanilla-framework
+    
+  * Require the user key to be linked to the model
+    
+  * Use a different key in tests for the signing and user keys
+    
+  * Use the system-user key for account key.
+    
+  * Cache account keys
+    
+  * Display the account and account key assertions in the admin interface
+    
+  * See more information in merge proposal
+    
+  * Account key upload
+    
+  * Upload account key assertion to a keypair
+    
+  * New snap to install all the Serial Vault Services.
+    
+  * Default to HTTP and allow SSL via the 'enable-https' command
+    
+  * Update the basic snap to add the new system-user mode
+    
+  * Change to the name and location of the repository
+    
+  * Add Ubuntu SSO authentication with OpenID
+    
+  * See more information in merge proposal
+    
+  * See more information in merge proposal
+    
+  * Create tables for storing users information and the relationship with accounts
+    
+  * Provide roles for user authorisation
+    
+  * See more information in merge proposal
+    
+  * Display the user interface based on the user's permissions
+    
+  * Allow access to the admin interface when user authentication is disabled
+    
+  * Allow access to the admin interface if user authentication is disabled
+    
+  * Add the ability to logout from the application
+    
+  * Handle when the user unticks mandatory fields in the OpenID login
+    
+  * Filter the list models API based on the user
+    
+  * Add API permissions to the model endpoints
+    
+  * See more information in merge proposal
+    
+  * Add permissions and filtering to API endpoints
+    
+  * merged trunk
+    
+  * See more information in merge proposal
+    
+  * User management backend
+    
+  * Fix broken httpd-2.4.25 source link
+    
+  * Useraccountlink management backend
+    
+  * Fix JWT claim properties 
+    
+  * See more information in merge proposal
+    
+  * Check the API key against the database instead of the config file
+    
+  * Management command to manage users
+    
+  * Add api-key to the UI for the model and validate and default the field
+    
+  * Closes #103
+    
+  * Display an error when editing a non-existent model or user
+    
+  * Redesign the menu so it displays more consistently
+    
+  * Create a serial-vault-admin unified command-line
+    
+  * Update snapd to v2.26.8
+    
+  * Cache account assertions checking the existing accounts
+    
+  * Change the SQL for checking that the brands match
+    
+  * Superuser can upsert account key assertions
+    
+
