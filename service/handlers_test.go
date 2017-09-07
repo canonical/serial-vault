@@ -84,6 +84,23 @@ func importKeypairForTests() error {
 	return err
 }
 
+const modelAssertion = `type: model
+authority-id: System
+series: 16
+brand-id: System
+model: alder
+display-name: Alder
+architecture: amd64
+gadget: alder-gadget
+kernel: alder-linux
+store: brand-store
+body-length: 0
+sign-key-sha3-384: Jv8_JiHiIzJVcO9M55pPdqSDWUvuhfDIBJUS-3VW7F_idjix7Ffn5qMxB21ZQuij
+timestamp: 2016-01-02T15:04:05Z
+
+AXNpZw==
+`
+
 func TestSignHandlerNilData(t *testing.T) {
 	sendRequestSignError(t, "POST", "/v1/serial", nil, "ValidAPIKey")
 }
@@ -162,6 +179,54 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/serial", bytes.NewBufferString(assertions))
+	r.Header.Add("api-key", "InbuiltAPIKey")
+	ErrorHandler(SignHandler).ServeHTTP(w, r)
+
+	// Check that we have a assertion as a response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected success HTTP status 200, got: %d", w.Code)
+	}
+	if w.Header().Get("Content-Type") != asserts.MediaType {
+		t.Log(w.Body.String())
+		t.Errorf("Expected content-type %s, got: %s", asserts.MediaType, w.Header().Get("Content-Type"))
+	}
+}
+
+func TestSignHandlerSerialRequestPlusModel(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Make a stream with first the serial-request and then the model
+	buf := &bytes.Buffer{}
+	enc := asserts.NewEncoder(buf)
+	serialRequest, err := asserts.Decode([]byte(assertions))
+	if err != nil {
+		t.Errorf("Error decoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding serial-request: %v", err)
+	}
+	modelAssert, err := asserts.Decode([]byte(modelAssertion))
+	if err != nil {
+		t.Errorf("Error decoding model: %v", err)
+	}
+	err = enc.Encode(modelAssert)
+	if err != nil {
+		t.Errorf("Error encoding model: %v", err)
+	}
+
+	// Submit the serial-request and model stream for signing
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", "/v1/serial", buf)
 	r.Header.Add("api-key", "InbuiltAPIKey")
 	ErrorHandler(SignHandler).ServeHTTP(w, r)
 
