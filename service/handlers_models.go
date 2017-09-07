@@ -185,7 +185,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, KeypairIDUser: mdl.KeypairIDUser}
+	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, APIKey: mdl.APIKey, KeypairIDUser: mdl.KeypairIDUser}
 	errorSubcode, err := datastore.Environ.DB.UpdateAllowedModel(model, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -267,7 +267,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new model, linked to the existing signing-key
-	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, KeypairIDUser: mdlWithKey.KeypairIDUser}
+	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, APIKey: mdlWithKey.APIKey, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
 	model, errorSubcode, err = datastore.Environ.DB.CreateAllowedModel(model, authUser)
 	if err != nil {
