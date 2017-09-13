@@ -23,7 +23,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -117,22 +117,33 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 		return ErrorNilData
 	}
 
-	// Read the full request body
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		logMessage("SIGN", "invalid-assertion", err.Error())
-		return ErrorResponse{false, "error-sign-read", "", err.Error(), http.StatusBadRequest}
-	}
-	if len(data) == 0 {
+	defer r.Body.Close()
+
+	// Use snapd assertion module to decode the assertions in the request stream
+	dec := asserts.NewDecoder(r.Body)
+	assertion, err := dec.Decode()
+	if err == io.EOF {
 		logMessage("SIGN", "invalid-assertion", "No data supplied for signing")
 		return ErrorEmptyData
 	}
-
-	defer r.Body.Close()
-
-	// Use the snapd assertions module to decode the body and validate
-	assertion, err := asserts.Decode(data)
 	if err != nil {
+		logMessage("SIGN", "invalid-assertion", err.Error())
+		return ErrorResponse{false, "decode-assertion", "", err.Error(), http.StatusBadRequest}
+	}
+
+	// Decode the optional model
+	modelAssert, err := dec.Decode()
+	if err != nil && err != io.EOF {
+		logMessage("SIGN", "invalid-assertion", err.Error())
+		return ErrorResponse{false, "decode-assertion", "", err.Error(), http.StatusBadRequest}
+	}
+
+	// Stream must be ended now
+	_, err = dec.Decode()
+	if err != io.EOF {
+		if err == nil {
+			err = fmt.Errorf("unexpected assertion in the request stream")
+		}
 		logMessage("SIGN", "invalid-assertion", err.Error())
 		return ErrorResponse{false, "decode-assertion", "", err.Error(), http.StatusBadRequest}
 	}
@@ -141,6 +152,22 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	if assertion.Type() != asserts.SerialRequestType {
 		logMessage("SIGN", "invalid-type", "The assertion type must be 'serial-request'")
 		return ErrorInvalidType
+	}
+
+	// Double check the model assertion if present
+	if modelAssert != nil {
+		if modelAssert.Type() != asserts.ModelType {
+			logMessage("SIGN", "invalid-second-type", "The 2nd assertion type must be 'model'")
+			return ErrorInvalidSecondType
+		}
+		if modelAssert.HeaderString("brand-id") != assertion.HeaderString("brand-id") || modelAssert.HeaderString("model") != assertion.HeaderString("model") {
+			const msg = "Model and serial-request assertion do not match"
+			logMessage("SIGN", "mismatched-model", msg)
+			return ErrorResponse{false, "mismatched-model", "", msg, http.StatusBadRequest}
+		}
+
+		// TODO: ideally check the signature of model, need access
+		// to the brand public key(s) for models
 	}
 
 	// Verify that the nonce is valid and has not expired
