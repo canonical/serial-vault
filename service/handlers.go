@@ -123,6 +123,7 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	dec := asserts.NewDecoder(r.Body)
 	assertion, err := dec.Decode()
 	if err == io.EOF {
+		logMessage("SIGN", "invalid-assertion", "No data supplied for signing")
 		return ErrorEmptyData
 	}
 	if err != nil {
@@ -156,14 +157,13 @@ func SignHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 	// Double check the model assertion if present
 	if modelAssert != nil {
 		if modelAssert.Type() != asserts.ModelType {
-			logMessage("SIGN", "invalid-type", "The 2nd assertion type must be 'model'")
-			return ErrorInvalidType
+			logMessage("SIGN", "invalid-second-type", "The 2nd assertion type must be 'model'")
+			return ErrorInvalidSecondType
 		}
 		if modelAssert.HeaderString("brand-id") != assertion.HeaderString("brand-id") || modelAssert.HeaderString("model") != assertion.HeaderString("model") {
-			const msg = "model and serial-request assertion do not match"
-			logMessage("SIGN", "invalid-assertion", msg)
-			return ErrorResponse{false, "model-mismatch", "", msg, http.StatusBadRequest}
-
+			const msg = "Model and serial-request assertion do not match"
+			logMessage("SIGN", "mismatched-model", msg)
+			return ErrorResponse{false, "mismatched-model", "", msg, http.StatusBadRequest}
 		}
 
 		// TODO: ideally check the signature of model, need access

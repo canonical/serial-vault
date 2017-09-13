@@ -29,6 +29,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/CanonicalLtd/serial-vault/config"
@@ -192,7 +193,7 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 	}
 }
 
-func TestSignHandlerSerialRequestPlusModel(t *testing.T) {
+func TestSignHandlerSerialRequestPlusModelAssertion(t *testing.T) {
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -280,6 +281,112 @@ ic2Xx1ds+umMC5AHW9wZAWNPDI/T
 
 }
 
+func TestSignHandlerSerialRequestPlusBadModelAssertion(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Make a stream with first the serial-request and then garbage
+	buf := &bytes.Buffer{}
+	enc := asserts.NewEncoder(buf)
+	serialRequest, err := asserts.Decode([]byte(assertions))
+	if err != nil {
+		t.Errorf("Error decoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding serial-request: %v", err)
+	}
+	buf.WriteString("\n\nxyz")
+
+	sendRequestSignError(t, "POST", "/v1/serial", buf, "ValidAPIKey")
+
+}
+
+func TestSignHandlerSerialRequestPlusModelAssertionPlusTrailGarbage(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Make a stream with first the serial-request and then the model
+	buf := &bytes.Buffer{}
+	enc := asserts.NewEncoder(buf)
+	serialRequest, err := asserts.Decode([]byte(assertions))
+	if err != nil {
+		t.Errorf("Error decoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding serial-request: %v", err)
+	}
+	modelAssert, err := asserts.Decode([]byte(modelAssertion))
+	if err != nil {
+		t.Errorf("Error decoding model: %v", err)
+	}
+	err = enc.Encode(modelAssert)
+	if err != nil {
+		t.Errorf("Error encoding model: %v", err)
+	}
+	buf.WriteString("\n\nxyz")
+
+	sendRequestSignError(t, "POST", "/v1/serial", buf, "ValidAPIKey")
+
+}
+
+func TestSignHandlerSerialRequestPlusModelAssertionPlusUnexpectedAssertion(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Make a stream with first the serial-request and then the model
+	buf := &bytes.Buffer{}
+	enc := asserts.NewEncoder(buf)
+	serialRequest, err := asserts.Decode([]byte(assertions))
+	if err != nil {
+		t.Errorf("Error decoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding serial-request: %v", err)
+	}
+	modelAssert, err := asserts.Decode([]byte(modelAssertion))
+	if err != nil {
+		t.Errorf("Error decoding model: %v", err)
+	}
+	err = enc.Encode(modelAssert)
+	if err != nil {
+		t.Errorf("Error encoding model: %v", err)
+	}
+	err = enc.Encode(modelAssert)
+	if err != nil {
+		t.Errorf("Error encoding model: %v", err)
+	}
+
+	sendRequestSignError(t, "POST", "/v1/serial", buf, "ValidAPIKey")
+
+}
+
 func TestSignHandlerBadAssertionWrongType(t *testing.T) {
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
@@ -314,6 +421,79 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 
 	if result.ErrorCode != "invalid-type" {
 		t.Errorf("Expected an 'invalid type' message, got %s", result.ErrorCode)
+	}
+}
+
+func TestSignHandlerSerialRequestPlusModelAssertionWrongType(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Make a stream with first the serial-request and then the model
+	buf := &bytes.Buffer{}
+	enc := asserts.NewEncoder(buf)
+	serialRequest, err := asserts.Decode([]byte(assertions))
+	if err != nil {
+		t.Errorf("Error decoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding serial-request: %v", err)
+	}
+	mismatchedModelAssertion := strings.Replace(modelAssertion, "model: alder\n", "model: other\n", 1)
+	modelAssert, err := asserts.Decode([]byte(mismatchedModelAssertion))
+	if err != nil {
+		t.Errorf("Error decoding model: %v", err)
+	}
+	err = enc.Encode(modelAssert)
+	if err != nil {
+		t.Errorf("Error encoding model: %v", err)
+	}
+
+	result, _ := sendRequestSignError(t, "POST", "/v1/serial", buf, "ValidAPIKey")
+	if result.ErrorCode != "mismatched-model" {
+		t.Errorf("Expected a 'mismatched model' message, got %s", result.ErrorCode)
+	}
+}
+
+func TestSignHandlerSerialRequestPlusModelAssertionWithMismatchedModel(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	// Generate a test serial-request assertion
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	if err != nil {
+		t.Errorf("Error creating serial-request: %v", err)
+	}
+
+	// Make a stream with first the serial-request and then the model
+	buf := &bytes.Buffer{}
+	enc := asserts.NewEncoder(buf)
+	serialRequest, err := asserts.Decode([]byte(assertions))
+	if err != nil {
+		t.Errorf("Error decoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding serial-request: %v", err)
+	}
+	err = enc.Encode(serialRequest)
+	if err != nil {
+		t.Errorf("Error encoding 2nd assertion: %v", err)
+	}
+
+	result, _ := sendRequestSignError(t, "POST", "/v1/serial", buf, "ValidAPIKey")
+	if result.ErrorCode != "invalid-second-type" {
+		t.Errorf("Expected an 'invalid second type' message, got %s", result.ErrorCode)
 	}
 }
 
