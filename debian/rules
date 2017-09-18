@@ -1,4 +1,34 @@
 #!/usr/bin/make -f
 
+export DH_OPTIONS
+export DH_GOPKG := github.com/CanonicalLtd/serial-vault
+GOPATH := ${CURDIR}/_build:/usr/share/gocode
+BLDPATH := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DESTDIR := ${CURDIR}/debian/serial-vault
+
 %:
-	dh $@ --buildsystem=golang --with=golang --fail-missing
+	dh $@ --buildsystem=golang --with=golang
+
+override_dh_auto_build:
+	go install -v ${DH_GOPKG}/...
+
+override_dh_auto_test:
+	go get -v -t ${DH_GOPKG}/...
+	(cd _build/src/${DH_GOPKG} && ./run-checks)
+
+override_dh_auto_install:
+	mkdir -p ${DESTDIR}/usr/local/bin
+	mkdir -p ${DESTDIR}/usr/local/etc
+	cp ${CURDIR}/_build/bin/serial-vault* ${DESTDIR}/usr/local/bin/
+	cp ${CURDIR}/_build/src/${DH_GOPKG}/settings.yaml ${DESTDIR}/usr/local/etc/
+
+# Skip dh_usrlocal tool that reports error when removing the folder because
+# that doesn't fit debian rules (Nothing should be installed under /usr/local)
+override_dh_usrlocal:
+
+override_dh_auto_clean:
+	dh_clean
+	rm -rf ${CURDIR}/obj-${BLDPATH}
+	rm -rf ${CURDIR}/_build
+
+

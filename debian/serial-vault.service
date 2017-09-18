@@ -1,0 +1,14 @@
+[Unit]
+Description=Service for serial-vault
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/serial-vault -config=/usr/local/etc/settings.yaml
+SyslogIdentifier=serial-vault
+Restart=on-failure
+
+TimeoutStopSec=30
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

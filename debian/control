@@ -4,19 +4,7 @@ Priority: extra
 Maintainer: Roberto Mier Escandon <roberto.escandon@canonical.com>
 Build-Depends: debhelper (>= 9),
                dh-golang,
-               golang-go,
-               golang-github-dgrijalva-jwt-go-dev,
-               golang-github-gorilla-csrf-dev,
-               golang-github-gorilla-handlers-dev,
-               golang-github-gorilla-mux-dev,
-               golang-github-jessevdk-go-flags-dev,
-               golang-github-juju-usso-dev,
-               golang-github-lib-pq-dev,
-               golang-github-snapcore-snapd-dev,
-               golang-golang-x-crypto-dev,
-               golang-gopkg-check.v1-dev,
-               golang-gopkg-errgo.v1-dev,
-               golang-gopkg-yaml.v2-dev
+               golang-go
 Standards-Version: 3.9.6
 Homepage: https://github.com/CanonicalLtd/serial-vault
 Vcs-Browser: https://github.com/CanonicalLtd/serial-vault
