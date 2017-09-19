@@ -1,0 +1,6 @@
+#!/bin/sh
+
+[BINDIR]/serial-vault-admin database --config=[CONFDIR]/settings.yaml
+#TODO It is needed to modify serial-vault params to be set in same way as admin tool.
+#That would set coherence in both services using -- or - for long and short params.
+[BINDIR]/serial-vault -config=[CONFDIR]/settings.yaml

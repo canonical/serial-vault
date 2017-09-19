@@ -1,0 +1,3 @@
+#!/bin/sh
+
+[BINDIR]/serial-vault-admin --config=[CONFDIR]/settings.yaml $@

@@ -1,10 +1,15 @@
 #!/usr/bin/make -f
 
+PROJECT := serial-vault
 export DH_OPTIONS
-export DH_GOPKG := github.com/CanonicalLtd/serial-vault
+export DH_GOPKG := github.com/CanonicalLtd/${PROJECT}
 GOPATH := ${CURDIR}/_build:/usr/share/gocode
 BLDPATH := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-DESTDIR := ${CURDIR}/debian/serial-vault
+SRCDIR := ${CURDIR}/_build/src/${DH_GOPKG}
+DESTDIR := ${CURDIR}/debian/${PROJECT}
+LIBDIR := /usr/lib/${PROJECT}
+CONFDIR := /etc/${PROJECT}
+ASSETSDIR := /usr/share/${PROJECT}
 
 %:
 	dh $@ --buildsystem=golang --with=golang
@@ -18,9 +23,23 @@ override_dh_auto_test:
 
 override_dh_auto_install:
 	mkdir -p ${DESTDIR}/usr/bin
-	mkdir -p ${DESTDIR}/etc/serial-vault
-	cp ${CURDIR}/_build/bin/serial-vault* ${DESTDIR}/usr/bin/
-	cp ${CURDIR}/_build/src/${DH_GOPKG}/settings.yaml ${DESTDIR}/etc/serial-vault
+	mkdir -p ${DESTDIR}/${LIBDIR}
+	mkdir -p ${DESTDIR}/${CONFDIR}
+	mkdir -p ${DESTDIR}/${ASSETSDIR}
+	cp ${CURDIR}/_build/bin/serial-vault* ${DESTDIR}/${LIBDIR}
+	cp ${SRCDIR}/launchers/* ${DESTDIR}/usr/bin
+	cp -r ${SRCDIR}/static  ${DESTDIR}/${ASSETSDIR}
+	cp ${SRCDIR}/settings.yaml ${DESTDIR}/${CONFDIR}
+	cp ${SRCDIR}/keystore/TestDeviceKey.asc ${DESTDIR}/${CONFDIR}
+	# update docRoot setting to point assets dir
+	sed -i 's/^docRoot:.*/docRoot: \"\/usr\/share\/serial-vault\"/' ${DESTDIR}/${CONFDIR}/settings.yaml
+	# configure launchers to be used in systemd service
+	sed -i 's/\[BINDIR\]/\/usr\/lib\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault
+	sed -i 's/\[BINDIR\]/\/usr\/lib\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault-admin
+	sed -i 's/\[CONFDIR\]/\/etc\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault
+	sed -i 's/\[CONFDIR\]/\/etc\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault-admin
+	chmod a+x ${DESTDIR}/usr/bin/serial-vault
+	chmod a+x ${DESTDIR}/usr/bin/serial-vault-admin
 
 override_dh_auto_clean:
 	dh_clean
