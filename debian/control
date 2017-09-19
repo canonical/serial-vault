@@ -16,8 +16,7 @@ Built-Using: ${misc:Built-Using}
 Depends: ${shlibs:Depends},
          ${misc:Depends}
 Description: 
- Build Status (https://travis-ci.org/CanonicalLtd/serial-vault) Serial
- Vault A Go web service that digitally signs device assertion details.
+ A Go web service that digitally signs device assertion details.
  .
  The application can be run in three modes: signing service, admin service
  and system-user assertion services. All the web services operate under

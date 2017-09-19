@@ -17,14 +17,10 @@ override_dh_auto_test:
 	(cd _build/src/${DH_GOPKG} && ./run-checks)
 
 override_dh_auto_install:
-	mkdir -p ${DESTDIR}/usr/local/bin
-	mkdir -p ${DESTDIR}/usr/local/etc
-	cp ${CURDIR}/_build/bin/serial-vault* ${DESTDIR}/usr/local/bin/
-	cp ${CURDIR}/_build/src/${DH_GOPKG}/settings.yaml ${DESTDIR}/usr/local/etc/
-
-# Skip dh_usrlocal tool that reports error when removing the folder because
-# that doesn't fit debian rules (Nothing should be installed under /usr/local)
-override_dh_usrlocal:
+	mkdir -p ${DESTDIR}/usr/bin
+	mkdir -p ${DESTDIR}/etc/serial-vault
+	cp ${CURDIR}/_build/bin/serial-vault* ${DESTDIR}/usr/bin/
+	cp ${CURDIR}/_build/src/${DH_GOPKG}/settings.yaml ${DESTDIR}/etc/serial-vault
 
 override_dh_auto_clean:
 	dh_clean
