@@ -7,12 +7,14 @@ GOPATH := ${CURDIR}/_build:/usr/share/gocode
 BLDPATH := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 SRCDIR := ${CURDIR}/_build/src/${DH_GOPKG}
 DESTDIR := ${CURDIR}/debian/${PROJECT}
+BINDIR := /usr/bin
 LIBDIR := /usr/lib/${PROJECT}
 CONFDIR := /etc/${PROJECT}
 ASSETSDIR := /usr/share/${PROJECT}
+CRONDIR := /etc/cron.d
 
 %:
-	dh $@ --buildsystem=golang --with=golang
+	dh $@ --buildsystem=golang --with=golang --with=systemd
 
 override_dh_auto_build:
 	go install -v ${DH_GOPKG}/...
@@ -22,24 +24,25 @@ override_dh_auto_test:
 	(cd _build/src/${DH_GOPKG} && ./run-checks)
 
 override_dh_auto_install:
-	mkdir -p ${DESTDIR}/usr/bin
+	mkdir -p ${DESTDIR}/${BINDIR}
+	mkdir -p ${DESTDIR}/${CRONDIR}
 	mkdir -p ${DESTDIR}/${LIBDIR}
 	mkdir -p ${DESTDIR}/${CONFDIR}
 	mkdir -p ${DESTDIR}/${ASSETSDIR}
 	cp ${CURDIR}/_build/bin/serial-vault* ${DESTDIR}/${LIBDIR}
-	cp ${SRCDIR}/launchers/* ${DESTDIR}/usr/bin
+	cp ${SRCDIR}/launchers/serial-vault* ${DESTDIR}/${BINDIR}
+	cp ${SRCDIR}/launchers/cache-accounts-cron-job ${DESTDIR}/${CRONDIR}
 	cp -r ${SRCDIR}/static  ${DESTDIR}/${ASSETSDIR}
 	cp ${SRCDIR}/settings.yaml ${DESTDIR}/${CONFDIR}
 	cp ${SRCDIR}/keystore/TestDeviceKey.asc ${DESTDIR}/${CONFDIR}
 	# update docRoot setting to point assets dir
 	sed -i 's/^docRoot:.*/docRoot: \"\/usr\/share\/serial-vault\"/' ${DESTDIR}/${CONFDIR}/settings.yaml
 	# configure launchers to be used in systemd service
-	sed -i 's/\[BINDIR\]/\/usr\/lib\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault
-	sed -i 's/\[BINDIR\]/\/usr\/lib\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault-admin
-	sed -i 's/\[CONFDIR\]/\/etc\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault
-	sed -i 's/\[CONFDIR\]/\/etc\/serial-vault/g' ${DESTDIR}/usr/bin/serial-vault-admin
-	chmod a+x ${DESTDIR}/usr/bin/serial-vault
-	chmod a+x ${DESTDIR}/usr/bin/serial-vault-admin
+	sed -i 's/{{[ ]*bindir[ ]*}}/\/usr\/lib\/serial-vault/g' ${DESTDIR}/${BINDIR}/serial-vault
+	sed -i 's/{{[ ]*bindir[ ]*}}/\/usr\/lib\/serial-vault/g' ${DESTDIR}/${BINDIR}/serial-vault-admin
+	sed -i 's/{{[ ]*confdir[ ]*}}/\/etc\/serial-vault/g' ${DESTDIR}/${BINDIR}/serial-vault
+	sed -i 's/{{[ ]*confdir[ ]*}}/\/etc\/serial-vault/g' ${DESTDIR}/${BINDIR}/serial-vault-admin
+	chmod a+x ${DESTDIR}/${BINDIR}/serial-vault*
 
 override_dh_auto_clean:
 	dh_clean
