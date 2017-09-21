@@ -1,0 +1,2 @@
+# Cron hourly to fetch account and account-key assertions from store
+@hourly root serial-vault-admin account cache

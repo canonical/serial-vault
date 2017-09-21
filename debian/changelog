@@ -1,0 +1,5 @@
+serial-vault (2.0-1) xenial; urgency=medium
+
+  * Multi tenant version
+
+ -- Roberto Mier Escandon <roberto.escandon@canonical.com>  Mon, 18 Sep 2017 13:28:55 +0200
