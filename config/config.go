@@ -57,7 +57,7 @@ var ServiceMode string
 // ParseArgs checks the command line arguments
 func ParseArgs() {
 	flag.StringVar(&SettingsFile, "config", "./settings.yaml", "Path to the config file")
-	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing, admin or system-user service ")
+	flag.StringVar(&ServiceMode, "mode", "", "Mode of operation: signing or admin service")
 	flag.Parse()
 }
 

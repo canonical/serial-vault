@@ -38,7 +38,6 @@ The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
  - Signing Service: http://localhost:8080/v1/version
  - Admin Service: http://localhost:8081/
- - System-User Service: http://localhost:8082/
 
 The Admin and System-User services' CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
 over an insecure channel, it is needed to workaround it by setting the environment variable:
