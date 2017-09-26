@@ -3,7 +3,7 @@
 
 A Go web service that digitally signs device assertion details.
 
-The application can be run in three modes: signing service, admin service and system-user assertion services. All the web services
+The application can be run in two modes: signing service and admin services. All the web services
 operate under unencrypted HTTP connections, so these should not be exposed to a public network
 as-is. The services should be protected by web server front-end services, such as Apache, that
 provide secure HTTPS connections. Also, the admin service does not include authentication nor 
@@ -12,7 +12,7 @@ authentication front-end on the web server e.g. SSO. Typically, the services wil
 on a restricted network at a factory, though, with additional security measures, the signing service 
 could be made available on a public network.
 
-Some deployment recommendations are [provided](docs/Deployment.md)
+Some deployment recommendations are [provided](docs/installation.md)
 
 ## Install using the snap package
 Are you using one of the many systems that support [snaps](https://snapcraft.io/)?
