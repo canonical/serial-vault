@@ -24,6 +24,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/juju/usso/openid"
 )
@@ -54,6 +56,9 @@ func TestNewJWTToken(t *testing.T) {
 		expected: []string{"jwt", "jwt@example.com", "John W Thompson"},
 		role:     300,
 	}
+
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{Config: config}
 
 	for _, r := range []testJWT{test1, test2, test3} {
 

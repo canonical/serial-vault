@@ -17,7 +17,7 @@ type authSuite struct{}
 var _ = check.Suite(&authSuite{})
 
 func (s *authSuite) TestGetUserAuthWhenAuthEnabled(c *check.C) {
-	config := config.Settings{EnableUserAuth: true}
+	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
@@ -38,7 +38,7 @@ func (s *authSuite) TestGetUserAuthWhenAuthEnabled(c *check.C) {
 }
 
 func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
-	config := config.Settings{EnableUserAuth: false}
+	config := config.Settings{EnableUserAuth: false, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
@@ -62,7 +62,7 @@ func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
 
 func (s *authSuite) TestCheckStandardPermissionsWhenAuthEnabled(c *check.C) {
 
-	config := config.Settings{EnableUserAuth: true}
+	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
@@ -84,7 +84,7 @@ func (s *authSuite) TestCheckStandardPermissionsWhenAuthEnabled(c *check.C) {
 
 func (s *authSuite) TestCheckStandardPermissionsWhenAuthDisabled(c *check.C) {
 
-	config := config.Settings{EnableUserAuth: false}
+	config := config.Settings{EnableUserAuth: false, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
@@ -106,7 +106,7 @@ func (s *authSuite) TestCheckStandardPermissionsWhenAuthDisabled(c *check.C) {
 
 func (s *authSuite) TestCheckAdminPermissionsWhenAuthEnabled(c *check.C) {
 
-	config := config.Settings{EnableUserAuth: true}
+	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
@@ -128,7 +128,7 @@ func (s *authSuite) TestCheckAdminPermissionsWhenAuthEnabled(c *check.C) {
 
 func (s *authSuite) TestCheckAdminPermissionsWhenAuthDisabled(c *check.C) {
 
-	config := config.Settings{EnableUserAuth: false}
+	config := config.Settings{EnableUserAuth: false, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
@@ -150,7 +150,7 @@ func (s *authSuite) TestCheckAdminPermissionsWhenAuthDisabled(c *check.C) {
 
 func (s *authSuite) TestCheckSuperuserPermissionsWhenAuthEnabled(c *check.C) {
 
-	config := config.Settings{EnableUserAuth: true}
+	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
@@ -172,7 +172,7 @@ func (s *authSuite) TestCheckSuperuserPermissionsWhenAuthEnabled(c *check.C) {
 
 func (s *authSuite) TestCheckSuperuserPermissionsWhenAuthDisabled(c *check.C) {
 
-	config := config.Settings{EnableUserAuth: false}
+	config := config.Settings{EnableUserAuth: false, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}

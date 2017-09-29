@@ -23,6 +23,7 @@ var _ = check.Suite(&ServiceSuite{})
 
 func (s *ServiceSuite) SetUpSuite(c *check.C) {
 	datastore.Environ.Config.EnableUserAuth = true
+	datastore.Environ.Config.JwtSecret = "SomeTestSecretValue"
 }
 
 func (s *ServiceSuite) TestUsersHandler(c *check.C) {

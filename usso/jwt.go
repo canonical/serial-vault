@@ -27,6 +27,7 @@ import (
 
 	"net/http"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/juju/usso/openid"
 )
@@ -42,6 +43,11 @@ func createJWT(username, name, email, identity string, role int, expires int64) 
 	claims[ClaimsRole] = role
 	claims[StandardClaimExpiresAt] = expires
 
+	jwtSecret := datastore.Environ.Config.JwtSecret
+	if len(jwtSecret) == 0 {
+		return "", errors.New("JWT secret empty value. Please configure it properly")
+	}
+
 	tokenString, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
 		log.Printf("Error signing the JWT: %v", err.Error())
@@ -55,6 +61,10 @@ func NewJWTToken(resp *openid.Response, role int) (string, error) {
 }
 
 func keyFunc(token *jwt.Token) (interface{}, error) {
+	jwtSecret := datastore.Environ.Config.JwtSecret
+	if len(jwtSecret) == 0 {
+		return []byte{}, errors.New("JWT secret empty value. Please configure it properly")
+	}
 	return []byte(jwtSecret), nil
 }
 

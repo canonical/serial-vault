@@ -46,6 +46,7 @@ type Settings struct {
 	URLHost        string `yaml:"urlHost"`
 	URLScheme      string `yaml:"urlScheme"`
 	EnableUserAuth bool   `yaml:"enableUserAuth"`
+	JwtSecret      string `yaml:"jwtSecret"`
 }
 
 // SettingsFile is the path to the YAML configuration file
