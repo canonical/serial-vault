@@ -31,6 +31,7 @@ import (
 
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"
 	"github.com/juju/usso/openid"
@@ -39,7 +40,8 @@ import (
 func TestLoginHandlerUSSORedirect(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/login", nil)
@@ -66,7 +68,8 @@ func TestLoginHandlerReturn(t *testing.T) {
 	const url = "/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=id_res&openid.op_endpoint=https://login.ubuntu.com/%2Bopenid&openid.claimed_id=https://login.ubuntu.com/%2Bid/AAAAAA&openid.identity=https://login.ubuntu.com/%2Bid/AAAAAA&openid.return_to=http://return.to&openid.response_nonce=2005-05-15T17:11:51ZUNIQUE&openid.assoc_handle=1&openid.signed=op_endpoint,return_to,response_nonce,assoc_handle,claimed_id,identity,sreg.email,sreg.fullname&openid.sig=AAAA&openid.ns.sreg=http://openid.net/extensions/sreg/1.1&openid.sreg.email=a@example.org&openid.sreg.fullname=A&openid.sreg.nickname=a"
 
 	// Mock the database and OpenID verification
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	verify = verifySuccess
 
 	w := httptest.NewRecorder()

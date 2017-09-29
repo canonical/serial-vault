@@ -34,7 +34,8 @@ import (
 func TestModelsHandler(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
@@ -57,7 +58,7 @@ func TestModelsHandler(t *testing.T) {
 func TestModelsHandlerWithPermissions(t *testing.T) {
 
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
@@ -88,7 +89,7 @@ func TestModelsHandlerWithPermissions(t *testing.T) {
 func TestModelsHandlerWithoutPermissions(t *testing.T) {
 
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
@@ -120,7 +121,8 @@ func TestModelsHandlerWithoutPermissions(t *testing.T) {
 func TestModelsHandlerWithError(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/models", nil)
@@ -141,7 +143,8 @@ func TestModelsHandlerWithError(t *testing.T) {
 func TestModelGetHandler(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	result, _ := sendRequest(t, "GET", "/v1/models/1", nil)
 
@@ -156,7 +159,7 @@ func TestModelGetHandler(t *testing.T) {
 func TestModelGetHandlerWithPermissions(t *testing.T) {
 
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	result, _ := sendRequest(t, "GET", "/v1/models/1", nil)
@@ -172,7 +175,7 @@ func TestModelGetHandlerWithPermissions(t *testing.T) {
 func TestModelGetHandlerWithoutPermissions(t *testing.T) {
 
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	sendRequestWithoutPermissions(t, "GET", "/v1/models/1", nil)
@@ -181,7 +184,8 @@ func TestModelGetHandlerWithoutPermissions(t *testing.T) {
 func TestModelGetHandlerWithError(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	sendRequestExpectError(t, "GET", "/v1/models/999999", nil)
 }
@@ -189,14 +193,16 @@ func TestModelGetHandlerWithError(t *testing.T) {
 func TestModelGetHandlerWithBadID(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	sendRequestExpectError(t, "GET", "/v1/models/999999999999999999999999999999", nil)
 }
 
 func TestModelUpdateHandler(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	// Update a model
 	data := `
@@ -220,7 +226,7 @@ func TestModelUpdateHandler(t *testing.T) {
 
 func TestModelUpdateHandlerWithPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	// Update a model
@@ -245,7 +251,7 @@ func TestModelUpdateHandlerWithPermissions(t *testing.T) {
 
 func TestModelUpdateHandlerWithoutPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	// Update a model
@@ -263,7 +269,7 @@ func TestModelUpdateHandlerWithoutPermissions(t *testing.T) {
 
 func TestModelUpdateHandlerWithPermissionsNotFound(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	// Update a model
@@ -288,7 +294,8 @@ func TestModelUpdateHandlerWithPermissionsNotFound(t *testing.T) {
 
 func TestModelUpdateHandlerWithErrors(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	// Update a model
 	data := `{}`
@@ -298,35 +305,40 @@ func TestModelUpdateHandlerWithErrors(t *testing.T) {
 
 func TestModelUpdateHandlerWithNilData(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/1", nil)
 }
 
 func TestModelUpdateHandlerWithEmptyData(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString(""))
 }
 
 func TestModelUpdateHandlerWithBadData(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/1", bytes.NewBufferString("bad"))
 }
 
 func TestModelUpdateHandlerWithBadID(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "PUT", "/v1/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
 func TestModelDeleteHandler(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	// Delete a model
 	data := "{}"
@@ -335,7 +347,7 @@ func TestModelDeleteHandler(t *testing.T) {
 
 func TestModelDeleteHandlerWithPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	// Delete a model
@@ -345,7 +357,7 @@ func TestModelDeleteHandlerWithPermissions(t *testing.T) {
 
 func TestModelDeleteHandlerWithoutPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	// Delete a model
@@ -355,7 +367,7 @@ func TestModelDeleteHandlerWithoutPermissions(t *testing.T) {
 
 func TestModelDeleteHandlerWithPermissionsNotFound(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	// Delete a model
@@ -365,7 +377,8 @@ func TestModelDeleteHandlerWithPermissionsNotFound(t *testing.T) {
 
 func TestModelDeleteHandlerWithErrors(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	// Delete a model
 	data := `{}`
@@ -375,14 +388,15 @@ func TestModelDeleteHandlerWithErrors(t *testing.T) {
 
 func TestModelDeleteHandlerWithBadID(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "DELETE", "/v1/models/999999999999999999999999999999", bytes.NewBufferString("bad"))
 }
 
 func TestModelCreateHandler(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
@@ -400,7 +414,7 @@ func TestModelCreateHandler(t *testing.T) {
 
 func TestModelCreateHandlerWithPermissions(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", EnableUserAuth: true}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
@@ -418,7 +432,7 @@ func TestModelCreateHandlerWithPermissions(t *testing.T) {
 
 func TestModelCreateHandlerWithoutPermissions(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", EnableUserAuth: true}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
@@ -430,7 +444,7 @@ func TestModelCreateHandlerWithoutPermissions(t *testing.T) {
 
 func TestModelCreateHandlerWithError(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
@@ -442,7 +456,7 @@ func TestModelCreateHandlerWithError(t *testing.T) {
 
 func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem"}
+	config := config.Settings{KeyStoreType: "filesystem", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	// Define a model linked with the signing-key as JSON
@@ -454,21 +468,24 @@ func TestModelCreateHandlerWithBase64Error(t *testing.T) {
 
 func TestModelCreateHandlerWithNilData(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "POST", "/v1/models", nil)
 }
 
 func TestModelCreateHandlerWithEmptyData(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewBufferString(""))
 }
 
 func TestModelCreateHandlerWithBadData(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendRequestExpectError(t, "POST", "/v1/models", bytes.NewBufferString("bad"))
 }

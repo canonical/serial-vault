@@ -17,6 +17,7 @@ datasource: "dbname=serialvault sslmode=disable"
 
 # For Database
 keystore: "database"
+# CHANGEME: This keystoreSecret value is only a sample. Please provide another custom generated one
 keystoreSecret: "secret code to encrypt the auth-key hash"
 
 # For TPM 2.0
@@ -25,6 +26,7 @@ keystoreSecret: "secret code to encrypt the auth-key hash"
 #keystoreSecret: "this needs to be 32 bytes long!!"
 
 # 32 bytes long key to protect server from cross site request forgery attacks
+# CHANGEME: This csrfAuthKey value is only a sample. Please provide another custom generated one
 csrfAuthKey: "2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
 
 # Return URL of the service (needed for OpenID)
@@ -34,6 +36,7 @@ urlScheme: https
 # Enable user authentication using Ubuntu SSO
 enableUserAuth: True
 
-# Key needed 
+# Key needed for USSO. 
+# CHANGEME: This jwtSecret is only a sample. Please provide another custom generated value
 jwtSecret: "regoo7Koh7Jeij2hig0Kaeg1ait0eeghaew7Ogheey4pheejohyaongoh6thoBeech6ahc9yaWo3ef4Dah3heeguoqu0oa9A"
 

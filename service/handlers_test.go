@@ -111,7 +111,7 @@ func TestSignHandlerNoData(t *testing.T) {
 }
 
 func TestSignHandlerInvalidAPIKey(t *testing.T) {
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -120,7 +120,7 @@ func TestSignHandlerInvalidAPIKey(t *testing.T) {
 
 func TestSignHandlerInactive(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -139,7 +139,7 @@ func TestSignHandlerInactive(t *testing.T) {
 
 func TestSignHandler(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -167,7 +167,7 @@ func TestSignHandler(t *testing.T) {
 
 func TestSignHandlerSerialInBody(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -195,7 +195,7 @@ func TestSignHandlerSerialInBody(t *testing.T) {
 
 func TestSignHandlerSerialRequestPlusModelAssertion(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -243,7 +243,7 @@ func TestSignHandlerSerialRequestPlusModelAssertion(t *testing.T) {
 
 func TestSignHandlerBadAssertionNoModel(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -283,7 +283,7 @@ ic2Xx1ds+umMC5AHW9wZAWNPDI/T
 
 func TestSignHandlerSerialRequestPlusBadModelAssertion(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -312,7 +312,7 @@ func TestSignHandlerSerialRequestPlusBadModelAssertion(t *testing.T) {
 
 func TestSignHandlerSerialRequestPlusModelAssertionPlusTrailGarbage(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -349,7 +349,7 @@ func TestSignHandlerSerialRequestPlusModelAssertionPlusTrailGarbage(t *testing.T
 
 func TestSignHandlerSerialRequestPlusModelAssertionPlusUnexpectedAssertion(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -389,7 +389,7 @@ func TestSignHandlerSerialRequestPlusModelAssertionPlusUnexpectedAssertion(t *te
 
 func TestSignHandlerBadAssertionWrongType(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -426,7 +426,7 @@ openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 
 func TestSignHandlerSerialRequestPlusModelAssertionWrongType(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -465,7 +465,7 @@ func TestSignHandlerSerialRequestPlusModelAssertionWrongType(t *testing.T) {
 
 func TestSignHandlerSerialRequestPlusModelAssertionWithMismatchedModel(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -551,7 +551,7 @@ func TestSignHandlerNonExistentModelForAPIKey(t *testing.T) {
 // TestSignHandlerDuplicateSigner checks that duplicates are allowed through
 func TestSignHandlerDuplicateSigner(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -580,7 +580,7 @@ func TestSignHandlerDuplicateSigner(t *testing.T) {
 
 func TestSignHandlerCheckDuplicateError(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -595,7 +595,7 @@ func TestSignHandlerCheckDuplicateError(t *testing.T) {
 
 func TestSignHandlerSigningLogError(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -610,7 +610,7 @@ func TestSignHandlerSigningLogError(t *testing.T) {
 
 func TestSignHandlerErrorKeyStore(t *testing.T) {
 	// Mock the database and the keystore
-	settings := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	settings := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: settings}
 	datastore.Environ.KeypairDB, _ = datastore.GetErrorMockKeyStore(settings)
 
@@ -631,7 +631,7 @@ func TestSignHandlerErrorKeyStore(t *testing.T) {
 
 func TestVersionHandler(t *testing.T) {
 
-	config := config.Settings{Version: "1.2.5"}
+	config := config.Settings{Version: "1.2.5", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	result, _ := sendRequestVersion(t, "GET", "/v1/version", nil)
@@ -644,7 +644,7 @@ func TestVersionHandler(t *testing.T) {
 
 func TestTokenHandler(t *testing.T) {
 
-	config := config.Settings{EnableUserAuth: true}
+	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	result, _ := sendRequestToken(t, "GET", "/v1/authtoken", nil)
@@ -736,7 +736,7 @@ func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiK
 
 func TestRequestIDHandler(t *testing.T) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -755,7 +755,7 @@ func TestRequestIDHandler(t *testing.T) {
 }
 
 func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -763,7 +763,7 @@ func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
 }
 
 func TestRequestIDHandlerError(t *testing.T) {
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 

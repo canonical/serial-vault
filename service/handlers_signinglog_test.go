@@ -32,7 +32,8 @@ import (
 
 func TestSigningLogListHandler(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
 	if len(response.SigningLog) != 10 {
@@ -42,7 +43,7 @@ func TestSigningLogListHandler(t *testing.T) {
 
 func TestSigningLogListHandlerWithPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
@@ -53,7 +54,7 @@ func TestSigningLogListHandlerWithPermissions(t *testing.T) {
 
 func TestSigningLogListHandlerWithNoPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
@@ -61,14 +62,16 @@ func TestSigningLogListHandlerWithNoPermissions(t *testing.T) {
 
 func TestSigningLogListHandlerError(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
 }
 
 func TestSigningLogFilterValues(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)
@@ -87,7 +90,7 @@ func TestSigningLogFilterValues(t *testing.T) {
 
 func TestSigningLogFilterValuesWithPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
@@ -114,7 +117,7 @@ func TestSigningLogFilterValuesWithPermissions(t *testing.T) {
 
 func TestSigningLogFilterValuesWithNoPermissions(t *testing.T) {
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
@@ -137,7 +140,8 @@ func TestSigningLogFilterValuesWithNoPermissions(t *testing.T) {
 
 func TestSigningLogFilterValuesError(t *testing.T) {
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/signinglog/filters", nil)

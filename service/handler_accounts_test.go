@@ -72,7 +72,8 @@ func generateAccountAssertion(assertType *asserts.AssertionType, accountID, user
 func TestAccountsHandler(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}}
+	c := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
@@ -92,7 +93,7 @@ func TestAccountsHandler(t *testing.T) {
 func TestAccountsHandlerWithPermissions(t *testing.T) {
 
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
@@ -120,7 +121,7 @@ func TestAccountsHandlerWithPermissions(t *testing.T) {
 func TestAccountsHandlerWithoutPermissions(t *testing.T) {
 
 	// Mock the database
-	c := config.Settings{EnableUserAuth: true}
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
@@ -144,7 +145,8 @@ func TestAccountsHandlerWithoutPermissions(t *testing.T) {
 func TestAccountsHandlerError(t *testing.T) {
 
 	// Mock the database
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}}
+	c := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: c}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/v1/accounts", nil)
@@ -164,7 +166,11 @@ func TestAccountsHandlerError(t *testing.T) {
 func TestAccountsUpsertHandler(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -203,7 +209,8 @@ func TestAccountsUpsertHandlerWithPermissions(t *testing.T) {
 		EnableUserAuth: true,
 		KeyStoreType:   "filesystem",
 		KeyStorePath:   "../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -249,7 +256,8 @@ func TestAccountsUpsertHandlerWithoutPermissions(t *testing.T) {
 		EnableUserAuth: true,
 		KeyStoreType:   "filesystem",
 		KeyStorePath:   "../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -304,7 +312,11 @@ func sendAccountsUpsertError(request []byte, t *testing.T) {
 func TestAccountsUpsertNilRequest(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -314,7 +326,11 @@ func TestAccountsUpsertNilRequest(t *testing.T) {
 func TestAccountsUpsertInvalidRequest(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -324,7 +340,11 @@ func TestAccountsUpsertInvalidRequest(t *testing.T) {
 func TestAccountsUpsertInvalidEncoding(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -338,7 +358,10 @@ func TestAccountsUpsertInvalidEncoding(t *testing.T) {
 func TestAccountsUpsertInvalidAssertion(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{KeyStoreType: "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -354,7 +377,11 @@ func TestAccountsUpsertInvalidAssertion(t *testing.T) {
 func TestAccountsUpsertInvalidAssertionType(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
@@ -374,7 +401,11 @@ func TestAccountsUpsertInvalidAssertionType(t *testing.T) {
 func TestAccountsUpsertPutError(t *testing.T) {
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{
+		KeyStoreType:   "filesystem",
+		KeyStorePath:   "../keystore",
+		KeyStoreSecret: "secret code to encrypt the auth-key hash",
+		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
