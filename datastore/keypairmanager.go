@@ -46,6 +46,7 @@ const listKeypairsForUserSQL = `
 	where u.username=$1
 	order by authority_id, key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
+const getKeypairByPublicIDSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where authority_id=$1 and key_id=$2"
 const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
 const toggleKeypairForUserSQL = `
 	update keypair k
@@ -132,6 +133,19 @@ func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{}
 
 	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
+	if err != nil {
+		log.Printf("Error retrieving keypair by ID: %v\n", err)
+		return keypair, err
+	}
+
+	return keypair, nil
+}
+
+// GetKeypairByPublicID fetches a single keypair from the database by ID
+func (db *DB) GetKeypairByPublicID(authorityID, keyID string) (Keypair, error) {
+	keypair := Keypair{}
+
+	err := db.QueryRow(getKeypairByPublicIDSQL, authorityID, keyID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
 		return keypair, err

@@ -24,7 +24,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -259,13 +258,46 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 // linked to one of the existing signing-keys.
 func KeypairGenerateHandler(w http.ResponseWriter, r *http.Request) {
 
-	// keypair, ok := verifyKeypair(w, r)
-	// if !ok {
-	// 	return
-	// }
+	keypair, ok := verifyKeypair(w, r)
+	if !ok {
+		return
+	}
 
-	go store.GenerateKeypair("test", "", "test-key")
-	log.Println("---Started...")
+	go store.GenerateKeypair(keypair.AuthorityID, "", keypair.KeyName)
+
+	// Return the URL to watch for the response
+	statusURL := fmt.Sprintf("/v1/keypairs/status/%s/%s", keypair.AuthorityID, keypair.KeyName)
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Location", statusURL)
+	formatBooleanResponse(true, "", "", statusURL, w)
+}
+
+// KeypairStatusHandler returns the creation status of a keypair
+func KeypairStatusHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Check that the user has permissions to this authority-id
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, vars["authority"]) {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
+		return
+	}
+
+	ks, err := datastore.Environ.DB.GetKeypairStatus(vars["authority"], vars["keyName"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-json", "", "Cannot find the status of the keypair", w)
+		return
+	}
+
+	formatBooleanResponse(true, "", "", ks.Status, w)
 }
 
 func verifyKeypair(w http.ResponseWriter, r *http.Request) (KeypairWithPrivateKey, bool) {
@@ -316,8 +348,6 @@ func verifyKeypair(w http.ResponseWriter, r *http.Request) (KeypairWithPrivateKe
 		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
 		return keypairWithKey, false
 	}
-
-	w.WriteHeader(http.StatusAccepted)
 
 	return keypairWithKey, true
 
