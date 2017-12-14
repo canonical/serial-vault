@@ -19,7 +19,10 @@
 
 package datastore
 
-import "log"
+import (
+	"database/sql"
+	"log"
+)
 
 const createKeypairStatusTableSQL = `
 CREATE TABLE IF NOT EXISTS keypairstatus (
@@ -37,6 +40,23 @@ const getKeypairStatusSQL = `
 select id, authority_id, key_name, keypair_id, status
 from keypairstatus
 where authority_id=$1 and key_name=$2`
+
+const listKeypairStatusProgressSQL = `
+select id, authority_id, key_name, keypair_id, status
+from keypairstatus ks
+where ks.keypair_id is null
+order by authority_id, key_name
+`
+
+const listKeypairStatusProgressForUserSQL = `
+select id, authority_id, key_name, keypair_id, status
+from keypairstatus ks
+inner join account acc on acc.authority_id=ks.authority_id
+inner join useraccountlink ua on ua.account_id=acc.id
+inner join userinfo u on ua.user_id=u.id
+where u.username=$1 and ks.keypair_id is null
+order by authority_id, key_name
+`
 
 const updateKeypairStatusSQL = `
 update keypairstatus
@@ -114,11 +134,58 @@ func (db *DB) UpdateKeypairStatus(ks KeypairStatus) error {
 
 // GetKeypairStatus fetches the keypair status
 func (db *DB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error) {
+	var keypairID sql.NullInt64
 	ks := KeypairStatus{}
-	err := db.QueryRow(getKeypairStatusSQL, ks.AuthorityID, ks.KeyName).Scan(&ks.ID, &ks.AuthorityID, &ks.KeyName, &ks.KeypairID, &ks.Status)
+	err := db.QueryRow(getKeypairStatusSQL, authorityID, keyName).Scan(&ks.ID, &ks.AuthorityID, &ks.KeyName, &keypairID, &ks.Status)
 	if err != nil {
 		log.Printf("Error fetching the keypair status: %v\n", err)
+		return ks, err
+	}
+
+	if keypairID.Valid {
+		ks.KeypairID = int(keypairID.Int64)
 	}
 
 	return ks, err
+}
+
+func (db *DB) listAllKeypairStatus() ([]KeypairStatus, error) {
+	return db.listKeypairStatusFilteredByUser(anyUserFilter)
+}
+
+func (db *DB) listKeypairStatusFilteredByUser(username string) ([]KeypairStatus, error) {
+	keypairs := []KeypairStatus{}
+	var keypairID sql.NullInt64
+
+	var (
+		rows *sql.Rows
+		err  error
+	)
+
+	if len(username) == 0 {
+		rows, err = db.Query(listKeypairStatusProgressSQL)
+	} else {
+		rows, err = db.Query(listKeypairStatusProgressForUserSQL, username)
+	}
+	if err != nil {
+		log.Printf("Error retrieving database keypairs: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		ks := KeypairStatus{}
+		err := rows.Scan(&ks.ID, &ks.AuthorityID, &ks.KeyName, &keypairID, &ks.Status)
+		if err != nil {
+			return nil, err
+		}
+
+		if keypairID.Valid {
+			ks.KeypairID = int(keypairID.Int64)
+		}
+
+		keypairs = append(keypairs, ks)
+	}
+
+	return keypairs, nil
 }

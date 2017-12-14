@@ -36,13 +36,17 @@ const createKeypairTableSQL = `
 		assertion     text default ''
 	)
 `
-const listKeypairsSQL = "select id, authority_id, key_id, active, assertion from keypair order by authority_id, key_id"
+const listKeypairsSQL = `
+	select k.id, k.authority_id, k.key_id, k.active, k.assertion, COALESCE(ks.key_name,'') AS key_name, COALESCE(ks.status,'') AS status from keypair k 
+	left outer join keypairstatus ks on k.id = ks.keypair_id
+	order by authority_id, key_id`
 const listKeypairsForUserSQL = `
-	select k.id, k.authority_id, k.key_id, k.active, k.assertion 
+	select k.id, k.authority_id, k.key_id, k.active, k.assertion, COALESCE(ks.key_name,'') AS key_name, COALESCE(ks.status,'') AS status 
 	from keypair k
 	inner join account acc on acc.authority_id=k.authority_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
+	left outer join keypairstatus ks on k.id = ks.keypair_id
 	where u.username=$1
 	order by authority_id, key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
@@ -78,6 +82,8 @@ type Keypair struct {
 	Active      bool
 	SealedKey   string
 	Assertion   string
+	KeyName     string
+	Status      string
 }
 
 // CreateKeypairTable creates the database table for a keypair.
@@ -118,7 +124,7 @@ func (db *DB) listKeypairsFilteredByUser(username string) ([]Keypair, error) {
 
 	for rows.Next() {
 		keypair := Keypair{}
-		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.Assertion)
+		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.Assertion, &keypair.KeyName, &keypair.Status)
 		if err != nil {
 			return nil, err
 		}

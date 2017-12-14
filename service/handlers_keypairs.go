@@ -29,7 +29,6 @@ import (
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/datastore/store"
 	"github.com/gorilla/mux"
 	"github.com/snapcore/snapd/asserts"
 )
@@ -40,6 +39,15 @@ type KeypairWithPrivateKey struct {
 	AuthorityID string `json:"authority-id"`
 	PrivateKey  string `json:"private-key"`
 	KeyName     string `json:"key-name"`
+}
+
+// KeypairStatusResponse is the JSON response from the API status of keypair generation
+type KeypairStatusResponse struct {
+	Success      bool                      `json:"success"`
+	ErrorCode    string                    `json:"error_code"`
+	ErrorSubcode string                    `json:"error_subcode"`
+	ErrorMessage string                    `json:"message"`
+	Status       []datastore.KeypairStatus `json:"status"`
 }
 
 // KeypairListHandler fetches the available keypairs for display from the database.
@@ -263,7 +271,7 @@ func KeypairGenerateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go store.GenerateKeypair(keypair.AuthorityID, "", keypair.KeyName)
+	go datastore.GenerateKeypair(keypair.AuthorityID, "", keypair.KeyName)
 
 	// Return the URL to watch for the response
 	statusURL := fmt.Sprintf("/v1/keypairs/status/%s/%s", keypair.AuthorityID, keypair.KeyName)
@@ -284,13 +292,13 @@ func KeypairStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, vars["authority"]) {
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, vars["authorityID"]) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
 		return
 	}
 
-	ks, err := datastore.Environ.DB.GetKeypairStatus(vars["authority"], vars["keyName"])
+	ks, err := datastore.Environ.DB.GetKeypairStatus(vars["authorityID"], vars["keyName"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-keypair-json", "", "Cannot find the status of the keypair", w)
@@ -298,6 +306,25 @@ func KeypairStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formatBooleanResponse(true, "", "", ks.Status, w)
+}
+
+// KeypairStatusProgressHandler returns the status of keypairs that are being generated
+func KeypairStatusProgressHandler(w http.ResponseWriter, r *http.Request) {
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	ks, err := datastore.Environ.DB.ListAllowedKeypairStatus(authUser)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-json", "", "Cannot find the status of the keypairs", w)
+		return
+	}
+
+	formatKeypairStatusResponse(true, "", "", "", ks, w)
 }
 
 func verifyKeypair(w http.ResponseWriter, r *http.Request) (KeypairWithPrivateKey, bool) {

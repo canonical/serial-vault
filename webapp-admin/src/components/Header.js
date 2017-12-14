@@ -63,7 +63,7 @@ class Header extends Component {
 
         return (
         <div>
-            <header className="p-navigation--light" role="banner">
+            <header className="p-navigation p-navigation--light" role="banner">
                 <div className="p-navigation__logo">
                         <div className="nav_logo">
                             <a href="/" className="p-navigation__link">

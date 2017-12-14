@@ -36,6 +36,7 @@ class KeypairList extends Component {
         <td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
         <td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
         <td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
+        <td className="overflow" title={keypr.KeyName}>{keypr.KeyName}</td>
       </tr>
     );
   }
@@ -48,6 +49,7 @@ class KeypairList extends Component {
           <thead>
             <tr>
               <th></th><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small">{T('active')}</th>
+              <th>{T('key-name')}</th>
             </tr>
           </thead>
           <tbody>

@@ -206,6 +206,12 @@ func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 	return keypair, nil
 }
 
+// GetKeypairByPublicID mocks getting a model by key ID
+func (mdb *MockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	return keypair, nil
+}
+
 // ListAllowedKeypairs mocks listing the keypairs
 func (mdb *MockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 	var keypairs []Keypair
@@ -483,6 +489,47 @@ func (mdb *MockDB) ListAccountUsers(authorityID string) ([]User, error) {
 	return mdb.ListUsers()
 }
 
+// CreateKeypairStatusTable mock the database creation
+func (mdb *MockDB) CreateKeypairStatusTable() error {
+	return nil
+}
+
+// AlterKeypairStatusTable mock the database creation
+func (mdb *MockDB) AlterKeypairStatusTable() error {
+	return nil
+}
+
+// CreateKeypairStatus mocks the creation of a keypair status record
+func (mdb *MockDB) CreateKeypairStatus(ks KeypairStatus) (int, error) {
+	return 4, nil
+}
+
+// UpdateKeypairStatus mocks the update of a keypair status record
+func (mdb *MockDB) UpdateKeypairStatus(ks KeypairStatus) error {
+	return nil
+}
+
+// ListAllowedKeypairStatus lists the keypair statuses
+func (mdb *MockDB) ListAllowedKeypairStatus(authorization User) ([]KeypairStatus, error) {
+	ks := []KeypairStatus{}
+	ks = append(ks, KeypairStatus{ID: 1, AuthorityID: "system", KeyName: "key1", Status: KeypairStatusCreating})
+	ks = append(ks, KeypairStatus{ID: 2, AuthorityID: "system", KeyName: "key2", Status: KeypairStatusEncrypting})
+	ks = append(ks, KeypairStatus{ID: 3, AuthorityID: "system", KeyName: "key3", Status: KeypairStatusExporting})
+	return ks, nil
+}
+
+// GetKeypairStatus fetches a single keypair status record
+func (mdb *MockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error) {
+
+	kss, _ := mdb.ListAllowedKeypairStatus(User{})
+	for _, ks := range kss {
+		if ks.AuthorityID == authorityID && ks.KeyName == keyName {
+			return ks, nil
+		}
+	}
+	return KeypairStatus{}, errors.New("Cannot find the keypair status")
+}
+
 // ErrorMockDB holds the unsuccessful mocks for the database
 type ErrorMockDB struct{}
 
@@ -586,6 +633,12 @@ func (mdb *ErrorMockDB) CreateAllowedModel(model Model, authorization User) (Mod
 
 // GetKeypair error mock for the database
 func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
+	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	return keypair, errors.New("Error fetching from the database")
+}
+
+// GetKeypairByPublicID error mock for the database
+func (mdb *ErrorMockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
 	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
 	return keypair, errors.New("Error fetching from the database")
 }
@@ -740,4 +793,34 @@ func (mdb *ErrorMockDB) ListNotUserAccounts(username string) ([]Account, error) 
 // ListAccountUsers mock returning an error for list account users operation
 func (mdb *ErrorMockDB) ListAccountUsers(authorityID string) ([]User, error) {
 	return []User{}, errors.New("Could not get any user for that account")
+}
+
+// CreateKeypairStatusTable mock the database creation with error
+func (mdb *ErrorMockDB) CreateKeypairStatusTable() error {
+	return errors.New("Could not create the Keypair Status table")
+}
+
+// AlterKeypairStatusTable mock the database creation
+func (mdb *ErrorMockDB) AlterKeypairStatusTable() error {
+	return errors.New("Could not update the Keypair Status table")
+}
+
+// CreateKeypairStatus mocks the creation of a keypair status record
+func (mdb *ErrorMockDB) CreateKeypairStatus(ks KeypairStatus) (int, error) {
+	return 0, errors.New("Cannot create keypair status record")
+}
+
+// UpdateKeypairStatus mocks the update of a keypair status record
+func (mdb *ErrorMockDB) UpdateKeypairStatus(ks KeypairStatus) error {
+	return errors.New("Cannot update keypair status record")
+}
+
+// ListAllowedKeypairStatus lists the keypair statuses
+func (mdb *ErrorMockDB) ListAllowedKeypairStatus(authorization User) ([]KeypairStatus, error) {
+	return []KeypairStatus{}, errors.New("Cannot update keypair status record")
+}
+
+// GetKeypairStatus fetches a single keypair status record
+func (mdb *ErrorMockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error) {
+	return KeypairStatus{}, errors.New("Cannot find the keypair status")
 }

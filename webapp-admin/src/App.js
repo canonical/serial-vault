@@ -21,6 +21,7 @@ import Index from './components/Index'
 import ModelList from './components/ModelList'
 import ModelEdit from './components/ModelEdit'
 import KeypairAdd from './components/KeypairAdd'
+import KeypairGenerate from './components/KeypairGenerate'
 import AccountList from './components/AccountList'
 import AccountForm from './components/AccountForm'
 import AccountKeyForm from './components/AccountKeyForm'
@@ -89,6 +90,16 @@ class App extends Component {
     }
   }
 
+  renderKeypairs() {
+    const id = sectionIdFromPath(window.location.pathname, 'keypairs')
+
+    switch(id) {
+      case 'generate':
+        return <KeypairGenerate token={this.props.token} />
+      default:
+        return <KeypairAdd token={this.props.token} />
+    }
+  }
 
   render() {
 
@@ -104,7 +115,7 @@ class App extends Component {
           {currentSection==='notfound'? <Index token={this.props.token} error={true} /> : ''}
 
           {currentSection==='models'? this.renderModels() : ''}
-          {currentSection==='keypairs'? <KeypairAdd token={this.props.token} />: ''}
+          {currentSection==='keypairs'? this.renderKeypairs(): ''}
 
           {currentSection==='accounts'? this.renderAccounts() : ''}
           {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}

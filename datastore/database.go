@@ -95,6 +95,7 @@ type Datastore interface {
 	CreateKeypairStatus(ks KeypairStatus) (int, error)
 	UpdateKeypairStatus(ks KeypairStatus) error
 	GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error)
+	ListAllowedKeypairStatus(authorization User) ([]KeypairStatus, error)
 }
 
 // DB local database interface with our custom methods.

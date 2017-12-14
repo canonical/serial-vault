@@ -20,6 +20,7 @@
 import React, {Component} from 'react';
 import ModelRow from './ModelRow';
 import KeypairList from './KeypairList';
+import KeypairStatus from './KeypairStatus';
 import AlertBox from './AlertBox';
 import Models from '../models/models';
 import Keypairs from '../models/keypairs';
@@ -181,6 +182,14 @@ class ModelList extends Component {
                   <i className="fa fa-plus"></i>
                 </a>
               </div>
+              <div className="col-1">
+                <a href="/keypairs/generate" className="p-button--brand" title={T('generate-signing-key')}>
+                  <i className="fa fa-cog"></i>
+                </a>
+              </div>
+            </div>
+            <div className="col-12">
+              <KeypairStatus token={this.props.token} />
             </div>
             <div className="col-12">
               <KeypairList keypairs={this.state.keypairs} refresh={this.handleRefresh} />

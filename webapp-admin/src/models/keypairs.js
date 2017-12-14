@@ -35,6 +35,14 @@ var Keypair = {
 		return Ajax.post(this.url, {'authority-id': authorityId, 'private-key': key});
 	},
 
+	generate:  function(authorityId, keyName) {
+		return Ajax.post(this.url + '/generate', {'authority-id': authorityId, 'key-name': keyName});
+	},
+
+	status:  function() {
+		return Ajax.get(this.url + '/status');
+	},
+
 	assertion: function(keyId, assertion) {
 		return Ajax.post(this.url + '/assertion', {id: keyId, assertion: assertion});
 	}

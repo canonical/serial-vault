@@ -15,21 +15,20 @@
  *
  */
 
-package store
+package datastore
 
 import (
 	"encoding/base64"
 	"log"
 	"os/exec"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
 
 // GenerateKeypair generates a new passwordless signing-key for signing assertions
 func GenerateKeypair(authorityID, passphrase, keyName string) error {
 	// Create a new keypair status record to track progress
-	ks := datastore.KeypairStatus{AuthorityID: authorityID, KeyName: keyName}
+	ks := KeypairStatus{AuthorityID: authorityID, KeyName: keyName}
 
 	base64PrivateKey, err := generateKeypair(&ks, passphrase)
 	if err != nil {
@@ -52,7 +51,6 @@ func GenerateKeypair(authorityID, passphrase, keyName string) error {
 	}
 
 	// Delete the key from the local store
-	log.Println("---Delete key...")
 	manager := asserts.NewGPGKeypairManager()
 	err = manager.Delete(keyName)
 	if err != nil {
@@ -61,14 +59,13 @@ func GenerateKeypair(authorityID, passphrase, keyName string) error {
 	return err
 }
 
-func generateKeypair(ks *datastore.KeypairStatus, passphrase string) (string, error) {
-	_, err := datastore.Environ.DB.CreateKeypairStatus(*ks)
+func generateKeypair(ks *KeypairStatus, passphrase string) (string, error) {
+	_, err := Environ.DB.CreateKeypairStatus(*ks)
 	if err != nil {
 		return "", err
 	}
 
 	// Generate the keypair
-	log.Println("---Generate key...")
 	manager := asserts.NewGPGKeypairManager()
 	err = manager.Generate(passphrase, ks.KeyName)
 	if err != nil {
@@ -77,9 +74,8 @@ func generateKeypair(ks *datastore.KeypairStatus, passphrase string) (string, er
 	}
 
 	// Export the ascii-armored GPG key
-	log.Println("---Export key...")
-	ks.Status = datastore.KeypairStatusExporting
-	if err = datastore.Environ.DB.UpdateKeypairStatus(*ks); err != nil {
+	ks.Status = KeypairStatusExporting
+	if err = Environ.DB.UpdateKeypairStatus(*ks); err != nil {
 		return "", err
 	}
 	out, err := exec.Command("gpg", "--homedir", "~/.snap/gnupg", "--armor", "--export-secret-key", ks.KeyName).Output()
@@ -91,15 +87,14 @@ func generateKeypair(ks *datastore.KeypairStatus, passphrase string) (string, er
 	return base64.StdEncoding.EncodeToString(out), nil
 }
 
-func importPrivateKey(ks *datastore.KeypairStatus, base64PrivateKey string) (string, string, error) {
+func importPrivateKey(ks *KeypairStatus, base64PrivateKey string) (string, string, error) {
 
 	// Store the signing-key in the keypair store using the asserts module
-	log.Println("---Seal key...")
-	ks.Status = datastore.KeypairStatusEncrypting
-	if err := datastore.Environ.DB.UpdateKeypairStatus(*ks); err != nil {
+	ks.Status = KeypairStatusEncrypting
+	if err := Environ.DB.UpdateKeypairStatus(*ks); err != nil {
 		return "", "", err
 	}
-	privateKey, sealedPrivateKey, err := datastore.Environ.KeypairDB.ImportSigningKey(ks.AuthorityID, base64PrivateKey)
+	privateKey, sealedPrivateKey, err := Environ.KeypairDB.ImportSigningKey(ks.AuthorityID, base64PrivateKey)
 	if err != nil {
 		log.Printf("Error storing the private key: %v", err)
 		return "", "", err
@@ -108,19 +103,18 @@ func importPrivateKey(ks *datastore.KeypairStatus, base64PrivateKey string) (str
 	return privateKey.PublicKey().ID(), sealedPrivateKey, nil
 }
 
-func storePrivateKey(ks *datastore.KeypairStatus, publicID, sealedPrivateKey string) error {
+func storePrivateKey(ks *KeypairStatus, publicID, sealedPrivateKey string) error {
 	// Store the sealed signing-key in the database
-	log.Println("---Store key...")
-	ks.Status = datastore.KeypairStatusStoring
-	if err := datastore.Environ.DB.UpdateKeypairStatus(*ks); err != nil {
+	ks.Status = KeypairStatusStoring
+	if err := Environ.DB.UpdateKeypairStatus(*ks); err != nil {
 		return err
 	}
-	keypair := datastore.Keypair{
+	keypair := Keypair{
 		AuthorityID: ks.AuthorityID,
 		KeyID:       publicID,
 		SealedKey:   sealedPrivateKey,
 	}
-	_, err := datastore.Environ.DB.PutKeypair(keypair)
+	_, err := Environ.DB.PutKeypair(keypair)
 	if err != nil {
 		log.Printf("Error storing the private key: %v", err)
 		return err
@@ -129,16 +123,16 @@ func storePrivateKey(ks *datastore.KeypairStatus, publicID, sealedPrivateKey str
 	return err
 }
 
-func updateKeyID(ks *datastore.KeypairStatus, keyID string) error {
-	kp, err := datastore.Environ.DB.GetKeypairByPublicID(ks.AuthorityID, keyID)
+func updateKeyID(ks *KeypairStatus, keyID string) error {
+	kp, err := Environ.DB.GetKeypairByPublicID(ks.AuthorityID, keyID)
 	if err != nil {
 		log.Printf("Error fetching the private key: %v", err)
 		return err
 	}
 
 	// Update the status and link to the generated keypair record
-	ks.Status = datastore.KeypairStatusComplete
+	ks.Status = KeypairStatusComplete
 	ks.KeypairID = kp.ID
-	err = datastore.Environ.DB.UpdateKeypairStatus(*ks)
+	err = Environ.DB.UpdateKeypairStatus(*ks)
 	return err
 }

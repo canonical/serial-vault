@@ -115,11 +115,11 @@ The latest stable (LTS) version of Node can be found on the [Node website](nodej
 nvm help
 
 # Install the latest stable version
-nvm install v4.4.3
+nvm install lts/*
 
 # Select the version to use
 nvm ls
-nvm use v4.4.3
+nvm use lts/*
 ```
 
 - Install the nodejs dependencies
@@ -134,7 +134,7 @@ npm install
 ```bash
 # Select the version to use
 nvm ls
-nvm use v4.4.3
+nvm use lts/*
 npm run build
 ```
 
