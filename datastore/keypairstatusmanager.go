@@ -34,39 +34,39 @@ CREATE TABLE IF NOT EXISTS keypairstatus (
 )
 `
 
-const createKeypairStatusSQL = "insert into keypairstatus (authority_id,key_name,status) values ($1,$2,$3) RETURNING id"
+const createKeypairStatusSQL = "INSERT INTO keypairstatus (authority_id,key_name,status) VALUES ($1,$2,$3) RETURNING id"
 
 const getKeypairStatusSQL = `
-select id, authority_id, key_name, keypair_id, status
-from keypairstatus
-where authority_id=$1 and key_name=$2`
+SELECT id, authority_id, key_name, keypair_id, status
+FROM keypairstatus
+WHERE authority_id=$1 AND key_name=$2`
 
 const listKeypairStatusProgressSQL = `
-select id, authority_id, key_name, keypair_id, status
-from keypairstatus ks
-where ks.keypair_id is null
-order by authority_id, key_name
+SELECT id, authority_id, key_name, keypair_id, status
+FROM keypairstatus ks
+WHERE ks.keypair_id IS NULL
+ORDER BY authority_id, key_name
 `
 
 const listKeypairStatusProgressForUserSQL = `
-select id, authority_id, key_name, keypair_id, status
-from keypairstatus ks
-inner join account acc on acc.authority_id=ks.authority_id
-inner join useraccountlink ua on ua.account_id=acc.id
-inner join userinfo u on ua.user_id=u.id
-where u.username=$1 and ks.keypair_id is null
-order by authority_id, key_name
+SELECT id, authority_id, key_name, keypair_id, status
+FROM keypairstatus ks
+INNER JOIN account acc on acc.authority_id=ks.authority_id
+INNER JOIN useraccountlink ua on ua.account_id=acc.id
+INNER JOIN userinfo u on ua.user_id=u.id
+WHERE u.username=$1 AND ks.keypair_id IS NULL
+ORDER BY authority_id, key_name
 `
 
 const updateKeypairStatusSQL = `
-update keypairstatus
-set status=$3
-where authority_id=$1 and key_name=$2`
+UPDATE keypairstatus
+SET status=$3
+WHERE authority_id=$1 AND key_name=$2`
 
 const updateKeypairStatusWithIDSQL = `
-update keypairstatus
-set keypair_id=$3, status=$4
-where authority_id=$1 and key_name=$2`
+UPDATE keypairstatus
+SET keypair_id=$3, status=$4
+WHERE authority_id=$1 AND key_name=$2`
 
 // Indexes
 const createKeypairStatusAuthKeyIndexSQL = "CREATE UNIQUE INDEX IF NOT EXISTS auth_key_idx ON keypairstatus (authority_id, key_name)"
