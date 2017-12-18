@@ -898,3 +898,43 @@ func TestKeypairAssertionUpdateError(t *testing.T) {
 	}
 	sendKeypairAssertionError(request, t)
 }
+
+func TestKeypairStatusProgressHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// List the keypair status records
+	data := ""
+	sendRequest(t, "GET", "/v1/keypairs/status", bytes.NewBufferString(data))
+}
+
+func TestKeypairStatusProgressHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// List the keypair status records
+	data := ""
+	sendRequestWithoutPermissions(t, "GET", "/v1/keypairs/status", bytes.NewBufferString(data))
+}
+
+func TestKeypairStatusHandlerWithPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// List the keypair status records
+	data := ""
+	sendRequest(t, "GET", "/v1/keypairs/status/system/key1", bytes.NewBufferString(data))
+}
+
+func TestKeypairStatusHandlerWithoutPermissions(t *testing.T) {
+	// Mock the database
+	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
+
+	// List the keypair status records
+	data := ""
+	sendRequestWithoutPermissions(t, "GET", "/v1/keypairs/status/system/key1", bytes.NewBufferString(data))
+}

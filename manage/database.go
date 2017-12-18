@@ -105,6 +105,10 @@ func updateDatabase() {
 
 		// Update the User table, removing not needed openid_identity field
 		{datastore.Environ.DB.AlterUserTable, update, "userinfo"},
+
+		// Create the Keypair Status table, if it does not exist, and add indexes
+		{datastore.Environ.DB.CreateKeypairStatusTable, create, "keypair status"},
+		{datastore.Environ.DB.AlterKeypairStatusTable, update, "keypair status"},
 	}
 
 	exec(operations)

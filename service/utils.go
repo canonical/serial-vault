@@ -176,6 +176,17 @@ func formatUsersResponse(success bool, errorCode, errorSubcode, message string, 
 	return nil
 }
 
+func formatKeypairStatusResponse(success bool, errorCode, errorSubcode, message string, status []datastore.KeypairStatus, w http.ResponseWriter) error {
+	response := KeypairStatusResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Status: status}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the keypair status response.")
+		return err
+	}
+	return nil
+}
+
 // checkAPIKey the API key header to make sure it is an allowed header
 func checkAPIKey(apiKey string) error {
 	if len(apiKey) == 0 {

@@ -38,6 +38,16 @@ type KeypairWithPrivateKey struct {
 	ID          int    `json:"id"`
 	AuthorityID string `json:"authority-id"`
 	PrivateKey  string `json:"private-key"`
+	KeyName     string `json:"key-name"`
+}
+
+// KeypairStatusResponse is the JSON response from the API status of keypair generation
+type KeypairStatusResponse struct {
+	Success      bool                      `json:"success"`
+	ErrorCode    string                    `json:"error_code"`
+	ErrorSubcode string                    `json:"error_subcode"`
+	ErrorMessage string                    `json:"message"`
+	Status       []datastore.KeypairStatus `json:"status"`
 }
 
 // KeypairListHandler fetches the available keypairs for display from the database.
@@ -68,50 +78,9 @@ func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
 // and the authority-id/key-id is stored in the models database. Models can then be
 // linked to one of the existing signing-keys.
 func KeypairCreateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		formatBooleanResponse(false, "error-auth", "", "", w)
-		return
-	}
-
-	// Check that we have a message body
-	if r.Body == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-nil-data", "", "Uninitialized POST data", w)
-		return
-	}
-	defer r.Body.Close()
-
-	// Decode the JSON body
-	keypairWithKey := KeypairWithPrivateKey{}
-	err = json.NewDecoder(r.Body).Decode(&keypairWithKey)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-keypair-data", "", "No keypair data supplied", w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-keypair-json", "", err.Error(), w)
-		return
-	}
-
-	// Validate the authority-id
-	keypairWithKey.AuthorityID = strings.TrimSpace(keypairWithKey.AuthorityID)
-	if len(keypairWithKey.AuthorityID) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-keypair-json", "", "The authority-id is mandatory", w)
-		return
-	}
-
-	// Check that the user has permissions to this authority-id
-	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, keypairWithKey.AuthorityID) {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
+	keypairWithKey, ok := verifyKeypair(w, r)
+	if !ok {
 		return
 	}
 
@@ -289,4 +258,124 @@ func KeypairAssertionHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return the success response
 	formatBooleanResponse(true, "", "", "", w)
+}
+
+// KeypairGenerateHandler is the API method to generate a new keypair that can be used
+// for signing serial (or model) assertions. The keypairs are stored in the signing database
+// and the authority-id/key-id is stored in the models database. Models can then be
+// linked to one of the existing signing-keys.
+func KeypairGenerateHandler(w http.ResponseWriter, r *http.Request) {
+
+	keypair, ok := verifyKeypair(w, r)
+	if !ok {
+		return
+	}
+
+	go datastore.GenerateKeypair(keypair.AuthorityID, "", keypair.KeyName)
+
+	// Return the URL to watch for the response
+	statusURL := fmt.Sprintf("/v1/keypairs/status/%s/%s", keypair.AuthorityID, keypair.KeyName)
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Location", statusURL)
+	formatBooleanResponse(true, "", "", statusURL, w)
+}
+
+// KeypairStatusHandler returns the creation status of a keypair
+func KeypairStatusHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Check that the user has permissions to this authority-id
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, vars["authorityID"]) {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
+		return
+	}
+
+	ks, err := datastore.Environ.DB.GetKeypairStatus(vars["authorityID"], vars["keyName"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-json", "", "Cannot find the status of the keypair", w)
+		return
+	}
+
+	formatBooleanResponse(true, "", "", ks.Status, w)
+}
+
+// KeypairStatusProgressHandler returns the status of keypairs that are being generated
+func KeypairStatusProgressHandler(w http.ResponseWriter, r *http.Request) {
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	ks, err := datastore.Environ.DB.ListAllowedKeypairStatus(authUser)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-json", "", "Cannot find the status of the keypairs", w)
+		return
+	}
+
+	formatKeypairStatusResponse(true, "", "", "", ks, w)
+}
+
+func verifyKeypair(w http.ResponseWriter, r *http.Request) (KeypairWithPrivateKey, bool) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	keypairWithKey := KeypairWithPrivateKey{}
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return keypairWithKey, false
+	}
+
+	// Check that we have a message body
+	if r.Body == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-nil-data", "", "Uninitialized POST data", w)
+		return keypairWithKey, false
+	}
+	defer r.Body.Close()
+
+	// Decode the JSON body
+	err = json.NewDecoder(r.Body).Decode(&keypairWithKey)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-data", "", "No keypair data supplied", w)
+		return keypairWithKey, false
+		// Check for parsing errors
+	case err != nil:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-json", "", err.Error(), w)
+		return keypairWithKey, false
+	}
+
+	// Validate the authority-id
+	keypairWithKey.AuthorityID = strings.TrimSpace(keypairWithKey.AuthorityID)
+	if len(keypairWithKey.AuthorityID) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-keypair-json", "", "The authority-id is mandatory", w)
+		return keypairWithKey, false
+	}
+
+	// Check that the user has permissions to this authority-id
+	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, keypairWithKey.AuthorityID) {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
+		return keypairWithKey, false
+	}
+
+	return keypairWithKey, true
+
 }

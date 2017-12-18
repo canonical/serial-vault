@@ -43,6 +43,7 @@ type Datastore interface {
 
 	ListAllowedKeypairs(authorization User) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
+	GetKeypairByPublicID(authorityID, keyID string) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error
 	UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error)
@@ -88,6 +89,13 @@ type Datastore interface {
 	ListUserAccounts(username string) ([]Account, error)
 	ListNotUserAccounts(username string) ([]Account, error)
 	ListAccountUsers(authorityID string) ([]User, error)
+
+	CreateKeypairStatusTable() error
+	AlterKeypairStatusTable() error
+	CreateKeypairStatus(ks KeypairStatus) (int, error)
+	UpdateKeypairStatus(ks KeypairStatus) error
+	GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error)
+	ListAllowedKeypairStatus(authorization User) ([]KeypairStatus, error)
 }
 
 // DB local database interface with our custom methods.
