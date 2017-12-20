@@ -70,6 +70,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/keypairs/generate", Middleware(http.HandlerFunc(KeypairGenerateHandler))).Methods("POST")
 	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", Middleware(http.HandlerFunc(KeypairStatusHandler))).Methods("GET")
 	router.Handle("/v1/keypairs/status", Middleware(http.HandlerFunc(KeypairStatusProgressHandler))).Methods("GET")
+	router.Handle("/v1/keypairs/register", Middleware(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
 
 	// API routes: signing log
 	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler))).Methods("GET")

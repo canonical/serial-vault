@@ -48,6 +48,7 @@ var (
 type KeypairStore interface {
 	ImportSigningKey(string, string) (asserts.PrivateKey, string, error)
 	SignAssertion(*asserts.AssertionType, map[string]string, []byte, string) (asserts.Assertion, error)
+	LoadKeypair(authorityID string, keyID string, base64SealedSigningKey string) error
 }
 
 // KeypairOperator interface used by some keypair stores to seal and unseal signing-keys for storage
@@ -163,5 +164,22 @@ func (kdb *KeypairDatabase) SignAssertion(assertType *asserts.AssertionType, hea
 	default:
 		// Filesystem keypairs are handled by the snapd library, so this is a pass-through to the core library
 		return kdb.Sign(assertType, headers, body, keyID)
+	}
+}
+
+// LoadKeypair checks if a keypair is in the memory store and (unseals and) loads it if it isn't
+func (kdb *KeypairDatabase) LoadKeypair(authorityID string, keyID string, sealedSigningKey string) error {
+	switch kdb.KeyStoreType.Name {
+	case DatabaseStore.Name:
+		fallthrough
+
+	case TPM20Store.Name:
+		// Use an internal operator to handle decryption of signing-keys from storage
+		err := kdb.keypairOperator.UnsealKeypair(authorityID, keyID, sealedSigningKey)
+		return err
+
+	default:
+		// Filesystem keypairs are all loaded, so this is a no-op
+		return nil
 	}
 }

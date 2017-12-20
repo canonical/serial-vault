@@ -44,6 +44,7 @@ type Datastore interface {
 	ListAllowedKeypairs(authorization User) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
 	GetKeypairByPublicID(authorityID, keyID string) (Keypair, error)
+	GetKeypairByName(authorityID, keyName string) (Keypair, error)
 	PutKeypair(keypair Keypair) (string, error)
 	UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error
 	UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error)
