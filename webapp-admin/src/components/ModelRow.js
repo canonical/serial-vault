@@ -32,7 +32,7 @@ class ModelRow extends Component {
 			);
 		} else {
 			return (
-				<DialogBox message={T('confirm-model-delete')} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} />
+				<DialogBox message={T('confirm-model-delete')} handleYesClick={this.props.deleteModel} handleCancelClick={this.props.cancelDelete} small />
 			);
 		}
 	}

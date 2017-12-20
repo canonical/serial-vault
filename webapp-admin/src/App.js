@@ -22,6 +22,7 @@ import ModelList from './components/ModelList'
 import ModelEdit from './components/ModelEdit'
 import KeypairAdd from './components/KeypairAdd'
 import KeypairGenerate from './components/KeypairGenerate'
+import KeypairStore from './components/KeypairStore'
 import AccountList from './components/AccountList'
 import AccountForm from './components/AccountForm'
 import AccountKeyForm from './components/AccountKeyForm'
@@ -99,6 +100,8 @@ class App extends Component {
         return <KeypairGenerate token={this.props.token} />
       case 'new':
         return <KeypairAdd token={this.props.token} />
+      case 'store':
+        return <KeypairStore token={this.props.token} />
       default:
         return <Keypair token={this.props.token} />
     }
