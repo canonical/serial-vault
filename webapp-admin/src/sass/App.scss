@@ -50,14 +50,15 @@ i.warning {
 
 footer {
     border-top: 1px solid $color-mid-light;
+    height: 3em;
 }
 
 footer div {
 	padding-left: 10px;
 }
 
-.button--primary.small, .button--secondary.small {
-	padding: 0px 5px !important;
+.p-button--brand.small, .p-button--neutral.small {
+	padding: 5px 10px !important;
 	width: auto;
 }
 
@@ -76,6 +77,10 @@ table td.wrap {
 table td.overflow {
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+table td .p-button--brand, table td .p-button--neutral, {
+    display: inline;
 }
 
 // Filter box

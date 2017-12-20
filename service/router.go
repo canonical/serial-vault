@@ -99,6 +99,7 @@ func AdminRouter() *mux.Router {
 	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
+	router.PathPrefix("/signing-keys").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/keypairs").Handler(Middleware(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler)))

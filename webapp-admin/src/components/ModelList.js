@@ -19,11 +19,8 @@
 
 import React, {Component} from 'react';
 import ModelRow from './ModelRow';
-import KeypairList from './KeypairList';
-import KeypairStatus from './KeypairStatus';
 import AlertBox from './AlertBox';
 import Models from '../models/models';
-import Keypairs from '../models/keypairs';
 import {T, isUserAdmin} from './Utils'
 
 class ModelList extends Component {
@@ -33,7 +30,6 @@ class ModelList extends Component {
     super(props)
     this.state = {
       models: this.props.models || [],
-      keypairs: this.props.keypairs || [],
       confirmDelete: null,
       message: null,
     }
@@ -45,11 +41,9 @@ class ModelList extends Component {
 
   refresh() {
     this.getModels();
-    this.getKeypairs();
   }
 
   handleRefresh = () => {
-    console.log('handleRefresh')
     this.refresh()
   }
 
@@ -61,17 +55,6 @@ class ModelList extends Component {
         message = data.message;
       }
       this.setState({models: data.models, message: message});
-    });
-  }
-
-  getKeypairs() {
-    Keypairs.list().then((response) => {
-      var data = JSON.parse(response.body);
-      var message = "";
-      if (!data.success) {
-        message = data.message;
-      }
-      this.setState({keypairs: data.keypairs, message: message});
     });
   }
 
@@ -170,29 +153,6 @@ class ModelList extends Component {
             </div>
             <div className="col-12">
               {this.renderTable()}
-            </div>
-          </section>
-
-          <section className="row">
-            <div className="u-equal-height spacer">
-              <h2 className="col-3">{T('signing-keys')}</h2>
-              &nbsp;
-              <div className="col-1">
-                <a href="/keypairs/new" className="p-button--brand" title={T('add-new-signing-key')}>
-                  <i className="fa fa-plus"></i>
-                </a>
-              </div>
-              <div className="col-1">
-                <a href="/keypairs/generate" className="p-button--brand" title={T('generate-signing-key')}>
-                  <i className="fa fa-cog"></i>
-                </a>
-              </div>
-            </div>
-            <div className="col-12">
-              <KeypairStatus token={this.props.token} />
-            </div>
-            <div className="col-12">
-              <KeypairList keypairs={this.state.keypairs} refresh={this.handleRefresh} />
             </div>
           </section>
 

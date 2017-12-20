@@ -32,7 +32,7 @@ class KeypairList extends Component {
   renderRow(keypr) {
     return (
       <tr key={keypr.ID}>
-        <td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral">{T('activate')}</button>}</td>
+        <td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral small">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral small">{T('activate')}</button>}</td>
         <td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
         <td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
         <td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>

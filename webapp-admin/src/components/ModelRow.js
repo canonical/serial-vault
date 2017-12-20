@@ -24,9 +24,9 @@ class ModelRow extends Component {
 		if (this.props.model.id !== this.props.confirmDelete) {
 			return (
 				<div>
-					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="p-button--brand" title={T('edit-model')}><i className="fa fa-pencil"></i></a>
+					<a href={'/models/'.concat(this.props.model.id, '/edit')} className="p-button--brand small" title={T('edit-model')}><i className="fa fa-pencil"></i></a>
 					&nbsp;
-					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="p-button--neutral" title={T('delete-model')}>
+					<a href="" onClick={this.props.delete} data-key={this.props.model.id} className="p-button--neutral small" title={T('delete-model')}>
 						<i className="fa fa-trash" data-key={this.props.model.id}></i></a>
 				</div>
 			);
