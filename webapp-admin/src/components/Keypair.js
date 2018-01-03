@@ -95,6 +95,11 @@ class Keypair extends Component {
                   <i className="fa fa-cog"></i>
                 </a>
               </div>
+              <div className="col-1">
+                <a href="/signing-keys/store" className="p-button--brand" title={T('register-signing-key')}>
+                  <i className="fa fa-shopping-cart"></i>
+                </a>
+              </div>
             </div>
             <div className="col-12">
               <KeypairStatus token={this.props.token} />

@@ -33,7 +33,6 @@ class KeypairStore extends Component {
 
     handleChangeKey = (e) => {
         var id = parseInt(e.target.value, 10);
-        console.log('---keyID', id)
 
         var keys = this.state.keypairs.filter((k) => {
             return k.ID === id
@@ -63,12 +62,10 @@ class KeypairStore extends Component {
             )
         }
 
-        console.log('---', this.state.keypair)
-
         return (
             <div>
                 <section className="row no-border">
-                    <h2>{T('new-signing-key')}</h2>
+                    <h2>{T('register-signing-key')}</h2>
                     <div className="col-12">
                         <AlertBox message={this.state.error} />
 
