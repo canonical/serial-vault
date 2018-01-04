@@ -40,6 +40,12 @@ class ModelRow extends Component {
 	render() {
 		var fingerprint = this.props.model['authority-id'] + '/' + this.props.model['key-id'];
 		var fingerprintUser = this.props.model['authority-id-user'] + '/' + this.props.model['key-id-user'];
+		var fingerprintModel;
+		if (this.props.model['keypair-id-model'] > 0) {
+			fingerprintModel = this.props.model['authority-id-model'] + '/' + this.props.model['key-id-model'];
+		} else {
+			fingerprintModel = ""
+		}
 		return (
 			<tr>
 				<td>
@@ -49,6 +55,7 @@ class ModelRow extends Component {
 				<td>{this.props.model.model}</td>
 				<td className="overflow" title={fingerprint} >{fingerprint}</td>
 				<td className="overflow" title={fingerprintUser} >{fingerprintUser}</td>
+				<td className="overflow" title={fingerprintModel} >{fingerprintModel}</td>
 				<td>{this.props.model['key-active'] && this.props.model['key-active-user'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
 			</tr>
 		)

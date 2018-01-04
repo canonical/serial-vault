@@ -32,18 +32,19 @@ const createModelTableSQL = `
 		name             varchar(200) not null,
 		keypair_id       int references keypair not null,
 		user_keypair_id  int references keypair not null,
+		model_keypair_id int references keypair,
 		api_key          varchar(200) not null
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
 const listModelsForUserSQL = `
-	select m.id, brand_id, m.name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, m.name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -54,19 +55,19 @@ const listModelsForUserSQL = `
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where brand_id=$1 and name=$2 and api_key=$3`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where m.id=$1`
 const getModelForUserSQL = `
-	select m.id, m.brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, m.brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -74,14 +75,14 @@ const getModelForUserSQL = `
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
 	where m.id=$1 and u.username=$2`
-const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6 where id=$1"
+const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6, model_keypair_id=$7 where id=$1"
 const updateModelForUserSQL = `
-	update model m set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6
+	update model m set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6, model_keypair_id=$7
 	from account acc
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7`
-const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key) values ($1,$2,$3,$4,$5) RETURNING id"
+	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$8`
+const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key,model_keypair_id) values ($1,$2,$3,$4,$5,$6) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 const deleteModelForUserSQL = `
 	delete from model m
@@ -108,6 +109,9 @@ const checkModelExistsSQL = `
 	)
 `
 
+// Add the model keypair to the models table (nullable)
+const alterModelModelKeypairNullable = "alter table model add column model_keypair_id int references keypair"
+
 // Add the user keypair to the models table (nullable)
 const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
 
@@ -131,21 +135,27 @@ const minAPIKeyLength = 10
 
 // Model holds the model details in the local database
 type Model struct {
-	ID              int
-	BrandID         string
-	Name            string
-	KeypairID       int
-	APIKey          string
-	AuthorityID     string // from the signing keypair
-	KeyID           string // from the signing keypair
-	KeyActive       bool   // from the signing keypair
-	SealedKey       string // from the signing keypair
-	KeypairIDUser   int    // from the system-user keypair
-	AuthorityIDUser string // from the system-user keypair
-	KeyIDUser       string // from the system-user keypair
-	KeyActiveUser   bool   // from the system-user keypair
-	SealedKeyUser   string // from the system-user keypair
-	AssertionUser   string // from the system-user keypair
+	ID               int
+	BrandID          string
+	Name             string
+	KeypairID        int
+	APIKey           string
+	AuthorityID      string // from the signing keypair
+	KeyID            string // from the signing keypair
+	KeyActive        bool   // from the signing keypair
+	SealedKey        string // from the signing keypair
+	KeypairIDUser    int    // from the system-user keypair
+	AuthorityIDUser  string // from the system-user keypair
+	KeyIDUser        string // from the system-user keypair
+	KeyActiveUser    bool   // from the system-user keypair
+	SealedKeyUser    string // from the system-user keypair
+	AssertionUser    string // from the system-user keypair
+	KeypairIDModel   int    // from the model keypair
+	AuthorityIDModel string // from the model keypair
+	KeyIDModel       string // from the model keypair
+	KeyActiveModel   bool   // from the model keypair
+	SealedKeyModel   string // from the model keypair
+	AssertionModel   string // from the model keypair
 }
 
 // CreateModelTable creates the database table for a model.
@@ -156,6 +166,9 @@ func (db *DB) CreateModelTable() error {
 
 // AlterModelTable updates an existing database model table with additional fields
 func (db *DB) AlterModelTable() error {
+	// Add the optional model assertion keypair field (ignore error as it may already be there)
+	db.Exec(alterModelModelKeypairNullable)
+
 	err := db.addUserKeypairFields()
 	if err != nil {
 		return err
@@ -248,6 +261,7 @@ func (db *DB) listAllModels() ([]Model, error) {
 // [Permissions: Admin]
 func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 	models := []Model{}
+	var keypairID sql.NullInt64
 
 	var (
 		rows *sql.Rows
@@ -268,29 +282,57 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 	for rows.Next() {
 		model := Model{}
 		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive,
-			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser)
+			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser, &keypairID)
 		if err != nil {
 			return nil, err
 		}
+
+		// Get the model assertion keypair if it is set
+		if keypairID.Valid {
+			db.modelKeypair(int(keypairID.Int64), &model, false)
+		}
+
 		models = append(models, model)
 	}
 
 	return models, nil
 }
 
+func (db *DB) modelKeypair(keypairID int, model *Model, sealedKey bool) {
+	k, err := db.GetKeypair(keypairID)
+	if err != nil {
+		return
+	}
+
+	model.KeypairIDModel = k.ID
+	model.AuthorityIDModel = k.AuthorityID
+	model.AssertionModel = k.Assertion
+	model.KeyActiveModel = k.Active
+	model.KeyIDModel = k.KeyID
+	if sealedKey {
+		model.SealedKeyModel = k.SealedKey
+	}
+}
+
 // FindModel retrieves the model from the database.
 func (db *DB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{}
+	var keypairID sql.NullInt64
 
 	err := db.QueryRow(findModelSQL, brandID, modelName, apiKey).Scan(
 		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
-		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
+		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser, &keypairID)
 	switch {
 	case err == sql.ErrNoRows:
 		return model, err
 	case err != nil:
 		log.Printf("Error retrieving database model: %v\n", err)
 		return model, err
+	}
+
+	// Get the model assertion keypair if it is set
+	if keypairID.Valid {
+		db.modelKeypair(int(keypairID.Int64), &model, true)
 	}
 
 	return model, nil
@@ -302,6 +344,7 @@ func (db *DB) getModel(modelID int) (Model, error) {
 
 func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error) {
 	model := Model{}
+	var keypairID sql.NullInt64
 
 	var row *sql.Row
 
@@ -312,10 +355,15 @@ func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error
 	}
 
 	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
-		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
+		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser, &keypairID)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return model, err
+	}
+
+	// Get the model assertion keypair if it is set
+	if keypairID.Valid {
+		db.modelKeypair(int(keypairID.Int64), &model, true)
 	}
 
 	return model, nil
@@ -327,10 +375,16 @@ func (db *DB) updateModel(model Model) (string, error) {
 
 func (db *DB) updateModelFilteredByUser(model Model, username string) (string, error) {
 	var err error
+	var keypairID sql.NullInt64
+
+	if model.KeypairIDModel > 0 {
+		keypairID = sql.NullInt64{Valid: true, Int64: int64(model.KeypairIDModel)}
+	}
+
 	if len(username) == 0 {
-		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey)
+		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, &keypairID)
 	} else {
-		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, username)
+		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, &keypairID, username)
 	}
 	if err != nil {
 		log.Printf("Error updating the database model: %v\n", err)
@@ -347,7 +401,13 @@ func (db *DB) createModel(model Model) (Model, string, error) {
 func (db *DB) createModelFilteredByUser(model Model, username string) (Model, string, error) {
 	// Create the model in the database
 	var createdModelID int
-	err := db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
+	var keypairID sql.NullInt64
+
+	if model.KeypairIDModel > 0 {
+		keypairID = sql.NullInt64{Valid: true, Int64: int64(model.KeypairIDModel)}
+	}
+
+	err := db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, &keypairID).Scan(&createdModelID)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)
 		return model, "", err

@@ -105,6 +105,7 @@ class ModelList extends Component {
           <thead>
             <tr>
               <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('private-key-short')}</th><th>{T('private-key-user-short')}</th>
+              <th>{T('private-key-model-short')}</th>
               <th className="small">{T('active')}</th>
             </tr>
           </thead>
