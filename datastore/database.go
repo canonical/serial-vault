@@ -41,6 +41,11 @@ type Datastore interface {
 	AlterModelTable() error
 	CheckAPIKey(apiKey string) bool
 
+	CreateModelAssertTable() error
+	CreateModelAssert(m ModelAssertion) (int, error)
+	UpdateModelAssert(m ModelAssertion) error
+	GetModelAssert(modelID int) (ModelAssertion, error)
+
 	ListAllowedKeypairs(authorization User) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)
 	GetKeypairByPublicID(authorityID, keyID string) (Keypair, error)
