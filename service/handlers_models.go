@@ -32,23 +32,24 @@ import (
 
 // ModelSerialize is the JSON version of a model, with the signing key ID
 type ModelSerialize struct {
-	ID               int    `json:"id"`
-	BrandID          string `json:"brand-id"`
-	Name             string `json:"model"`
-	Type             string `json:"type"`
-	KeypairID        int    `json:"keypair-id"`
-	APIKey           string `json:"api-key"`
-	AuthorityID      string `json:"authority-id"`
-	KeyID            string `json:"key-id"`
-	KeyActive        bool   `json:"key-active"`
-	KeypairIDUser    int    `json:"keypair-id-user"`
-	AuthorityIDUser  string `json:"authority-id-user"`
-	KeyIDUser        string `json:"key-id-user"`
-	KeyActiveUser    bool   `json:"key-active-user"`
-	KeypairIDModel   int    `json:"keypair-id-model"`
-	AuthorityIDModel string `json:"authority-id-model"`
-	KeyIDModel       string `json:"key-id-model"`
-	KeyActiveModel   bool   `json:"key-active-model"`
+	ID               int                      `json:"id"`
+	BrandID          string                   `json:"brand-id"`
+	Name             string                   `json:"model"`
+	Type             string                   `json:"type"`
+	KeypairID        int                      `json:"keypair-id"`
+	APIKey           string                   `json:"api-key"`
+	AuthorityID      string                   `json:"authority-id"`
+	KeyID            string                   `json:"key-id"`
+	KeyActive        bool                     `json:"key-active"`
+	KeypairIDUser    int                      `json:"keypair-id-user"`
+	AuthorityIDUser  string                   `json:"authority-id-user"`
+	KeyIDUser        string                   `json:"key-id-user"`
+	KeyActiveUser    bool                     `json:"key-active-user"`
+	KeypairIDModel   int                      `json:"keypair-id-model"`
+	AuthorityIDModel string                   `json:"authority-id-model"`
+	KeyIDModel       string                   `json:"key-id-model"`
+	KeyActiveModel   bool                     `json:"key-active-model"`
+	ModelAssertion   datastore.ModelAssertion `json:"assertion"`
 }
 
 // ModelsResponse is the JSON response from the API Models method
@@ -75,6 +76,7 @@ func modelForDisplay(model datastore.Model) ModelSerialize {
 		KeypairID: model.KeypairID, APIKey: model.APIKey, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive,
 		KeypairIDUser: model.KeypairIDUser, AuthorityIDUser: model.AuthorityIDUser, KeyIDUser: model.KeyIDUser, KeyActiveUser: model.KeyActiveUser,
 		KeypairIDModel: model.KeypairIDModel, AuthorityIDModel: model.AuthorityIDModel, KeyIDModel: model.KeyIDModel, KeyActiveModel: model.KeyActiveModel,
+		ModelAssertion: model.ModelAssertion,
 	}
 }
 
@@ -285,4 +287,50 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// Format the model for output and return JSON response
 	w.WriteHeader(http.StatusOK)
 	formatModelResponse(true, "", "", "", modelForDisplay(model), w)
+}
+
+// ModelAssertionHeadersHandler is the API method to upsert the model assertion header details
+func ModelAssertionHeadersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	defer r.Body.Close()
+
+	// Decode the JSON body
+	assert := datastore.ModelAssertion{}
+	err = json.NewDecoder(r.Body).Decode(&assert)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-model-data", "", "No model data supplied", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	// Check that the user has permissions to access the model
+	_, err = datastore.Environ.DB.GetAllowedModel(assert.ModelID, authUser)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		formatBooleanResponse(false, "error-get-model", "", "Cannot find model with the selected ID", w)
+		return
+	}
+
+	err = datastore.Environ.DB.UpsertModelAssert(assert)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "create-assertion", "", err.Error(), w)
+		return
+	}
+
+	formatBooleanResponse(true, "", "", "", w)
 }

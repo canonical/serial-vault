@@ -20,6 +20,7 @@
 package datastore
 
 import (
+	"errors"
 	"log"
 	"time"
 )
@@ -61,7 +62,7 @@ type ModelAssertion struct {
 	Architecture string    `json:"architecture"`
 	Revision     int       `json:"revision"`
 	Gadget       string    `json:"gadget"`
-	Kernel       bool      `json:"kernel"`
+	Kernel       string    `json:"kernel"`
 	Store        string    `json:"store"`
 	Created      time.Time `json:"created"`
 	Modified     time.Time `json:"modified"`
@@ -98,14 +99,58 @@ func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 
 }
 
+// UpsertModelAssert creates or updates the model assertion headers
+func (db *DB) UpsertModelAssert(m ModelAssertion) error {
+
+	var err error
+
+	if ok := validateModelAssertion(m); ok != nil {
+		return ok
+	}
+
+	if m.ID > 0 {
+		err = db.UpdateModelAssert(m)
+	} else {
+		_, err = db.CreateModelAssert(m)
+	}
+
+	return err
+
+}
+
 // GetModelAssert fetches the model assertion
 func (db *DB) GetModelAssert(modelID int) (ModelAssertion, error) {
 	m := ModelAssertion{}
 	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.Created, &m.Modified)
 	if err != nil {
-		log.Printf("Error fetching the model assertion: %v\n", err)
 		return m, err
 	}
 
 	return m, nil
+}
+
+func validateModelAssertion(m ModelAssertion) error {
+	if m.ModelID <= 0 {
+		return errors.New("Model must be provided")
+	}
+	if m.KeypairID <= 0 {
+		return errors.New("Signing Key must be provided")
+	}
+	if m.Series < 16 {
+		return errors.New("Series must be at least 16")
+	}
+
+	if err := validateNotEmpty("Architecture", m.Architecture); err != nil {
+		return err
+	}
+	if err := validateNotEmpty("Gadget", m.Gadget); err != nil {
+		return err
+	}
+	if err := validateNotEmpty("Kernel", m.Kernel); err != nil {
+		return err
+	}
+	if err := validateNotEmpty("Store", m.Store); err != nil {
+		return err
+	}
+	return nil
 }

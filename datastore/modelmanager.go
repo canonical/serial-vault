@@ -36,7 +36,7 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, ma.keypair_id AS model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -44,7 +44,7 @@ const listModelsSQL = `
 	order by name
 `
 const listModelsForUserSQL = `
-	select m.id, brand_id, m.name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, ma.keypair_id AS model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -56,14 +56,14 @@ const listModelsForUserSQL = `
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	left outer join modelassertion ma on ma.model_id=m.id
 	where brand_id=$1 and name=$2 and api_key=$3`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id

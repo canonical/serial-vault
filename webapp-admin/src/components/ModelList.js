@@ -20,6 +20,7 @@
 import React, {Component} from 'react';
 import ModelRow from './ModelRow';
 import AlertBox from './AlertBox';
+import ModelAssertion from './ModelAssertion';
 import Models from '../models/models';
 import {T, isUserAdmin} from './Utils'
 
@@ -32,6 +33,7 @@ class ModelList extends Component {
       models: this.props.models || [],
       confirmDelete: null,
       message: null,
+      showAssert: null,
     }
   }
 
@@ -66,6 +68,16 @@ class ModelList extends Component {
       message += ': ' + data.message;
     }
     return message;
+  }
+
+  handleShowAssert = (e) => {
+    e.preventDefault();
+    var assertId = parseInt(e.target.getAttribute('data-key'), 10);
+    if (this.state.showAssert === assertId) {
+        this.setState({showAssert: null})
+    } else {
+        this.setState({showAssert: assertId})
+    }
   }
 
   handleDelete = (e) => {
@@ -105,18 +117,20 @@ class ModelList extends Component {
           <thead>
             <tr>
               <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('private-key-short')}</th><th>{T('private-key-user-short')}</th>
-              <th>{T('private-key-model-short')}</th>
               <th className="small">{T('active')}</th>
+              <th>{T('private-key-model-short')}</th>
             </tr>
           </thead>
-          <tbody>
             {this.state.models.map((mdl) => {
               return (
-                <ModelRow key={mdl.id} model={mdl} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
-                  deleteModel={this.handleDeleteModel} cancelDelete={this.handleDeleteModelCancel} />
+                <tbody>
+                  <ModelRow key={mdl.id} model={mdl} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
+                      deleteModel={this.handleDeleteModel} cancelDelete={this.handleDeleteModelCancel} showAssert={this.handleShowAssert} />
+
+                  {this.state.showAssert === mdl.id ? <ModelAssertion model={mdl} token={this.props.token} cancel={this.handleShowAssert} /> : ''}
+                </tbody>
               );
             })}
-          </tbody>
         </table>
       );
     } else {

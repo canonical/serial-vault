@@ -115,12 +115,6 @@ class ModelEdit extends Component {
         this.setState({model: model});
     }
 
-    handleChangePrivateKeyModel = (e) => {
-        var model = this.state.model;
-        model['keypair-id-model'] = parseInt(e.target.value, 10);
-        this.setState({model: model});
-    }
-
     handleSaveClick = (e) => {
         e.preventDefault();
         var self = this;
@@ -209,18 +203,6 @@ class ModelEdit extends Component {
                                 </label>
                                 <label htmlFor="keypair-user">{T('private-key-user')}:
                                     <select value={this.state.model['keypair-id-user']} id="keypair-user" onChange={this.handleChangePrivateKeyUser}>
-                                        <option></option>
-                                        {this.state.keypairs.map(function(kpr) {
-                                            if (kpr.Active) {
-                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
-                                            } else {
-                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
-                                            }
-                                        })}
-                                    </select>
-                                </label>
-                                <label htmlFor="keypair-model">{T('private-key-model')}:
-                                    <select value={this.state.model['keypair-id-model']} id="keypair-model" onChange={this.handleChangePrivateKeyModel}>
                                         <option></option>
                                         {this.state.keypairs.map(function(kpr) {
                                             if (kpr.Active) {

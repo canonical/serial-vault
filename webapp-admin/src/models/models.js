@@ -37,7 +37,11 @@ var Models = {
 
 	create:  function(model) {
 		return Ajax.post(this.url, model);
-	}
+	},
+
+	assertion:  function(modelAssertion) {
+		return Ajax.post(this.url + '/assertion', modelAssertion);
+	},
 
 }
 
