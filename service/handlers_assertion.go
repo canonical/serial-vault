@@ -21,6 +21,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -29,15 +30,10 @@ import (
 	"github.com/snapcore/snapd/asserts"
 )
 
-// ModelAssertion is the JSON version of a model assertion request
-type ModelAssertion struct {
-	BrandID      string `json:"brand-id"`
-	Name         string `json:"model"`
-	Series       string `json:"series"`
-	Architecture string `json:"architecture"`
-	Store        string `json:"store"`
-	Gadget       string `json:"gadget"`
-	Kernel       string `json:"kernel"`
+// ModelAssertionRequest is the JSON version of a model assertion request
+type ModelAssertionRequest struct {
+	BrandID string `json:"brand-id"`
+	Name    string `json:"model"`
 }
 
 // ModelAssertionHandler is the API method to generate a model assertion
@@ -53,7 +49,7 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 	defer r.Body.Close()
 
 	// Decode the JSON body
-	request := ModelAssertion{}
+	request := ModelAssertionRequest{}
 	err = json.NewDecoder(r.Body).Decode(&request)
 	switch {
 	// Check we have some data
@@ -71,15 +67,15 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 		return ErrorInvalidModel
 	}
 
-	// Build the model assertion
-	assertionHeaders := createModelAssertion(request, model)
+	// Build the model assertion headers
+	assertionHeaders, keypair, err := createModelAssertionHeaders(model)
 	if err != nil {
 		logMessage("MODEL", "create-assertion", err.Error())
-		return ErrorCreateAssertion
+		return ErrorCreateModelAssertion
 	}
 
 	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), model.AuthorityIDModel, model.KeyIDModel, model.SealedKeyModel)
+	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), model.BrandID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
 		logMessage("MODEL", "signing-assertion", err.Error())
 		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusInternalServerError}
@@ -90,25 +86,34 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 	return ErrorResponse{Success: true}
 }
 
-func createModelAssertion(model ModelAssertion, m datastore.Model) map[string]interface{} {
+func createModelAssertionHeaders(m datastore.Model) (map[string]interface{}, datastore.Keypair, error) {
+
+	// Get the assertion headers for the model
+	assert, err := datastore.Environ.DB.GetModelAssert(m.ID)
+	if err != nil {
+		return nil, datastore.Keypair{}, err
+	}
+
+	// Get the keypair for the model assertion
+	keypair, err := datastore.Environ.DB.GetKeypair(assert.KeypairID)
+	if err != nil {
+		return nil, keypair, err
+	}
 
 	// Create the model assertion header
 	headers := map[string]interface{}{
 		"type":              asserts.ModelType.Name,
-		"authority-id":      model.BrandID,
-		"brand-id":          model.BrandID,
-		"series":            model.Series,
-		"model":             model.Name,
-		"architecture":      model.Architecture,
-		"gadget":            model.Gadget,
-		"kernel":            model.Kernel,
-		"sign-key-sha3-384": m.KeyIDModel,
+		"authority-id":      m.BrandID,
+		"brand-id":          m.BrandID,
+		"series":            fmt.Sprintf("%d", assert.Series),
+		"model":             m.Name,
+		"architecture":      assert.Architecture,
+		"store":             assert.Store,
+		"gadget":            assert.Gadget,
+		"kernel":            assert.Kernel,
+		"sign-key-sha3-384": keypair.KeyID,
 		"timestamp":         time.Now().Format(time.RFC3339),
 	}
 
-	if len(model.Store) == 0 {
-		headers["store"] = model.Store
-	}
-
-	return headers
+	return headers, keypair, nil
 }

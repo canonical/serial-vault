@@ -36,48 +36,43 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
-	left outer join modelassertion ma on ma.model_id=m.id
 	order by name
 `
 const listModelsForUserSQL = `
-	select m.id, brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	inner join account acc on acc.authority_id=m.brand_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	left outer join modelassertion ma on ma.model_id=m.id
 	where u.username=$1
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
-	left outer join modelassertion ma on ma.model_id=m.id
 	where brand_id=$1 and name=$2 and api_key=$3`
 const getModelSQL = `
-	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
-	left outer join modelassertion ma on ma.model_id=m.id
 	where m.id=$1`
 const getModelForUserSQL = `
-	select m.id, m.brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion, ma.keypair_id AS model_keypair_id
+	select m.id, m.brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	inner join account acc on acc.authority_id=m.brand_id
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	left outer join modelassertion ma on ma.model_id=m.id
 	where m.id=$1 and u.username=$2`
 const updateModelSQL = "update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6 where id=$1"
 const updateModelForUserSQL = `
@@ -139,28 +134,22 @@ const minAPIKeyLength = 10
 
 // Model holds the model details in the local database
 type Model struct {
-	ID               int
-	BrandID          string
-	Name             string
-	KeypairID        int
-	APIKey           string
-	AuthorityID      string // from the signing keypair
-	KeyID            string // from the signing keypair
-	KeyActive        bool   // from the signing keypair
-	SealedKey        string // from the signing keypair
-	KeypairIDUser    int    // from the system-user keypair
-	AuthorityIDUser  string // from the system-user keypair
-	KeyIDUser        string // from the system-user keypair
-	KeyActiveUser    bool   // from the system-user keypair
-	SealedKeyUser    string // from the system-user keypair
-	AssertionUser    string // from the system-user keypair
-	KeypairIDModel   int    // from the model keypair
-	ModelAssertion   ModelAssertion
-	AuthorityIDModel string // from the model keypair
-	KeyIDModel       string // from the model keypair
-	KeyActiveModel   bool   // from the model keypair
-	SealedKeyModel   string // from the model keypair
-	AssertionModel   string // from the model keypair
+	ID              int
+	BrandID         string
+	Name            string
+	KeypairID       int
+	APIKey          string
+	AuthorityID     string // from the signing keypair
+	KeyID           string // from the signing keypair
+	KeyActive       bool   // from the signing keypair
+	SealedKey       string // from the signing keypair
+	KeypairIDUser   int    // from the system-user keypair
+	AuthorityIDUser string // from the system-user keypair
+	KeyIDUser       string // from the system-user keypair
+	KeyActiveUser   bool   // from the system-user keypair
+	SealedKeyUser   string // from the system-user keypair
+	AssertionUser   string // from the system-user keypair
+	ModelAssertion  ModelAssertion
 }
 
 // CreateModelTable creates the database table for a model.
@@ -266,7 +255,6 @@ func (db *DB) listAllModels() ([]Model, error) {
 // [Permissions: Admin]
 func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 	models := []Model{}
-	var keypairID sql.NullInt64
 
 	var (
 		rows *sql.Rows
@@ -287,7 +275,7 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 	for rows.Next() {
 		model := Model{}
 		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive,
-			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser, &keypairID)
+			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser)
 		if err != nil {
 			return nil, err
 		}
@@ -296,42 +284,19 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 		m, _ := db.GetModelAssert(model.ID)
 		model.ModelAssertion = m
 
-		// Get the model assertion keypair if it is set
-		if keypairID.Valid {
-			db.modelKeypair(int(keypairID.Int64), &model, false)
-		}
-
 		models = append(models, model)
 	}
 
 	return models, nil
 }
 
-func (db *DB) modelKeypair(keypairID int, model *Model, sealedKey bool) {
-	k, err := db.GetKeypair(keypairID)
-	if err != nil {
-		return
-	}
-
-	model.KeypairIDModel = k.ID
-	model.AuthorityIDModel = k.AuthorityID
-	model.AssertionModel = k.Assertion
-	model.KeyActiveModel = k.Active
-	model.KeyIDModel = k.KeyID
-	if sealedKey {
-		model.SealedKeyModel = k.SealedKey
-	}
-
-}
-
 // FindModel retrieves the model from the database.
 func (db *DB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{}
-	var keypairID sql.NullInt64
 
 	err := db.QueryRow(findModelSQL, brandID, modelName, apiKey).Scan(
 		&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
-		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser, &keypairID)
+		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	switch {
 	case err == sql.ErrNoRows:
 		return model, err
@@ -344,11 +309,6 @@ func (db *DB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	m, _ := db.GetModelAssert(model.ID)
 	model.ModelAssertion = m
 
-	// Get the model assertion keypair if it is set
-	if keypairID.Valid {
-		db.modelKeypair(int(keypairID.Int64), &model, true)
-	}
-
 	return model, nil
 }
 
@@ -358,7 +318,6 @@ func (db *DB) getModel(modelID int) (Model, error) {
 
 func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error) {
 	model := Model{}
-	var keypairID sql.NullInt64
 
 	var row *sql.Row
 
@@ -369,7 +328,7 @@ func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error
 	}
 
 	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
-		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser, &keypairID)
+		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return model, err
@@ -378,11 +337,6 @@ func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error
 	// Get the linked model assertion headers
 	m, _ := db.GetModelAssert(model.ID)
 	model.ModelAssertion = m
-
-	// Get the model assertion keypair if it is set
-	if keypairID.Valid {
-		db.modelKeypair(int(keypairID.Int64), &model, true)
-	}
 
 	return model, nil
 }

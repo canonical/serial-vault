@@ -32,24 +32,20 @@ import (
 
 // ModelSerialize is the JSON version of a model, with the signing key ID
 type ModelSerialize struct {
-	ID               int                      `json:"id"`
-	BrandID          string                   `json:"brand-id"`
-	Name             string                   `json:"model"`
-	Type             string                   `json:"type"`
-	KeypairID        int                      `json:"keypair-id"`
-	APIKey           string                   `json:"api-key"`
-	AuthorityID      string                   `json:"authority-id"`
-	KeyID            string                   `json:"key-id"`
-	KeyActive        bool                     `json:"key-active"`
-	KeypairIDUser    int                      `json:"keypair-id-user"`
-	AuthorityIDUser  string                   `json:"authority-id-user"`
-	KeyIDUser        string                   `json:"key-id-user"`
-	KeyActiveUser    bool                     `json:"key-active-user"`
-	KeypairIDModel   int                      `json:"keypair-id-model"`
-	AuthorityIDModel string                   `json:"authority-id-model"`
-	KeyIDModel       string                   `json:"key-id-model"`
-	KeyActiveModel   bool                     `json:"key-active-model"`
-	ModelAssertion   datastore.ModelAssertion `json:"assertion"`
+	ID              int                      `json:"id"`
+	BrandID         string                   `json:"brand-id"`
+	Name            string                   `json:"model"`
+	Type            string                   `json:"type"`
+	KeypairID       int                      `json:"keypair-id"`
+	APIKey          string                   `json:"api-key"`
+	AuthorityID     string                   `json:"authority-id"`
+	KeyID           string                   `json:"key-id"`
+	KeyActive       bool                     `json:"key-active"`
+	KeypairIDUser   int                      `json:"keypair-id-user"`
+	AuthorityIDUser string                   `json:"authority-id-user"`
+	KeyIDUser       string                   `json:"key-id-user"`
+	KeyActiveUser   bool                     `json:"key-active-user"`
+	ModelAssertion  datastore.ModelAssertion `json:"assertion"`
 }
 
 // ModelsResponse is the JSON response from the API Models method
@@ -75,7 +71,6 @@ func modelForDisplay(model datastore.Model) ModelSerialize {
 		ID: model.ID, BrandID: model.BrandID, Name: model.Name, Type: ModelType,
 		KeypairID: model.KeypairID, APIKey: model.APIKey, AuthorityID: model.AuthorityID, KeyID: model.KeyID, KeyActive: model.KeyActive,
 		KeypairIDUser: model.KeypairIDUser, AuthorityIDUser: model.AuthorityIDUser, KeyIDUser: model.KeyIDUser, KeyActiveUser: model.KeyActiveUser,
-		KeypairIDModel: model.KeypairIDModel, AuthorityIDModel: model.AuthorityIDModel, KeyIDModel: model.KeyIDModel, KeyActiveModel: model.KeyActiveModel,
 		ModelAssertion: model.ModelAssertion,
 	}
 }
@@ -192,7 +187,7 @@ func ModelUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the database
-	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, APIKey: mdl.APIKey, KeypairIDUser: mdl.KeypairIDUser, KeypairIDModel: mdl.KeypairIDModel}
+	model := datastore.Model{ID: modelID, BrandID: mdl.BrandID, Name: mdl.Name, KeypairID: mdl.KeypairID, APIKey: mdl.APIKey, KeypairIDUser: mdl.KeypairIDUser}
 	errorSubcode, err := datastore.Environ.DB.UpdateAllowedModel(model, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -274,7 +269,7 @@ func ModelCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new model, linked to the existing signing-key
-	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, APIKey: mdlWithKey.APIKey, KeypairIDUser: mdlWithKey.KeypairIDUser, KeypairIDModel: mdlWithKey.KeypairIDModel}
+	model := datastore.Model{BrandID: mdlWithKey.BrandID, Name: mdlWithKey.Name, KeypairID: mdlWithKey.KeypairID, APIKey: mdlWithKey.APIKey, KeypairIDUser: mdlWithKey.KeypairIDUser}
 	errorSubcode := ""
 	model, errorSubcode, err = datastore.Environ.DB.CreateAllowedModel(model, authUser)
 	if err != nil {
