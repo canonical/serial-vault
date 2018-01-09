@@ -104,21 +104,16 @@ func RegisterKey(keyAuth KeyRegister, keypair datastore.Keypair) error {
 	}
 
 	// Submit the account-key assertion
-	r, _ := http.NewRequest("POST", storeBaseURL+"account/account-key", bytes.NewReader(d))
-	r.Header.Set("Authorization", authHeader)
-	r.Header.Set("Content-Type", "application/json")
-	r.Header.Set("Accept", "application/json")
-	client := http.Client{}
-	_, err = client.Do(r)
+	headers := map[string]string{
+		"Authorization": authHeader,
+		"Content-Type":  "application/json",
+		"Accept":        "application/json",
+	}
+	_, err = submitPOSTRequest(storeBaseURL+"account/account-key", headers, d)
 	if err != nil {
 		log.Printf("Error submitting the account-key assertion: %v", err)
 		return err
 	}
-
-	// defer resp.Body.Close()
-
-	// b, err := ioutil.ReadAll(resp.Body)
-	// log.Println(string(b))
 
 	return nil
 }
@@ -149,6 +144,21 @@ func LoginUser(username, password, otp string, permissions []string) (string, st
 	}
 
 	return macaroon, discharge, nil
+}
+
+func submitPOSTRequest(url string, headers map[string]string, data []byte) (*http.Request, error) {
+	r, _ := http.NewRequest("POST", url, bytes.NewReader(data))
+
+	for k, v := range headers {
+		r.Header.Set(k, v)
+	}
+	client := http.Client{}
+	_, err := client.Do(r)
+	if err != nil {
+		return r, err
+	}
+
+	return r, nil
 }
 
 func generateAccountKeyRequest(keyAuth KeyRegister, keypair datastore.Keypair) (string, error) {
@@ -200,7 +210,10 @@ func requestStoreMacaroon(permissions []string) (string, error) {
 	}
 
 	// Submit the account-key assertion
-	r, err := http.Post(storeBaseURL+"acl/", "application/json", bytes.NewReader(macaroonJSONData))
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
+	r, err := submitPOSTRequest(storeBaseURL+"acl/", headers, macaroonJSONData)
 	if err != nil {
 		log.Printf("Error submitting the ACL request: %v", err)
 		return "", err
