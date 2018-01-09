@@ -180,6 +180,8 @@ class SystemUserForm extends Component {
         return (
             <div className="row">
 
+                <h2>{T('create-system-user')}</h2>
+
                 <AlertBox message={this.state.message} type={'negative'} />
 
                 <form>

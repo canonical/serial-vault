@@ -200,14 +200,20 @@ func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, s
 	return model, "", nil
 }
 
-// GetKeypair mocks getting a model by ID
+// GetKeypair mocks getting a keypair by ID
 func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
 	return keypair, nil
 }
 
-// GetKeypairByPublicID mocks getting a model by key ID
+// GetKeypairByPublicID mocks getting a keypair by key ID
 func (mdb *MockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	return keypair, nil
+}
+
+// GetKeypairByName mocks getting a keypair by name
+func (mdb *MockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
 	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
 	return keypair, nil
 }
@@ -640,6 +646,12 @@ func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
 // GetKeypairByPublicID error mock for the database
 func (mdb *ErrorMockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
 	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	return keypair, errors.New("Error fetching from the database")
+}
+
+// GetKeypairByName mocks getting a keypair by name
+func (mdb *ErrorMockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
 	return keypair, errors.New("Error fetching from the database")
 }
 

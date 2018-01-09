@@ -61,10 +61,10 @@ class KeypairAdd extends Component {
         Keypairs.create(this.state.authorityId, this.state.key).then(function(response) {
             var data = JSON.parse(response.body);
             if ((response.statusCode >= 300) || (!data.success)) {
-        self.setState({error: self.formatError(data)});
-      } else {
-        window.location = '/models';
-      }
+                self.setState({error: self.formatError(data)});
+            } else {
+                window.location = '/signing-keys';
+            }
         });
     }
 
@@ -109,9 +109,9 @@ class KeypairAdd extends Component {
                             </fieldset>
                         </form>
                         <div>
-                            <a href='/models' className="p-button--neutral">{T('cancel')}</a>
+                            <a href='/signing-keys' className="p-button--neutral">{T('cancel')}</a>
                             &nbsp;
-                            <a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
+                            <a href='/signing-keys' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
                         </div>
                     </div>
                 </section>

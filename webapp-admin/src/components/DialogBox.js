@@ -21,17 +21,23 @@ import {T} from './Utils';
 class DialogBox extends Component {
 
     render() {
+        var classYes = 'p-button--brand'
+        var classNo = 'p-button--neutral'
+        if (this.props.small) {
+            classYes = 'p-button--brand small'
+            classNo = 'p-button--neutral small'
+        }
 
         if (this.props.message) {
             return (
                 <div className="p-card warning">
                     <p>{this.props.message}</p>
                     <div>
-                        <a href="" onClick={this.props.handleCancelClick} className="p-button--neutral">
+                        <a href="" onClick={this.props.handleCancelClick} className={classNo}>
                             {T('cancel')}
                         </a>
                         &nbsp;
-                        <a href="" onClick={this.props.handleYesClick} className="p-button--brand">
+                        <a href="" onClick={this.props.handleYesClick} className={classYes}>
                             {T('yes')}
                         </a>
                     </div>

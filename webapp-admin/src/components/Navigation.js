@@ -19,8 +19,8 @@ import React, {Component} from 'react';
 import {T} from './Utils'
 import {Role} from './Constants'
 
-const linksSuperuser = ['models', 'accounts', 'systemuser', 'signinglog', "users"];
-const linksAdmin = ['models', 'accounts', 'systemuser', 'signinglog'];
+const linksSuperuser = ['signing-keys', 'models', 'accounts', 'systemuser', 'signinglog', "users"];
+const linksAdmin = ['signing-keys', 'models', 'accounts', 'systemuser', 'signinglog'];
 const linksStandard = ['systemuser'];
 
 

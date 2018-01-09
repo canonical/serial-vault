@@ -49,7 +49,7 @@ class KeypairGenerate extends Component {
             if ((response.statusCode >= 300) || (!data.success)) {
         self.setState({error: self.formatError(data)});
       } else {
-        window.location = '/models';
+        window.location = '/signing-keys';
       }
         });
     }
@@ -93,9 +93,9 @@ class KeypairGenerate extends Component {
                             </fieldset>
                         </form>
                         <div>
-                            <a href='/models' className="p-button--neutral">{T('cancel')}</a>
+                            <a href='/signing-keys' className="p-button--neutral">{T('cancel')}</a>
                             &nbsp;
-                            <a href='/models' onClick={this.handleSaveClick} className="p-button--brand">{T('generate')}</a>
+                            <a href='/signing-keys' onClick={this.handleSaveClick} className="p-button--brand">{T('generate')}</a>
                         </div>
                     </div>
                 </section>
