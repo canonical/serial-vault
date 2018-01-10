@@ -114,7 +114,7 @@ func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 
 // FindModel mocks the database response for finding a model
 func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
-	model := Model{ID: 1, BrandID: "System", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	model := Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	if modelName == "inactive" {
 		model = Model{ID: 1, BrandID: "System", Name: "inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}
@@ -195,26 +195,26 @@ func (mdb *MockDB) DeleteAllowedModel(model Model, authorization User) (string, 
 
 // CreateAllowedModel mocks creating a new model.
 func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
-	model = Model{ID: 7, BrandID: "System", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
+	model = Model{ID: 7, BrandID: "system", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
 
 	return model, "", nil
 }
 
 // GetKeypair mocks getting a keypair by ID
 func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
 	return keypair, nil
 }
 
 // GetKeypairByPublicID mocks getting a keypair by key ID
 func (mdb *MockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
 	return keypair, nil
 }
 
 // GetKeypairByName mocks getting a keypair by name
 func (mdb *MockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
 	return keypair, nil
 }
 
@@ -347,7 +347,7 @@ func (mdb *MockDB) CheckUserInAccount(username, authorityID string) bool {
 	return true
 }
 
-// CreateUserTable mock for creating database User table operation
+// CreateUserTable §
 func (mdb *MockDB) CreateUserTable() error {
 	return nil
 }
@@ -534,6 +534,43 @@ func (mdb *MockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus,
 		}
 	}
 	return KeypairStatus{}, errors.New("Cannot find the keypair status")
+}
+
+// CreateModelAssertTable mock for creating database model assertion headers table
+func (mdb *MockDB) CreateModelAssertTable() error {
+	return nil
+}
+
+// CreateModelAssert mock for creating model assertion record
+func (mdb *MockDB) CreateModelAssert(m ModelAssertion) (int, error) {
+	return 1, nil
+}
+
+// UpdateModelAssert mock for updating model assertion record
+func (mdb *MockDB) UpdateModelAssert(m ModelAssertion) error {
+	return nil
+}
+
+// GetModelAssert mock for updating model assertion record
+func (mdb *MockDB) GetModelAssert(modelID int) (ModelAssertion, error) {
+	return ModelAssertion{
+		ID:           1,
+		ModelID:      1,
+		KeypairID:    1,
+		Series:       16,
+		Architecture: "amd64",
+		Revision:     1,
+		Gadget:       "pc",
+		Kernel:       "pc-kernel",
+		Store:        "ubuntu",
+		Created:      time.Now().UTC(),
+		Modified:     time.Now().UTC(),
+	}, nil
+}
+
+// UpsertModelAssert mock for creating or updating model assertion record
+func (mdb *MockDB) UpsertModelAssert(m ModelAssertion) error {
+	return nil
 }
 
 // ErrorMockDB holds the unsuccessful mocks for the database
@@ -835,4 +872,29 @@ func (mdb *ErrorMockDB) ListAllowedKeypairStatus(authorization User) ([]KeypairS
 // GetKeypairStatus fetches a single keypair status record
 func (mdb *ErrorMockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error) {
 	return KeypairStatus{}, errors.New("Cannot find the keypair status")
+}
+
+// CreateModelAssertTable mock for creating database model assertion headers table
+func (mdb *ErrorMockDB) CreateModelAssertTable() error {
+	return errors.New("Cannot create the model assertion table")
+}
+
+// CreateModelAssert mock for creating model assertion record
+func (mdb *ErrorMockDB) CreateModelAssert(m ModelAssertion) (int, error) {
+	return 0, errors.New("Cannot create the model assertion record")
+}
+
+// UpdateModelAssert mock for updating model assertion record
+func (mdb *ErrorMockDB) UpdateModelAssert(m ModelAssertion) error {
+	return errors.New("Cannot update the model assertion record")
+}
+
+// GetModelAssert mock for updating model assertion record
+func (mdb *ErrorMockDB) GetModelAssert(modelID int) (ModelAssertion, error) {
+	return ModelAssertion{}, errors.New("Cannot find the model assertion record")
+}
+
+// UpsertModelAssert mock for creating or updating model assertion record
+func (mdb *ErrorMockDB) UpsertModelAssert(m ModelAssertion) error {
+	return errors.New("Cannot upsert the model assertion record")
 }

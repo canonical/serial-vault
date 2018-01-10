@@ -89,7 +89,7 @@ func ModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	dbModels, err := datastore.Environ.DB.ListAllowedModels(authUser)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", err)
 		formatModelsResponse(false, "error-fetch-models", "", errorMessage, nil, w)
 		return
@@ -315,7 +315,7 @@ func ModelAssertionHeadersHandler(w http.ResponseWriter, r *http.Request) {
 	// Check that the user has permissions to access the model
 	_, err = datastore.Environ.DB.GetAllowedModel(assert.ModelID, authUser)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-get-model", "", "Cannot find model with the selected ID", w)
 		return
 	}

@@ -29,132 +29,194 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	check "gopkg.in/check.v1"
 )
 
-func TestModelsHandler(t *testing.T) {
+func TestModelsSuite(t *testing.T) { check.TestingT(t) }
 
+type ModelsSuite struct{}
+
+type ModelsSuiteTest struct {
+	Data []byte
+	Code int
+}
+
+var _ = check.Suite(&ModelsSuite{})
+
+func (s *ModelsSuite) SetUpTest(c *check.C) {
 	// Mock the database
-	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
+	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+}
 
+func (s *ModelsSuite) sendGETRequest(url string, permissions int) (*httptest.ResponseRecorder, error) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/v1/models", nil)
-	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
+	r, _ := http.NewRequest("GET", url, nil)
 
+	if datastore.Environ.Config.EnableUserAuth {
+		// Create a JWT and add it to the request
+		err := createJWTWithRole(r, permissions)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	AdminRouter().ServeHTTP(w, r)
+	return w, nil
+}
+
+func (s *ModelsSuite) sendPOSTRequest(url string, data io.Reader, permissions int) (*httptest.ResponseRecorder, error) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("POST", url, data)
+
+	if datastore.Environ.Config.EnableUserAuth {
+		// Create a JWT and add it to the request
+		err := createJWTWithRole(r, permissions)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	AdminRouter().ServeHTTP(w, r)
+	return w, nil
+}
+
+func (s *ModelsSuite) parseModelsResponse(w *httptest.ResponseRecorder) (ModelsResponse, error) {
 	// Check the JSON response
 	result := ModelsResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the models response: %v", err)
-	}
-	if len(result.Models) != 6 {
-		t.Errorf("Expected 6 models, got %d", len(result.Models))
-	}
-	if result.Models[0].Name != "alder" {
-		t.Errorf("Expected model name 'alder', got %s", result.Models[0].Name)
-	}
+	return result, err
 }
 
-func TestModelsHandlerWithPermissions(t *testing.T) {
-
-	// Mock the database
-	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/v1/models", nil)
-
-	// Create a JWT and add it to the request
-	err := createJWTWithRole(r, datastore.Standard)
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-
-	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
-
+func (s *ModelsSuite) parseModelResponse(w *httptest.ResponseRecorder) (ModelResponse, error) {
 	// Check the JSON response
-	result := ModelsResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the models response: %v", err)
-	}
-	if len(result.Models) != 3 {
-		t.Errorf("Expected 3 models, got %d", len(result.Models))
-	}
-	if result.Models[0].Name != "alder" {
-		t.Errorf("Expected model name 'alder', got %s", result.Models[0].Name)
-	}
-}
-
-func TestModelsHandlerWithoutPermissions(t *testing.T) {
-
-	// Mock the database
-	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/v1/models", nil)
-
-	// Create a JWT and add it to the request
-	err := createJWTWithRole(r, datastore.Invalid)
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-
-	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := ModelsResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
-
-	if err != nil {
-		t.Errorf("Error decoding the models response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected error, got success response")
-	}
-	if result.ErrorCode != "error-auth" {
-		t.Error("Expected error-auth code")
-	}
-}
-
-func TestModelsHandlerWithError(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/v1/models", nil)
-	http.HandlerFunc(ModelsHandler).ServeHTTP(w, r)
-
-	// Check the JSON response
-	result := ModelsResponse{}
+	result := ModelResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the models response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected error, got success response")
-	}
-
+	return result, err
 }
 
-func TestModelGetHandler(t *testing.T) {
+func (s *ModelsSuite) TestModelsHandler(c *check.C) {
+	datastore.Environ.Config.EnableUserAuth = false
 
-	// Mock the database
-	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	w, err := s.sendGETRequest("/v1/models", 0)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 200)
 
-	result, _ := sendRequest(t, "GET", "/v1/models/1", nil)
-
-	if result.Model.ID != 1 {
-		t.Errorf("Expected model with ID 1, got %d", result.Model.ID)
-	}
-	if result.Model.Name != "alder" {
-		t.Errorf("Expected model name 'alder', got %s", result.Model.Name)
-	}
+	result, err := s.parseModelsResponse(w)
+	c.Assert(result.Success, check.Equals, true)
+	c.Assert(len(result.Models), check.Equals, 6)
+	c.Assert(result.Models[0].Name, check.Equals, "alder")
 }
+
+func (s *ModelsSuite) TestModelsHandlerWithPermissions(c *check.C) {
+	w, err := s.sendGETRequest("/v1/models", datastore.Admin)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 200)
+
+	result, err := s.parseModelsResponse(w)
+	c.Assert(result.Success, check.Equals, true)
+	c.Assert(len(result.Models), check.Equals, 3)
+	c.Assert(result.Models[0].Name, check.Equals, "alder")
+}
+
+func (s *ModelsSuite) TestModelsHandlerWithoutPermissions(c *check.C) {
+	w, err := s.sendGETRequest("/v1/models", datastore.Invalid)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 200)
+
+	result, err := s.parseModelsResponse(w)
+	c.Assert(result.Success, check.Equals, false)
+	c.Assert(result.ErrorCode, check.Equals, "error-auth")
+}
+
+func (s *ModelsSuite) TestModelsHandlerWithError(c *check.C) {
+	datastore.Environ.Config.EnableUserAuth = false
+	datastore.Environ.DB = &datastore.ErrorMockDB{}
+
+	w, err := s.sendGETRequest("/v1/models", datastore.Invalid)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 400)
+
+	result, err := s.parseModelsResponse(w)
+	c.Assert(result.Success, check.Equals, false)
+}
+
+func (s *ModelsSuite) TestModelGetHandler(c *check.C) {
+	w, err := s.sendGETRequest("/v1/models/1", datastore.Admin)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 200)
+
+	result, err := s.parseModelResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, true)
+	c.Assert(result.Model.ID, check.Equals, 1)
+	c.Assert(result.Model.Name, check.Equals, "alder")
+}
+
+func (s *ModelsSuite) TestModelAssertionHeadersHandler(c *check.C) {
+	d := datastore.ModelAssertion{
+		ModelID: 1, KeypairID: 1,
+		Series: 16, Architecture: "amd64", Revision: 1,
+		Gadget: "mygadget", Kernel: "mykernel", Store: "ubuntu",
+	}
+	data, _ := json.Marshal(d)
+
+	w, err := s.sendPOSTRequest("/v1/models/assertion", bytes.NewReader(data), datastore.Admin)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 200)
+
+	result, err := s.parseModelResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, true)
+}
+
+func (s *ModelsSuite) TestModelAssertionHeadersHandlerWithoutPermissions(c *check.C) {
+	d := datastore.ModelAssertion{
+		ModelID: 1, KeypairID: 1,
+		Series: 16, Architecture: "amd64", Revision: 1,
+		Gadget: "mygadget", Kernel: "mykernel", Store: "ubuntu",
+	}
+	data, _ := json.Marshal(d)
+
+	w, err := s.sendPOSTRequest("/v1/models/assertion", bytes.NewReader(data), datastore.Standard)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 200)
+
+	result, err := s.parseModelResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, false)
+	c.Assert(result.ErrorCode, check.Equals, "error-auth")
+}
+
+func (s *ModelsSuite) TestModelAssertionHeadersHandlerInvalid(c *check.C) {
+	w, err := s.sendPOSTRequest("/v1/models/assertion", bytes.NewReader([]byte{}), datastore.Admin)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 400)
+
+	result, err := s.parseModelResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, false)
+}
+
+func (s *ModelsSuite) TestModelAssertionHeadersHandlerInvalidModel(c *check.C) {
+	d := datastore.ModelAssertion{
+		ModelID: 999, KeypairID: 1,
+		Series: 16, Architecture: "amd64", Revision: 1,
+		Gadget: "mygadget", Kernel: "mykernel", Store: "ubuntu",
+	}
+	data, _ := json.Marshal(d)
+
+	w, err := s.sendPOSTRequest("/v1/models/assertion", bytes.NewReader(data), datastore.Admin)
+	c.Assert(err, check.IsNil)
+	c.Assert(w.Code, check.Equals, 400)
+
+	result, err := s.parseModelResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, false)
+	c.Assert(result.ErrorCode, check.Equals, "error-get-model")
+}
+
+// -------------------------------------------------------------------------
 
 func TestModelGetHandlerWithPermissions(t *testing.T) {
 
