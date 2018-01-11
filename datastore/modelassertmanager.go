@@ -149,8 +149,6 @@ func validateModelAssertion(m ModelAssertion) error {
 	if err := validateNotEmpty("Kernel", m.Kernel); err != nil {
 		return err
 	}
-	if err := validateNotEmpty("Store", m.Store); err != nil {
-		return err
-	}
-	return nil
+	err := validateNotEmpty("Store", m.Store)
+	return err
 }
