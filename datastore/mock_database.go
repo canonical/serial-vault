@@ -100,14 +100,14 @@ func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 
 	var models []Model
 	if authorization.Username == "" || authorization.Username == "sv" {
-		models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
-		models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: false})
-		models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
+		models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: false})
+		models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
 	}
 	if authorization.Username == "" {
-		models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
-		models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
-		models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "61abf588e52be7a3", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
 	}
 	return models, nil
 }
@@ -193,28 +193,32 @@ func (mdb *MockDB) DeleteAllowedModel(model Model, authorization User) (string, 
 	return "", nil
 }
 
+func keypairSystem() Keypair {
+	return Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
+}
+
 // CreateAllowedModel mocks creating a new model.
 func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
-	model = Model{ID: 7, BrandID: "system", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3"}
+	model = Model{ID: 7, BrandID: "system", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO"}
 
 	return model, "", nil
 }
 
 // GetKeypair mocks getting a keypair by ID
 func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
+	keypair := keypairSystem()
 	return keypair, nil
 }
 
 // GetKeypairByPublicID mocks getting a keypair by key ID
 func (mdb *MockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
+	keypair := keypairSystem()
 	return keypair, nil
 }
 
 // GetKeypairByName mocks getting a keypair by name
 func (mdb *MockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
+	keypair := keypairSystem()
 	return keypair, nil
 }
 
@@ -222,11 +226,11 @@ func (mdb *MockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error
 func (mdb *MockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 	var keypairs []Keypair
 	if authorization.Username == "" || authorization.Username == "sv" {
-		keypairs = append(keypairs, Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true})
+		keypairs = append(keypairs, keypairSystem())
 		keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
 	}
 	if authorization.Username == "" {
-		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "61abf588e52be7a3", Active: true})
+		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "systemone", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true})
 		keypairs = append(keypairs, Keypair{ID: 3, AuthorityID: "system", KeyID: "inactiveone", Active: false})
 	}
 	return keypairs, nil
@@ -676,19 +680,19 @@ func (mdb *ErrorMockDB) CreateAllowedModel(model Model, authorization User) (Mod
 
 // GetKeypair error mock for the database
 func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
-	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	keypair := Keypair{AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
 	return keypair, errors.New("Error fetching from the database")
 }
 
 // GetKeypairByPublicID error mock for the database
 func (mdb *ErrorMockDB) GetKeypairByPublicID(auth, keyID string) (Keypair, error) {
-	keypair := Keypair{AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	keypair := Keypair{AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
 	return keypair, errors.New("Error fetching from the database")
 }
 
 // GetKeypairByName mocks getting a keypair by name
 func (mdb *ErrorMockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
-	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "61abf588e52be7a3", Active: true}
+	keypair := Keypair{ID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
 	return keypair, errors.New("Error fetching from the database")
 }
 

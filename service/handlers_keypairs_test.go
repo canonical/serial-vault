@@ -53,8 +53,8 @@ func TestKeypairListHandler(t *testing.T) {
 	if len(result.Keypairs) != 4 {
 		t.Errorf("Expected 4 keypairs, got %d", len(result.Keypairs))
 	}
-	if result.Keypairs[0].KeyID != "61abf588e52be7a3" {
-		t.Errorf("Expected key ID '61abf588e52be7a3', got %s", result.Keypairs[0].KeyID)
+	if result.Keypairs[0].KeyID != "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO" {
+		t.Errorf("Expected key ID 'UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO', got %s", result.Keypairs[0].KeyID)
 	}
 }
 
@@ -84,8 +84,8 @@ func TestKeypairListHandlerWithPermissions(t *testing.T) {
 	if len(result.Keypairs) != 2 {
 		t.Errorf("Expected 2 keypairs, got %d", len(result.Keypairs))
 	}
-	if result.Keypairs[0].KeyID != "61abf588e52be7a3" {
-		t.Errorf("Expected key ID '61abf588e52be7a3', got %s", result.Keypairs[0].KeyID)
+	if result.Keypairs[0].KeyID != "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO" {
+		t.Errorf("Expected key ID 'UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO', got %s", result.Keypairs[0].KeyID)
 	}
 }
 

@@ -40,7 +40,11 @@ const createModelAssertTableSQL = `
 		modified         timestamp default current_timestamp
 	)
 `
-const createModelAssertSQL = "INSERT INTO modelassertion (model_id,keypair_id,series,architecture,revision,gadget,kernel,store) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id"
+const createModelAssertSQL = `
+INSERT INTO modelassertion 
+(model_id,keypair_id,series,architecture,revision,gadget,kernel,store) 
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8) 
+RETURNING id`
 
 const updateModelAssertSQL = `
 UPDATE modelassertion
@@ -86,7 +90,6 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 
 // UpdateModelAssert updates the model assertion details
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
-
 	var err error
 
 	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC())
@@ -101,11 +104,10 @@ func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 
 // UpsertModelAssert creates or updates the model assertion headers
 func (db *DB) UpsertModelAssert(m ModelAssertion) error {
-
 	var err error
 
-	if ok := validateModelAssertion(m); ok != nil {
-		return ok
+	if err = validateModelAssertion(m); err != nil {
+		return err
 	}
 
 	if m.ID > 0 {
@@ -149,6 +151,5 @@ func validateModelAssertion(m ModelAssertion) error {
 	if err := validateNotEmpty("Kernel", m.Kernel); err != nil {
 		return err
 	}
-	err := validateNotEmpty("Store", m.Store)
-	return err
+	return validateNotEmpty("Store", m.Store)
 }

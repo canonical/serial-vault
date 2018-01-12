@@ -80,7 +80,7 @@ const updateModelForUserSQL = `
 	from account acc
 	inner join useraccountlink ua on ua.account_id=acc.id
 	inner join userinfo u on ua.user_id=u.id
-	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$8`
+	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7`
 const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key) values ($1,$2,$3,$4,$5) RETURNING id"
 const deleteModelSQL = "delete from model where id=$1"
 const deleteModelForUserSQL = `
