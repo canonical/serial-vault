@@ -50,13 +50,6 @@ type StoreAuth struct {
 	OTP      string `json:"otp"`
 }
 
-// StoreKeyRegister is the request to submit a signing-key to the store
-type StoreKeyRegister struct {
-	StoreAuth
-	AuthorityID string `json:"authority-id"`
-	KeyName     string `json:"key-name"`
-}
-
 // StoreKeyRegisterHandler is the API method to upload a signing-key to the store
 func StoreKeyRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

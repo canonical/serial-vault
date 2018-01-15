@@ -70,7 +70,7 @@ type KeyRegister struct {
 }
 
 // RegisterKey registers an account-key assertion with the store
-func RegisterKey(keyAuth KeyRegister, keypair datastore.Keypair) error {
+var RegisterKey = func(keyAuth KeyRegister, keypair datastore.Keypair) error {
 
 	// Login to the store as the user
 	// Permissions are documented at https://dashboard.snapcraft.io/docs/api/macaroon.html#request-a-macaroon

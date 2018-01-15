@@ -38,6 +38,7 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
 	router.Handle("/v1/serial", Middleware(ErrorHandler(SignHandler))).Methods("POST")
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler))).Methods("POST")
+	router.Handle("/v1/model", Middleware(ErrorHandler(ModelAssertionHandler))).Methods("POST")
 
 	return router
 }
@@ -55,6 +56,7 @@ func AdminRouter() *mux.Router {
 	// API routes: models admin
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
 	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler))).Methods("GET")
+	router.Handle("/v1/models/assertion", Middleware(http.HandlerFunc(ModelAssertionHeadersHandler))).Methods("POST")
 	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelCreateHandler))).Methods("POST")
 	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler))).Methods("GET")
 	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler))).Methods("PUT")

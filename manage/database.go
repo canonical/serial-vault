@@ -109,6 +109,9 @@ func updateDatabase() {
 		// Create the Keypair Status table, if it does not exist, and add indexes
 		{datastore.Environ.DB.CreateKeypairStatusTable, create, "keypair status"},
 		{datastore.Environ.DB.AlterKeypairStatusTable, update, "keypair status"},
+
+		// Create the Model Assertion table, if it does not exist
+		{datastore.Environ.DB.CreateModelAssertTable, create, "model assertion"},
 	}
 
 	exec(operations)

@@ -36,14 +36,14 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
 const listModelsForUserSQL = `
-	select m.id, brand_id, m.name, keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -54,13 +54,13 @@ const listModelsForUserSQL = `
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where brand_id=$1 and name=$2 and api_key=$3`
 const getModelSQL = `
-	select m.id, brand_id, name, keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -108,6 +108,9 @@ const checkModelExistsSQL = `
 	)
 `
 
+// Add the model keypair to the models table (nullable)
+const alterModelModelKeypairNullable = "alter table model add column model_keypair_id int references keypair"
+
 // Add the user keypair to the models table (nullable)
 const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
 
@@ -146,6 +149,7 @@ type Model struct {
 	KeyActiveUser   bool   // from the system-user keypair
 	SealedKeyUser   string // from the system-user keypair
 	AssertionUser   string // from the system-user keypair
+	ModelAssertion  ModelAssertion
 }
 
 // CreateModelTable creates the database table for a model.
@@ -156,6 +160,9 @@ func (db *DB) CreateModelTable() error {
 
 // AlterModelTable updates an existing database model table with additional fields
 func (db *DB) AlterModelTable() error {
+	// Add the optional model assertion keypair field (ignore error as it may already be there)
+	db.Exec(alterModelModelKeypairNullable)
+
 	err := db.addUserKeypairFields()
 	if err != nil {
 		return err
@@ -272,6 +279,11 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// Get the linked model assertion headers
+		m, _ := db.GetModelAssert(model.ID)
+		model.ModelAssertion = m
+
 		models = append(models, model)
 	}
 
@@ -292,6 +304,10 @@ func (db *DB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 		log.Printf("Error retrieving database model: %v\n", err)
 		return model, err
 	}
+
+	// Get the linked model assertion headers
+	m, _ := db.GetModelAssert(model.ID)
+	model.ModelAssertion = m
 
 	return model, nil
 }
@@ -318,6 +334,10 @@ func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error
 		return model, err
 	}
 
+	// Get the linked model assertion headers
+	m, _ := db.GetModelAssert(model.ID)
+	model.ModelAssertion = m
+
 	return model, nil
 }
 
@@ -327,6 +347,7 @@ func (db *DB) updateModel(model Model) (string, error) {
 
 func (db *DB) updateModelFilteredByUser(model Model, username string) (string, error) {
 	var err error
+
 	if len(username) == 0 {
 		_, err = db.Exec(updateModelSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey)
 	} else {
@@ -347,6 +368,7 @@ func (db *DB) createModel(model Model) (Model, string, error) {
 func (db *DB) createModelFilteredByUser(model Model, username string) (Model, string, error) {
 	// Create the model in the database
 	var createdModelID int
+
 	err := db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
 	if err != nil {
 		log.Printf("Error creating the database model: %v\n", err)

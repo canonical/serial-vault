@@ -56,7 +56,7 @@ func generateSerialRequestAssertion(model, serial, body string) (string, error) 
 	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
 
 	headers := map[string]interface{}{
-		"brand-id":   "System",
+		"brand-id":   "system",
 		"device-key": string(encodedPubKey),
 		"request-id": "REQID",
 		"model":      model,
@@ -86,9 +86,9 @@ func importKeypairForTests() error {
 }
 
 const modelAssertion = `type: model
-authority-id: System
+authority-id: system
 series: 16
-brand-id: System
+brand-id: system
 model: alder
 display-name: Alder
 architecture: amd64
