@@ -98,14 +98,13 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 	return ErrorResponse{Success: true}
 }
 
-func fetchAssertionFromStore(assertions *[]asserts.Assertion, modelType *asserts.AssertionType, headers []string) error {
+func fetchAssertionFromStore(assertions *[]asserts.Assertion, modelType *asserts.AssertionType, headers []string) {
 	accountKeyAssertion, err := account.FetchAssertionFromStore(modelType, headers)
 	if err != nil {
 		logMessage("MODEL", "assertion", err.Error())
 	} else {
 		*assertions = append(*assertions, accountKeyAssertion)
 	}
-	return nil
 }
 
 func createModelAssertionHeaders(m datastore.Model) (map[string]interface{}, datastore.Keypair, error) {
