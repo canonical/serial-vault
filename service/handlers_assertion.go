@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
 )
@@ -67,6 +68,8 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 		return ErrorInvalidModel
 	}
 
+	assertions := []asserts.Assertion{}
+
 	// Build the model assertion headers
 	assertionHeaders, keypair, err := createModelAssertionHeaders(model)
 	if err != nil {
@@ -78,12 +81,31 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), model.BrandID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
 		logMessage("MODEL", "signing-assertion", err.Error())
-		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusInternalServerError}
+		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusBadRequest}
 	}
 
-	// Return successful JSON response with the signed text
-	formatSignResponse(true, "", "", "", signedAssertion, w)
+	// Add the account assertion to the assertions list
+	fetchAssertionFromStore(&assertions, asserts.AccountType, []string{model.BrandID})
+
+	// Add the account-key assertion to the assertions list
+	fetchAssertionFromStore(&assertions, asserts.AccountKeyType, []string{keypair.KeyID})
+
+	// Add the model assertion after the account and account-key assertions
+	assertions = append(assertions, signedAssertion)
+
+	// Return successful response with the signed assertions
+	formatAssertionResponse(true, "", "", "", assertions, w)
 	return ErrorResponse{Success: true}
+}
+
+func fetchAssertionFromStore(assertions *[]asserts.Assertion, modelType *asserts.AssertionType, headers []string) error {
+	accountKeyAssertion, err := account.FetchAssertionFromStore(modelType, headers)
+	if err != nil {
+		logMessage("MODEL", "assertion", err.Error())
+	} else {
+		*assertions = append(*assertions, accountKeyAssertion)
+	}
+	return nil
 }
 
 func createModelAssertionHeaders(m datastore.Model) (map[string]interface{}, datastore.Keypair, error) {
