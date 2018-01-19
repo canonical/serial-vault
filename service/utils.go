@@ -65,6 +65,23 @@ func formatSignResponse(success bool, errorCode, errorSubcode, message string, a
 	return nil
 }
 
+func formatAssertionResponse(success bool, errorCode, errorSubcode, message string, assertions []asserts.Assertion, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", asserts.MediaType)
+	w.WriteHeader(http.StatusOK)
+	encoder := asserts.NewEncoder(w)
+
+	for _, assert := range assertions {
+		err := encoder.Encode(assert)
+		if err != nil {
+			// Not much we can do if we're here - apart from panic!
+			log.Println("Error encoding the assertions.")
+			return err
+		}
+	}
+
+	return nil
+}
+
 func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelSerialize, w http.ResponseWriter) error {
 	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
 

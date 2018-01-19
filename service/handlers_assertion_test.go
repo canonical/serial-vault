@@ -27,6 +27,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
@@ -46,7 +47,10 @@ type AssertionTest struct {
 
 var _ = check.Suite(&AssertionSuite{})
 
-func (s *AssertionSuite) SetUpSuite(c *check.C) {
+func (s *AssertionSuite) SetUpTest(c *check.C) {
+	// Mock the store
+	account.FetchAssertionFromStore = account.MockFetchAssertionFromStore
+
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
