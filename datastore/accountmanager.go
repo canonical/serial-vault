@@ -28,12 +28,13 @@ const createAccountTableSQL = `
 	CREATE TABLE IF NOT EXISTS account (
 		id            serial primary key not null,
 		authority_id  varchar(200) not null unique,
-		assertion     text default ''
+		assertion     text default '',
+		resellerapi   bool default false
 	)
 `
-const listAccountsSQL = "select id, authority_id, assertion from account order by authority_id"
-const getAccountSQL = "select id, authority_id, assertion from account where authority_id=$1"
-const updateAccountSQL = "update account set assertion=$2 where authority_id=$1"
+const listAccountsSQL = "select id, authority_id, assertion, resellerapi from account order by authority_id"
+const getAccountSQL = "select id, authority_id, assertion, resellerapi from account where authority_id=$1"
+const updateAccountSQL = "update account set assertion=$2, resellerapi=$3 where authority_id=$1"
 const upsertAccountSQL = `
 	WITH upsert AS (
 		update account set authority_id=$1, assertion=$2
@@ -46,7 +47,7 @@ const upsertAccountSQL = `
 `
 
 const listUserAccountsSQL = `
-	select a.id, authority_id, assertion 
+	select a.id, authority_id, assertion, resellerapi 
 	from account a
 	inner join useraccountlink l on a.id = l.account_id
 	inner join userinfo u on l.user_id = u.id
@@ -54,7 +55,7 @@ const listUserAccountsSQL = `
 `
 
 const listNotUserAccountsSQL = `
-	select id, authority_id, assertion 
+	select id, authority_id, assertion, resellerapi 
 	from account
 	where id not in (
 		select a.id 
@@ -65,17 +66,27 @@ const listNotUserAccountsSQL = `
 	)
 `
 
+// Add the reseller API field to indicate whether the reseller functions are available for an account
+const alterAccountResellerAPI = "alter table account add column resellerapi bool default false"
+
 // Account holds the store account assertion in the local database
 type Account struct {
 	ID          int
 	AuthorityID string
 	Assertion   string
+	ResellerAPI bool
 }
 
-// CreateAccountTable creates the database table for a account.
+// CreateAccountTable creates the database table for an account.
 func (db *DB) CreateAccountTable() error {
 	_, err := db.Exec(createAccountTableSQL)
 	return err
+}
+
+// AlterAccountTable modifies the database table for an account.
+func (db *DB) AlterAccountTable() error {
+	db.Exec(alterAccountResellerAPI)
+	return nil
 }
 
 func (db *DB) listAllAccounts() ([]Account, error) {
@@ -107,7 +118,7 @@ func (db *DB) listAccountsFilteredByUser(username string) ([]Account, error) {
 func (db *DB) GetAccount(authorityID string) (Account, error) {
 	account := Account{}
 
-	err := db.QueryRow(getAccountSQL, authorityID).Scan(&account.ID, &account.AuthorityID, &account.Assertion)
+	err := db.QueryRow(getAccountSQL, authorityID).Scan(&account.ID, &account.AuthorityID, &account.Assertion, &account.ResellerAPI)
 	if err != nil {
 		log.Printf("Error retrieving account: %v\n", err)
 		return account, err
@@ -117,8 +128,8 @@ func (db *DB) GetAccount(authorityID string) (Account, error) {
 }
 
 // UpdateAccountAssertion sets the account-key assertion of a keypair
-func (db *DB) UpdateAccountAssertion(authorityID, assertion string) error {
-	_, err := db.Exec(updateAccountSQL, authorityID, assertion)
+func (db *DB) UpdateAccountAssertion(authorityID, assertion string, resellerAPI bool) error {
+	_, err := db.Exec(updateAccountSQL, authorityID, assertion, resellerAPI)
 	if err != nil {
 		log.Printf("Error updating the database account assertion: %v\n", err)
 		return err
@@ -167,7 +178,7 @@ func rowsToAccounts(rows *sql.Rows) ([]Account, error) {
 
 	for rows.Next() {
 		account := Account{}
-		err := rows.Scan(&account.ID, &account.AuthorityID, &account.Assertion)
+		err := rows.Scan(&account.ID, &account.AuthorityID, &account.Assertion, &account.ResellerAPI)
 		if err != nil {
 			return nil, err
 		}

@@ -87,6 +87,7 @@ func updateDatabase() {
 
 		// Create the account table, if it does not exist
 		{datastore.Environ.DB.CreateAccountTable, create, "account"},
+		{datastore.Environ.DB.AlterAccountTable, update, "account"},
 
 		// Update the model table, adding the new user-keypair field
 		{datastore.Environ.DB.AlterModelTable, update, "model"},

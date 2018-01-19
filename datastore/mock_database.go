@@ -91,7 +91,7 @@ func (mdb *MockDB) PutAccount(account Account, authorization User) (string, erro
 }
 
 // UpdateAccountAssertion mock to update the account assertion
-func (mdb *MockDB) UpdateAccountAssertion(authorityID, assertion string) error {
+func (mdb *MockDB) UpdateAccountAssertion(authorityID, assertion string, resellerAPI bool) error {
 	return nil
 }
 
@@ -639,7 +639,7 @@ func (mdb *ErrorMockDB) PutAccount(account Account, authorization User) (string,
 }
 
 // UpdateAccountAssertion mock to update the account assertion
-func (mdb *ErrorMockDB) UpdateAccountAssertion(authorityID, assertion string) error {
+func (mdb *ErrorMockDB) UpdateAccountAssertion(authorityID, assertion string, resellerAPI bool) error {
 	return nil
 }
 

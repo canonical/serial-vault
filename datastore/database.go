@@ -73,9 +73,10 @@ type Datastore interface {
 	ValidateDeviceNonce(nonce string) error
 
 	CreateAccountTable() error
+	AlterAccountTable() error
 	ListAllowedAccounts(authorization User) ([]Account, error)
 	GetAccount(authorityID string) (Account, error)
-	UpdateAccountAssertion(authorityID, assertion string) error
+	UpdateAccountAssertion(authorityID, assertion string, resellerAPI bool) error
 	PutAccount(account Account, authorization User) (string, error)
 
 	CreateOpenidNonceTable() error

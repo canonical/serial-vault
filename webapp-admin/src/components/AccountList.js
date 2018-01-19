@@ -95,7 +95,7 @@ class AccountList extends Component {
         if (messages.length === 0) {
             return (
                 <div>
-                    <pre className="code">{acc.Assertion}</pre>
+                    <p title={acc.Assertion}><i className="fa fa-check information positive"></i> {T('complete')}</p>
                 </div>
             )
         }
@@ -117,7 +117,7 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                        <th>{T('account')}</th><th>{T('assertion')}</th>
+                        <th>{T('account')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -125,7 +125,10 @@ class AccountList extends Component {
                     return (
                         <tr key={acc.ID}>
                             <td>{acc.AuthorityID}</td>
-                            <td><pre className="code">{acc.Assertion}</pre></td>
+                            <td>
+                                <p title={acc.Assertion}><i className="fa fa-check information positive"></i> {T('complete')}</p>
+                            </td>
+                            <td>{acc.ResellerAPI ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
                         </tr>
                     );
                     })}
@@ -145,7 +148,7 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                        <th>{T('key-id')}</th><th>{T('assertion')}</th>
+                        <th>{T('key-id')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,6 +161,7 @@ class AccountList extends Component {
                             <td>
                                 {this.renderKeyStatus(acc)}
                             </td>
+                            <td>{acc.ResellerAPI ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
                         </tr>
                     );
                     })}
