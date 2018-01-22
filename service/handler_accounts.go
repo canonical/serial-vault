@@ -25,8 +25,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
+	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/gorilla/mux"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -37,6 +40,15 @@ type AccountsResponse struct {
 	ErrorSubcode string              `json:"error_subcode"`
 	ErrorMessage string              `json:"message"`
 	Accounts     []datastore.Account `json:"accounts"`
+}
+
+// AccountResponse is the JSON response from the API Account method
+type AccountResponse struct {
+	Success      bool              `json:"success"`
+	ErrorCode    string            `json:"error_code"`
+	ErrorSubcode string            `json:"error_subcode"`
+	ErrorMessage string            `json:"message"`
+	Account      datastore.Account `json:"account"`
 }
 
 // AssertionRequest is the JSON version of a account assertion
@@ -57,7 +69,7 @@ func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 
 	accounts, err := datastore.Environ.DB.ListAllowedAccounts(authUser)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
 		return
 	}
@@ -67,8 +79,117 @@ func AccountsHandler(w http.ResponseWriter, r *http.Request) {
 	formatAccountsResponse(true, "", "", "", accounts, w)
 }
 
-// AccountsUpsertHandler creates or updates an account assertion
-func AccountsUpsertHandler(w http.ResponseWriter, r *http.Request) {
+// AccountGetHandler is the API method to fetch an account
+func AccountGetHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatAccountsResponse(false, "error-auth", "", "", nil, w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	accountID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars)
+		formatAccountResponse(false, "error-invalid-account", "", errorMessage, datastore.Account{}, w)
+		return
+	}
+
+	account, err := datastore.Environ.DB.GetAccountByID(accountID, authUser)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatAccountResponse(false, "error-account", "", err.Error(), datastore.Account{}, w)
+		return
+	}
+
+	formatAccountResponse(true, "", "", "", account, w)
+}
+
+// AccountUpdateHandler is the API method to update an account
+func AccountUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Decode the JSON body
+	acct := datastore.Account{}
+	err = json.NewDecoder(r.Body).Decode(&acct)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-account-data", "", "No account data supplied", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	err = datastore.Environ.DB.UpdateAccount(acct, authUser)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-account", "", err.Error(), w)
+		return
+	}
+
+	formatBooleanResponse(true, "", "", "", w)
+}
+
+// AccountCreateHandler is the API method to create an account
+func AccountCreateHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	_, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Decode the JSON body
+	acct := datastore.Account{}
+	err = json.NewDecoder(r.Body).Decode(&acct)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-account-data", "", "No account data supplied", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	// Fetch the account assertion from the store
+	assertion, err := account.FetchAssertionFromStore(asserts.AccountType, []string{acct.AuthorityID})
+	if err != nil {
+		formatBooleanResponse(false, "error-account", "", "Error fetching the assertion from the store", w)
+		return
+	}
+	acct.Assertion = string(asserts.Encode(assertion))
+
+	// Store the account details
+	err = datastore.Environ.DB.CreateAccount(acct)
+	if err != nil {
+		formatBooleanResponse(false, "error-creating-account", "", "Error creating the account in the database", w)
+		return
+	}
+
+	formatBooleanResponse(true, "", "", "", w)
+}
+
+// AccountsUploadHandler creates or updates an account assertion by uploading a file
+func AccountsUploadHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Get the user from the JWT

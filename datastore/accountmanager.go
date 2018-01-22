@@ -32,9 +32,27 @@ const createAccountTableSQL = `
 		resellerapi   bool default false
 	)
 `
+
+const createAccountSQL = "INSERT INTO account (authority_id, assertion, resellerapi) VALUES ($1,$2,$3)"
 const listAccountsSQL = "select id, authority_id, assertion, resellerapi from account order by authority_id"
 const getAccountSQL = "select id, authority_id, assertion, resellerapi from account where authority_id=$1"
-const updateAccountSQL = "update account set assertion=$2, resellerapi=$3 where authority_id=$1"
+
+const getAccountByIDSQL = "select id, authority_id, assertion, resellerapi from account where id=$1"
+const getUserAccountByIDSQL = `
+	select a.id, authority_id, assertion, resellerapi 
+	from account a
+	inner join useraccountlink l on a.id = l.account_id
+	inner join userinfo u on l.user_id = u.id
+	where id=$1 and u.username=$2`
+
+const updateAccountSQL = "update account set authority_id=$2, assertion=$3, resellerapi=$4 where id=$1"
+const updateUserAccountSQL = `
+	UPDATE account a
+	SET authority_id=$3, assertion=$4, resellerapi=$5 
+	INNER JOIN useraccountlink l on a.id = l.account_id
+	INNER JOIN userinfo u on l.user_id = u.id
+	WHERE id=$1 AND u.username=$2
+`
 const upsertAccountSQL = `
 	WITH upsert AS (
 		update account set authority_id=$1, assertion=$2
@@ -114,6 +132,16 @@ func (db *DB) listAccountsFilteredByUser(username string) ([]Account, error) {
 	return rowsToAccounts(rows)
 }
 
+// CreateAccount creates an account in the database
+func (db *DB) CreateAccount(account Account) error {
+	_, err := db.Exec(createAccountSQL, account.AuthorityID, account.Assertion, account.ResellerAPI)
+	if err != nil {
+		log.Printf("Error creating the database account: %v\n", err)
+		return err
+	}
+	return nil
+}
+
 // GetAccount fetches a single account from the database by the authority ID
 func (db *DB) GetAccount(authorityID string) (Account, error) {
 	account := Account{}
@@ -127,11 +155,49 @@ func (db *DB) GetAccount(authorityID string) (Account, error) {
 	return account, nil
 }
 
-// UpdateAccountAssertion sets the account-key assertion of a keypair
-func (db *DB) UpdateAccountAssertion(authorityID, assertion string, resellerAPI bool) error {
-	_, err := db.Exec(updateAccountSQL, authorityID, assertion, resellerAPI)
+// getAccountByID fetches a single account from the database by the ID
+func (db *DB) getAccountByID(accountID int) (Account, error) {
+	account := Account{}
+
+	err := db.QueryRow(getAccountByIDSQL, accountID).Scan(&account.ID, &account.AuthorityID, &account.Assertion, &account.ResellerAPI)
 	if err != nil {
-		log.Printf("Error updating the database account assertion: %v\n", err)
+		log.Printf("Error retrieving account: %v\n", err)
+		return account, err
+	}
+
+	return account, nil
+}
+
+// getUserAccountByID fetches a single account from the database by the ID
+func (db *DB) getUserAccountByID(accountID int, username string) (Account, error) {
+	account := Account{}
+
+	err := db.QueryRow(getUserAccountByIDSQL, accountID, username).Scan(&account.ID, &account.AuthorityID, &account.Assertion, &account.ResellerAPI)
+	if err != nil {
+		log.Printf("Error retrieving account: %v\n", err)
+		return account, err
+	}
+
+	return account, nil
+}
+
+// updateAccount updates an account in the database
+func (db *DB) updateAccount(account Account) error {
+	log.Println("---", account)
+	_, err := db.Exec(updateAccountSQL, account.ID, account.AuthorityID, account.Assertion, account.ResellerAPI)
+	if err != nil {
+		log.Printf("Error updating the database account: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+// updateUserAccount updates an account in the database
+func (db *DB) updateUserAccount(account Account, username string) error {
+	_, err := db.Exec(updateUserAccountSQL, account.ID, username, account.AuthorityID, account.Assertion, account.ResellerAPI)
+	if err != nil {
+		log.Printf("Error updating the database account: %v\n", err)
 		return err
 	}
 

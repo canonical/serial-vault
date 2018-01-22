@@ -32,7 +32,6 @@ class AccountList extends Component {
             models: props.models || [],
             message: '',
         }
-
     }
 
     componentDidMount() {
@@ -117,6 +116,7 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
+                        {isUserAdmin(this.props.token) ? <th className="small"></th> : ''}
                         <th>{T('account')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>
                     </tr>
                 </thead>
@@ -124,6 +124,14 @@ class AccountList extends Component {
                     {this.state.accounts.map((acc) => {
                     return (
                         <tr key={acc.ID}>
+                            {isUserAdmin(this.props.token) ? 
+                                <td>
+                                    <div>
+                                    <a href={'/accounts/account/' + acc.ID} className="p-button--brand small" title={T('edit-account')}><i className="fa fa-pencil"></i></a>
+                                    </div>
+                                </td>
+                                : ''
+                            }
                             <td>{acc.AuthorityID}</td>
                             <td>
                                 <p title={acc.Assertion}><i className="fa fa-check information positive"></i> {T('complete')}</p>
@@ -194,6 +202,11 @@ class AccountList extends Component {
                         <div className="col-1">
                             <a href="/accounts/new" className="p-button--brand" title={T('new-account-assertion')}>
                                 <i className="fa fa-plus"></i>
+                            </a>
+                        </div>
+                        <div className="col-1">
+                            <a href="/accounts/upload" className="p-button--brand" title={T('upload-account-assertion')}>
+                                <i className="fa fa-upload"></i>
                             </a>
                         </div>
                     </div>

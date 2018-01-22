@@ -80,7 +80,10 @@ func AdminRouter() *mux.Router {
 
 	// API routes: account assertions
 	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler))).Methods("GET")
-	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsUpsertHandler))).Methods("POST")
+	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountCreateHandler))).Methods("POST")
+	router.Handle("/v1/accounts/{id:[0-9]+}", Middleware(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/accounts/{id:[0-9]+}", Middleware(http.HandlerFunc(AccountGetHandler))).Methods("GET")
+	router.Handle("/v1/accounts/upload", Middleware(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
 
 	// API routes: system-user assertion
 	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")

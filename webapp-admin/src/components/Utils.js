@@ -36,6 +36,12 @@ export function sectionIdFromPath(path, section) {
   return (parts[0] === section && parts[1]) || ''
 }
 
+export function subSectionIdFromPath(path, section) {
+    const parts = path.split('/').slice(1)
+    console.log('---parts', parts)
+    return (parts[0] === section && parts[2]) || ''
+}
+
 export function T(message) {
     const lang = window.AppState.getLocale()
     const msg = Messages[lang][message] || message;

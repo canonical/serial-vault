@@ -21,6 +21,7 @@ var intlData = {
 
     en: {
       "account": "Account",
+      "account-description": "The authority-id for the account",
       "account-keys": "Account Key Assertions",
       "accounts": "Account Assertions",
       "activate": "Activate",
@@ -141,6 +142,7 @@ var intlData = {
       "register-signing-key": "Register Signing Key with the Store",
       "remove": "Remove",
       "reseller": "Reseller",
+      "reseller-features": "Enable Reseller Features",
       "revision": "Revision",
       "role": "Role",
       "save": "Save",
@@ -150,8 +152,10 @@ var intlData = {
       "signing-keys": "Signing Keys",
       "signinglog-description": "Log of the serial numbers and device-key fingerprints that have been used",
       "signinglog": "Signing Log",
+      "store-account-assertion": "Account Assertion from Store",
       "systemuser": "System-User",
       "title": "Serial Vault",
+      "upload-account-assertion": "Upload Account Assertion",
       "user-accounts": "User Accounts",
       "user-email": "The email address of the user",
       "user-key": "User Key",

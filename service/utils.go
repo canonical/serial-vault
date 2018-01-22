@@ -127,6 +127,17 @@ func formatKeypairsResponse(success bool, errorCode, errorSubcode, message strin
 	return nil
 }
 
+func formatAccountResponse(success bool, errorCode, errorSubcode, message string, account datastore.Account, w http.ResponseWriter) error {
+	response := AccountResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Account: account}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the account response.")
+		return err
+	}
+	return nil
+}
+
 func formatAccountsResponse(success bool, errorCode, errorSubcode, message string, accounts []datastore.Account, w http.ResponseWriter) error {
 	response := AccountsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Accounts: accounts}
 

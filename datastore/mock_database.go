@@ -66,6 +66,16 @@ func (mdb *MockDB) CreateAccountTable() error {
 	return nil
 }
 
+// AlterAccountTable mock for the create account table method
+func (mdb *MockDB) AlterAccountTable() error {
+	return nil
+}
+
+// CreateAccount mock to create an account record
+func (mdb *MockDB) CreateAccount(account Account) error {
+	return nil
+}
+
 // GetAccount mock to return a single account key
 func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
 	accounts, _ := mdb.ListAllowedAccounts(User{})
@@ -78,10 +88,23 @@ func (mdb *MockDB) GetAccount(authorityID string) (Account, error) {
 	return Account{}, errors.New("Cannot found the account assertion")
 }
 
+// GetAccountByID mock to return a single account key
+func (mdb *MockDB) GetAccountByID(ID int, user User) (Account, error) {
+	accounts, _ := mdb.ListAllowedAccounts(user)
+
+	for _, acc := range accounts {
+		if acc.ID == ID {
+			return acc, nil
+		}
+	}
+	return Account{}, errors.New("Cannot found the account assertion")
+}
+
 // ListAllowedAccounts mock to return a list of the available accounts
 func (mdb *MockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	var accounts []Account
-	accounts = append(accounts, Account{ID: 1, AuthorityID: "System", Assertion: "assertion\n"})
+	accounts = append(accounts, Account{ID: 1, AuthorityID: "system", Assertion: "assertion\n", ResellerAPI: true})
+	accounts = append(accounts, Account{ID: 2, AuthorityID: "vendor", Assertion: "assertion\n", ResellerAPI: false})
 	return accounts, nil
 }
 
@@ -95,19 +118,24 @@ func (mdb *MockDB) UpdateAccountAssertion(authorityID, assertion string, reselle
 	return nil
 }
 
+// UpdateAccount mock to update the account
+func (mdb *MockDB) UpdateAccount(account Account, authorization User) error {
+	return nil
+}
+
 // ListAllowedModels Mock the database response for a list of models
 func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 
 	var models []Model
 	if authorization.Username == "" || authorization.Username == "sv" {
-		models = append(models, Model{ID: 1, BrandID: "Vendor", Name: "alder", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "System", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
-		models = append(models, Model{ID: 2, BrandID: "Vendor", Name: "ash", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: false})
-		models = append(models, Model{ID: 3, BrandID: "Vendor", Name: "basswood", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "system", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
+		models = append(models, Model{ID: 2, BrandID: "system", Name: "ash", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: false})
+		models = append(models, Model{ID: 3, BrandID: "system", Name: "basswood", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
 	}
 	if authorization.Username == "" {
-		models = append(models, Model{ID: 4, BrandID: "Vendor", Name: "korina", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
-		models = append(models, Model{ID: 5, BrandID: "Vendor", Name: "mahogany", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
-		models = append(models, Model{ID: 6, BrandID: "Vendor", Name: "maple", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 4, BrandID: "system", Name: "korina", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 5, BrandID: "system", Name: "mahogany", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
+		models = append(models, Model{ID: 6, BrandID: "system", Name: "maple", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})
 	}
 	return models, nil
 }
@@ -615,6 +643,16 @@ func (mdb *ErrorMockDB) CreateAccountTable() error {
 	return nil
 }
 
+// AlterAccountTable mock for the create account table method
+func (mdb *ErrorMockDB) AlterAccountTable() error {
+	return nil
+}
+
+// CreateAccount mock to create an account record
+func (mdb *ErrorMockDB) CreateAccount(account Account) error {
+	return errors.New("MOCK creating the account")
+}
+
 // GetAccount mock to return a single account key
 func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
@@ -622,6 +660,19 @@ func (mdb *ErrorMockDB) GetAccount(authorityID string) (Account, error) {
 
 	for _, acc := range accounts {
 		if acc.AuthorityID == authorityID {
+			return acc, nil
+		}
+	}
+	return Account{}, errors.New("Cannot found the account assertion")
+}
+
+// GetAccountByID mock to return a single account key
+func (mdb *ErrorMockDB) GetAccountByID(ID int, user User) (Account, error) {
+
+	accounts, _ := mdb.ListAllowedAccounts(user)
+
+	for _, acc := range accounts {
+		if acc.ID == ID {
 			return acc, nil
 		}
 	}
@@ -640,6 +691,11 @@ func (mdb *ErrorMockDB) PutAccount(account Account, authorization User) (string,
 
 // UpdateAccountAssertion mock to update the account assertion
 func (mdb *ErrorMockDB) UpdateAccountAssertion(authorityID, assertion string, resellerAPI bool) error {
+	return nil
+}
+
+// UpdateAccount mock to update the account
+func (mdb *ErrorMockDB) UpdateAccount(account Account, authorization User) error {
 	return nil
 }
 

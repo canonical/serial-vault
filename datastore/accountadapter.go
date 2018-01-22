@@ -54,3 +54,31 @@ func (db *DB) PutAccount(account Account, authorization User) (string, error) {
 
 	return db.putAccount(account)
 }
+
+// GetAccountByID validates permissions and fetches an account from the database
+func (db *DB) GetAccountByID(accountID int, authorization User) (Account, error) {
+	switch authorization.Role {
+	case Invalid: // Authentication disabled
+		fallthrough
+	case Superuser:
+		return db.getAccountByID(accountID)
+	case Admin:
+		return db.getUserAccountByID(accountID, authorization.Username)
+	default:
+		return Account{}, nil
+	}
+}
+
+// UpdateAccount updates an account in the database
+func (db *DB) UpdateAccount(account Account, authorization User) error {
+	switch authorization.Role {
+	case Invalid: // Authentication disabled
+		fallthrough
+	case Superuser:
+		return db.updateAccount(account)
+	case Admin:
+		return db.updateUserAccount(account, authorization.Username)
+	default:
+		return nil
+	}
+}

@@ -73,6 +73,8 @@ func (s *AssertionSuite) TestAssertionHandler(c *check.C) {
 		AssertionTest{[]byte{}, 400, "application/json; charset=UTF-8", "ValidAPIKey"},
 		AssertionTest{validModel(), 200, asserts.MediaType, "ValidAPIKey"},
 		AssertionTest{invalidModel(), 400, "application/json; charset=UTF-8", "ValidAPIKey"},
+		AssertionTest{unauthBrand(), 400, "application/json; charset=UTF-8", "ValidAPIKey"},
+		AssertionTest{unknownBrand(), 400, "application/json; charset=UTF-8", "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
@@ -96,6 +98,24 @@ func invalidModel() []byte {
 	a := ModelAssertionRequest{
 		BrandID: "system",
 		Name:    "invalid",
+	}
+	d, _ := json.Marshal(a)
+	return d
+}
+
+func unauthBrand() []byte {
+	a := ModelAssertionRequest{
+		BrandID: "vendor",
+		Name:    "alder",
+	}
+	d, _ := json.Marshal(a)
+	return d
+}
+
+func unknownBrand() []byte {
+	a := ModelAssertionRequest{
+		BrandID: "unknown",
+		Name:    "alder",
 	}
 	d, _ := json.Marshal(a)
 	return d

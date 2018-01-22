@@ -23,9 +23,21 @@ var Account = {
         return Ajax.get(this.url);
     },
 
-	create:  function(assertion) {
-		return Ajax.post(this.url, {assertion: assertion});
-	}
+    get: function (id) {
+        return Ajax.get(this.url + '/' + id);
+    },
+
+    create:  function(account) {
+        return Ajax.post(this.url, account);
+    },
+
+    update:  function(account) {
+        return Ajax.put(this.url + '/' + account.ID, account);
+    },
+
+    upload:  function(assertion) {
+        return Ajax.post(this.url + '/upload', {assertion: assertion});
+    }
 }
 
 export default Account
