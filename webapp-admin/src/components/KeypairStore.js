@@ -17,7 +17,7 @@
 import React, {Component} from 'react';
 import Keypairs from '../models/keypairs';
 import AlertBox from './AlertBox';
-import {T, isUserAdmin} from './Utils'
+import {T, formatError, isUserAdmin} from './Utils'
 
 
 class KeypairStore extends Component {
@@ -38,8 +38,33 @@ class KeypairStore extends Component {
             return k.ID === id
         })
         if (keys.length > 0) {
-            this.setState({keypair: keys[0]})
+            var k = {'authority-id': keys[0].AuthorityID, 'key-name': keys[0].KeyName}
+            this.setState({keypair: k})
         }
+    }
+
+    handleChangeName = (e) => {
+        var keypair = this.state.keypair
+        keypair.KeyName = e.target.value
+        this.setState({keypair: keypair})
+    }
+
+    handleChangeEmail = (e) => {
+        var keypair = this.state.keypair
+        keypair.email = e.target.value
+        this.setState({keypair: keypair})
+    }
+
+    handleChangePassword = (e) => {
+        var keypair = this.state.keypair
+        keypair.password = e.target.value
+        this.setState({keypair: keypair})
+    }
+
+    handleChangeOTP = (e) => {
+        var keypair = this.state.keypair
+        keypair.otp = e.target.value
+        this.setState({keypair: keypair})
     }
 
     getKeypairs() {
@@ -50,6 +75,19 @@ class KeypairStore extends Component {
             message = data.message;
           }
           this.setState({keypairs: data.keypairs, message: message});
+        });
+    }
+
+    handleSaveClick = (e) => {
+        e.preventDefault()
+
+        Keypairs.register(this.state.keypair).then((response) => {
+            var data = JSON.parse(response.body);
+            if ((response.statusCode >= 300) || (!data.success)) {
+                this.setState({error: formatError(data)});
+            } else {
+                window.location = '/signing-keys';
+            }
         });
     }
 
@@ -72,7 +110,7 @@ class KeypairStore extends Component {
                         <form>
                             <fieldset>
 
-                                <label htmlFor="keypair">{T('private-key')}:
+                                <label htmlFor="keypair">{T('signing-key')}:
                                     <select value={this.state.keypair.ID} id="keypair" onChange={this.handleChangeKey}>
                                         <option></option>
                                         {this.state.keypairs.map((kpr) => {
@@ -86,9 +124,19 @@ class KeypairStore extends Component {
                                 </label>
 
                                 <label htmlFor="key-name">{T('key-name')}:
-                                    <input type="text" id="key-name" onChange={this.handleChangeName} placeholder={T('key-name-description')} value={this.state.keypair.KeyName} />
+                                    <input type="text" id="key-name" onChange={this.handleChangeName} placeholder={T('key-name-description')} value={this.state.keypair['key-name']} />
                                 </label>
 
+                                <h3>{T('store-credentials')}</h3>
+                                <label htmlFor="email">{T('email')}:
+                                    <input type="email" id="email" onChange={this.handleChangeEmail} placeholder={T('email-description')} value={this.state.keypair.email} />
+                                </label>
+                                <label htmlFor="password">{T('password')}:
+                                    <input type="password" id="password" onChange={this.handleChangePassword} placeholder={T('password-description')} value={this.state.keypair.password} />
+                                </label>
+                                <label htmlFor="otp">{T('otp')}:
+                                    <input type="text" id="otp" onChange={this.handleChangeOTP} placeholder={T('otp-description')} value={this.state.keypair.otp} />
+                                </label>
                             </fieldset>
                         </form>
                         <div>

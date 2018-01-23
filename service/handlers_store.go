@@ -81,7 +81,7 @@ func StoreKeyRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Printf("Error in fetching the keypair: %v", err)
-		formatBooleanResponse(false, "error-invalid-keypair", "", "", w)
+		formatBooleanResponse(false, "error-invalid-key", "", "Cannot find the signing key", w)
 		return
 	}
 
