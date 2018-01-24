@@ -25,13 +25,14 @@ import KeypairGenerate from './components/KeypairGenerate'
 import KeypairStore from './components/KeypairStore'
 import AccountList from './components/AccountList'
 import AccountForm from './components/AccountForm'
+import AccountEdit from './components/AccountEdit'
 import AccountKeyForm from './components/AccountKeyForm'
 import Keypair from './components/Keypair'
 import SigningLog from './components/SigningLog'
 import SystemUserForm from './components/SystemUserForm'
 import UserList from './components/UserList'
 import UserEdit from './components/UserEdit'
-import {sectionFromPath, sectionIdFromPath} from './components/Utils'
+import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
 
@@ -68,10 +69,17 @@ class App extends Component {
 
   renderAccounts() {
     const id = sectionIdFromPath(window.location.pathname, 'accounts')
+    const sub = subSectionIdFromPath(window.location.pathname, 'accounts')
+    console.log('---', id)
+    console.log('---', sub)
 
     switch(id) {
-      case 'new':
+      case 'upload':
         return <AccountForm token={this.props.token} />
+      case 'new':
+        return <AccountEdit token={this.props.token} />
+      case 'account':
+        return <AccountEdit id={sub} token={this.props.token} />
       case 'key-assertion':
         return <AccountKeyForm token={this.props.token} />
       default:

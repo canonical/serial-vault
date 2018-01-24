@@ -46,7 +46,7 @@ class AccountForm extends Component {
     handleSaveClick = (e) => {
         e.preventDefault();
 
-        Accounts.create(this.state.assertion).then((response) => {
+        Accounts.upload(this.state.assertion).then((response) => {
             var data = parseResponse(response)
             if (!data.success) {
                 this.setState({error: formatError(data)});

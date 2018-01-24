@@ -32,7 +32,6 @@ class AccountList extends Component {
             models: props.models || [],
             message: '',
         }
-
     }
 
     componentDidMount() {
@@ -95,7 +94,7 @@ class AccountList extends Component {
         if (messages.length === 0) {
             return (
                 <div>
-                    <pre className="code">{acc.Assertion}</pre>
+                    <p title={acc.Assertion}><i className="fa fa-check information positive"></i> {T('complete')}</p>
                 </div>
             )
         }
@@ -117,15 +116,27 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                        <th>{T('account')}</th><th>{T('assertion')}</th>
+                        {isUserAdmin(this.props.token) ? <th className="small"></th> : ''}
+                        <th>{T('account')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {this.state.accounts.map((acc) => {
                     return (
                         <tr key={acc.ID}>
+                            {isUserAdmin(this.props.token) ? 
+                                <td>
+                                    <div>
+                                    <a href={'/accounts/account/' + acc.ID} className="p-button--brand small" title={T('edit-account')}><i className="fa fa-pencil"></i></a>
+                                    </div>
+                                </td>
+                                : ''
+                            }
                             <td>{acc.AuthorityID}</td>
-                            <td><pre className="code">{acc.Assertion}</pre></td>
+                            <td>
+                                <p title={acc.Assertion}><i className="fa fa-check information positive"></i> {T('complete')}</p>
+                            </td>
+                            <td>{acc.ResellerAPI ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
                         </tr>
                     );
                     })}
@@ -145,7 +156,7 @@ class AccountList extends Component {
                 <table>
                 <thead>
                     <tr>
-                        <th>{T('key-id')}</th><th>{T('assertion')}</th>
+                        <th>{T('key-id')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,6 +169,7 @@ class AccountList extends Component {
                             <td>
                                 {this.renderKeyStatus(acc)}
                             </td>
+                            <td>{acc.ResellerAPI ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
                         </tr>
                     );
                     })}
@@ -190,6 +202,11 @@ class AccountList extends Component {
                         <div className="col-1">
                             <a href="/accounts/new" className="p-button--brand" title={T('new-account-assertion')}>
                                 <i className="fa fa-plus"></i>
+                            </a>
+                        </div>
+                        <div className="col-1">
+                            <a href="/accounts/upload" className="p-button--brand" title={T('upload-account-assertion')}>
+                                <i className="fa fa-upload"></i>
                             </a>
                         </div>
                     </div>

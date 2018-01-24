@@ -61,6 +61,15 @@ func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse
 		return ErrorResponse{false, "error-decode-json", "", err.Error(), http.StatusBadRequest}
 	}
 
+	// Check that the reseller functionality is enabled for the brand
+	acc, err := datastore.Environ.DB.GetAccount(request.BrandID)
+	if err != nil {
+		return ErrorResponse{false, "error-account", "", err.Error(), http.StatusBadRequest}
+	}
+	if !acc.ResellerAPI {
+		return ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
+	}
+
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(request.BrandID, request.Name, r.Header.Get("api-key"))
 	if err != nil {
