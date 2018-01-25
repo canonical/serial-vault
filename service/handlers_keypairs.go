@@ -128,7 +128,7 @@ func KeypairDisableHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("%v", vars["id"])
-		formatBooleanResponse(false, "error-invalid-keypair", "", errorMessage, w)
+		formatBooleanResponse(false, "error-invalid-key", "", errorMessage, w)
 		return
 	}
 
@@ -161,7 +161,7 @@ func KeypairEnableHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("%v", vars["id"])
-		formatBooleanResponse(false, "error-invalid-keypair", "", errorMessage, w)
+		formatBooleanResponse(false, "error-invalid-key", "", errorMessage, w)
 		return
 	}
 

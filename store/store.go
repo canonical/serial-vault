@@ -22,6 +22,7 @@ package store
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -78,7 +79,7 @@ var RegisterKey = func(keyAuth KeyRegister, keypair datastore.Keypair) error {
 	m, discharge, err := LoginUser(keyAuth.Email, keyAuth.Password, keyAuth.OTP, permissions)
 	if err != nil {
 		log.Println("Error logging in to store", err)
-		return err
+		return errors.New("Error logging in to store")
 	}
 
 	// Generate the authorization header from the macaroons
@@ -126,39 +127,34 @@ func LoginUser(username, password, otp string, permissions []string) (string, st
 	}
 	deserializedMacaroon, err := auth.MacaroonDeserialize(macaroon)
 	if err != nil {
-		log.Println("Error deserializing macaroon", err)
+		log.Println("Error deserializing macaroon:", err)
 		return "", "", err
 	}
 
 	// get SSO 3rd party caveat, and request discharge
 	loginCaveat, err := loginCaveatID(deserializedMacaroon)
 	if err != nil {
-		log.Println("Error with login caveat", err)
+		log.Println("Error with login caveat:", err)
 		return "", "", err
 	}
 
 	discharge, err := dischargeAuthCaveat(loginCaveat, username, password, otp)
 	if err != nil {
-		log.Println("Error with discharge", err)
+		log.Println("Error with discharge:", err)
 		return "", "", err
 	}
 
 	return macaroon, discharge, nil
 }
 
-func submitPOSTRequest(url string, headers map[string]string, data []byte) (*http.Request, error) {
+func submitPOSTRequest(url string, headers map[string]string, data []byte) (*http.Response, error) {
 	r, _ := http.NewRequest("POST", url, bytes.NewReader(data))
 
 	for k, v := range headers {
 		r.Header.Set(k, v)
 	}
 	client := http.Client{}
-	_, err := client.Do(r)
-	if err != nil {
-		return r, err
-	}
-
-	return r, nil
+	return client.Do(r)
 }
 
 func generateAccountKeyRequest(keyAuth KeyRegister, keypair datastore.Keypair) (string, error) {

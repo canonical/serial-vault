@@ -557,7 +557,7 @@ func TestKeypairDisableHandlerBadID(t *testing.T) {
 	if result.Success {
 		t.Error("Expected an failure, got success")
 	}
-	if result.ErrorCode != "error-invalid-keypair" {
+	if result.ErrorCode != "error-invalid-key" {
 		t.Errorf("Expected a 'invalid keypair' message, got %s", result.ErrorCode)
 	}
 }
@@ -676,7 +676,7 @@ func TestKeypairEnableHandlerBadID(t *testing.T) {
 	if result.Success {
 		t.Error("Expected an failure, got success")
 	}
-	if result.ErrorCode != "error-invalid-keypair" {
+	if result.ErrorCode != "error-invalid-key" {
 		t.Errorf("Expected a 'keypair update' message, got %s", result.ErrorCode)
 	}
 }

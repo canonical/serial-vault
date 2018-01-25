@@ -183,7 +183,6 @@ func (db *DB) getUserAccountByID(accountID int, username string) (Account, error
 
 // updateAccount updates an account in the database
 func (db *DB) updateAccount(account Account) error {
-	log.Println("---", account)
 	_, err := db.Exec(updateAccountSQL, account.ID, account.AuthorityID, account.Assertion, account.ResellerAPI)
 	if err != nil {
 		log.Printf("Error updating the database account: %v\n", err)

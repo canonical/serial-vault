@@ -45,8 +45,11 @@ var Keypair = {
 
 	assertion: function(keyId, assertion) {
 		return Ajax.post(this.url + '/assertion', {id: keyId, assertion: assertion});
-	}
+	},
 
+	register: function(keypair) {
+		return Ajax.post(this.url + '/register', keypair);
+	}
 }
 
 export default Keypair;

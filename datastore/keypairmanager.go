@@ -171,7 +171,7 @@ func (db *DB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
 
 	err := db.QueryRow(getKeypairByNameSQL, authorityID, keyName).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
 	if err != nil {
-		log.Printf("Error retrieving keypair by ID: %v\n", err)
+		log.Printf("Error retrieving keypair by name: %v\n", err)
 		return keypair, err
 	}
 
