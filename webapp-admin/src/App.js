@@ -26,6 +26,7 @@ import KeypairStore from './components/KeypairStore'
 import AccountList from './components/AccountList'
 import AccountForm from './components/AccountForm'
 import AccountEdit from './components/AccountEdit'
+import AccountDetail from './components/AccountDetail'
 import AccountKeyForm from './components/AccountKeyForm'
 import Keypair from './components/Keypair'
 import SigningLog from './components/SigningLog'
@@ -70,8 +71,6 @@ class App extends Component {
   renderAccounts() {
     const id = sectionIdFromPath(window.location.pathname, 'accounts')
     const sub = subSectionIdFromPath(window.location.pathname, 'accounts')
-    console.log('---', id)
-    console.log('---', sub)
 
     switch(id) {
       case 'upload':
@@ -80,6 +79,8 @@ class App extends Component {
         return <AccountEdit token={this.props.token} />
       case 'account':
         return <AccountEdit id={sub} token={this.props.token} />
+      case 'view':
+        return <AccountDetail id={sub} token={this.props.token} />
       case 'key-assertion':
         return <AccountKeyForm token={this.props.token} />
       default:
