@@ -154,12 +154,7 @@ func submitPOSTRequest(url string, headers map[string]string, data []byte) (*htt
 		r.Header.Set(k, v)
 	}
 	client := http.Client{}
-	resp, err := client.Do(r)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return client.Do(r)
 }
 
 func generateAccountKeyRequest(keyAuth KeyRegister, keypair datastore.Keypair) (string, error) {
