@@ -19,25 +19,34 @@ import Ajax from './Ajax'
 var Account = {
     url: 'accounts',
 
-    list: function () {
+    list() {
         return Ajax.get(this.url);
     },
 
-    get: function (id) {
+    get(id) {
         return Ajax.get(this.url + '/' + id);
     },
 
-    create:  function(account) {
+    create(account) {
         return Ajax.post(this.url, account);
     },
 
-    update:  function(account) {
+    update(account) {
         return Ajax.put(this.url + '/' + account.ID, account);
     },
 
-    upload:  function(assertion) {
+    upload(assertion) {
         return Ajax.post(this.url + '/upload', {assertion: assertion});
+    },
+
+    stores(id) {
+        return Ajax.get(this.url + '/' + id + '/stores');
+    },
+
+    storeUpdate(store) {
+        return Ajax.put(this.url + '/stores/' + store.id, store);
     }
+
 }
 
 export default Account

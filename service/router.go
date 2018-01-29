@@ -84,6 +84,8 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts/{id:[0-9]+}", Middleware(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
 	router.Handle("/v1/accounts/{id:[0-9]+}", Middleware(http.HandlerFunc(AccountGetHandler))).Methods("GET")
 	router.Handle("/v1/accounts/upload", Middleware(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
+	router.Handle("/v1/accounts/{id:[0-9]+}/stores", Middleware(http.HandlerFunc(SubstoresHandler))).Methods("GET")
+	router.Handle("/v1/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(SubstoreUpdateHandler))).Methods("PUT")
 
 	// API routes: system-user assertion
 	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
