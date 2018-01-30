@@ -108,7 +108,7 @@ type Datastore interface {
 	ListAllowedKeypairStatus(authorization User) ([]KeypairStatus, error)
 
 	CreateSubstoreTable() error
-	CreateSubstore(store Substore) error
+	CreateAllowedSubstore(store Substore, authorization User) error
 	ListSubstores(accountID int, authorization User) ([]Substore, error)
 	UpdateAllowedSubstore(store Substore, authorization User) (string, error)
 }

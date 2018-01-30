@@ -43,6 +43,11 @@ var Account = {
         return Ajax.get(this.url + '/' + id + '/stores');
     },
 
+    storeNew(accountID, store) {
+        store.accountID = parseInt(accountID, 10)
+        return Ajax.post(this.url + '/stores', store);
+    },
+
     storeUpdate(store) {
         return Ajax.put(this.url + '/stores/' + store.id, store);
     }

@@ -66,7 +66,7 @@ const updateSubstoreForUserSQL = `
 // Substore holds the substore details for an account in the local database
 type Substore struct {
 	ID           int    `json:"id"`
-	AccountID    int    `json:"account_id"`
+	AccountID    int    `json:"accountID"`
 	FromModelID  int    `json:"fromModelID"`
 	ToModelID    int    `json:"toModelID"`
 	FromModel    Model  `json:"fromModel"`
@@ -81,9 +81,9 @@ func (db *DB) CreateSubstoreTable() error {
 	return err
 }
 
-// CreateSubstore creates an sub-store in the database
-func (db *DB) CreateSubstore(store Substore) error {
-	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModel.ID, store.ToModel.ID, store.Store, store.SerialNumber)
+// createSubstore creates an sub-store in the database
+func (db *DB) createSubstore(store Substore) error {
+	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber)
 	if err != nil {
 		log.Printf("Error creating the database sub-store: %v\n", err)
 		return err

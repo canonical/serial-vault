@@ -32,6 +32,7 @@ class AccountDetail extends Component {
             substores: [],
             models: [],
             error: null,
+            showNew: false,
             showEdit: null,
             showDelete: null,
             substore: {},
@@ -63,7 +64,7 @@ class AccountDetail extends Component {
             if (response.statusCode >= 300) {
                 this.setState({error: formatError(data), hideForm: true});
             } else {
-                this.setState({substores: data.substores, showEdit: null, showDelete: null, hideForm: false});
+                this.setState({substores: data.substores, showNew: false, showEdit: null, showDelete: null, hideForm: false});
             }
         });
     }
@@ -84,17 +85,22 @@ class AccountDetail extends Component {
         });
     }
 
+    handleShowNew = (e) => {
+        e.preventDefault();
+        this.setState({showNew: true, showEdit: null, showDelete: null, substore: {}})
+    }
+
     handleShowEdit = (e) => {
         e.preventDefault();
         var id = parseInt(e.target.getAttribute('data-key'), 10);
         if (this.state.showEdit === id) {
-            this.setState({showEdit: null, substore: {}})
+            this.setState({showEdit: null, substore: {}, showDelete: null, showNew: false})
         } else {
             var substores = this.state.substores.filter( (s) => {
                 return s.id === id
             })
 
-            this.setState({substore: substores[0], showEdit: id, showDelete: null})
+            this.setState({substore: substores[0], showEdit: id, showDelete: null, showNew: false})
         }
     }
 
@@ -102,9 +108,9 @@ class AccountDetail extends Component {
         e.preventDefault();
         var id = parseInt(e.target.getAttribute('data-key'), 10);
         if (this.state.showDelete === id) {
-            this.setState({showDelete: null})
+            this.setState({showDelete: null, showEdit: null, showNew: false})
         } else {
-            this.setState({showDelete: id})
+            this.setState({showDelete: id, showEdit: null, showNew: false})
         }
     }
 
@@ -121,20 +127,30 @@ class AccountDetail extends Component {
             window.location = '/accounts';
         }
 
-        Accounts.storeUpdate(this.state.substore).then((response) => {
-            var data = JSON.parse(response.body);
-            console.log(data)
-            if (response.statusCode >= 300) {
-                this.setState({error: formatError(data)});
-            } else {
-                this.getSubstores(this.props.id)
-            }
-        })
+        if (!this.state.substore.id) {
+            Accounts.storeNew(this.props.id, this.state.substore).then((response) => {
+                var data = JSON.parse(response.body);
+                if (response.statusCode >= 300) {
+                    this.setState({error: formatError(data)});
+                } else {
+                    this.getSubstores(this.props.id)
+                }
+            })
+        } else {
+            Accounts.storeUpdate(this.state.substore).then((response) => {
+                var data = JSON.parse(response.body);
+                if (response.statusCode >= 300) {
+                    this.setState({error: formatError(data)});
+                } else {
+                    this.getSubstores(this.props.id)
+                }
+            })
+        }
     }
 
     handleCancelSubstore = (e) => {
         e.preventDefault()
-        this.setState({substore: {}, showEdit: null, showDelete: null})
+        this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null})
     }
 
     renderSubstore(b) {
@@ -192,7 +208,18 @@ class AccountDetail extends Component {
 
                 <section className="row no-border">
                     <div className="p-card">
-                        <h2 className="p-card__title">{T('substores')}</h2>
+                        <div className="u-equal-height">
+                            <h2 className="p-card__title col-5">{T('substores')}</h2>
+                            &nbsp;
+                            <div className="col-1">
+                                <a href="" onClick={this.handleShowNew} className="p-button--brand" title={T('new-substore-device')}>
+                                    <i className="fa fa-plus"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <AlertBox message={this.state.error} />
+
                         <table className="p-card__content">
                           <thead>
                             <tr>
@@ -201,6 +228,11 @@ class AccountDetail extends Component {
                             </tr>
                           </thead>
                           <tbody>
+                              {this.state.showNew ?
+                                    <SubstoreForm substore={this.state.substore} models={this.state.models} token={this.props.token}
+                                        onSave={this.handleSaveSubstore} onChange={this.handleSubstoreChange} onCancel={this.handleCancelSubstore} />
+                                : ''
+                              }
                               {this.state.substores.map((b) => {
                                 if (b.id === this.state.showEdit) {
                                     return (<SubstoreForm substore={b} models={this.state.models} token={this.props.token}

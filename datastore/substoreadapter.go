@@ -21,6 +21,7 @@ package datastore
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 )
 
@@ -61,14 +62,40 @@ func (db *DB) UpdateAllowedSubstore(store Substore, authorization User) (string,
 	}
 }
 
+// CreateAllowedSubstore creates a new model in case authorization is allowed to do it
+func (db *DB) CreateAllowedSubstore(store Substore, authorization User) error {
+	// Validate the substore record
+	_, err := validateSubstore(store, "")
+	if err != nil {
+		return err
+	}
+
+	// Validate that the user has access to the account
+	acc, err := db.GetAccountByID(store.AccountID, authorization)
+	if err != nil || acc.ID == 0 {
+		return errors.New("You do not have permissions to this account")
+	}
+
+	switch authorization.Role {
+	case Invalid: // Authentication is disabled
+		fallthrough
+	case Superuser:
+		fallthrough
+	case Admin:
+		return db.createSubstore(store)
+	default:
+		return nil
+	}
+}
+
 func validateSubstore(store Substore, validateStoreLabel string) (string, error) {
 
-	err := validateModelID(store.FromModelID)
+	err := validateModelID("From Model", store.FromModelID)
 	if err != nil {
 		return validateStoreLabel, err
 	}
 
-	err = validateModelID(store.ToModelID)
+	err = validateModelID("To Model", store.ToModelID)
 	if err != nil {
 		return validateStoreLabel, err
 	}
@@ -86,9 +113,9 @@ func validateSubstore(store Substore, validateStoreLabel string) (string, error)
 	return "", nil
 }
 
-func validateModelID(modelID int) error {
+func validateModelID(fieldname string, modelID int) error {
 	if modelID <= 0 {
-		return errors.New("The Model must be selected")
+		return fmt.Errorf("'%s' must be selected", fieldname)
 	}
 	return nil
 }

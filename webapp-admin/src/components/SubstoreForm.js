@@ -27,7 +27,7 @@ class SubstoreForm extends Component {
 
     handleChangeSubstore = (e) => {
         e.preventDefault()
-        this.props.onChange('substore', e.target.value)
+        this.props.onChange('store', e.target.value)
     }
 
     handleChangeFromModel = (e) => {
@@ -50,7 +50,7 @@ class SubstoreForm extends Component {
                     <form>
                         <fieldset>
                             <label htmlFor="fromModel">{T('model')}:
-                                <select value={b.fromModel.id} id="fromModel" onChange={this.handleChangeFromModel}>
+                                <select value={b.fromModelID} id="fromModel" onChange={this.handleChangeFromModel}>
                                     <option></option>
                                     {this.props.models.map(function(m) {
                                         return <option key={m.id} value={m.id}>{m.model}</option>;
@@ -58,7 +58,7 @@ class SubstoreForm extends Component {
                                 </select>
                             </label>
 
-                            <label htmlFor="serial">{T('serialnumber')}:
+                            <label htmlFor="serial">{T('serial-number')}:
                                 <input type="text" id="serial" placeholder={T('serial-number-description')}
                                     value={b.serialnumber} onChange={this.handleChangeSerial} />
                             </label>
@@ -69,7 +69,7 @@ class SubstoreForm extends Component {
                             </label>
 
                             <label htmlFor="toModel">{T('substore-model')}:
-                                <select value={b.toModel.id} id="toModel" onChange={this.handleChangeToModel}>
+                                <select value={b.toModelID} id="toModel" onChange={this.handleChangeToModel}>
                                     <option></option>
                                     {this.props.models.map(function(m) {
                                         return <option key={m.id} value={m.id}>{m.model}</option>;
