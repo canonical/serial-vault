@@ -111,6 +111,7 @@ type Datastore interface {
 	CreateAllowedSubstore(store Substore, authorization User) error
 	ListSubstores(accountID int, authorization User) ([]Substore, error)
 	UpdateAllowedSubstore(store Substore, authorization User) (string, error)
+	DeleteAllowedSubstore(storeID int, authorization User) (string, error)
 }
 
 // DB local database interface with our custom methods.

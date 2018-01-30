@@ -151,3 +151,35 @@ func SubstoreCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	formatBooleanResponse(true, "", "", "", w)
 }
+
+// SubstoreDeleteHandler is the API method to delete a sub-store model.
+func SubstoreDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+	if err != nil {
+		formatBooleanResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Get the sub-store primary key
+	vars := mux.Vars(r)
+	storeID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		errorMessage := fmt.Sprintf("%v", vars["id"])
+		formatBooleanResponse(false, "error-invalid-store", "", errorMessage, w)
+		return
+	}
+
+	// Update the database
+	errorSubcode, err := datastore.Environ.DB.DeleteAllowedSubstore(storeID, authUser)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		formatBooleanResponse(false, "error-deleting-store", errorSubcode, err.Error(), w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	formatBooleanResponse(true, "", "", "", w)
+}

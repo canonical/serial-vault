@@ -63,6 +63,14 @@ const updateSubstoreForUserSQL = `
 	INNER JOIN userinfo u ON ua.user_id=u.id
 	WHERE s.id=$1 AND u.username=$7`
 
+const deleteSubstoreSQL = "delete from substore where id=$1"
+const deleteSubstoreForUserSQL = `
+		DELETE FROM substore s
+		USING account acc
+		INNER JOIN useraccountlink ua ON ua.account_id=acc.id
+		INNER JOIN userinfo u ON ua.user_id=u.id
+		WHERE s.id=$1 AND acc.id=s.account_id AND u.username=$2`
+
 // Substore holds the substore details for an account in the local database
 type Substore struct {
 	ID           int    `json:"id"`
@@ -113,6 +121,26 @@ func (db *DB) listSubstoresFilteredByUser(accountID int, username string) ([]Sub
 	defer rows.Close()
 
 	return db.rowsToSubstores(rows)
+}
+
+func (db *DB) deleteSubstore(storeID int) (string, error) {
+	return db.deleteSubstoreFilteredByUser(storeID, anyUserFilter)
+}
+
+func (db *DB) deleteSubstoreFilteredByUser(storeID int, username string) (string, error) {
+	var err error
+
+	if len(username) == 0 {
+		_, err = db.Exec(deleteSubstoreSQL, storeID)
+	} else {
+		_, err = db.Exec(deleteSubstoreForUserSQL, storeID, username)
+	}
+	if err != nil {
+		log.Printf("Error deleting the database sub-store model: %v\n", err)
+		return "", err
+	}
+
+	return "", nil
 }
 
 func (db *DB) rowsToSubstores(rows *sql.Rows) ([]Substore, error) {

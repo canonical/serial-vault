@@ -88,6 +88,20 @@ func (db *DB) CreateAllowedSubstore(store Substore, authorization User) error {
 	}
 }
 
+// DeleteAllowedSubstore deletes sub-store model if allowed to authorization
+func (db *DB) DeleteAllowedSubstore(storeID int, authorization User) (string, error) {
+	switch authorization.Role {
+	case Invalid: // Authentication is disabled
+		fallthrough
+	case Superuser:
+		return db.deleteSubstore(storeID)
+	case Admin:
+		return db.deleteSubstoreFilteredByUser(storeID, authorization.Username)
+	default:
+		return "", nil
+	}
+}
+
 func validateSubstore(store Substore, validateStoreLabel string) (string, error) {
 
 	err := validateModelID("From Model", store.FromModelID)

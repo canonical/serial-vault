@@ -20,6 +20,7 @@ import Accounts from '../models/accounts'
 import Models from '../models/models'
 import {T, isUserAdmin, formatError} from './Utils';
 import SubstoreForm from './SubstoreForm';
+import DialogBox from './DialogBox';
 
 
 class AccountDetail extends Component {
@@ -110,7 +111,10 @@ class AccountDetail extends Component {
         if (this.state.showDelete === id) {
             this.setState({showDelete: null, showEdit: null, showNew: false})
         } else {
-            this.setState({showDelete: id, showEdit: null, showNew: false})
+            var substores = this.state.substores.filter( (s) => {
+                return s.id === id
+            })
+            this.setState({substore: substores[0], showDelete: id, showEdit: null, showNew: false})
         }
     }
 
@@ -148,24 +152,49 @@ class AccountDetail extends Component {
         }
     }
 
+    handleDeleteSubstore = (e) => {
+        e.preventDefault()
+
+        Accounts.storeDelete(this.state.substore).then((response) => {
+            var data = JSON.parse(response.body);
+            if (response.statusCode >= 300) {
+                this.setState({error: formatError(data)});
+            } else {
+                this.getSubstores(this.props.id)
+            }
+        })
+    }
+
     handleCancelSubstore = (e) => {
         e.preventDefault()
         this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null})
+    }
+
+    renderActions(b) {
+        if (this.state.showDelete === b.id) {
+            return (
+                <DialogBox message={T('confirm-store-delete')} handleYesClick={this.handleDeleteSubstore} handleCancelClick={this.handleCancelSubstore} small />
+            );
+        } else {
+            return (
+                <div>
+                    <a href="" data-key={b.id} onClick={this.handleShowEdit} className="p-button--brand small" title={T('edit-model')}>
+                        <i data-key={b.id} className="fa fa-pencil"></i>
+                    </a>
+                    &nbsp;
+                    <a href="" data-key={b.id} onClick={this.handleShowDelete} className="p-button--neutral small" title={T('delete-model')}>
+                        <i data-key={b.id} className="fa fa-trash"></i>
+                    </a>
+                </div>
+            )
+        }
     }
 
     renderSubstore(b) {
         return (
             <tr>
                 <td>
-                    <div>
-                        <a href="" data-key={b.id} onClick={this.handleShowEdit} className="p-button--brand small" title={T('edit-model')}>
-                            <i data-key={b.id} className="fa fa-pencil"></i>
-                        </a>
-                        &nbsp;
-                        <a href="" data-key={b.id} onClick={this.handleShowDelete} className="p-button--neutral small" title={T('delete-model')}>
-                            <i data-key={b.id} className="fa fa-trash"></i>
-                        </a>
-                    </div>
+                    {this.renderActions(b)}
                 </td>
                 <td className="overflow" title={b.fromModel.model}>{b.fromModel.model}</td>
                 <td className="overflow" title={b.serialnumber}>{b.serialnumber}</td>

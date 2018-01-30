@@ -50,8 +50,11 @@ var Account = {
 
     storeUpdate(store) {
         return Ajax.put(this.url + '/stores/' + store.id, store);
-    }
+    },
 
+    storeDelete(store) {
+        return Ajax.delete(this.url + '/stores/' + store.id, {});
+    }
 }
 
 export default Account
