@@ -605,6 +605,41 @@ func (mdb *MockDB) UpsertModelAssert(m ModelAssertion) error {
 	return nil
 }
 
+// CreateSubstoreTable mock for the create substore table method
+func (mdb *MockDB) CreateSubstoreTable() error {
+	return nil
+}
+
+// CreateAllowedSubstore mock to create a substore record
+func (mdb *MockDB) CreateAllowedSubstore(store Substore, authorization User) error {
+	return nil
+}
+
+// ListSubstores mock to list substore records
+func (mdb *MockDB) ListSubstores(accountID int, authorization User) ([]Substore, error) {
+	fromModel, _ := mdb.GetAllowedModel(1, authorization)
+	toModel, _ := mdb.GetAllowedModel(2, authorization)
+
+	substores := []Substore{
+		Substore{ID: 1, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc1234"},
+		Substore{ID: 2, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc5678"},
+	}
+
+	return substores, nil
+}
+
+// UpdateAllowedSubstore mock to update a substore record
+func (mdb *MockDB) UpdateAllowedSubstore(store Substore, authorization User) error {
+	return nil
+}
+
+// DeleteAllowedSubstore mock to update a substore record
+func (mdb *MockDB) DeleteAllowedSubstore(storeID int, authorization User) (string, error) {
+	return "", nil
+}
+
+// -----------------------------------------------------------------------------
+
 // ErrorMockDB holds the unsuccessful mocks for the database
 type ErrorMockDB struct{}
 
@@ -957,4 +992,37 @@ func (mdb *ErrorMockDB) GetModelAssert(modelID int) (ModelAssertion, error) {
 // UpsertModelAssert mock for creating or updating model assertion record
 func (mdb *ErrorMockDB) UpsertModelAssert(m ModelAssertion) error {
 	return errors.New("Cannot upsert the model assertion record")
+}
+
+// CreateSubstoreTable mock for the create substore table method
+func (mdb *ErrorMockDB) CreateSubstoreTable() error {
+	return nil
+}
+
+// CreateAllowedSubstore mock to create a substore record
+func (mdb *ErrorMockDB) CreateAllowedSubstore(store Substore, authorization User) error {
+	return errors.New("Cannot create the sub-store model")
+}
+
+// ListSubstores mock to list substore records
+func (mdb *ErrorMockDB) ListSubstores(accountID int, authorization User) ([]Substore, error) {
+	fromModel, _ := mdb.GetAllowedModel(1, authorization)
+	toModel, _ := mdb.GetAllowedModel(2, authorization)
+
+	substores := []Substore{
+		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc1234"},
+		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc5678"},
+	}
+
+	return substores, errors.New("Cannot list the sub-stores")
+}
+
+// UpdateAllowedSubstore mock to update a substore record
+func (mdb *ErrorMockDB) UpdateAllowedSubstore(store Substore, authorization User) error {
+	return errors.New("Cannot update the sub-store model")
+}
+
+// DeleteAllowedSubstore mock to update a substore record
+func (mdb *ErrorMockDB) DeleteAllowedSubstore(storeID int, authorization User) (string, error) {
+	return "", errors.New("Cannot delete the sub-store model")
 }

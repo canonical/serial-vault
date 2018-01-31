@@ -71,7 +71,7 @@ func (s *AccountSuite) sendRequest(method, url string, data io.Reader, permissio
 
 	if permissions > 0 {
 		// Create a JWT and add it to the request
-		err := createJWTWithRole(r, datastore.Admin)
+		err := createJWTWithRole(r, permissions)
 		c.Assert(err, check.IsNil)
 	}
 

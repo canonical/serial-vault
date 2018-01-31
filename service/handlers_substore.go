@@ -45,6 +45,7 @@ func SubstoresHandler(w http.ResponseWriter, r *http.Request) {
 
 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
 	}
@@ -76,6 +77,7 @@ func SubstoreUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
 	}
@@ -83,7 +85,7 @@ func SubstoreUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	_, err = strconv.Atoi(vars["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-invalid-store", "", err.Error(), w)
 		return
 	}
@@ -121,6 +123,7 @@ func SubstoreCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
 	}
@@ -158,6 +161,7 @@ func SubstoreDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
 	}
@@ -166,7 +170,7 @@ func SubstoreDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	storeID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := fmt.Sprintf("%v", vars["id"])
 		formatBooleanResponse(false, "error-invalid-store", "", errorMessage, w)
 		return
