@@ -104,10 +104,10 @@ func SubstoreUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errorCode, err := datastore.Environ.DB.UpdateAllowedSubstore(store, authUser)
+	err = datastore.Environ.DB.UpdateAllowedSubstore(store, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, errorCode, "", err.Error(), w)
+		formatBooleanResponse(false, "error-updating-store", "", err.Error(), w)
 		return
 	}
 

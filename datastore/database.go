@@ -110,7 +110,7 @@ type Datastore interface {
 	CreateSubstoreTable() error
 	CreateAllowedSubstore(store Substore, authorization User) error
 	ListSubstores(accountID int, authorization User) ([]Substore, error)
-	UpdateAllowedSubstore(store Substore, authorization User) (string, error)
+	UpdateAllowedSubstore(store Substore, authorization User) error
 	DeleteAllowedSubstore(storeID int, authorization User) (string, error)
 }
 

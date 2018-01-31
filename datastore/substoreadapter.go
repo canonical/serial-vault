@@ -43,11 +43,11 @@ func (db *DB) ListSubstores(accountID int, authorization User) ([]Substore, erro
 }
 
 // UpdateAllowedSubstore updates the sub-store if authorization is allowed to do it
-func (db *DB) UpdateAllowedSubstore(store Substore, authorization User) (string, error) {
+func (db *DB) UpdateAllowedSubstore(store Substore, authorization User) error {
 
-	errorSubcode, err := validateSubstore(store, "error-validate-store")
+	_, err := validateSubstore(store, "error-validate-store")
 	if err != nil {
-		return errorSubcode, err
+		return err
 	}
 
 	switch authorization.Role {
@@ -58,7 +58,7 @@ func (db *DB) UpdateAllowedSubstore(store Substore, authorization User) (string,
 	case Admin:
 		return db.updateSubstoreFilteredByUser(store, authorization.Username)
 	default:
-		return "", nil
+		return nil
 	}
 }
 

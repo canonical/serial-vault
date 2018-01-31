@@ -167,7 +167,7 @@ class AccountDetail extends Component {
 
     handleCancelSubstore = (e) => {
         e.preventDefault()
-        this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null})
+        this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null, error: null})
     }
 
     renderActions(b) {

@@ -21,7 +21,10 @@ package datastore
 
 import (
 	"database/sql"
+	"errors"
 	"log"
+
+	"github.com/lib/pq"
 )
 
 const createSubstoreTableSQL = `
@@ -34,6 +37,11 @@ const createSubstoreTableSQL = `
 		serial_number    varchar(200) not null
 	)
 `
+
+// Indexes
+const createSubstoreUniqueIndexSQL = `
+	CREATE UNIQUE INDEX IF NOT EXISTS substore_idx ON substore 
+	(account_id, from_model_id, store, serial_number)`
 
 const createSubstoreSQL = `
 	INSERT INTO substore 
@@ -86,12 +94,24 @@ type Substore struct {
 // CreateSubstoreTable creates the database table for a sub-store
 func (db *DB) CreateSubstoreTable() error {
 	_, err := db.Exec(createSubstoreTableSQL)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(createSubstoreUniqueIndexSQL)
 	return err
 }
 
 // createSubstore creates an sub-store in the database
 func (db *DB) createSubstore(store Substore) error {
 	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber)
+	if err, ok := err.(*pq.Error); ok {
+		// This is a PostgreSQL error...
+		if err.Code.Name() == "unique_violation" {
+			// Output a more readable message
+			return errors.New("A sub-store mapping already exists for this model, serial-number and sub-store")
+		}
+	}
 	if err != nil {
 		log.Printf("Error creating the database sub-store: %v\n", err)
 		return err
@@ -171,11 +191,11 @@ func (db *DB) rowsToSubstores(rows *sql.Rows) ([]Substore, error) {
 	return stores, nil
 }
 
-func (db *DB) updateSubstore(store Substore) (string, error) {
+func (db *DB) updateSubstore(store Substore) error {
 	return db.updateSubstoreFilteredByUser(store, anyUserFilter)
 }
 
-func (db *DB) updateSubstoreFilteredByUser(store Substore, username string) (string, error) {
+func (db *DB) updateSubstoreFilteredByUser(store Substore, username string) error {
 	var err error
 
 	if len(username) == 0 {
@@ -183,10 +203,17 @@ func (db *DB) updateSubstoreFilteredByUser(store Substore, username string) (str
 	} else {
 		_, err = db.Exec(updateSubstoreForUserSQL, store.ID, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber, username)
 	}
+	if err, ok := err.(*pq.Error); ok {
+		// This is a PostgreSQL error...
+		if err.Code.Name() == "unique_violation" {
+			// Output a more readable message
+			return errors.New("A sub-store mapping already exists for this model, serial-number and sub-store")
+		}
+	}
 	if err != nil {
 		log.Printf("Error updating the database sub-store: %v\n", err)
-		return "", err
+		return err
 	}
 
-	return "", nil
+	return nil
 }

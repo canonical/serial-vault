@@ -91,6 +91,7 @@ var intlData = {
       "error-sign-empty": "No data supplied for signing",
       "error-signing-assertions": "Error signing the assertions",
       "error-updating-model": "Error updating the model",
+      "error-updating-store": "Error updating sub-store model",
       "error-updating-user": "Error updating the user",
       "error-user-data": "No user data supplied",
       "error-validate-key": "The public key must be entered",
