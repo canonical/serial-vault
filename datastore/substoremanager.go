@@ -48,6 +48,18 @@ const createSubstoreSQL = `
 	(account_id, from_model_id, to_model_id, store, serial_number) 
 	VALUES ($1,$2,$3,$4,$5)`
 
+const getSubstoreSQL = `
+	SELECT id, account_id, from_model_id, to_model_id, store, serial_number 
+	FROM substore 
+	WHERE from_model_id=$1 AND serial_number=$2`
+
+const getSubstoreForUserSQL = `
+	SELECT s.id, account_id, from_model_id, to_model_id, store, serial_number 
+	FROM substore s
+	INNER JOIN useraccountlink l ON s.account_id = l.account_id
+	INNER JOIN userinfo u ON l.user_id = u.id
+	WHERE s.from_model_id=$1 AND s.serial_number=$2 AND u.username=$3`
+
 const listSubstoreSQL = `
 	SELECT id, account_id, from_model_id, to_model_id, store, serial_number 
 	FROM substore 
@@ -102,7 +114,7 @@ func (db *DB) CreateSubstoreTable() error {
 	return err
 }
 
-// createSubstore creates an sub-store in the database
+// createSubstore creates a sub-store in the database
 func (db *DB) createSubstore(store Substore) error {
 	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber)
 	if err, ok := err.(*pq.Error); ok {
@@ -117,6 +129,34 @@ func (db *DB) createSubstore(store Substore) error {
 		return err
 	}
 	return nil
+}
+
+// GetSubstore fetches a sub-store in the database
+func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
+	store := Substore{}
+
+	var row *sql.Row
+
+	row = db.QueryRow(getSubstoreSQL, fromModelID, serialNumber)
+	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.ToModelID, &store.Store, &store.SerialNumber)
+	if err != nil {
+		log.Printf("Error retrieving database model by ID: %v\n", err)
+		return store, err
+	}
+
+	store.FromModel, err = db.getModel(store.FromModelID)
+	if err != nil {
+		log.Printf("Error retrieving database model: %v\n", err)
+		return store, err
+	}
+
+	store.ToModel, err = db.getModel(store.ToModelID)
+	if err != nil {
+		log.Printf("Error retrieving database model: %v\n", err)
+		return store, err
+	}
+
+	return store, nil
 }
 
 // ListSubstores returns a list of sub-stores

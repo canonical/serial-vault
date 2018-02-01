@@ -143,6 +143,9 @@ func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 // FindModel mocks the database response for finding a model
 func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	if modelName == "generic-classic" {
+		model = Model{ID: 1, BrandID: "generic", Name: "generic-classic", KeypairID: 1, AuthorityID: "generic", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	}
 	if modelName == "inactive" {
 		model = Model{ID: 1, BrandID: "System", Name: "inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}
@@ -638,6 +641,11 @@ func (mdb *MockDB) DeleteAllowedSubstore(storeID int, authorization User) (strin
 	return "", nil
 }
 
+// GetSubstore mock to get a substore record
+func (mdb *MockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
+	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: Model{}, ToModelID: 2, ToModel: Model{}, Store: "mybrand", SerialNumber: "abc1234"}, nil
+}
+
 // -----------------------------------------------------------------------------
 
 // ErrorMockDB holds the unsuccessful mocks for the database
@@ -1025,4 +1033,9 @@ func (mdb *ErrorMockDB) UpdateAllowedSubstore(store Substore, authorization User
 // DeleteAllowedSubstore mock to update a substore record
 func (mdb *ErrorMockDB) DeleteAllowedSubstore(storeID int, authorization User) (string, error) {
 	return "", errors.New("Cannot delete the sub-store model")
+}
+
+// GetSubstore mock to get a substore record
+func (mdb *ErrorMockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
+	return Substore{}, errors.New("Cannot get the sub-store model")
 }

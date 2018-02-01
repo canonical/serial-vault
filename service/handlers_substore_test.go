@@ -23,7 +23,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -209,7 +208,6 @@ func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 
 		result, err := s.parseBooleanResponse(w)
-		log.Println("---", result)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
