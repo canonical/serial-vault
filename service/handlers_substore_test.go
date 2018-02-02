@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2017-2018 Canonical Ltd
+ * Copyright (C) 2018-2019 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -51,14 +51,7 @@ type SubstoreTest struct {
 
 var _ = check.Suite(&SubstoreSuite{})
 
-func (s *SubstoreSuite) SetUpTest(c *check.C) {
-	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-}
-
-func (s *SubstoreSuite) sendRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
+func sendAdminRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
 
@@ -71,6 +64,13 @@ func (s *SubstoreSuite) sendRequest(method, url string, data io.Reader, permissi
 	AdminRouter().ServeHTTP(w, r)
 
 	return w
+}
+
+func (s *SubstoreSuite) SetUpTest(c *check.C) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
 }
 
 func (s *SubstoreSuite) parseSubstoresResponse(w *httptest.ResponseRecorder) (SubstoresResponse, error) {
@@ -99,7 +99,7 @@ func (s *SubstoreSuite) TestSubstoresHandler(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -138,7 +138,7 @@ func (s *SubstoreSuite) TestSubstoresCreateUpdateDeleteHandler(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 
 		result, err := s.parseBooleanResponse(w)
 		c.Assert(err, check.IsNil)
@@ -165,7 +165,7 @@ func (s *SubstoreSuite) TestSubstoresErrorHandler(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -206,7 +206,7 @@ func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 
 		result, err := s.parseBooleanResponse(w)
 		log.Println("---", result)
