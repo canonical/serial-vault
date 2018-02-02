@@ -134,22 +134,22 @@ const minAPIKeyLength = 10
 
 // Model holds the model details in the local database
 type Model struct {
-	ID              int
-	BrandID         string
-	Name            string
-	KeypairID       int
-	APIKey          string
-	AuthorityID     string // from the signing keypair
-	KeyID           string // from the signing keypair
-	KeyActive       bool   // from the signing keypair
-	SealedKey       string // from the signing keypair
-	KeypairIDUser   int    // from the system-user keypair
-	AuthorityIDUser string // from the system-user keypair
-	KeyIDUser       string // from the system-user keypair
-	KeyActiveUser   bool   // from the system-user keypair
-	SealedKeyUser   string // from the system-user keypair
-	AssertionUser   string // from the system-user keypair
-	ModelAssertion  ModelAssertion
+	ID              int            `json:"id"`
+	BrandID         string         `json:"brand-id"`
+	Name            string         `json:"model"`
+	KeypairID       int            `json:"keypair-id"`
+	APIKey          string         `json:"api-key"`
+	AuthorityID     string         `json:"authority-id"`      // from the signing keypair
+	KeyID           string         `json:"key-id"`            // from the signing keypair
+	KeyActive       bool           `json:"key-active"`        // from the signing keypair
+	SealedKey       string         `json:"-"`                 // from the signing keypair
+	KeypairIDUser   int            `json:"key-id-user"`       // from the system-user keypair
+	AuthorityIDUser string         `json:"authority-id-user"` // from the system-user keypair
+	KeyIDUser       string         `json:"key-id-user"`       // from the system-user keypair
+	KeyActiveUser   bool           `json:"key-active-user"`   // from the system-user keypair
+	SealedKeyUser   string         `json:"-"`                 // from the system-user keypair
+	AssertionUser   string         `json:"-"`                 // from the system-user keypair
+	ModelAssertion  ModelAssertion `json:"-"`
 }
 
 // CreateModelTable creates the database table for a model.

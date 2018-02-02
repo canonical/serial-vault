@@ -93,6 +93,17 @@ func formatModelsResponse(success bool, errorCode, errorSubcode, message string,
 	return nil
 }
 
+func formatSubstoresResponse(success bool, errorCode, errorSubcode, message string, stores []datastore.Substore, w http.ResponseWriter) error {
+	response := SubstoresResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Substores: stores}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the sub-stores response.")
+		return err
+	}
+	return nil
+}
+
 func formatBooleanResponse(success bool, errorCode, errorSubcode, message string, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	response := BooleanResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}

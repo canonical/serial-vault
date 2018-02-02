@@ -6,6 +6,7 @@
     "history": "^4.6.3",
     "jwt-decode": "^2.2.0",
     "moment": "^2.18.1",
+    "npm": "^5.6.0",
     "react": "^15.6.1",
     "react-datepicker": "^0.51.0",
     "react-dom": "^15.6.1",

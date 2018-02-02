@@ -52,7 +52,7 @@ class ModelRow extends Component {
                     {this.renderActions()}
                 </td>
                 <td className="overflow" title={this.props.model['brand-id']}>{this.props.model['brand-id']}</td>
-                <td>{this.props.model.model}</td>
+                <td className="overflow" title={this.props.model.model}>{this.props.model.model}</td>
                 <td className="overflow" title={fingerprint} >{fingerprint}</td>
                 <td className="overflow" title={fingerprintUser} >{fingerprintUser}</td>
                 <td>{this.props.model['key-active'] && this.props.model['key-active-user'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>

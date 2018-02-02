@@ -132,7 +132,7 @@ class AccountList extends Component {
                                 </td>
                                 : ''
                             }
-                            <td>{acc.AuthorityID}</td>
+                            <td><a href={'/accounts/view/' + acc.ID}>{acc.AuthorityID}</a></td>
                             <td>
                                 <p title={acc.Assertion}><i className="fa fa-check information positive"></i> {T('complete')}</p>
                             </td>

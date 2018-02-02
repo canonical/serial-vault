@@ -21,7 +21,6 @@ package service
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,21 +64,6 @@ func (s *AccountSuite) SetUpTest(c *check.C) {
 	datastore.OpenKeyStore(config)
 }
 
-func (s *AccountSuite) sendRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(method, url, data)
-
-	if permissions > 0 {
-		// Create a JWT and add it to the request
-		err := createJWTWithRole(r, datastore.Admin)
-		c.Assert(err, check.IsNil)
-	}
-
-	AdminRouter().ServeHTTP(w, r)
-
-	return w
-}
-
 func (s *AccountSuite) parseAccountsResponse(w *httptest.ResponseRecorder) (AccountsResponse, error) {
 	// Check the JSON response
 	result := AccountsResponse{}
@@ -107,7 +91,7 @@ func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -145,7 +129,7 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -160,7 +144,7 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 func (s *AccountSuite) TestAccountsHandlerError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
-	w := s.sendRequest("GET", "/v1/accounts", bytes.NewReader(nil), datastore.Admin, c)
+	w := sendAdminRequest("GET", "/v1/accounts", bytes.NewReader(nil), datastore.Admin, c)
 	c.Assert(w.Code, check.Equals, 400)
 
 	result, err := s.parseAccountsResponse(w)

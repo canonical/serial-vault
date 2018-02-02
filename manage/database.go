@@ -113,6 +113,9 @@ func updateDatabase() {
 
 		// Create the Model Assertion table, if it does not exist
 		{datastore.Environ.DB.CreateModelAssertTable, create, "model assertion"},
+
+		// Create the Sub-store table, if it does not exist
+		{datastore.Environ.DB.CreateSubstoreTable, create, "sub-store"},
 	}
 
 	exec(operations)
