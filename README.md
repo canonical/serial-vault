@@ -210,6 +210,27 @@ part of the serial assertion.
 #### Output message
 The method returns a signed serial assertion using the key from the vault.
 
+### /v1/pivot (POST)
+> Find the model pivot details for a device.
+
+Takes the serial assertion from a device and returns the model pivot details for the device.
+
+#### Input message
+The serial assertion of the manufacturer's device.
+
+#### Output message
+The method returns details of the model pivot, to convert the device to a reseller model.
+
+### /v1/pivotmodel (POST)
+> Generate the model assertion for the pivoted model for a device.
+
+Takes the serial assertion from a device and returns the model assertion for the pivoted model of the device.
+
+#### Input message
+The serial assertion of the manufacturer's device.
+
+#### Output message
+The method returns details of the model assertion of the pivoted model, to convert the device to a reseller model.
 
 [travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
 [travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault

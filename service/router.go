@@ -40,6 +40,7 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler))).Methods("POST")
 	router.Handle("/v1/model", Middleware(ErrorHandler(ModelAssertionHandler))).Methods("POST")
 	router.Handle("/v1/pivot", Middleware(ErrorHandler(PivotModelHandler))).Methods("POST")
+	router.Handle("/v1/pivotmodel", Middleware(ErrorHandler(PivotModelAssertionHandler))).Methods("POST")
 
 	return router
 }
