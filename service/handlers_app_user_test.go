@@ -139,7 +139,7 @@ func sendSystemUserAssertion(request string, t *testing.T) (int, bool, string) {
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/assertions", bytes.NewBufferString(request))
-	SystemUserRouter().ServeHTTP(w, r)
+	AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := SystemUserResponse{}

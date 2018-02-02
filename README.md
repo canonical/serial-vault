@@ -3,7 +3,7 @@
 
 A Go web service that digitally signs device assertion details.
 
-The application can be run in three modes: signing service, admin service and system-user assertion services. All the web services
+The application can be run in two modes: signing service and admin services. All the web services
 operate under unencrypted HTTP connections, so these should not be exposed to a public network
 as-is. The services should be protected by web server front-end services, such as Apache, that
 provide secure HTTPS connections. Also, the admin service does not include authentication nor 
@@ -12,7 +12,7 @@ authentication front-end on the web server e.g. SSO. Typically, the services wil
 on a restricted network at a factory, though, with additional security measures, the signing service 
 could be made available on a public network.
 
-Some deployment recommendations are [provided](docs/Deployment.md)
+Some deployment recommendations are [provided](docs/installation.md)
 
 ## Install using the snap package
 Are you using one of the many systems that support [snaps](https://snapcraft.io/)?
@@ -38,7 +38,6 @@ The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
  - Signing Service: http://localhost:8080/v1/version
  - Admin Service: http://localhost:8081/
- - System-User Service: http://localhost:8082/
 
 The Admin and System-User services' CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
 over an insecure channel, it is needed to workaround it by setting the environment variable:

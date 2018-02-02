@@ -7,19 +7,17 @@ table_of_contents: False
 
 ![Serial Vault Design](assets/Design.png)
 
-The SerialVault is comprised of three services, deployed at a data centre:
+The SerialVault is comprised of two services, deployed at a data centre:
 
  * Signing Service
  * Admin Service
- * System-User Service (optional)
 
 The Signing Service is the publicly accessible service that is used to generate a 
 signed serial assertion using a predefined signing key. The Admin Service is a private 
 service, that is designed to be accessible only from the data centre, that allows 
-signing keys and models to be defined. The System-User Service is an optional service 
-that allows a signed, system-user assertion to be generated. The system-user assertion 
-can be used on an unmanaged device to create a user that allows an operator to login 
-to the device.
+signing keys, models to be defined and generating signed system-user assertions. 
+The system-user assertion can be used on an unmanaged device to create a user that
+allows an operator to login to the device.
 
 # Design
 
@@ -34,12 +32,10 @@ a serial assertion and then signs and returns a serial assertion.
 The sign method accesses the Signing Key from the memory store. The first time a Signing 
 Key is used, it will be retrieved from the database, decrypted and added to the memory store.
 
-The Admin Service allows signing keys to be uploaded, and for models to be defined. Whenever 
-a valid sign request is made, the serial number and device-key fingerprint are stored in the 
-database. The Admin Service provides a Signing Log view that shows the valid serial number 
-and device-keys fingerprints that have been used.
-
-The System-User Service is an optional service that allows a signed system-user assertion 
-to be generated. The most common use case is for creating system users in the factory line 
-or on first boot, by using a USB dongle which would contain this assertion. Typically, the 
-service will only be exposed to the operators on the factory line.
+The Admin Service allows signing keys to be uploaded, models to be defined and signed
+system-user assertions to be generated. Whenever a valid sign request is made, the serial
+number and device-key fingerprint are stored in the database. The Admin Service provides 
+a Signing Log view that shows the valid serial number and device-keys fingerprints that have been used.
+The most common use case is for creating system users in the factory line or on first boot, 
+by using a USB dongle which would contain this assertion. Typically, the service will only 
+be exposed to the operators on the factory line.

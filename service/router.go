@@ -116,24 +116,3 @@ func AdminRouter() *mux.Router {
 
 	return router
 }
-
-// SystemUserRouter returns the application route handler for the system-user service methods
-func SystemUserRouter() *mux.Router {
-
-	// Start the web service router
-	router := mux.NewRouter()
-
-	// API routes
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
-	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler))).Methods("GET")
-	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
-
-	// Web application routes
-	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
-	router.PathPrefix("/static/").Handler(fs)
-	router.Handle("/", Middleware(http.HandlerFunc(UserIndexHandler))).Methods("GET")
-
-	return router
-}

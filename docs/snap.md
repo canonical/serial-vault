@@ -23,14 +23,13 @@ need to:
  The snap will create or update the tables in the database on restart, as soon as it has
  a valid database connection.
 
- Depending on the service mode (signing, admin or system-user) defined in the settings.yaml
- file, the selected mode should be accessible on port :8080, :8081 or :8082
+ Depending on the service mode (signing, admin) defined in the settings.yaml
+ file, the selected mode should be accessible on port :8080 or :8081 
 
 | Service | URL |
 |---------|-----|
 | Signing Service | http://localhost:8080/v1/version |
 | Admin Service | http://localhost:8081/ |
-| System-User Service | http://localhost:8082 |
 
 
 NOTE: In the specific case of the Admin Service, due to cross site request forgery protection
