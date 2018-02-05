@@ -23,7 +23,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -62,6 +61,16 @@ func sendAdminRequest(method, url string, data io.Reader, permissions int, c *ch
 	}
 
 	AdminRouter().ServeHTTP(w, r)
+
+	return w
+}
+
+func sendSigningRequest(method, url string, data io.Reader, apiKey string, c *check.C) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	r.Header.Set("api-key", apiKey)
+
+	SigningRouter().ServeHTTP(w, r)
 
 	return w
 }
@@ -209,7 +218,6 @@ func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 
 		result, err := s.parseBooleanResponse(w)
-		log.Println("---", result)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
