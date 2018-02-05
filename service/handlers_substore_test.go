@@ -65,6 +65,16 @@ func sendAdminRequest(method, url string, data io.Reader, permissions int, c *ch
 	return w
 }
 
+func sendSigningRequest(method, url string, data io.Reader, apiKey string, c *check.C) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	r.Header.Set("api-key", apiKey)
+
+	SigningRouter().ServeHTTP(w, r)
+
+	return w
+}
+
 func (s *SubstoreSuite) SetUpTest(c *check.C) {
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}

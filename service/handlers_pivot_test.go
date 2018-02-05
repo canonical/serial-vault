@@ -22,13 +22,12 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"io"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/snapcore/snapd/asserts"
 	check "gopkg.in/check.v1"
 )
 
@@ -112,6 +111,13 @@ InRto3Z45nadl7RhIK85zF4zycTYXveQsCTZ0zkp5Jfgm90rJ1qM0aKfQiuSOdY14YQZqQG1Fc3w
 iSriN2otHAUwCXgr7vg7wiHOZKHf/LzV0/110iIHGxFRpuitZB+oHXw4EBOPPnDwpiFjBsbgspl9
 4VDviwTwZm6obnuDEAxynpe6lhNz`
 
+func parsePivotResponse(w *httptest.ResponseRecorder) (PivotResponse, error) {
+	// Check the JSON response
+	result := PivotResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
 func (s *PivotSuite) SetUpTest(c *check.C) {
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
@@ -119,24 +125,7 @@ func (s *PivotSuite) SetUpTest(c *check.C) {
 	datastore.OpenKeyStore(config)
 }
 
-func (s *PivotSuite) sendRequest(method, url string, data io.Reader, apiKey string, c *check.C) *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(method, url, data)
-	r.Header.Set("api-key", apiKey)
-
-	SigningRouter().ServeHTTP(w, r)
-
-	return w
-}
-
-func (s *PivotSuite) parsePivotResponse(w *httptest.ResponseRecorder) (PivotResponse, error) {
-	// Check the JSON response
-	result := PivotResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	return result, err
-}
-
-func (s *PivotSuite) TestAssertionHandler(c *check.C) {
+func (s *PivotSuite) TestPivotModelHandler(c *check.C) {
 
 	tests := []PivotTest{
 		PivotTest{"POST", "/v1/pivot", nil, 400, jsonType, "ValidAPIKey", false},
@@ -148,13 +137,38 @@ func (s *PivotSuite) TestAssertionHandler(c *check.C) {
 	}
 
 	for _, t := range tests {
-		w := s.sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
+		w := sendSigningRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := s.parsePivotResponse(w)
+		result, err := parsePivotResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
+	}
+
+}
+
+func (s *PivotSuite) TestPivotModelAssertionHandler(c *check.C) {
+
+	tests := []PivotTest{
+		PivotTest{"POST", "/v1/pivotmodel", nil, 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotmodel", []byte{}, 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotmodel", []byte("invalid"), 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotmodel", []byte(serialAssert), 200, asserts.MediaType, "ValidAPIKey", true},
+		PivotTest{"POST", "/v1/pivotmodel", []byte(serialAssert), 400, jsonType, "InvalidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotmodel", []byte(serialAssertInvalid), 400, jsonType, "ValidAPIKey", false},
+	}
+
+	for _, t := range tests {
+		w := sendSigningRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		if t.Type == jsonType {
+			result, err := parsePivotResponse(w)
+			c.Assert(err, check.IsNil)
+			c.Assert(result.Success, check.Equals, t.Success)
+		}
 	}
 
 }
