@@ -199,7 +199,7 @@ class AccountDetail extends Component {
                 <td className="overflow" title={b.fromModel.model}>{b.fromModel.model}</td>
                 <td className="overflow" title={b.serialnumber}>{b.serialnumber}</td>
                 <td className="overflow" title={b.store}>{b.store}</td>
-                <td className="overflow" title={b.toModel.model}>{b.toModel.model}</td>
+                <td className="overflow" title={b.modelname}>{b.modelname}</td>
             </tr>
         )
     }

@@ -122,10 +122,10 @@ func (s *SubstoreSuite) TestSubstoresHandler(c *check.C) {
 }
 
 func (s *SubstoreSuite) TestSubstoresCreateUpdateDeleteHandler(c *check.C) {
-	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, ToModelID: 2, Store: "mybrand", SerialNumber: "a11112222"}
+	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
 	ssn, _ := json.Marshal(substoreNew)
 
-	substore := datastore.Substore{ID: 1, AccountID: 1, FromModelID: 1, ToModelID: 2, Store: "mybrand", SerialNumber: "a11112222"}
+	substore := datastore.Substore{ID: 1, AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
 	ss, _ := json.Marshal(substore)
 
 	tests := []SubstoreTest{
@@ -190,10 +190,10 @@ func (s *SubstoreSuite) TestSubstoresErrorHandler(c *check.C) {
 func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
-	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, ToModelID: 2, Store: "mybrand", SerialNumber: "a11112222"}
+	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
 	ssn, _ := json.Marshal(substoreNew)
 
-	substore := datastore.Substore{ID: 1, AccountID: 1, FromModelID: 1, ToModelID: 2, Store: "mybrand", SerialNumber: "a11112222"}
+	substore := datastore.Substore{ID: 1, AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
 	ss, _ := json.Marshal(substore)
 
 	tests := []SubstoreTest{
