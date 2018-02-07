@@ -113,6 +113,8 @@ var intlData = {
       "makes": "Makes",
       "model-description": "The name of the device model",
       "model": "Model",
+      "modelname": "Model Name",
+      "modelname-description": "The name of the pivoted model",
       "models_available": "The following models are available",
       "models": "Models",
       "more": "More",

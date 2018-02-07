@@ -75,7 +75,7 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorRes
 	}
 
 	// Override the model assertion headers with the sub-store details
-	assertionHeaders["model"] = substore.ToModel.Name
+	assertionHeaders["model"] = substore.ModelName
 	assertionHeaders["store"] = substore.Store
 
 	// Sign the assertion with the snapd assertions module

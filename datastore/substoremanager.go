@@ -32,9 +32,9 @@ const createSubstoreTableSQL = `
 		id               serial primary key not null,
 		account_id       int references account not null,
 		from_model_id    int references model not null,
-		to_model_id      int references model not null,
 		store            varchar(200) not null,
-		serial_number    varchar(200) not null
+		serial_number    varchar(200) not null,
+		model_name       varchar(200) not null
 	)
 `
 
@@ -45,28 +45,28 @@ const createSubstoreUniqueIndexSQL = `
 
 const createSubstoreSQL = `
 	INSERT INTO substore 
-	(account_id, from_model_id, to_model_id, store, serial_number) 
+	(account_id, from_model_id, store, serial_number, model_name) 
 	VALUES ($1,$2,$3,$4,$5)`
 
 const getSubstoreSQL = `
-	SELECT id, account_id, from_model_id, to_model_id, store, serial_number 
+	SELECT id, account_id, from_model_id, store, serial_number, model_name 
 	FROM substore 
 	WHERE from_model_id=$1 AND serial_number=$2`
 
 const getSubstoreForUserSQL = `
-	SELECT s.id, account_id, from_model_id, to_model_id, store, serial_number 
+	SELECT s.id, account_id, from_model_id, store, serial_number, model_name 
 	FROM substore s
 	INNER JOIN useraccountlink l ON s.account_id = l.account_id
 	INNER JOIN userinfo u ON l.user_id = u.id
 	WHERE s.from_model_id=$1 AND s.serial_number=$2 AND u.username=$3`
 
 const listSubstoreSQL = `
-	SELECT id, account_id, from_model_id, to_model_id, store, serial_number 
+	SELECT id, account_id, from_model_id, store, serial_number, model_name 
 	FROM substore 
 	WHERE account_id=$1`
 
 const listUserSubstoreSQL = `
-	SELECT s.id, account_id, from_model_id, to_model_id, store, serial_number 
+	SELECT s.id, account_id, from_model_id, store, serial_number, model_name 
 	FROM substore s
 	INNER JOIN useraccountlink l ON s.account_id = l.account_id
 	INNER JOIN userinfo u ON l.user_id = u.id
@@ -74,11 +74,11 @@ const listUserSubstoreSQL = `
 `
 const updateSubstoreSQL = `
 	UPDATE substore 
-	SET account_id=$2, from_model_id=$3, to_model_id=$4, store=$5, serial_number=$6 
+	SET account_id=$2, from_model_id=$3, store=$4, serial_number=$5, model_name=$6 
 	WHERE id=$1`
 const updateSubstoreForUserSQL = `
 	UPDATE substore s 
-	SET account_id=$2, from_model_id=$3, to_model_id=$4, store=$5, serial_number=$6 
+	SET account_id=$2, from_model_id=$3, store=$4, serial_number=$5, model_name=$6 
 	FROM useraccountlink ua ON ua.account_id=s.account_id
 	INNER JOIN userinfo u ON ua.user_id=u.id
 	WHERE s.id=$1 AND u.username=$7`
@@ -96,11 +96,10 @@ type Substore struct {
 	ID           int    `json:"id"`
 	AccountID    int    `json:"accountID"`
 	FromModelID  int    `json:"fromModelID"`
-	ToModelID    int    `json:"toModelID"`
 	FromModel    Model  `json:"fromModel"`
-	ToModel      Model  `json:"toModel"`
 	Store        string `json:"store"`
 	SerialNumber string `json:"serialnumber"`
+	ModelName    string `json:"modelname"`
 }
 
 // CreateSubstoreTable creates the database table for a sub-store
@@ -116,7 +115,7 @@ func (db *DB) CreateSubstoreTable() error {
 
 // createSubstore creates a sub-store in the database
 func (db *DB) createSubstore(store Substore) error {
-	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber)
+	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModelID, store.Store, store.SerialNumber, store.ModelName)
 	if err, ok := err.(*pq.Error); ok {
 		// This is a PostgreSQL error...
 		if err.Code.Name() == "unique_violation" {
@@ -138,19 +137,13 @@ func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error
 	var row *sql.Row
 
 	row = db.QueryRow(getSubstoreSQL, fromModelID, serialNumber)
-	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.ToModelID, &store.Store, &store.SerialNumber)
+	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)
 		return store, err
 	}
 
 	store.FromModel, err = db.getModel(store.FromModelID)
-	if err != nil {
-		log.Printf("Error retrieving database model: %v\n", err)
-		return store, err
-	}
-
-	store.ToModel, err = db.getModel(store.ToModelID)
 	if err != nil {
 		log.Printf("Error retrieving database model: %v\n", err)
 		return store, err
@@ -208,18 +201,12 @@ func (db *DB) rowsToSubstores(rows *sql.Rows) ([]Substore, error) {
 
 	for rows.Next() {
 		store := Substore{}
-		err := rows.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.ToModelID, &store.Store, &store.SerialNumber)
+		err := rows.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 		if err != nil {
 			return nil, err
 		}
 
 		store.FromModel, err = db.getModel(store.FromModelID)
-		if err != nil {
-			log.Printf("Error retrieving database model: %v\n", err)
-			return stores, err
-		}
-
-		store.ToModel, err = db.getModel(store.ToModelID)
 		if err != nil {
 			log.Printf("Error retrieving database model: %v\n", err)
 			return stores, err
@@ -239,9 +226,9 @@ func (db *DB) updateSubstoreFilteredByUser(store Substore, username string) erro
 	var err error
 
 	if len(username) == 0 {
-		_, err = db.Exec(updateSubstoreSQL, store.ID, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber)
+		_, err = db.Exec(updateSubstoreSQL, store.ID, store.AccountID, store.FromModelID, store.Store, store.SerialNumber, store.ModelName)
 	} else {
-		_, err = db.Exec(updateSubstoreForUserSQL, store.ID, store.AccountID, store.FromModelID, store.ToModelID, store.Store, store.SerialNumber, username)
+		_, err = db.Exec(updateSubstoreForUserSQL, store.ID, store.AccountID, store.FromModelID, store.Store, store.SerialNumber, store.ModelName, username)
 	}
 	if err, ok := err.(*pq.Error); ok {
 		// This is a PostgreSQL error...

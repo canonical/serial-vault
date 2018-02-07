@@ -621,11 +621,10 @@ func (mdb *MockDB) CreateAllowedSubstore(store Substore, authorization User) err
 // ListSubstores mock to list substore records
 func (mdb *MockDB) ListSubstores(accountID int, authorization User) ([]Substore, error) {
 	fromModel, _ := mdb.GetAllowedModel(1, authorization)
-	toModel, _ := mdb.GetAllowedModel(2, authorization)
 
 	substores := []Substore{
-		Substore{ID: 1, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc1234"},
-		Substore{ID: 2, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc5678"},
+		Substore{ID: 1, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"},
+		Substore{ID: 2, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc5678", ModelName: "alder-mybrand"},
 	}
 
 	return substores, nil
@@ -645,9 +644,8 @@ func (mdb *MockDB) DeleteAllowedSubstore(storeID int, authorization User) (strin
 func (mdb *MockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
 
 	fromModel := Model{ID: 1, BrandID: "generic", Name: "generic-classic", KeypairID: 1, AuthorityID: "generic", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
-	toModel := Model{ID: 2, BrandID: "generic", Name: "generic-classic-substore", KeypairID: 1, AuthorityID: "generic", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 
-	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: fromModel, ToModelID: 2, ToModel: toModel, Store: "mybrand", SerialNumber: "abc1234"}, nil
+	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"}, nil
 }
 
 // -----------------------------------------------------------------------------
@@ -1019,11 +1017,10 @@ func (mdb *ErrorMockDB) CreateAllowedSubstore(store Substore, authorization User
 // ListSubstores mock to list substore records
 func (mdb *ErrorMockDB) ListSubstores(accountID int, authorization User) ([]Substore, error) {
 	fromModel, _ := mdb.GetAllowedModel(1, authorization)
-	toModel, _ := mdb.GetAllowedModel(2, authorization)
 
 	substores := []Substore{
-		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc1234"},
-		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, ToModelID: toModel.ID, ToModel: toModel, Store: "mybrand", SerialNumber: "abc5678"},
+		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"},
+		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc5678", ModelName: "alder-mybrand"},
 	}
 
 	return substores, errors.New("Cannot list the sub-stores")

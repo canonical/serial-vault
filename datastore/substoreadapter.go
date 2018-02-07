@@ -109,17 +109,17 @@ func validateSubstore(store Substore, validateStoreLabel string) (string, error)
 		return validateStoreLabel, err
 	}
 
-	err = validateModelID("To Model", store.ToModelID)
-	if err != nil {
-		return validateStoreLabel, err
-	}
-
 	err = validateSyntax("Sub-store name", store.Store, validStoreNameRegexp)
 	if err != nil {
 		return validateStoreLabel, err
 	}
 
 	err = validateSyntax("Serial-number", store.SerialNumber, validSerialNumberRegexp)
+	if err != nil {
+		return validateStoreLabel, err
+	}
+
+	err = validateModelName(store.ModelName)
 	if err != nil {
 		return validateStoreLabel, err
 	}

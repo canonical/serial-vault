@@ -35,9 +35,9 @@ class SubstoreForm extends Component {
         this.props.onChange('fromModelID', parseInt(e.target.value, 10))
     }
 
-    handleChangeToModel = (e) => {
+    handleChangeModelName = (e) => {
         e.preventDefault()
-        this.props.onChange('toModelID', parseInt(e.target.value, 10))
+        this.props.onChange('modelname', e.target.value)
     }
 
     render() {
@@ -68,13 +68,9 @@ class SubstoreForm extends Component {
                                     value={b.store} onChange={this.handleChangeSubstore} />
                             </label>
 
-                            <label htmlFor="toModel">{T('substore-model')}:
-                                <select value={b.toModelID} id="toModel" onChange={this.handleChangeToModel}>
-                                    <option></option>
-                                    {this.props.models.map(function(m) {
-                                        return <option key={m.id} value={m.id}>{m.model}</option>;
-                                    })}
-                                </select>
+                            <label htmlFor="modelname">{T('modelname')}:
+                                <input type="text" id="modelname" placeholder={T('modelname-description')}
+                                    value={b.modelname} onChange={this.handleChangeModelName} />
                             </label>
                         </fieldset>
                         {isUserAdmin(this.props.token) ?
