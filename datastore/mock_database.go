@@ -105,6 +105,7 @@ func (mdb *MockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	var accounts []Account
 	accounts = append(accounts, Account{ID: 1, AuthorityID: "system", Assertion: "assertion\n", ResellerAPI: true})
 	accounts = append(accounts, Account{ID: 2, AuthorityID: "vendor", Assertion: "assertion\n", ResellerAPI: false})
+	accounts = append(accounts, Account{ID: 3, AuthorityID: "generic", Assertion: "assertion\n", ResellerAPI: true})
 	return accounts, nil
 }
 

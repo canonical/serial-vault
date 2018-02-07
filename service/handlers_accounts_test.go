@@ -81,8 +81,8 @@ func (s *AccountSuite) parseBooleanResponse(w *httptest.ResponseRecorder) (Boole
 func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 
 	tests := []AccountTest{
-		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, 2},
-		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
+		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, 3},
+		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 3},
 		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 

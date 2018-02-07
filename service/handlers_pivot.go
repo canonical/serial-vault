@@ -22,6 +22,7 @@ package service
 import (
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/snapcore/snapd/asserts"
@@ -60,6 +61,15 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorRes
 		return errResponse
 	}
 
+	// Check that the reseller functionality is enabled for the brand
+	acc, err := datastore.Environ.DB.GetAccount(assertion.HeaderString("brand-id"))
+	if err != nil {
+		return ErrorResponse{false, "error-account", "", err.Error(), http.StatusBadRequest}
+	}
+	if !acc.ResellerAPI {
+		return ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
+	}
+
 	substore, errResponse := findModelPivot(assertion, r.Header.Get("api-key"))
 	if !errResponse.Success {
 		return errResponse
@@ -81,7 +91,7 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorRes
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), substore.FromModel.BrandID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
-		logMessage("MODEL", "signing-assertion", err.Error())
+		logMessage("PIVOT", "signing-assertion", err.Error())
 		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusBadRequest}
 	}
 
@@ -90,6 +100,58 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorRes
 
 	// Add the account-key assertion to the assertions list
 	fetchAssertionFromStore(&assertions, asserts.AccountKeyType, []string{keypair.KeyID})
+
+	// Add the model assertion after the account and account-key assertions
+	assertions = append(assertions, signedAssertion)
+
+	// Return successful response with the signed assertions
+	formatAssertionResponse(true, "", "", "", assertions, w)
+	return ErrorResponse{Success: true}
+
+}
+
+// PivotSerialAssertionHandler is the API method to get the serial assertions for a pivoted model
+// The serial assertion of the original model is supplied, and the assertions for the pivoted model are returned
+func PivotSerialAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
+	assertion, errResponse := parseSerialAssertion(r)
+	if !errResponse.Success {
+		return errResponse
+	}
+
+	// Check that the reseller functionality is enabled for the brand
+	acc, err := datastore.Environ.DB.GetAccount(assertion.HeaderString("brand-id"))
+	if err != nil {
+		return ErrorResponse{false, "error-account", "", err.Error(), http.StatusBadRequest}
+	}
+	if !acc.ResellerAPI {
+		return ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
+	}
+
+	substore, errResponse := findModelPivot(assertion, r.Header.Get("api-key"))
+	if !errResponse.Success {
+		return errResponse
+	}
+
+	assertions := []asserts.Assertion{}
+
+	// Build the serial assertion headers for the original model
+	// Override the model assertion headers with the sub-store details
+	assertionHeaders := assertion.Headers()
+	assertionHeaders["model"] = substore.ModelName
+	assertionHeaders["timestamp"] = time.Now().Format(time.RFC3339)
+
+	// Sign the assertion with the snapd assertions module
+	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SerialType, assertionHeaders, assertion.Body(), substore.FromModel.BrandID, substore.FromModel.KeyID, substore.FromModel.SealedKey)
+	if err != nil {
+		logMessage("PIVOT", "signing-assertion", err.Error())
+		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusBadRequest}
+	}
+
+	// Add the account assertion to the assertions list
+	fetchAssertionFromStore(&assertions, asserts.AccountType, []string{substore.FromModel.BrandID})
+
+	// Add the account-key assertion to the assertions list
+	fetchAssertionFromStore(&assertions, asserts.AccountKeyType, []string{substore.FromModel.KeyID})
 
 	// Add the model assertion after the account and account-key assertions
 	assertions = append(assertions, signedAssertion)
