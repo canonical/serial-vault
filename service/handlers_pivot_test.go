@@ -148,7 +148,7 @@ func (s *PivotSuite) TestPivotModelHandler(c *check.C) {
 
 }
 
-func (s *PivotSuite) TestPivotModelAssertionHandler(c *check.C) {
+func (s *PivotSuite) TestPivotModelSerialAssertionHandler(c *check.C) {
 
 	tests := []PivotTest{
 		PivotTest{"POST", "/v1/pivotmodel", nil, 400, jsonType, "ValidAPIKey", false},
@@ -157,6 +157,12 @@ func (s *PivotSuite) TestPivotModelAssertionHandler(c *check.C) {
 		PivotTest{"POST", "/v1/pivotmodel", []byte(serialAssert), 200, asserts.MediaType, "ValidAPIKey", true},
 		PivotTest{"POST", "/v1/pivotmodel", []byte(serialAssert), 400, jsonType, "InvalidAPIKey", false},
 		PivotTest{"POST", "/v1/pivotmodel", []byte(serialAssertInvalid), 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotserial", nil, 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotserial", []byte{}, 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotserial", []byte("invalid"), 400, jsonType, "ValidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotserial", []byte(serialAssert), 200, asserts.MediaType, "ValidAPIKey", true},
+		PivotTest{"POST", "/v1/pivotserial", []byte(serialAssert), 400, jsonType, "InvalidAPIKey", false},
+		PivotTest{"POST", "/v1/pivotserial", []byte(serialAssertInvalid), 400, jsonType, "ValidAPIKey", false},
 	}
 
 	for _, t := range tests {

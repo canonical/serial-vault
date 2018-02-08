@@ -69,12 +69,13 @@ func (s *AssertionSuite) sendRequest(method, url string, data io.Reader, apiKey 
 
 func (s *AssertionSuite) TestAssertionHandler(c *check.C) {
 	tests := []AssertionTest{
-		AssertionTest{nil, 400, "application/json; charset=UTF-8", "ValidAPIKey"},
-		AssertionTest{[]byte{}, 400, "application/json; charset=UTF-8", "ValidAPIKey"},
+		AssertionTest{nil, 400, jsonType, "ValidAPIKey"},
+		AssertionTest{[]byte{}, 400, jsonType, "ValidAPIKey"},
 		AssertionTest{validModel(), 200, asserts.MediaType, "ValidAPIKey"},
-		AssertionTest{invalidModel(), 400, "application/json; charset=UTF-8", "ValidAPIKey"},
-		AssertionTest{unauthBrand(), 400, "application/json; charset=UTF-8", "ValidAPIKey"},
-		AssertionTest{unknownBrand(), 400, "application/json; charset=UTF-8", "ValidAPIKey"},
+		AssertionTest{validModel(), 400, jsonType, "InvalidAPIKey"},
+		AssertionTest{invalidModel(), 400, jsonType, "ValidAPIKey"},
+		AssertionTest{unauthBrand(), 400, jsonType, "ValidAPIKey"},
+		AssertionTest{unknownBrand(), 400, jsonType, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
