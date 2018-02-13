@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/account"
@@ -144,6 +145,18 @@ func createModelAssertionHeaders(m datastore.Model) (map[string]interface{}, dat
 		"sign-key-sha3-384": keypair.KeyID,
 		"timestamp":         time.Now().Format(time.RFC3339),
 	}
+
+	// Check if the optional required-snaps field is needed
+	if len(assert.RequiredSnaps) == 0 {
+		return headers, keypair, nil
+	}
+
+	snapList := strings.Split(assert.RequiredSnaps, ",")
+	reqdSnaps := []interface{}{}
+	for _, s := range snapList {
+		reqdSnaps = append(reqdSnaps, strings.TrimSpace(s))
+	}
+	headers["required-snaps"] = reqdSnaps
 
 	return headers, keypair, nil
 }
