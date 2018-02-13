@@ -102,6 +102,12 @@ class ModelAssertion extends Component {
         this.setState({assertion: assertion});
     }
 
+    handleChangeSnaps = (e) => {
+        var assertion = this.state.assertion;
+        assertion['required_snaps'] = e.target.value;
+        this.setState({assertion: assertion});
+    }
+
     handleSave = (e) => {
         e.preventDefault()
         if (!isUserAdmin(this.props.token)) {
@@ -165,6 +171,10 @@ class ModelAssertion extends Component {
                         <label htmlFor="store">{T('store')}:
                             <input type="text" id="store" placeholder={T('store-description')}
                                 value={ma['store']} onChange={this.handleChangeStore} />
+                        </label>
+                        <label htmlFor="required-snaps">{T('required-snaps')}:
+                            <textarea onChange={this.handleChangeSnaps} defaultValue={ma['required_snaps']} name="required-snaps"
+                                placeholder={T('required-snaps-description')} />
                         </label>
                     </fieldset>
                     {isUserAdmin(this.props.token) ?

@@ -153,6 +153,8 @@ var intlData = {
       "public-keys": "Public Keys",
       "register-signing-key": "Register Signing Key with the Store",
       "remove": "Remove",
+      "required-snaps": "Required Snaps",
+      "required-snaps-description": "(optional) List of required snaps - enter a comma-separated list",
       "reseller": "Reseller",
       "reseller-features": "Enable Reseller Features",
       "revision": "Revision",

@@ -36,40 +36,42 @@ const createModelAssertTableSQL = `
 		gadget           varchar(60) not null,
 		kernel           varchar(60) not null,
 		store            varchar(60),
+		required_snaps   text default '',
 		created          timestamp default current_timestamp,
-		modified         timestamp default current_timestamp
+		modified         timestamp default current_timestamp,
 	)
 `
 const createModelAssertSQL = `
 INSERT INTO modelassertion 
-(model_id,keypair_id,series,architecture,revision,gadget,kernel,store) 
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8) 
+(model_id,keypair_id,series,architecture,revision,gadget,kernel,store,required_snaps) 
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) 
 RETURNING id`
 
 const updateModelAssertSQL = `
 UPDATE modelassertion
-SET model_id=$2, keypair_id=$3, series=$4, architecture=$5, revision=$6, gadget=$7, kernel=$8, store=$9, modified=$10
+SET model_id=$2, keypair_id=$3, series=$4, architecture=$5, revision=$6, gadget=$7, kernel=$8, store=$9, modified=$10, required_snaps=$11 
 WHERE id=$1`
 
 const getModelAssertSQL = `
-SELECT id,model_id,keypair_id,series,architecture,revision,gadget,kernel,store,created,modified
+SELECT id,model_id,keypair_id,series,architecture,revision,gadget,kernel,store,required_snaps,created,modified
 FROM modelassertion
 WHERE model_id=$1
 `
 
 // ModelAssertion holds the model assertion details in the local database
 type ModelAssertion struct {
-	ID           int       `json:"id"`
-	ModelID      int       `json:"model_id"`
-	KeypairID    int       `json:"keypair_id"`
-	Series       int       `json:"series"`
-	Architecture string    `json:"architecture"`
-	Revision     int       `json:"revision"`
-	Gadget       string    `json:"gadget"`
-	Kernel       string    `json:"kernel"`
-	Store        string    `json:"store"`
-	Created      time.Time `json:"created"`
-	Modified     time.Time `json:"modified"`
+	ID            int       `json:"id"`
+	ModelID       int       `json:"model_id"`
+	KeypairID     int       `json:"keypair_id"`
+	Series        int       `json:"series"`
+	Architecture  string    `json:"architecture"`
+	Revision      int       `json:"revision"`
+	Gadget        string    `json:"gadget"`
+	Kernel        string    `json:"kernel"`
+	Store         string    `json:"store"`
+	RequiredSnaps string    `json:"required_snaps"`
+	Created       time.Time `json:"created"`
+	Modified      time.Time `json:"modified"`
 }
 
 // CreateModelAssertTable creates the database table for a model assertion
@@ -81,7 +83,7 @@ func (db *DB) CreateModelAssertTable() error {
 // CreateModelAssert adds a model assertion record to allow generation of a signed assertion
 func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 	var createdID int
-	err := db.QueryRow(createModelAssertSQL, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store).Scan(&createdID)
+	err := db.QueryRow(createModelAssertSQL, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, m.RequiredSnaps).Scan(&createdID)
 	if err != nil {
 		log.Printf("Error creating the model assertion: %v\n", err)
 	}
@@ -92,7 +94,7 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	var err error
 
-	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC())
+	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps)
 
 	if err != nil {
 		log.Printf("Error updating the model assertion: %v\n", err)
@@ -123,7 +125,7 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 // GetModelAssert fetches the model assertion
 func (db *DB) GetModelAssert(modelID int) (ModelAssertion, error) {
 	m := ModelAssertion{}
-	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.Created, &m.Modified)
+	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.RequiredSnaps, &m.Created, &m.Modified)
 	if err != nil {
 		return m, err
 	}
