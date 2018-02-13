@@ -104,7 +104,7 @@ class ModelAssertion extends Component {
 
     handleChangeSnaps = (e) => {
         var assertion = this.state.assertion;
-        assertion['required-snaps'] = e.target.value;
+        assertion['required_snaps'] = e.target.value;
         this.setState({assertion: assertion});
     }
 
@@ -128,7 +128,6 @@ class ModelAssertion extends Component {
     render() {
 
       var ma = this.state.assertion
-      console.log('---', ma)
 
       return (
         <tr>
@@ -174,7 +173,7 @@ class ModelAssertion extends Component {
                                 value={ma['store']} onChange={this.handleChangeStore} />
                         </label>
                         <label htmlFor="required-snaps">{T('required-snaps')}:
-                            <textarea onChange={this.handleChangeSnaps} defaultValue={ma['required-snaps']} name="required-snaps"
+                            <textarea onChange={this.handleChangeSnaps} defaultValue={ma['required_snaps']} name="required-snaps"
                                 placeholder={T('required-snaps-description')} />
                         </label>
                     </fieldset>

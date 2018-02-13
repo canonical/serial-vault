@@ -69,7 +69,7 @@ type ModelAssertion struct {
 	Gadget        string    `json:"gadget"`
 	Kernel        string    `json:"kernel"`
 	Store         string    `json:"store"`
-	RequiredSnaps string    `json:"required-snaps"`
+	RequiredSnaps string    `json:"required_snaps"`
 	Created       time.Time `json:"created"`
 	Modified      time.Time `json:"modified"`
 }
