@@ -47,6 +47,7 @@ class UserRow extends Component {
 				<td className="overflow" title={this.props.user.Name}>{this.props.user.Name}</td>
 				<td className="overflow" title={this.props.user.Email}>{this.props.user.Email}</td>
 				<td className="overflow" title={roleAsString(this.props.user.Role)}>{roleAsString(this.props.user.Role)}</td>
+				<td className="overflow" title={this.props.user.APIKey}>{this.props.user.APIKey}</td>
 			</tr>
 		)
 	}

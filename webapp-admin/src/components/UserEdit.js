@@ -131,32 +131,32 @@ class UserEdit extends Component {
         requestData['name'] = user.Name
         requestData['email'] = user.Email
         requestData['role'] = user.Role
+        requestData['api_key'] = user.APIKey
         requestData['accounts'] = this.state.assignedAccounts
         return requestData
     }
 
     handleSaveClick = (e) => {
         e.preventDefault();
-        var self = this;
 
         var requestData = this.buildRequestData()
 
         if (requestData.id) {
             // Update the existing user
-            Users.update(requestData).then(function(response) {
+            Users.update(requestData).then((response) => {
                 var data = JSON.parse(response.body);
                 if (response.statusCode >= 300) {
-                    self.setState({error: self.formatError(data)});
+                    this.setState({error: this.formatError(data)});
                 } else {
                     window.location = '/users';
                 }
             });
         } else {
             // Create a new user
-            Users.create(requestData).then(function(response) {
+            Users.create(requestData).then((response) => {
                 var data = JSON.parse(response.body);
                 if (response.statusCode >= 300) {
-                    self.setState({error: self.formatError(data)});
+                    this.setState({error: this.formatError(data)});
                 } else {
                     window.location = '/users';
                 }
@@ -248,6 +248,10 @@ class UserEdit extends Component {
                                         <option key="admin" value="200">Admin</option>
                                         <option key="superuser" value="300">Superuser</option>
                                     </select>
+                                </label>
+                                <label htmlFor="api-key">{T('api-key')}:
+                                    <input type="text" id="api-key" placeholder={T('api-key')} 
+                                        value={this.state.user.APIKey} readOnly />
                                 </label>
                             </fieldset>
 

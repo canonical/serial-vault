@@ -32,7 +32,15 @@ var validEmailRegexp = regexp.MustCompile(validEmailPattern)
 
 // CreateUser validates and adds a new record to User database table, Returns new record identifier if success
 func (db *DB) CreateUser(user User) (int, error) {
-	err := validateUser(user)
+
+	// Check the API key and default it if it is invalid
+	apiKey, err := buildValidOrDefaultAPIKey(user.APIKey)
+	if err != nil {
+		return 0, errors.New("Error in generating a valid API key")
+	}
+	user.APIKey = apiKey
+
+	err = validateUser(user)
 	if err != nil {
 		return 0, err
 	}
@@ -41,7 +49,14 @@ func (db *DB) CreateUser(user User) (int, error) {
 
 // UpdateUser validates and sets user new values for an existing record. Also updates useraccount link. All that in a transaction
 func (db *DB) UpdateUser(user User) error {
-	err := validateUser(user)
+	// Check the API key and default it if it is invalid
+	apiKey, err := buildValidOrDefaultAPIKey(user.APIKey)
+	if err != nil {
+		return errors.New("Error in generating a valid API key")
+	}
+	user.APIKey = apiKey
+
+	err = validateUser(user)
 	if err != nil {
 		return err
 	}

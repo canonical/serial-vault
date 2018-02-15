@@ -75,10 +75,11 @@ func (db *DB) UpdateAllowedModel(model Model, authorization User) (string, error
 	}
 
 	// Check the API key and default it if it is invalid
-	err = buildValidOrDefaultAPIKey(&model)
+	apiKey, err := buildValidOrDefaultAPIKey(model.APIKey)
 	if err != nil {
 		return "error-model-apikey", errors.New("Error in generating a valid API key")
 	}
+	model.APIKey = apiKey
 
 	switch authorization.Role {
 	case Invalid: // Authentication is disabled
@@ -123,10 +124,11 @@ func (db *DB) CreateAllowedModel(model Model, authorization User) (Model, string
 	}
 
 	// Check the API key and default it if it is invalid
-	err = buildValidOrDefaultAPIKey(&model)
+	apiKey, err := buildValidOrDefaultAPIKey(model.APIKey)
 	if err != nil {
 		return model, "error-model-apikey", errors.New("Error in generating a valid API key")
 	}
+	model.APIKey = apiKey
 
 	// Check that the model does not exist
 	if found := db.checkModelExists(model.BrandID, model.Name); found {
@@ -194,21 +196,17 @@ func validateKeypairIDUser(keypairIDUser int) error {
 }
 
 // buildValidOrDefaultAPIKey checks the API key and creates a default API key if the field is empty
-func buildValidOrDefaultAPIKey(model *Model) error {
+func buildValidOrDefaultAPIKey(apiKey string) (string, error) {
 	// Remove all whitespace from the API key
-	model.APIKey = strings.Replace(model.APIKey, " ", "", -1)
+	apiKey = strings.Replace(apiKey, " ", "", -1)
 
 	// Check we have a minimum API key size
-	if len(model.APIKey) > minAPIKeyLength {
-		return nil
+	if len(apiKey) > minAPIKeyLength {
+		return apiKey, nil
 	}
 
 	apiKey, err := generateAPIKey()
-	if err != nil {
-		return err
-	}
-	model.APIKey = apiKey
-	return nil
+	return apiKey, err
 }
 
 func generateAPIKey() (string, error) {

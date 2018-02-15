@@ -103,7 +103,7 @@ class UserList extends Component {
         <table>
           <thead>
             <tr>
-              <th></th><th>{T('username')}</th><th>{T('name')}</th><th>{T('email')}</th><th>{T('role')}</th>
+              <th></th><th>{T('username')}</th><th>{T('name')}</th><th>{T('email')}</th><th>{T('role')}</th><th>{T('api-key')}</th>
             </tr>
           </thead>
           <tbody>

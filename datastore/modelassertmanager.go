@@ -38,7 +38,7 @@ const createModelAssertTableSQL = `
 		store            varchar(60),
 		required_snaps   text default '',
 		created          timestamp default current_timestamp,
-		modified         timestamp default current_timestamp,
+		modified         timestamp default current_timestamp
 	)
 `
 const createModelAssertSQL = `

@@ -21,6 +21,7 @@ package datastore
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -30,7 +31,8 @@ const createUserTableSQL = `
 		username         varchar(200) not null unique,
 		name             varchar(200),
 		email            varchar(255) not null,
-		userrole         int not null
+		userrole         int not null,
+		api_key          varchar(200) not null
 	)
 `
 
@@ -41,16 +43,16 @@ const createAccountUserLinkTableSQL = `
 	)
 `
 
-const listUsersSQL = "select id, username, name, email, userrole from userinfo order by username"
-const getUserSQL = "select id, username, name, email, userrole from userinfo where id=$1"
-const getUserByUsernameSQL = "select id, username, name, email, userrole from userinfo where username=$1"
-const findUsersSQL = "select id, username, name, email, userrole from userinfo where username like '%$1%' or name like '%$1%'"
-const createUserSQL = "insert into userinfo (username, name, email, userrole) values ($1,$2,$3,$4) RETURNING id"
-const updateUserSQL = "update userinfo set username=$1, name=$2, email=$3, userrole=$4 where id=$5"
+const listUsersSQL = "select id, username, name, email, userrole, api_key from userinfo order by username"
+const getUserSQL = "select id, username, name, email, userrole, api_key from userinfo where id=$1"
+const getUserByUsernameSQL = "select id, username, name, email, userrole, api_key from userinfo where username=$1"
+const findUsersSQL = "select id, username, name, email, userrole, api_key from userinfo where username like '%$1%' or name like '%$1%'"
+const createUserSQL = "insert into userinfo (username, name, email, userrole, api_key) values ($1,$2,$3,$4,$5) RETURNING id"
+const updateUserSQL = "update userinfo set username=$1, name=$2, email=$3, userrole=$4, api_key=$6 where id=$5"
 const deleteUserSQL = "delete from userinfo where id=$1"
 
 const listAccountUsersSQL = `
-	select id, username, name, email, userrole
+	select id, username, name, email, userrole, api_key
 	from userinfo u
 	inner join useraccountlink l on u.id = l.user_id
 	inner join account a on l.account_id = a.id
@@ -69,6 +71,15 @@ const deleteUserAccountsSQL = "delete from useraccountlink where user_id=$1"
 const linkAccountToUserSQL = "insert into useraccountlink (user_id, account_id) values ($1,$2)"
 
 const alterUserRemoveOpenIDIdentity = "alter table userinfo drop column if exists openid_identity"
+
+// Add the API key field to the models table (nullable)
+const alterUserAPIKey = "alter table userinfo add column api_key varchar(200) default ''"
+
+// Make the API key not-nullable
+const alterUserAPIKeyNotNullable = `alter table userinfo
+	alter column api_key set not null,
+	alter column api_key drop default
+`
 
 // Available user roles:
 //
@@ -95,6 +106,7 @@ type User struct {
 	Username string
 	Name     string
 	Email    string
+	APIKey   string
 	Role     int
 	Accounts []Account
 }
@@ -107,6 +119,9 @@ func (db *DB) CreateUserTable() error {
 
 // CreateAccountUserLinkTable creates table to link User and Account tables in a m-m relationship
 func (db *DB) CreateAccountUserLinkTable() error {
+	// Add and populate the API key field (ignore error as it may already be there)
+	db.addUserAPIKeyField()
+
 	_, err := db.Exec(createAccountUserLinkTableSQL)
 	return err
 }
@@ -115,6 +130,47 @@ func (db *DB) CreateAccountUserLinkTable() error {
 func (db *DB) AlterUserTable() error {
 	_, err := db.Exec(alterUserRemoveOpenIDIdentity)
 	return err
+}
+
+// addUserAPIKeyField adds and defaults the API key field to the user table
+func (db *DB) addUserAPIKeyField() error {
+
+	// Add the API key field to the user table
+	_, err := db.Exec(alterUserAPIKey)
+	if err != nil {
+		// Field already exists so skip
+		return nil
+	}
+
+	// Default the API key for any records where it is empty
+	users, err := db.ListUsers()
+	if err != nil {
+		return err
+	}
+	for _, user := range users {
+		if len(user.APIKey) > 0 {
+			continue
+		}
+
+		// Generate an random API key and update the record
+		apiKey, err := generateAPIKey()
+		if err != nil {
+			log.Printf("Could not generate random string for the API key")
+			return errors.New("Error generating random string for the API key")
+		}
+
+		// Update the API key on the model
+		user.APIKey = apiKey
+		db.updateUser(user)
+	}
+
+	// Add the constraints to the API key field
+	_, err = db.Exec(alterUserAPIKeyNotNullable)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ListUsers returns current available users in database
@@ -168,7 +224,7 @@ func (db *DB) createUser(user User) (int, error) {
 
 	err := db.transaction(func(tx *sql.Tx) error {
 
-		err := tx.QueryRow(createUserSQL, user.Username, user.Name, user.Email, user.Role).Scan(&createdUserID)
+		err := tx.QueryRow(createUserSQL, user.Username, user.Name, user.Email, user.Role, user.APIKey).Scan(&createdUserID)
 		if err != nil {
 			log.Printf("Error creating user %v: %v\n", user.Username, err)
 			return err
@@ -191,7 +247,7 @@ func (db *DB) updateUser(user User) error {
 
 	return db.transaction(func(tx *sql.Tx) error {
 
-		_, err := tx.Exec(updateUserSQL, user.Username, user.Name, user.Email, user.Role, user.ID)
+		_, err := tx.Exec(updateUserSQL, user.Username, user.Name, user.Email, user.Role, user.ID, user.APIKey)
 		if err != nil {
 			log.Printf("Error updating database user %v: %v\n", user.ID, err)
 			return err
@@ -241,7 +297,7 @@ func (db *DB) ListAccountUsers(authorityID string) ([]User, error) {
 
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role)
+		err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role, &user.APIKey)
 		if err != nil {
 			return nil, err
 		}
@@ -301,7 +357,7 @@ func (db *DB) putUserAccounts(userID int, accounts []Account, tx *sql.Tx) error 
 
 func (db *DB) rowToUser(row *sql.Row) (User, error) {
 	user := User{}
-	err := row.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role)
+	err := row.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role, &user.APIKey)
 	if err != nil {
 		return User{}, err
 	}
@@ -317,7 +373,7 @@ func (db *DB) rowToUser(row *sql.Row) (User, error) {
 
 func (db *DB) rowsToUser(rows *sql.Rows) (User, error) {
 	user := User{}
-	err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role)
+	err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role, &user.APIKey)
 	if err != nil {
 		return User{}, err
 	}
