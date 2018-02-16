@@ -71,7 +71,7 @@ func Middleware(inner http.Handler) http.Handler {
 }
 
 // MiddlewareWithCSRF to pre-process web service requests with CSRF protection
-func MiddlewareWithCSRF(inner http.Handler) http.Handler {
+var MiddlewareWithCSRF = func(inner http.Handler) http.Handler {
 	// configure request forgery protection
 	csrfSecure := true
 	csrfSecureEnv := os.Getenv("CSRF_SECURE")
@@ -85,7 +85,7 @@ func MiddlewareWithCSRF(inner http.Handler) http.Handler {
 		csrf.HttpOnly(csrfSecure),
 	)
 
-	return CSRF(inner)
+	return CSRF(Middleware(inner))
 }
 
 // CORSMiddleware handles the header options for cross-origin requests (used in development only)

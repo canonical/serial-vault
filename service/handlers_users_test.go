@@ -25,6 +25,9 @@ var _ = check.Suite(&ServiceSuite{})
 func (s *ServiceSuite) SetUpSuite(c *check.C) {
 	datastore.Environ.Config.EnableUserAuth = true
 	datastore.Environ.Config.JwtSecret = "SomeTestSecretValue"
+
+	// Disable CSRF for tests as we do not have a secure connection
+	MiddlewareWithCSRF = Middleware
 }
 
 func (s *ServiceSuite) TestUsersHandler(c *check.C) {

@@ -47,6 +47,9 @@ func (s *ModelsSuite) SetUpTest(c *check.C) {
 	// Mock the database
 	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
+	// Disable CSRF for tests as we do not have a secure connection
+	MiddlewareWithCSRF = Middleware
 }
 
 func (s *ModelsSuite) sendGETRequest(url string, permissions int) (*httptest.ResponseRecorder, error) {
