@@ -16,6 +16,7 @@ type UserRequest struct {
 	Username string   `json:"username"`
 	Name     string   `json:"name"`
 	Email    string   `json:"email"`
+	APIKey   string   `json:"api_key"`
 	Role     int      `json:"role"`
 	Accounts []string `json:"accounts"`
 }
@@ -101,6 +102,7 @@ func UserCreateHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     userRequest.Name,
 		Email:    userRequest.Email,
 		Role:     userRequest.Role,
+		APIKey:   userRequest.APIKey,
 		Accounts: datastore.BuildAccountsFromAuthorityIDs(userRequest.Accounts),
 	}
 	user.ID, err = datastore.Environ.DB.CreateUser(user)
@@ -237,6 +239,7 @@ func UserUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     userRequest.Name,
 		Email:    userRequest.Email,
 		Role:     userRequest.Role,
+		APIKey:   userRequest.APIKey,
 		Accounts: datastore.BuildAccountsFromAuthorityIDs(userRequest.Accounts),
 	}
 	err = datastore.Environ.DB.UpdateUser(user)

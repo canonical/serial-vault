@@ -30,11 +30,11 @@ keystoreSecret: "secret code to encrypt the auth-key hash"
 csrfAuthKey: "2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
 
 # Return URL of the service (needed for OpenID)
-urlHost: "serial-vault"
-urlScheme: https
+urlHost: "serial-vault:8081"
+urlScheme: http
 
 # Enable user authentication using Ubuntu SSO
-#enableUserAuth: True
+enableUserAuth: True
 
 # Key needed for USSO. 
 # CHANGEME: This jwtSecret is only a sample. Please provide another custom generated value
