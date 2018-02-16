@@ -52,74 +52,75 @@ func AdminRouter() *mux.Router {
 	// Start the web service router
 	router := mux.NewRouter()
 
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
+
 	// API routes: csrf token and auth token
-	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
-	router.Handle("/v1/authtoken", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
+	router.Handle("/v1/token", MiddlewareWithCSRF(http.HandlerFunc(TokenHandler))).Methods("GET")
+	router.Handle("/v1/authtoken", MiddlewareWithCSRF(http.HandlerFunc(TokenHandler))).Methods("GET")
 
 	// API routes: models admin
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler))).Methods("GET")
-	router.Handle("/v1/models/assertion", Middleware(http.HandlerFunc(ModelAssertionHeadersHandler))).Methods("POST")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelCreateHandler))).Methods("POST")
-	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelGetHandler))).Methods("GET")
-	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/models/{id:[0-9]+}", Middleware(http.HandlerFunc(ModelDeleteHandler))).Methods("DELETE")
+	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(ModelsHandler))).Methods("GET")
+	router.Handle("/v1/models/assertion", MiddlewareWithCSRF(http.HandlerFunc(ModelAssertionHeadersHandler))).Methods("POST")
+	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(ModelCreateHandler))).Methods("POST")
+	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelGetHandler))).Methods("GET")
+	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelDeleteHandler))).Methods("DELETE")
 
 	// API routes: signing-keys
-	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairListHandler))).Methods("GET")
-	router.Handle("/v1/keypairs", Middleware(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", Middleware(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", Middleware(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/assertion", Middleware(http.HandlerFunc(KeypairAssertionHandler))).Methods("POST")
+	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairListHandler))).Methods("GET")
+	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/assertion", MiddlewareWithCSRF(http.HandlerFunc(KeypairAssertionHandler))).Methods("POST")
 
-	router.Handle("/v1/keypairs/generate", Middleware(http.HandlerFunc(KeypairGenerateHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", Middleware(http.HandlerFunc(KeypairStatusHandler))).Methods("GET")
-	router.Handle("/v1/keypairs/status", Middleware(http.HandlerFunc(KeypairStatusProgressHandler))).Methods("GET")
-	router.Handle("/v1/keypairs/register", Middleware(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/generate", MiddlewareWithCSRF(http.HandlerFunc(KeypairGenerateHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", MiddlewareWithCSRF(http.HandlerFunc(KeypairStatusHandler))).Methods("GET")
+	router.Handle("/v1/keypairs/status", MiddlewareWithCSRF(http.HandlerFunc(KeypairStatusProgressHandler))).Methods("GET")
+	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
 
 	// API routes: signing log
-	router.Handle("/v1/signinglog", Middleware(http.HandlerFunc(SigningLogHandler))).Methods("GET")
-	router.Handle("/v1/signinglog/filters", Middleware(http.HandlerFunc(SigningLogFiltersHandler))).Methods("GET")
+	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(SigningLogHandler))).Methods("GET")
+	router.Handle("/v1/signinglog/filters", MiddlewareWithCSRF(http.HandlerFunc(SigningLogFiltersHandler))).Methods("GET")
 
 	// API routes: account assertions
-	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountsHandler))).Methods("GET")
-	router.Handle("/v1/accounts", Middleware(http.HandlerFunc(AccountCreateHandler))).Methods("POST")
-	router.Handle("/v1/accounts/{id:[0-9]+}", Middleware(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/accounts/{id:[0-9]+}", Middleware(http.HandlerFunc(AccountGetHandler))).Methods("GET")
-	router.Handle("/v1/accounts/upload", Middleware(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
-	router.Handle("/v1/accounts/{id:[0-9]+}/stores", Middleware(http.HandlerFunc(SubstoresHandler))).Methods("GET")
-	router.Handle("/v1/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(SubstoreUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(SubstoreDeleteHandler))).Methods("DELETE")
-	router.Handle("/v1/accounts/stores", Middleware(http.HandlerFunc(SubstoreCreateHandler))).Methods("POST")
+	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(AccountsHandler))).Methods("GET")
+	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(AccountCreateHandler))).Methods("POST")
+	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountGetHandler))).Methods("GET")
+	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
+	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(SubstoresHandler))).Methods("GET")
+	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(SubstoreUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(SubstoreDeleteHandler))).Methods("DELETE")
+	router.Handle("/v1/accounts/stores", MiddlewareWithCSRF(http.HandlerFunc(SubstoreCreateHandler))).Methods("POST")
 
 	// API routes: system-user assertion
-	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
+	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
 
 	// API routes: users management
-	router.Handle("/v1/users", Middleware(http.HandlerFunc(UsersHandler))).Methods("GET")
-	router.Handle("/v1/users", Middleware(http.HandlerFunc(UserCreateHandler))).Methods("POST")
-	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserGetHandler))).Methods("GET")
-	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/users/{id:[0-9]+}", Middleware(http.HandlerFunc(UserDeleteHandler))).Methods("DELETE")
-	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", Middleware(http.HandlerFunc(UserOtherAccountsGetHandler))).Methods("GET")
+	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(UsersHandler))).Methods("GET")
+	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(UserCreateHandler))).Methods("POST")
+	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(UserGetHandler))).Methods("GET")
+	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(UserUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(UserDeleteHandler))).Methods("DELETE")
+	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", MiddlewareWithCSRF(http.HandlerFunc(UserOtherAccountsGetHandler))).Methods("GET")
 
 	// OpenID routes: using Ubuntu SSO
-	router.Handle("/login", Middleware(http.HandlerFunc(usso.LoginHandler)))
-	router.Handle("/logout", Middleware(http.HandlerFunc(usso.LogoutHandler)))
+	router.Handle("/login", MiddlewareWithCSRF(http.HandlerFunc(usso.LoginHandler)))
+	router.Handle("/logout", MiddlewareWithCSRF(http.HandlerFunc(usso.LogoutHandler)))
 
 	// Web application routes
 	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
-	router.PathPrefix("/signing-keys").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/models").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/keypairs").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/accounts").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/signinglog").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/systemuser").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/users").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/notfound").Handler(Middleware(http.HandlerFunc(IndexHandler)))
-	router.Handle("/", Middleware(http.HandlerFunc(IndexHandler))).Methods("GET")
+	router.PathPrefix("/signing-keys").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/models").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/keypairs").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/accounts").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/signinglog").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/systemuser").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/users").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.PathPrefix("/notfound").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
+	router.Handle("/", MiddlewareWithCSRF(http.HandlerFunc(IndexHandler))).Methods("GET")
 
 	return router
 }

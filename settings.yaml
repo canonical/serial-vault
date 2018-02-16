@@ -34,7 +34,7 @@ urlHost: "serial-vault:8081"
 urlScheme: http
 
 # Enable user authentication using Ubuntu SSO
-enableUserAuth: True
+#enableUserAuth: True
 
 # Key needed for USSO. 
 # CHANGEME: This jwtSecret is only a sample. Please provide another custom generated value

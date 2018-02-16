@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -345,6 +346,9 @@ func (s *ServiceSuite) sendRequestWithoutPermissions(method, url string, data io
 	AdminRouter().ServeHTTP(w, r)
 
 	result := UserResponse{}
+
+	log.Println(string(w.Body.Bytes()))
+
 	err := json.NewDecoder(w.Body).Decode(&result)
 	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)

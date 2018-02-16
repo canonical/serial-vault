@@ -24,11 +24,13 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/handlers"
 )
 
@@ -69,6 +71,24 @@ func Middleware(inner http.Handler) http.Handler {
 
 		inner.ServeHTTP(w, r)
 	})
+}
+
+// MiddlewareWithCSRF to pre-process web service requests with CSRF protection
+func MiddlewareWithCSRF(inner http.Handler) http.Handler {
+	// configure request forgery protection
+	csrfSecure := true
+	csrfSecureEnv := os.Getenv("CSRF_SECURE")
+	if csrfSecureEnv == "disable" {
+		csrfSecure = false
+	}
+
+	CSRF := csrf.Protect(
+		[]byte(datastore.Environ.Config.CSRFAuthKey),
+		csrf.Secure(csrfSecure),
+		csrf.HttpOnly(csrfSecure),
+	)
+
+	return CSRF(inner)
 }
 
 // CORSMiddleware handles the header options for cross-origin requests (used in development only)
