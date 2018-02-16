@@ -43,28 +43,6 @@ type SigningLogFiltersResponse struct {
 	SigningLogFilters datastore.SigningLogFilters `json:"filters"`
 }
 
-// SigningLogHandler is the API method to fetch the log records from signing
-func SigningLogHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		formatSigningLogResponse(false, "error-auth", "", "", nil, w)
-		return
-	}
-
-	logs, err := datastore.Environ.DB.ListAllowedSigningLog(authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		formatSigningLogResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
-		return
-	}
-
-	// Return successful JSON response with the list of models
-	w.WriteHeader(http.StatusOK)
-	formatSigningLogResponse(true, "", "", "", logs, w)
-}
-
 // SigningLogFiltersHandler is the API method to fetch the log filter values
 func SigningLogFiltersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

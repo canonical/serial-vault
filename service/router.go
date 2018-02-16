@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
@@ -79,7 +80,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
 
 	// API routes: signing log
-	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(SigningLogHandler))).Methods("GET")
+	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListHandler))).Methods("GET")
 	router.Handle("/v1/signinglog/filters", MiddlewareWithCSRF(http.HandlerFunc(SigningLogFiltersHandler))).Methods("GET")
 
 	// API routes: account assertions
@@ -121,6 +122,9 @@ func AdminRouter() *mux.Router {
 	router.PathPrefix("/users").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
 	router.PathPrefix("/notfound").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
 	router.Handle("/", MiddlewareWithCSRF(http.HandlerFunc(IndexHandler))).Methods("GET")
+
+	// Admin API routes
+	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APIListHandler))).Methods("GET")
 
 	return router
 }

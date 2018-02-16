@@ -30,6 +30,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/utils"
 	"github.com/gorilla/csrf"
 
 	"github.com/snapcore/snapd/asserts"
@@ -91,7 +92,7 @@ func TokenHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-CSRF-Token", csrf.Token(r))
 
 	// Check the JWT and return it in the authorization header, if valid
-	JWTCheck(w, r)
+	utils.JWTCheck(w, r)
 
 	response := TokenResponse{EnableUserAuth: datastore.Environ.Config.EnableUserAuth}
 

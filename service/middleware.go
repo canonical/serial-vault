@@ -21,15 +21,12 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/usso"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/handlers"
 )
@@ -102,37 +99,4 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 
 		return handlers.CORS(headers, origins, methods, exposed, credentials)(h)
 	}
-}
-
-// JWTCheck extracts the JWT from the request, validates it and returns the token
-func JWTCheck(w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
-
-	// Do not validate access if user authentication is off (default)
-	if !datastore.Environ.Config.EnableUserAuth {
-		return nil, nil
-	}
-
-	// Get the JWT from the header or cookie
-	jwtToken, err := usso.JWTExtractor(r)
-	if err != nil {
-		log.Println("Error in JWT extraction:", err.Error())
-		return nil, errors.New("Error in retrieving the authentication token")
-	}
-
-	// Verify the JWT string
-	token, err := usso.VerifyJWT(jwtToken)
-	if err != nil {
-		log.Printf("JWT fails verification: %v", err.Error())
-		return nil, errors.New("The authentication token is invalid")
-	}
-
-	if !token.Valid {
-		log.Println("Invalid JWT")
-		return nil, errors.New("The authentication token is invalid")
-	}
-
-	// Set up the bearer token in the header
-	w.Header().Set("Authorization", "Bearer "+jwtToken)
-
-	return token, nil
 }
