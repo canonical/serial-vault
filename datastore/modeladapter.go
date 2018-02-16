@@ -205,8 +205,7 @@ func buildValidOrDefaultAPIKey(apiKey string) (string, error) {
 		return apiKey, nil
 	}
 
-	apiKey, err := generateAPIKey()
-	return apiKey, err
+	return generateAPIKey()
 }
 
 func generateAPIKey() (string, error) {
