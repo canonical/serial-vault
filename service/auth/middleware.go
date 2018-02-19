@@ -17,7 +17,7 @@
  *
  */
 
-package utils
+package auth
 
 import (
 	"errors"

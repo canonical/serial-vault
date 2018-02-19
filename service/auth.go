@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/service/utils"
+	"github.com/CanonicalLtd/serial-vault/service/auth"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -35,7 +35,7 @@ func checkPermissionsAndGetUserFromJWT(w http.ResponseWriter, r *http.Request, m
 }
 
 func getUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	token, err := utils.JWTCheck(w, r)
+	token, err := auth.JWTCheck(w, r)
 	if err != nil {
 		return datastore.User{}, err
 	}

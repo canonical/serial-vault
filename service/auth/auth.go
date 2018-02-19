@@ -17,7 +17,7 @@
  *
  */
 
-package utils
+package auth
 
 import (
 	"errors"
@@ -27,33 +27,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/usso"
 	jwt "github.com/dgrijalva/jwt-go"
 )
-
-// CheckIsStandardAndGetUserFromJWT verifies that we have an authenticated, standard user
-func CheckIsStandardAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Standard)
-}
-
-// CheckIsAdminAndGetUserFromJWT verifies that we have an authenticated, admin user
-func CheckIsAdminAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Admin)
-}
-
-// CheckIsSuperuserAndGetUserFromJWT verifies that we have an authenticated, superuser user
-func CheckIsSuperuserAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Superuser)
-}
-
-func checkPermissionsAndGetUserFromJWT(w http.ResponseWriter, r *http.Request, minimumAuthorizedRole int) (datastore.User, error) {
-	user, err := GetUserFromJWT(w, r)
-	if err != nil {
-		return user, err
-	}
-	err = CheckUserPermissions(user, minimumAuthorizedRole)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
-}
 
 // GetUserFromJWT retrieves the user details from the JSON Web Token
 func GetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {

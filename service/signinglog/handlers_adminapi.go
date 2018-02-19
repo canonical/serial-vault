@@ -23,7 +23,7 @@ import (
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/service/utils"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
 // APIListHandler is the API method to fetch the log records from signing
@@ -38,7 +38,7 @@ func APIListHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		utils.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}
 

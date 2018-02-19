@@ -22,16 +22,17 @@ package signinglog
 import (
 	"net/http"
 
-	"github.com/CanonicalLtd/serial-vault/service/utils"
+	"github.com/CanonicalLtd/serial-vault/service/auth"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
 // ListHandler is the API method to fetch the log records from signing
 func ListHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := utils.GetUserFromJWT(w, r)
+	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		utils.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}
 

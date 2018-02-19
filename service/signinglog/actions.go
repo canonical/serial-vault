@@ -25,7 +25,8 @@ import (
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/service/utils"
+	"github.com/CanonicalLtd/serial-vault/service/auth"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
 // ListResponse is the JSON response from the API Signing Log method
@@ -41,9 +42,9 @@ type ListResponse struct {
 func listHandler(w http.ResponseWriter, user datastore.User) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := utils.CheckUserPermissions(user, datastore.Admin)
+	err := auth.CheckUserPermissions(user, datastore.Admin)
 	if err != nil {
-		utils.FormatStandardResponse(false, "error-auth", "", "", w)
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
 	}
 
