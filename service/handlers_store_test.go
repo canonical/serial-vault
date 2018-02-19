@@ -52,6 +52,9 @@ func (s *StoreSuite) SetUpSuite(c *check.C) {
 
 	// Mocks the submission of the key to the store
 	store.RegisterKey = mockRegisterKey
+
+	// Disable CSRF for tests as we do not have a secure connection
+	MiddlewareWithCSRF = Middleware
 }
 
 func (s *StoreSuite) sendRequest(method, url string, data io.Reader, c *check.C) *httptest.ResponseRecorder {

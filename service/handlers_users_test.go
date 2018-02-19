@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,6 +25,9 @@ var _ = check.Suite(&ServiceSuite{})
 func (s *ServiceSuite) SetUpSuite(c *check.C) {
 	datastore.Environ.Config.EnableUserAuth = true
 	datastore.Environ.Config.JwtSecret = "SomeTestSecretValue"
+
+	// Disable CSRF for tests as we do not have a secure connection
+	MiddlewareWithCSRF = Middleware
 }
 
 func (s *ServiceSuite) TestUsersHandler(c *check.C) {
@@ -345,6 +349,9 @@ func (s *ServiceSuite) sendRequestWithoutPermissions(method, url string, data io
 	AdminRouter().ServeHTTP(w, r)
 
 	result := UserResponse{}
+
+	log.Println(string(w.Body.Bytes()))
+
 	err := json.NewDecoder(w.Body).Decode(&result)
 	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)

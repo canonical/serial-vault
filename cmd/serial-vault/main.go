@@ -53,22 +53,8 @@ func main() {
 
 	switch config.ServiceMode {
 	case "admin":
-		// configure request forgery protection
-		csrfSecure := true
-		csrfSecureEnv := os.Getenv("CSRF_SECURE")
-		if csrfSecureEnv == "disable" {
-			log.Println("Disable secure flag")
-			csrfSecure = false
-		}
-
-		CSRF := csrf.Protect(
-			[]byte(datastore.Environ.Config.CSRFAuthKey),
-			csrf.Secure(csrfSecure),
-			csrf.HttpOnly(csrfSecure),
-		)
-
 		// Create the admin web service router
-		handler = CSRF(service.AdminRouter())
+		handler = service.AdminRouter()
 		address = ":8081"
 	case "system-user":
 		// configure request forgery protection

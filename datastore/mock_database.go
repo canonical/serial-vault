@@ -500,6 +500,17 @@ func (mdb *MockDB) GetUserByUsername(username string) (User, error) {
 	return User{}, errors.New("Cannot find the user")
 }
 
+// GetUserByAPIKey mock returning the user if found by username in a fixed list of users
+func (mdb *MockDB) GetUserByAPIKey(apiKey, username string) (User, error) {
+	users, _ := mdb.ListUsers()
+	for _, u := range users {
+		if u.Username == username {
+			return u, nil
+		}
+	}
+	return User{}, errors.New("Cannot find the user")
+}
+
 // UpdateUser mock for update user operation. Returns error if user not found in a fixed list of users
 func (mdb *MockDB) UpdateUser(user User) error {
 	_, err := mdb.GetUser(user.ID)
@@ -922,6 +933,11 @@ func (mdb *ErrorMockDB) GetUser(userID int) (User, error) {
 
 // GetUserByUsername returns error for get user by username operation
 func (mdb *ErrorMockDB) GetUserByUsername(username string) (User, error) {
+	return User{}, errors.New("Cannot get the user")
+}
+
+// GetUserByAPIKey returns error for get user by username operation
+func (mdb *ErrorMockDB) GetUserByAPIKey(apiKey, username string) (User, error) {
 	return User{}, errors.New("Cannot get the user")
 }
 

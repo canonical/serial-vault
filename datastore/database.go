@@ -89,6 +89,7 @@ type Datastore interface {
 	FindUsers(query string) ([]User, error)
 	GetUser(userID int) (User, error)
 	GetUserByUsername(username string) (User, error)
+	GetUserByAPIKey(apiKey, username string) (User, error)
 	UpdateUser(user User) error
 	DeleteUser(userID int) error
 	CreateUserTable() error

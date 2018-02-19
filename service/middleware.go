@@ -21,14 +21,13 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/usso"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/handlers"
 )
 
@@ -71,6 +70,24 @@ func Middleware(inner http.Handler) http.Handler {
 	})
 }
 
+// MiddlewareWithCSRF to pre-process web service requests with CSRF protection
+var MiddlewareWithCSRF = func(inner http.Handler) http.Handler {
+	// configure request forgery protection
+	csrfSecure := true
+	csrfSecureEnv := os.Getenv("CSRF_SECURE")
+	if csrfSecureEnv == "disable" {
+		csrfSecure = false
+	}
+
+	CSRF := csrf.Protect(
+		[]byte(datastore.Environ.Config.CSRFAuthKey),
+		csrf.Secure(csrfSecure),
+		csrf.HttpOnly(csrfSecure),
+	)
+
+	return CSRF(Middleware(inner))
+}
+
 // CORSMiddleware handles the header options for cross-origin requests (used in development only)
 func CORSMiddleware() func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
@@ -82,37 +99,4 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 
 		return handlers.CORS(headers, origins, methods, exposed, credentials)(h)
 	}
-}
-
-// JWTCheck extracts the JWT from the request, validates it and returns the token
-func JWTCheck(w http.ResponseWriter, r *http.Request) (*jwt.Token, error) {
-
-	// Do not validate access if user authentication is off (default)
-	if !datastore.Environ.Config.EnableUserAuth {
-		return nil, nil
-	}
-
-	// Get the JWT from the header or cookie
-	jwtToken, err := usso.JWTExtractor(r)
-	if err != nil {
-		log.Println("Error in JWT extraction:", err.Error())
-		return nil, errors.New("Error in retrieving the authentication token")
-	}
-
-	// Verify the JWT string
-	token, err := usso.VerifyJWT(jwtToken)
-	if err != nil {
-		log.Printf("JWT fails verification: %v", err.Error())
-		return nil, errors.New("The authentication token is invalid")
-	}
-
-	if !token.Valid {
-		log.Println("Invalid JWT")
-		return nil, errors.New("The authentication token is invalid")
-	}
-
-	// Set up the bearer token in the header
-	w.Header().Set("Authorization", "Bearer "+jwtToken)
-
-	return token, nil
 }

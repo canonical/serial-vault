@@ -62,6 +62,9 @@ func (s *AccountSuite) SetUpTest(c *check.C) {
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
+
+	// Disable CSRF for tests as we do not have a secure connection
+	MiddlewareWithCSRF = Middleware
 }
 
 func (s *AccountSuite) parseAccountsResponse(w *httptest.ResponseRecorder) (AccountsResponse, error) {

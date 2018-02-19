@@ -46,6 +46,7 @@ const createAccountUserLinkTableSQL = `
 const listUsersSQL = "select id, username, name, email, userrole, api_key from userinfo order by username"
 const getUserSQL = "select id, username, name, email, userrole, api_key from userinfo where id=$1"
 const getUserByUsernameSQL = "select id, username, name, email, userrole, api_key from userinfo where username=$1"
+const getUserByAPIKeySQL = "select id, username, name, email, userrole, api_key from userinfo where api_key=$1 and username=$2"
 const findUsersSQL = "select id, username, name, email, userrole, api_key from userinfo where username like '%$1%' or name like '%$1%'"
 const createUserSQL = "insert into userinfo (username, name, email, userrole, api_key) values ($1,$2,$3,$4,$5) RETURNING id"
 const updateUserSQL = "update userinfo set username=$1, name=$2, email=$3, userrole=$4, api_key=$6 where id=$5"
@@ -210,6 +211,16 @@ func (db *DB) GetUser(userID int) (User, error) {
 // GetUserByUsername fetches a single user from database
 func (db *DB) GetUserByUsername(username string) (User, error) {
 	row := db.QueryRow(getUserByUsernameSQL, username)
+	user, err := db.rowToUser(row)
+	if err != nil {
+		log.Printf("Error retrieving user %v: %v\n", username, err)
+	}
+	return user, err
+}
+
+// GetUserByAPIKey fetches a single user from database
+func (db *DB) GetUserByAPIKey(apiKey, username string) (User, error) {
+	row := db.QueryRow(getUserByAPIKeySQL, apiKey, username)
 	user, err := db.rowToUser(row)
 	if err != nil {
 		log.Printf("Error retrieving user %v: %v\n", username, err)
