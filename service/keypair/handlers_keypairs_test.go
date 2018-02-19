@@ -70,6 +70,32 @@ func (s *KeypairSuite) TestKeypairsHandler(c *check.C) {
 		KeypairTest{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", 0, false, true, 4},
 		KeypairTest{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
 		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := parseListResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+		c.Assert(len(result.Keypairs), check.Equals, t.List)
+
+		datastore.Environ.Config.EnableUserAuth = false
+	}
+}
+
+func (s *KeypairSuite) TestKeypairsErrorHandler(c *check.C) {
+	datastore.Environ.DB = &datastore.ErrorMockDB{}
+	tests := []KeypairTest{
+		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {

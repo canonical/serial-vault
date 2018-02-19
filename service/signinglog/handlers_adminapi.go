@@ -43,5 +43,5 @@ func APIListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call the API with the user
-	listHandler(w, user)
+	listHandler(w, user, true)
 }

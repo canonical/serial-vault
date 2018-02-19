@@ -39,10 +39,10 @@ type ListResponse struct {
 }
 
 // listHandler is the API method to fetch the log records from signing
-func listHandler(w http.ResponseWriter, user datastore.User) {
+func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := auth.CheckUserPermissions(user, datastore.Admin)
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return

@@ -70,6 +70,7 @@ func (s *SigningLogSuite) TestSigningLogHandler(c *check.C) {
 		SigningLogTest{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", 0, false, true, 10},
 		SigningLogTest{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
 		SigningLogTest{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		SigningLogTest{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {

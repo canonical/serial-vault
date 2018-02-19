@@ -51,9 +51,9 @@ func GetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, err
 }
 
 // CheckUserPermissions verifies that a user has a minimum role
-func CheckUserPermissions(user datastore.User, minimumAuthorizedRole int) error {
-	// User authentication is turned off
-	if !datastore.Environ.Config.EnableUserAuth {
+func CheckUserPermissions(user datastore.User, minimumAuthorizedRole int, apiCall bool) error {
+	// User authentication is turned off (ignore if this is an Admin API call)
+	if !apiCall && !datastore.Environ.Config.EnableUserAuth {
 		// Superuser permissions don't allow turned off authentication
 		if minimumAuthorizedRole == datastore.Superuser {
 			return errors.New("The user is not authorized")
