@@ -30,44 +30,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-func TestSigningLogListHandler(t *testing.T) {
-	// Mock the database
-	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-
-	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
-	if len(response.SigningLog) != 10 {
-		t.Errorf("Expected 10 signing logs, got: %d", len(response.SigningLog))
-	}
-}
-
-func TestSigningLogListHandlerWithPermissions(t *testing.T) {
-	// Mock the database
-	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
-
-	response, _ := sendSigningLogRequest(t, "GET", "/v1/signinglog", nil)
-	if len(response.SigningLog) != 4 {
-		t.Errorf("Expected 4 signing logs, got: %d", len(response.SigningLog))
-	}
-}
-
-func TestSigningLogListHandlerWithNoPermissions(t *testing.T) {
-	// Mock the database
-	c := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: c}
-
-	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
-}
-
-func TestSigningLogListHandlerError(t *testing.T) {
-	// Mock the database
-	config := config.Settings{JwtSecret: "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
-
-	sendSigningLogRequestExpectError(t, "GET", "/v1/signinglog", nil)
-}
-
 func TestSigningLogFilterValues(t *testing.T) {
 	// Mock the database
 	config := config.Settings{JwtSecret: "SomeTestSecretValue"}

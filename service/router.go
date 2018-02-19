@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
@@ -68,7 +69,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelDeleteHandler))).Methods("DELETE")
 
 	// API routes: signing-keys
-	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairListHandler))).Methods("GET")
+	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.ListHandler))).Methods("GET")
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
@@ -125,6 +126,7 @@ func AdminRouter() *mux.Router {
 
 	// Admin API routes
 	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APIListHandler))).Methods("GET")
+	router.Handle("/api/keypairs", Middleware(http.HandlerFunc(keypair.APIListHandler))).Methods("GET")
 
 	return router
 }
