@@ -50,29 +50,6 @@ type KeypairStatusResponse struct {
 	Status       []datastore.KeypairStatus `json:"status"`
 }
 
-// KeypairListHandler fetches the available keypairs for display from the database.
-// Only viewable reference data is stored in the database, not the restricted private key.
-func KeypairListHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		formatKeypairsResponse(false, "error-auth", "", "", nil, w)
-		return
-	}
-
-	keypairs, err := datastore.Environ.DB.ListAllowedKeypairs(authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		formatKeypairsResponse(false, "error-fetch-keypairs", "", err.Error(), nil, w)
-		return
-	}
-
-	// Return successful JSON response with the list of models
-	w.WriteHeader(http.StatusOK)
-	formatKeypairsResponse(true, "", "", "", keypairs, w)
-}
-
 // KeypairCreateHandler is the API method to create a new keypair that can be used
 // for signing serial assertions. The keypairs are stored in the signing database
 // and the authority-id/key-id is stored in the models database. Models can then be

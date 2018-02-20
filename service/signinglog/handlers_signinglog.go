@@ -36,5 +36,5 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listHandler(w, authUser)
+	listHandler(w, authUser, false)
 }

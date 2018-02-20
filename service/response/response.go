@@ -38,6 +38,10 @@ func FormatStandardResponse(success bool, errorCode, errorSubcode, message strin
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	response := StandardResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
 
+	if !response.Success {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error forming the boolean response.")

@@ -232,5 +232,16 @@ The serial assertion of the manufacturer's device.
 #### Output message
 The method returns details of the model assertion of the pivoted model, to convert the device to a reseller model.
 
+### /v1/pivotserial (POST)
+> Generate the serial assertion for the pivoted model for a device.
+
+Takes the serial assertion from a device and returns the serial assertion for the pivoted model of the device.
+
+#### Input message
+The serial assertion of the manufacturer's device.
+
+#### Output message
+The method returns details of the serial assertion of the pivoted model, to convert the device to a reseller model.
+
 [travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
 [travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault

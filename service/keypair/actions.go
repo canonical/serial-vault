@@ -17,7 +17,7 @@
  *
  */
 
-package signinglog
+package keypair
 
 import (
 	"encoding/json"
@@ -29,13 +29,13 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
-// ListResponse is the JSON response from the API Signing Log method
+// ListResponse is the JSON response from the API Keypairs method
 type ListResponse struct {
-	Success      bool                   `json:"success"`
-	ErrorCode    string                 `json:"error_code"`
-	ErrorSubcode string                 `json:"error_subcode"`
-	ErrorMessage string                 `json:"message"`
-	SigningLog   []datastore.SigningLog `json:"logs"`
+	Success      bool                `json:"success"`
+	ErrorCode    string              `json:"error_code"`
+	ErrorSubcode string              `json:"error_subcode"`
+	ErrorMessage string              `json:"message"`
+	Keypairs     []datastore.Keypair `json:"keypairs"`
 }
 
 // listHandler is the API method to fetch the log records from signing
@@ -48,24 +48,23 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 		return
 	}
 
-	logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
+	keypairs, err := datastore.Environ.DB.ListAllowedKeypairs(user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatListResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
+		response.FormatStandardResponse(false, "error-fetch-keypairs", "", err.Error(), w)
 		return
 	}
 
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
-	formatListResponse(true, "", "", "", logs, w)
+	formatListResponse(true, "", "", "", keypairs, w)
 }
 
-func formatListResponse(success bool, errorCode, errorSubcode, message string, logs []datastore.SigningLog, w http.ResponseWriter) error {
-	response := ListResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
+func formatListResponse(success bool, errorCode, errorSubcode, message string, keypairs []datastore.Keypair, w http.ResponseWriter) error {
+	response := ListResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Keypairs: keypairs}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the signing log response.")
+		log.Println("Error forming the keypairs response.")
 		return err
 	}
 	return nil

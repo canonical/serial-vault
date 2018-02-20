@@ -17,9 +17,10 @@
  *
  */
 
-package signinglog
+package keypair
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
@@ -36,6 +37,7 @@ func APIListHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Find the user by API key
 	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	log.Println("---", user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
