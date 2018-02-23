@@ -413,7 +413,7 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		Email:    "rigoberto.picaporte@ubuntu.com",
 		Role:     Standard,
 		Accounts: []Account{
-			Account{
+			{
 				ID:          1,
 				AuthorityID: "authority1",
 				Assertion:   "assertioncontent1",
@@ -426,7 +426,7 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		Email:    "nancy.reagan@usa.gov",
 		Role:     Standard,
 		Accounts: []Account{
-			Account{
+			{
 				ID:          2,
 				AuthorityID: "authority2",
 				Assertion:   "assertioncontent2",
@@ -439,12 +439,12 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		Email:    "sv@example.com",
 		Role:     Admin,
 		Accounts: []Account{
-			Account{
+			{
 				ID:          3,
 				AuthorityID: "authority3",
 				Assertion:   "assertioncontent3",
 			},
-			Account{
+			{
 				ID:          4,
 				AuthorityID: "authority4",
 				Assertion:   "assertioncontent4",
@@ -635,8 +635,8 @@ func (mdb *MockDB) ListSubstores(accountID int, authorization User) ([]Substore,
 	fromModel, _ := mdb.GetAllowedModel(1, authorization)
 
 	substores := []Substore{
-		Substore{ID: 1, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"},
-		Substore{ID: 2, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc5678", ModelName: "alder-mybrand"},
+		{ID: 1, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"},
+		{ID: 2, AccountID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc5678", ModelName: "alder-mybrand"},
 	}
 
 	return substores, nil
@@ -1036,8 +1036,8 @@ func (mdb *ErrorMockDB) ListSubstores(accountID int, authorization User) ([]Subs
 	fromModel, _ := mdb.GetAllowedModel(1, authorization)
 
 	substores := []Substore{
-		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"},
-		Substore{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc5678", ModelName: "alder-mybrand"},
+		{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"},
+		{ID: 1, FromModelID: fromModel.ID, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc5678", ModelName: "alder-mybrand"},
 	}
 
 	return substores, errors.New("Cannot list the sub-stores")

@@ -101,9 +101,9 @@ func (s *SubstoreSuite) parseBooleanResponse(w *httptest.ResponseRecorder) (Bool
 
 func (s *SubstoreSuite) TestSubstoresHandler(c *check.C) {
 	tests := []SubstoreTest{
-		SubstoreTest{"GET", "/v1/accounts/1/stores", nil, 200, "application/json; charset=UTF-8", 0, false, true, 2},
-		SubstoreTest{"GET", "/v1/accounts/1/stores", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
-		SubstoreTest{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/accounts/1/stores", nil, 200, "application/json; charset=UTF-8", 0, false, true, 2},
+		{"GET", "/v1/accounts/1/stores", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
+		{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -132,17 +132,17 @@ func (s *SubstoreSuite) TestSubstoresCreateUpdateDeleteHandler(c *check.C) {
 	ss, _ := json.Marshal(substore)
 
 	tests := []SubstoreTest{
-		SubstoreTest{"POST", "/v1/accounts/stores", ssn, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		SubstoreTest{"POST", "/v1/accounts/stores", ssn, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		SubstoreTest{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		SubstoreTest{"POST", "/v1/accounts/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"DELETE", "/v1/accounts/stores/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		SubstoreTest{"DELETE", "/v1/accounts/stores/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		SubstoreTest{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/v1/accounts/stores", ssn, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"POST", "/v1/accounts/stores", ssn, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/v1/accounts/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"PUT", "/v1/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"PUT", "/v1/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"PUT", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"DELETE", "/v1/accounts/stores/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"DELETE", "/v1/accounts/stores/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -167,9 +167,9 @@ func (s *SubstoreSuite) TestSubstoresErrorHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
 	tests := []SubstoreTest{
-		SubstoreTest{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		SubstoreTest{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/v1/accounts/1/stores", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -200,17 +200,17 @@ func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 	ss, _ := json.Marshal(substore)
 
 	tests := []SubstoreTest{
-		SubstoreTest{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		SubstoreTest{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		SubstoreTest{"POST", "/v1/accounts/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		SubstoreTest{"PUT", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		SubstoreTest{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		SubstoreTest{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"POST", "/v1/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/v1/accounts/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"PUT", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"DELETE", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 	}
 
 	for _, t := range tests {

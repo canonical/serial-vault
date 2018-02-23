@@ -72,7 +72,7 @@ func (cmd ClientCommand) generatePrivateKey() (asserts.PrivateKey, error) {
 	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
 
 	privateKey, _, err := crypt.DeserializePrivateKey(encodedSigningKey)
-	return privateKey, nil
+	return privateKey, err
 }
 
 func (cmd ClientCommand) generateSerialRequestAssertion() (string, error) {

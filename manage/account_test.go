@@ -38,13 +38,13 @@ func (s *AccountSuite) SetUpTest(c *check.C) {
 
 func (s *AccountSuite) TestAccount(c *check.C) {
 	tests := []manTest{
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "account"},
 			ErrorMessage: "Please specify the cache command"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "account", "invalid"},
 			ErrorMessage: "Unknown command `invalid'. You should use the cache command"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "account", "cache"},
 			ErrorMessage: ""},
 	}

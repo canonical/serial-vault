@@ -9,9 +9,9 @@ table_of_contents: False
 
 The SerialVault is comprised of three services, deployed at a data centre:
 
- * Signing Service
- * Admin Service
- * System-User Service (optional)
+* Signing Service
+* Admin Service
+* System-User Service (optional)
 
 The Signing Service is the publicly accessible service that is used to generate a 
 signed serial assertion using a predefined signing key. The Admin Service is a private 

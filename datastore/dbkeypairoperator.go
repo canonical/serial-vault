@@ -40,6 +40,9 @@ type DatabaseKeypairOperator struct{}
 func (dbStore *DatabaseKeypairOperator) ImportKeypair(authorityID, keyID, base64PrivateKey string) (string, error) {
 	// Generate an HMAC hash of the auth-key
 	authKeyHash, err := dbStore.generateEncryptionKey(authorityID, keyID)
+	if err != nil {
+		return "", err
+	}
 
 	// Use the HMAC-ed auth-key as the key to encrypt the signing-key
 	sealedSigningKey, err := crypt.EncryptKey(base64PrivateKey, authKeyHash)

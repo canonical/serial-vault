@@ -16,9 +16,9 @@ sudo snap install serial-vault
 The service needs a PostgreSQL database instance to run so, you'll also
 need to:
 
- * Install PostgreSQL and create a database
- * Set up the config file, using _settings.yaml_ in this project root folder as guide
- * Configure the snap using the _settings.yaml_ file as input
+* Install PostgreSQL and create a database
+* Set up the config file, using _settings.yaml_ in this project root folder as guide
+* Configure the snap using the _settings.yaml_ file as input
 
  The snap will create or update the tables in the database on restart, as soon as it has
  a valid database connection.

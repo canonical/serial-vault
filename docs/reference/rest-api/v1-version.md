@@ -29,9 +29,9 @@ None
 
 The following errors can occur:
 
- * Error in retrieving the authentication token
- * The authentication token is invalid
- * Error encoding the version response
+* Error in retrieving the authentication token
+* The authentication token is invalid
+* Error encoding the version response
 
 ### Example
 

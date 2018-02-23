@@ -126,7 +126,7 @@ func updateDatabase() {
 		datastore.Environ.DB.PutKeypair(datastore.Keypair{AuthorityID: "System", KeyID: "61abf588e52be7a3"})
 	}
 
-	// Initalize the TPM store, authenticating with the TPM 2.0 module
+	// Initialize the TPM store, authenticating with the TPM 2.0 module
 	if datastore.Environ.Config.KeyStoreType == datastore.TPM20Store.Name {
 		fmt.Println("Initialize the TPM2.0 store")
 		err := datastore.TPM2InitializeKeystore(nil)

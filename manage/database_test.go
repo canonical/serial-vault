@@ -59,7 +59,7 @@ func (s *databaseSuite) TestDoTable(c *check.C) {
 
 func (s *databaseSuite) TestDatabase(c *check.C) {
 	tests := []manTest{
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "database"},
 			ErrorMessage: ""},
 	}

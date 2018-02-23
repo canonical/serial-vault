@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cd $SNAP
+cd "$SNAP"
 
-bin/serial-vault-admin --config=$SNAP_DATA/settings.yaml $@
+bin/serial-vault-admin --config="$SNAP_DATA"/settings.yaml "$@"

@@ -67,10 +67,10 @@ func (s *SigningLogSuite) SetUpTest(c *check.C) {
 
 func (s *SigningLogSuite) TestSigningLogHandler(c *check.C) {
 	tests := []SigningLogTest{
-		SigningLogTest{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", 0, false, true, 10},
-		SigningLogTest{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
-		SigningLogTest{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		SigningLogTest{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", 0, false, true, 10},
+		{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
+		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -94,8 +94,8 @@ func (s *SigningLogSuite) TestSigningLogHandler(c *check.C) {
 func (s *SigningLogSuite) TestSigningLogErrorHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 	tests := []SigningLogTest{
-		SigningLogTest{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		SigningLogTest{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {

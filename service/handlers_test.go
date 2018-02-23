@@ -48,7 +48,7 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
 
 	privateKey, _, err := crypt.DeserializePrivateKey(encodedSigningKey)
-	return privateKey, nil
+	return privateKey, err
 }
 
 func generateSerialRequestAssertion(model, serial, body string) (string, error) {

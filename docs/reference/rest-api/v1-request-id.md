@@ -34,11 +34,11 @@ api-key: <the_api_key_value>
 
 The following errors can occur:
 
- * Error in retrieving the authentication token
- * The authentication token is invalid
- * Invalid API key used
- * delete-expired-nonces
- * generate-request-id error
+* Error in retrieving the authentication token
+* The authentication token is invalid
+* Invalid API key used
+* delete-expired-nonces
+* generate-request-id error
 
 ### Example
 

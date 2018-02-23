@@ -29,10 +29,10 @@ func (s *ClientSuite) SetUpTest(c *check.C) {}
 
 func (s *ClientSuite) TestAccount(c *check.C) {
 	tests := []manTest{
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "client"},
 			ErrorMessage: "the required flags `-a, --api', `-b, --brand', `-m, --model', `-s, --serial' and `-u, --url' were not specified"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "client", "invalid"},
 			ErrorMessage: "the required flags `-a, --api', `-b, --brand', `-m, --model', `-s, --serial' and `-u, --url' were not specified"},
 	}

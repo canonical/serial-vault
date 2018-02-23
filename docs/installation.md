@@ -18,8 +18,8 @@ number and device-key fingerprint have been previously used.
 
 The application can operate in two modes:
 
- * Signing: the service for generating signed serial assertions
- * Admin: the service for registering new models and signing keys
+* Signing: the service for generating signed serial assertions
+* Admin: the service for registering new models and signing keys
 
 The Admin and Signing services both operate under unencrypted HTTP connections, so it is 
 left to the deployer to incorporate security measures around the services.
