@@ -3,7 +3,9 @@
 PROJECT := serial-vault
 export DH_OPTIONS
 export DH_GOPKG := github.com/CanonicalLtd/${PROJECT}
-GOPATH := ${CURDIR}/_build:/usr/share/gocode
+export GOPATH := ${CURDIR}/_build:/usr/share/gocode
+export GOBIN := ${GOPATH}/bin
+export PATH := ${PATH}:${GOBIN}
 BLDPATH := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 SRCDIR := ${CURDIR}/_build/src/${DH_GOPKG}
 DESTDIR := ${CURDIR}/debian/${PROJECT}
