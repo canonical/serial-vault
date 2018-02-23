@@ -1,5 +1,5 @@
 name: serial-vault
-version: 2.0-1-dev
+version: 2.1-0-dev
 summary: Service for the Serial Vault that signs serial assertions
 description: |
   The Serial Vault is a web service that generates signed serial assertions for devices. 
