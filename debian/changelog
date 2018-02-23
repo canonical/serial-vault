@@ -1,3 +1,9 @@
+serial-vault (2.1-0) xenial; urgency=medium
+
+  * Reseller features
+
+ -- James Jesudason <james.jesudason@canonical.com>  Fri, 23 Feb 2018 13:27:36 +0000
+
 serial-vault (2.0-1) xenial; urgency=medium
 
   * Multi tenant version
