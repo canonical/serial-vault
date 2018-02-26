@@ -143,7 +143,7 @@ type Model struct {
 	KeyID           string         `json:"key-id"`            // from the signing keypair
 	KeyActive       bool           `json:"key-active"`        // from the signing keypair
 	SealedKey       string         `json:"-"`                 // from the signing keypair
-	KeypairIDUser   int            `json:"key-id-user"`       // from the system-user keypair
+	KeypairIDUser   int            `json:"keypair-id-user"`   // from the system-user keypair
 	AuthorityIDUser string         `json:"authority-id-user"` // from the system-user keypair
 	KeyIDUser       string         `json:"key-id-user"`       // from the system-user keypair
 	KeyActiveUser   bool           `json:"key-active-user"`   // from the system-user keypair

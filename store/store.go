@@ -282,6 +282,9 @@ func requestDischargeMacaroon(endpoint string, data map[string]string) (string, 
 
 	responseData := Discharge{}
 	err = json.NewDecoder(resp.Body).Decode(&responseData)
+	if err != nil {
+		return "", fmt.Errorf(errorPrefix+"%v", err)
+	}
 
 	if responseData.Macaroon == "" {
 		return "", fmt.Errorf(errorPrefix + "empty macaroon returned")

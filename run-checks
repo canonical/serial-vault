@@ -1,21 +1,37 @@
 #!/bin/sh
+
+if [ "$TRAVIS_BUILD_NUMBER" ]; then
+    echo travis_fold:start:env
+    printenv | sort
+    echo travis_fold:end:env
+fi
+
 export LANG=C.UTF-8
 export LANGUAGE=en
 set -eu
 
-STATIC=""
-UNIT=""
+if which goctest >/dev/null; then
+    goctest="goctest"
+else
+    goctest="go test"
+fi
+COVERMODE=${COVERMODE:-atomic}
+export GOPATH="${GOPATH:-$(realpath "$(dirname "$0")"/../../../../)}"
+export PATH="$PATH:${GOPATH%%:*}/bin"
+
+STATIC=
+UNIT=
 
 case "${1:-all}" in
     all)
-        STATIC="yes"
-        UNIT="yes"
+        STATIC=1
+        UNIT=1
         ;;
     --static)
-        STATIC="yes"
+        STATIC=1
         ;;
     --unit)
-        UNIT="yes"
+        UNIT=1
         ;;
     *)
         echo "Wrong flag ${1}. To run a single suite use --static or --unit"
@@ -47,7 +63,6 @@ endmsg() {
 }
 addtrap endmsg
 
-
 # Append the coverage profile of a package to the project coverage.
 append_coverage() {
     local profile="$1"
@@ -58,59 +73,118 @@ append_coverage() {
 }
 
 
-echo Installing godeps
-go get launchpad.net/godeps
-export PATH=$PATH:$GOPATH/bin
+if [ "$STATIC" = 1 ]; then
+    ./get-deps.sh
 
-echo Obtaining dependencies
-godeps -u dependencies.tsv
-
-if [ ! -z "$STATIC" ]; then
+    # Run static tests.
+    echo Checking docs
+    ./mdlint.py ./*.md docs/*.md docs/reference/*.md docs/reference/rest-api/*.md
 
     echo Checking formatting
-    fmt=$(gofmt -l .)
+    fmt=""
+    for dir in $(go list -f '{{.Dir}}' ./... | grep -v '/vendor/' ); do
+        s="$(gofmt -s -l "$dir")"
+        if [ -n "$s" ]; then
+            fmt="$s\n$fmt"
+        fi
+    done
 
     if [ -n "$fmt" ]; then
-        echo "Formatting wrong in following files"
+        echo "Formatting wrong in following files:"
         echo "$fmt"
         exit 1
     fi
 
     # go vet
     echo Running vet
-    go vet ./...
+    go list ./... | grep -v '/vendor/' | xargs go vet
 
     # golint
     echo Install golint
-    go get github.com/golang/lint/golint
-    export PATH=$PATH:$GOPATH/bin
-
+    if ! which golint >/dev/null; then
+        go get github.com/golang/lint/golint
+    fi
+    
     echo Running lint
-    lint=$(golint ./...)
-    if [ -n "$lint" ]; then
-        echo "Lint complains:"
-        echo "$lint"
+    for dir in $(go list -f '{{.Dir}}' ./... | grep -v '/vendor/' ); do
+        lint="$(golint "$dir")"
+        if [ -n "$lint" ]; then
+            echo "Lint complains:"
+            echo "$lint"
+            exit 1
+        fi
+    done
+
+    # TODO: Commented out until desired to fix all the remaining format stuff
+    #
+    # if which shellcheck >/dev/null; then
+    #     echo Checking shell scripts...
+    #     ( git ls-files -z 2>/dev/null ||
+    #             find . \( -name .git -o -name vendor \) -prune -o -print0 ) |
+    #         xargs -0 file -N |
+    #         awk -F": " '$2~/shell.script/{print $1}' |
+    #         xargs shellcheck
+    #     regexp='GOPATH(?!%%:\*)(?!:)[^=]*/'
+    #     if grep -qPr --exclude HACKING.md --exclude-dir .git --exclude-dir vendor "$regexp"; then
+    #         echo "Using GOPATH as if it were a single entry and not a list:"
+    #         grep -PHrn -C1 --color=auto --exclude HACKING.md --exclude-dir .git --exclude-dir vendor "$regexp"
+    #         exit 1
+    #     fi
+    #     unset regexp
+    # fi
+
+    echo Checking spelling errors
+    if ! which misspell >/dev/null; then
+        go get -u github.com/client9/misspell/cmd/misspell
+    fi
+    for file in *; do
+        if [ "$file" = "vendor" ] || [ "$file" = "static" ] || [ "$file" = "webapp-admin" ] || [ "$file" = "webapp-user" ] || [ "$file" = "test" ]; then
+            continue
+        fi
+        misspell -error -i auther,PROCES,PROCESSS,proces,processs,exportfs "$file"
+    done
+
+    echo Checking for ineffective assignments
+    if ! which ineffassign >/dev/null; then
+        go get -u github.com/gordonklaus/ineffassign
+    fi
+    # ineffassign knows about ignoring vendor/ \o/
+    ineffassign .
+
+    echo Checking for naked returns
+    if ! which nakedret >/dev/null; then
+        go get -u github.com/alexkohler/nakedret
+    fi
+    got=$(nakedret ./... 2>&1)
+    if [ -n "$got" ]; then
+        echo "$got"
         exit 1
     fi
-
 fi
 
 if [ ! -z "$UNIT" ]; then
+    ./get-deps.sh
+
     # Prepare the coverage output profile.
     rm -rf .coverage
     mkdir .coverage
-    echo "mode: set" > .coverage/coverage.out
+    echo "mode: $COVERMODE" > .coverage/coverage.out
 
     echo Building
-    go build -v ./...
+    go build -v github.com/CanonicalLtd/serial-vault/...
 
     # tests
-    echo Running tests from $(pwd)
-    for pkg in $(go list ./...); do
-        go test -v -coverprofile=.coverage/profile.out $pkg
+    echo Running tests from "$PWD"
+    for pkg in $(go list ./... | grep -v '/vendor/' ); do
+        go test -i "$pkg"
+        $goctest -v -coverprofile=.coverage/profile.out -covermode="$COVERMODE" "$pkg"
         append_coverage .coverage/profile.out
     done
 
+    # upload to codecov.io if on travis
+    if [ "${TRAVIS_BUILD_NUMBER:-}" ]; then
+        curl -s https://codecov.io/bash | bash /dev/stdin -f .coverage/coverage.out
+    fi
 fi
 
 UNCLEAN="$(git status -s|grep ^??)" || true

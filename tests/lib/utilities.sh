@@ -29,7 +29,7 @@ wait_for_systemd_service() {
   #   $systemctl show THE_SERVICE -p StartLimitInterval,StartLimitBurst
   #
   if [ $# -ge 2 ]; then
-    start_limit_interval = $2
+    start_limit_interval=$2
   else
     start_limit_interval=$(systemctl show $1 -p StartLimitInterval | sed 's/StartLimitInterval=//')
     # original limit interval is provided in microseconds.
@@ -37,7 +37,7 @@ wait_for_systemd_service() {
   fi
 
   if [ $# -eq 3 ]; then
-    start_limit_burst = $3
+    start_limit_burst=$3
   else
     start_limit_burst=$(systemctl show $1 -p StartLimitBurst | sed 's/StartLimitBurst=//')
   fi

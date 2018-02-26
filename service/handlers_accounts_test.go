@@ -84,9 +84,9 @@ func (s *AccountSuite) parseBooleanResponse(w *httptest.ResponseRecorder) (Boole
 func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 
 	tests := []AccountTest{
-		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, 3},
-		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 3},
-		AccountTest{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, 3},
+		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 3},
+		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -113,18 +113,18 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 	acc, _ := json.Marshal(account)
 
 	tests := []AccountTest{
-		AccountTest{"POST", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		AccountTest{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		AccountTest{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 1},
-		AccountTest{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, true, false, 0},
-		AccountTest{"GET", "/v1/accounts/99999", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		AccountTest{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		AccountTest{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		AccountTest{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, true, false, 0},
-		AccountTest{"PUT", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		AccountTest{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		AccountTest{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		AccountTest{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"POST", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 1},
+		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/accounts/99999", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"PUT", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {

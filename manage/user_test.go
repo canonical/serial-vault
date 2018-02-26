@@ -34,52 +34,52 @@ func (s *UserSuite) SetUpTest(c *check.C) {
 
 func (s *UserSuite) TestUser(c *check.C) {
 	tests := []manTest{
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user"},
 			ErrorMessage: "Please specify one command of: add, delete, list or update"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "list"},
 			ErrorMessage: ""},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "add"},
 			ErrorMessage: "the required flags `-n, --name' and `-r, --role' were not specified"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "add", "-n"},
 			ErrorMessage: "expected argument for flag `-n, --name'"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "add", "-n", "John Smith", "-r", "invalid"},
 			ErrorMessage: "Invalid value `invalid' for option `-r, --role'. Allowed values are: standard, admin or superuser"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "add", "-n", "John Smith", "-r", "admin"},
 			ErrorMessage: "Add user expects a 'username' argument"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin"},
 			ErrorMessage: ""},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "add", "ddan", "-n", "Desperate Dan", "-r", "admin", "-bad"},
 			ErrorMessage: "unknown flag `b'"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "update"},
 			ErrorMessage: "Update user expects a 'username' argument"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "update", "john", "smith"},
 			ErrorMessage: "Update user expects a single 'username' argument"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "update", "sv"},
 			ErrorMessage: "No changes requested. Please supply user details to change"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "update", "sv", "-n", "Simon Vault"},
 			ErrorMessage: ""},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "update", "sv", "-u", "svault"},
 			ErrorMessage: ""},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "delete"},
 			ErrorMessage: "Delete user expects a 'username' argument"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "delete", "john", "smith"},
 			ErrorMessage: "Delete user expects a single 'username' argument"},
-		manTest{
+		{
 			Args:         []string{"serial-vault-admin", "user", "delete", "sv"},
 			ErrorMessage: ""},
 	}

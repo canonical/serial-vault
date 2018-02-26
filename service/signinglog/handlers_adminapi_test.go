@@ -33,10 +33,10 @@ import (
 func (s *SigningLogSuite) TestAPISigningLogHandler(c *check.C) {
 
 	tests := []SigningLogTest{
-		SigningLogTest{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		SigningLogTest{"GET", "/api/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
-		SigningLogTest{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		SigningLogTest{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/api/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
+		{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {

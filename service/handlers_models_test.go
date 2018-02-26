@@ -106,6 +106,7 @@ func (s *ModelsSuite) TestModelsHandler(c *check.C) {
 	c.Assert(w.Code, check.Equals, 200)
 
 	result, err := s.parseModelsResponse(w)
+	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, true)
 	c.Assert(len(result.Models), check.Equals, 6)
 	c.Assert(result.Models[0].Name, check.Equals, "alder")
@@ -117,6 +118,7 @@ func (s *ModelsSuite) TestModelsHandlerWithPermissions(c *check.C) {
 	c.Assert(w.Code, check.Equals, 200)
 
 	result, err := s.parseModelsResponse(w)
+	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, true)
 	c.Assert(len(result.Models), check.Equals, 3)
 	c.Assert(result.Models[0].Name, check.Equals, "alder")
@@ -128,6 +130,7 @@ func (s *ModelsSuite) TestModelsHandlerWithoutPermissions(c *check.C) {
 	c.Assert(w.Code, check.Equals, 200)
 
 	result, err := s.parseModelsResponse(w)
+	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)
 	c.Assert(result.ErrorCode, check.Equals, "error-auth")
 }
@@ -141,6 +144,7 @@ func (s *ModelsSuite) TestModelsHandlerWithError(c *check.C) {
 	c.Assert(w.Code, check.Equals, 400)
 
 	result, err := s.parseModelsResponse(w)
+	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)
 }
 

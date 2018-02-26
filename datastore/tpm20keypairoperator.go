@@ -179,13 +179,13 @@ func (tpmStore *TPM20KeypairOperator) createKey(primaryKeyContextPath, algorithm
 	os.Remove(privateKey.Name())
 	os.Remove(nameFile.Name())
 
-	// Create the key in the heirarchy
+	// Create the key in the hierarchy
 	err = tpmStore.tpmCommand.runCommand("tpm2_create", "-g", algSHA256, "-G", algorithm, "-c", primaryKeyContextPath, "-o", publicKey.Name(), "-O", privateKey.Name())
 	if err != nil {
 		return err
 	}
 
-	// Load the key in the heirarchy
+	// Load the key in the hierarchy
 	err = tpmStore.tpmCommand.runCommand("tpm2_load", "-c", primaryKeyContextPath, "-u", publicKey.Name(), "-r", privateKey.Name(), "-n", nameFile.Name(), "-C", keyContext.Name())
 	if err != nil {
 		return err

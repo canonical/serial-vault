@@ -13,13 +13,13 @@ The SerialVault will need to be configured for use at the factory. The prime fun
 The configuration will be handled by a web user interface that will be accessible only from 
 the data centre. The following functionality will be provided by the web user interface:
 
- * Adding new private keys and activate/deactivate them
- * Adding a new model and its signing key
- * Revoking a model
- * Listing supported models
- * Displaying the Signing Log of serial numbers and device-keys that have been signed
- * Deleting entries from the Signing Log
- * Displaying the version of the SerialVault
+* Adding new private keys and activate/deactivate them
+* Adding a new model and its signing key
+* Revoking a model
+* Listing supported models
+* Displaying the Signing Log of serial numbers and device-keys that have been signed
+* Deleting entries from the Signing Log
+* Displaying the version of the SerialVault
 
 # Adding a new private signing key
 

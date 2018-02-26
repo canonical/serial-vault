@@ -1,3 +1,9 @@
+serial-vault (2.1-0ubuntu3) xenial; urgency=medium
+
+  * Testing govendor
+
+ -- Roberto Mier Escandon <roberto.escandon@canonical.com>  Fri, 23 Feb 2018 18:38:14 +0100
+
 serial-vault (2.1-0) xenial; urgency=medium
 
   * Reseller features

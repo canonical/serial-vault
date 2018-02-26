@@ -33,10 +33,10 @@ import (
 func (s *KeypairSuite) TestAPIKeypairsHandler(c *check.C) {
 
 	tests := []KeypairTest{
-		KeypairTest{"GET", "/api/keypairs", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		KeypairTest{"GET", "/api/keypairs", nil, 200, "application/json; charset=UTF-8", datastore.Admin, false, true, 2},
-		KeypairTest{"GET", "/api/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Standard, false, false, 0},
-		KeypairTest{"GET", "/api/keypairs", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/api/keypairs", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/api/keypairs", nil, 200, "application/json; charset=UTF-8", datastore.Admin, false, true, 2},
+		{"GET", "/api/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Standard, false, false, 0},
+		{"GET", "/api/keypairs", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {

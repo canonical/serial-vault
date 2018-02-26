@@ -50,7 +50,7 @@ func TPM2InitializeKeystore(command TPM20Command) error {
 		return err
 	}
 
-	// Create the primary key in the heirarchy
+	// Create the primary key in the hierarchy
 	err = command.runCommand("tpm2_createprimary", "-A", "o", "-g", algSHA256, "-G", algRSA, "-C", primaryKeyContext.Name())
 	if err != nil {
 		log.Printf("Error in TPM createprimary, %v", err)

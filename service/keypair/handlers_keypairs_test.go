@@ -67,10 +67,10 @@ func (s *KeypairSuite) SetUpTest(c *check.C) {
 
 func (s *KeypairSuite) TestKeypairsHandler(c *check.C) {
 	tests := []KeypairTest{
-		KeypairTest{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", 0, false, true, 4},
-		KeypairTest{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
-		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", 0, false, true, 4},
+		{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
+		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -94,8 +94,8 @@ func (s *KeypairSuite) TestKeypairsHandler(c *check.C) {
 func (s *KeypairSuite) TestKeypairsErrorHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 	tests := []KeypairTest{
-		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		KeypairTest{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {

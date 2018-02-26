@@ -68,8 +68,8 @@ func (s *StoreSuite) sendRequest(method, url string, data io.Reader, c *check.C)
 
 func (s *StoreSuite) TestStoreHandler(c *check.C) {
 	tests := []StoreSuiteTest{
-		StoreSuiteTest{nil, 400},
-		StoreSuiteTest{validKeyRegister(), 200},
+		{nil, 400},
+		{validKeyRegister(), 200},
 	}
 
 	for _, t := range tests {
