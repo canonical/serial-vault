@@ -12,35 +12,14 @@ authentication front-end on the web server e.g. SSO. Typically, the services wil
 on a restricted network at a factory, though, with additional security measures, the signing service 
 could be made available on a public network.
 
-Some deployment recommendations are [provided](docs/Deployment.md)
-
-## Install using the snap package
-Are you using one of the many systems that support [snaps](https://snapcraft.io/)?
-A pre-built snap is available from the [Snap store](https://uappexplorer.com/app/serial-vault.james).
-
-```bash
-$ sudo snap install serial-vault
-```
-
-The service needs a PostgreSQL database to run, so:
-- Install PostgreSQL and create a database.
-- Set up the config file, using ```settings.yaml``` as a guide.
-- Configure the snap using the ```settings.yaml``` file:
-
-```bash
-$ cat /path/to/settings.yaml | sudo /snap/bin/serial-vault.config
-$ sudo systemctl restart snap.serial-vault.service.service
-```
-
-The snap will create the tables in the database on restart, as soon as it has a valid database connection.
+Some deployment recommendations are [provided](docs/installation.md)
 
 The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
  - Signing Service: http://localhost:8080/v1/version
  - Admin Service: http://localhost:8081/
- - System-User Service: http://localhost:8082/
 
-The Admin and System-User services' CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
+The Admin service's CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
 over an insecure channel, it is needed to workaround it by setting the environment variable:
 ```bash
 $ export CSRF_SECURE=disable
@@ -75,11 +54,9 @@ The application has an admin service that can be run by using mode=admin.
 
 ## Deploy it with Juju
 Juju greatly simplifies the deployment of the Serial Vault. A charm bundle is available
-at the [charm store](https://jujucharms.com/u/jamesj/serial-vault-bundle/), which deploys
+at the [charm store](https://jujucharms.com/u/canonical-solutions/serial-vault-bundle/), which deploys
 everything apart from the Apache front-end units. There is an example of using Juju in the
-[Deployment Guidelines](docs/Deployment.md).
-
-The Juju charm uses a snap that is available at the [Snap store](https://uappexplorer.com/app/serial-vault.james)
+[Deployment Guidelines](docs/installation.md).
 
 ## Try with docker
   ```bash
@@ -152,7 +129,7 @@ npm test
 #### Output message
 ```json
 {
-  "version":"0.1.0",
+  "version":"2.1-0",
 }
 ```
 - version: the version of the serial vault service (string)
