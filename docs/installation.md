@@ -27,7 +27,7 @@ This guide provides some recommendations for deploying the services.
 
 ## Using the Juju Bundle
 
-To simplify the deployment, a [Juju Bundle](https://jujucharms.com/u/jamesj/serial-vault-bundle/) 
+To simplify the deployment, a [Juju Bundle](https://jujucharms.com/u/canonical-solutions/serial-vault-bundle/) 
 is available at the [Charm Store](https://jujucharms.com/).
 The bundle provides the core services for the Serial Vault, allowing the services to be scaled 
 as necessary. Additional signing service unit can be added, if there is an increased load.
@@ -70,11 +70,14 @@ juju config serial-vault api_keys=Heib2vah2aen3ai
 # Configure the admin service
 #   keystore_secret: part of the key used that is used to encrypt the stored data
 #   api_keys: the key that must be provided in the header of the web service requests
-#	csrf_auth_key: 32 bytes long key to protect server from cross site request forgery attacks
+#   csrf_auth_key: 32 bytes long key to protect server from cross site request forgery attacks
 #   (The keystore_secret and API key must be the same for the two services)
 juju config serial-vault-admin keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
 juju config serial-vault-admin api_keys=Heib2vah2aen3aid
 juju config serial-vault-admin csrf_auth_key="2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
+
+#   superusers: comma-separated list of users that will be full site admins
+juju config serial-vault-admin superusers=jamesj,rmescandon
 
 # Deploy the apache front-ends
 juju deploy apache2 apache-sign
@@ -91,42 +94,4 @@ juju add-relation apache-admin:balancer haproxy:website
 # Expose the Apache front-end services
 juju expose apache-sign
 juju expose apache-admin
-```
-
-## System-User Service
-Within a factory environment, where snappy devices are being provisioned, it may be necessary to allow
-the operators to connect to a device and to run tests on it. A System-User Assertion is needed to allow
-a system-user to be created on a device so an operator can log into the device. The Serial Vault includes
-a service that provides a web interface to allow the assertion to be created and downloaded. The
-System-User Service can be deployed alonside the Admin Service, and should only be exposed to a private network.
-
-```bash
-# Deploy the serial-vault system-user service
-juju deploy cs:~canonical-solutions/serial-vault-charm serial-vault-user
-
-# Connect the service
-juju add-relation serial-vault-user:database postgresql:db-admin
-juju add-relation haproxy:reverseproxy serial-vault-user:website
-
-# Configure the system-user service
-#   keystore_secret: part of the key used that is used to encrypt the stored data
-#   api_keys: the key that must be provided in the header of the web service requests
-#	csrf_auth_key: 32 bytes long key to protect server from cross site request forgery attacks
-#   (The keystore_secret and API key must be the same for all the services)
-juju config serial-vault-user service_type=system-user
-juju config serial-vault-user api_keys=Heib2vah2aen3aid
-juju config serial-vault-user keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
-juju config serial-vault-user csrf_auth_key="2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
-
-# Deploy the apache front-end
-juju deploy apache2 apache-user
-
-# Configure the apache front-ends
-juju config apache-user ...
-
-# Connect the apache front-end
-juju add-relation apache-user:balancer haproxy:website
-
-# Expose the Apache front-end services
-juju expose apache-user
 ```

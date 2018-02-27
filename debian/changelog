@@ -1,3 +1,9 @@
+serial-vault (2.1-1ubuntu1) xenial; urgency=medium
+
+  * Updating documentation
+
+ -- James Jesudason <james.jesudason@canonical.com>  Tue, 27 Feb 2018 16:22:05 +0000
+
 serial-vault (2.1-0ubuntu3) xenial; urgency=medium
 
   * Testing govendor
