@@ -26,6 +26,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
+	"github.com/CanonicalLtd/serial-vault/service/substore"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
@@ -90,8 +91,8 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountGetHandler))).Methods("GET")
 	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
-	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(SubstoresHandler))).Methods("GET")
-	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(SubstoreUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.ListHandler))).Methods("GET")
+	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.UpdateHandler))).Methods("PUT")
 	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(SubstoreDeleteHandler))).Methods("DELETE")
 	router.Handle("/v1/accounts/stores", MiddlewareWithCSRF(http.HandlerFunc(SubstoreCreateHandler))).Methods("POST")
 
@@ -127,6 +128,8 @@ func AdminRouter() *mux.Router {
 	// Admin API routes
 	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APIListHandler))).Methods("GET")
 	router.Handle("/api/keypairs", Middleware(http.HandlerFunc(keypair.APIListHandler))).Methods("GET")
+	router.Handle("/api/accounts/{id:[0-9]+}/stores", Middleware(http.HandlerFunc(substore.APIListHandler))).Methods("GET")
+	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIUpdateHandler))).Methods("PUT")
 
 	return router
 }

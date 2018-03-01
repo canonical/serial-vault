@@ -38,6 +38,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/juju/usso/openid"
 	"github.com/snapcore/snapd/asserts"
+	check "gopkg.in/check.v1"
 )
 
 func generatePrivateKey() (asserts.PrivateKey, error) {
@@ -791,4 +792,29 @@ func sendRequestRequestIDError(t *testing.T, method, url string, data io.Reader,
 	}
 
 	return result, err
+}
+
+func sendAdminRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+
+	if permissions > 0 {
+		// Create a JWT and add it to the request
+		err := createJWTWithRole(r, permissions)
+		c.Assert(err, check.IsNil)
+	}
+
+	AdminRouter().ServeHTTP(w, r)
+
+	return w
+}
+
+func sendSigningRequest(method, url string, data io.Reader, apiKey string, c *check.C) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+	r.Header.Set("api-key", apiKey)
+
+	SigningRouter().ServeHTTP(w, r)
+
+	return w
 }

@@ -39,7 +39,6 @@ func APIListHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
 	log.Println("---", user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}

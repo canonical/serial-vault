@@ -17,11 +17,12 @@
  *
  */
 
-package service
+package substore_test
 
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -29,6 +30,11 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/CanonicalLtd/serial-vault/service/substore"
+	"github.com/CanonicalLtd/serial-vault/usso"
+	"github.com/juju/usso/openid"
 	check "gopkg.in/check.v1"
 )
 
@@ -45,7 +51,7 @@ type SubstoreTest struct {
 	Permissions int
 	EnableAuth  bool
 	Success     bool
-	Stores      int
+	List        int
 }
 
 var _ = check.Suite(&SubstoreSuite{})
@@ -60,7 +66,7 @@ func sendAdminRequest(method, url string, data io.Reader, permissions int, c *ch
 		c.Assert(err, check.IsNil)
 	}
 
-	AdminRouter().ServeHTTP(w, r)
+	service.AdminRouter().ServeHTTP(w, r)
 
 	return w
 }
@@ -70,7 +76,7 @@ func sendSigningRequest(method, url string, data io.Reader, apiKey string, c *ch
 	r, _ := http.NewRequest(method, url, data)
 	r.Header.Set("api-key", apiKey)
 
-	SigningRouter().ServeHTTP(w, r)
+	service.SigningRouter().ServeHTTP(w, r)
 
 	return w
 }
@@ -82,19 +88,12 @@ func (s *SubstoreSuite) SetUpTest(c *check.C) {
 	datastore.OpenKeyStore(config)
 
 	// Disable CSRF for tests as we do not have a secure connection
-	MiddlewareWithCSRF = Middleware
+	service.MiddlewareWithCSRF = service.Middleware
 }
 
-func (s *SubstoreSuite) parseSubstoresResponse(w *httptest.ResponseRecorder) (SubstoresResponse, error) {
+func parseListResponse(w *httptest.ResponseRecorder) (substore.ListResponse, error) {
 	// Check the JSON response
-	result := SubstoresResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	return result, err
-}
-
-func (s *SubstoreSuite) parseBooleanResponse(w *httptest.ResponseRecorder) (BooleanResponse, error) {
-	// Check the JSON response
-	result := BooleanResponse{}
+	result := substore.ListResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }
@@ -115,10 +114,10 @@ func (s *SubstoreSuite) TestSubstoresHandler(c *check.C) {
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := s.parseSubstoresResponse(w)
+		result, err := parseListResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
-		c.Assert(len(result.Substores), check.Equals, t.Stores)
+		c.Assert(len(result.Substores), check.Equals, t.List)
 
 		datastore.Environ.Config.EnableUserAuth = false
 	}
@@ -138,6 +137,7 @@ func (s *SubstoreSuite) TestSubstoresCreateUpdateDeleteHandler(c *check.C) {
 		{"POST", "/v1/accounts/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{"PUT", "/v1/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", 0, false, true, 0},
 		{"PUT", "/v1/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"PUT", "/v1/accounts/stores/99", ss, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{"PUT", "/v1/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 		{"PUT", "/v1/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{"DELETE", "/v1/accounts/stores/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
@@ -152,7 +152,7 @@ func (s *SubstoreSuite) TestSubstoresCreateUpdateDeleteHandler(c *check.C) {
 
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 
-		result, err := s.parseBooleanResponse(w)
+		result, err := response.ParseStandardResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
@@ -181,10 +181,10 @@ func (s *SubstoreSuite) TestSubstoresErrorHandler(c *check.C) {
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := s.parseSubstoresResponse(w)
+		result, err := parseListResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
-		c.Assert(len(result.Substores), check.Equals, t.Stores)
+		c.Assert(len(result.Substores), check.Equals, t.List)
 
 		datastore.Environ.Config.EnableUserAuth = false
 	}
@@ -220,7 +220,7 @@ func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
 
-		result, err := s.parseBooleanResponse(w)
+		result, err := response.ParseStandardResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
@@ -229,4 +229,15 @@ func (s *SubstoreSuite) TestSubstoresUpdateErrorHandler(c *check.C) {
 
 		datastore.Environ.Config.EnableUserAuth = false
 	}
+}
+
+func createJWTWithRole(r *http.Request, role int) error {
+	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
+	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
+	jwtToken, err := usso.NewJWTToken(&resp, role)
+	if err != nil {
+		return fmt.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	return nil
 }

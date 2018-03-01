@@ -39,83 +39,83 @@ type SubstoresResponse struct {
 	Substores    []datastore.Substore `json:"substores"`
 }
 
-// SubstoresHandler is the API method to list the sub-stores
-func SubstoresHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// // SubstoresHandler is the API method to list the sub-stores
+// func SubstoresHandler(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-auth", "", "", w)
-		return
-	}
+// 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-auth", "", "", w)
+// 		return
+// 	}
 
-	vars := mux.Vars(r)
-	accountID, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("%v", vars)
-		formatBooleanResponse(false, "error-invalid-account", "", errorMessage, w)
-		return
-	}
+// 	vars := mux.Vars(r)
+// 	accountID, err := strconv.Atoi(vars["id"])
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusNotFound)
+// 		errorMessage := fmt.Sprintf("%v", vars)
+// 		formatBooleanResponse(false, "error-invalid-account", "", errorMessage, w)
+// 		return
+// 	}
 
-	stores, err := datastore.Environ.DB.ListSubstores(accountID, authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-stores-json", "", err.Error(), w)
-		return
-	}
+// 	stores, err := datastore.Environ.DB.ListSubstores(accountID, authUser)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-stores-json", "", err.Error(), w)
+// 		return
+// 	}
 
-	// Format the model for output and return JSON response
-	w.WriteHeader(http.StatusOK)
-	formatSubstoresResponse(true, "", "", "", stores, w)
-}
+// 	// Format the model for output and return JSON response
+// 	w.WriteHeader(http.StatusOK)
+// 	formatSubstoresResponse(true, "", "", "", stores, w)
+// }
 
-// SubstoreUpdateHandler is the API method to update a sub-store
-func SubstoreUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// // SubstoreUpdateHandler is the API method to update a sub-store
+// func SubstoreUpdateHandler(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-auth", "", "", w)
-		return
-	}
+// 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-auth", "", "", w)
+// 		return
+// 	}
 
-	vars := mux.Vars(r)
-	_, err = strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-invalid-store", "", err.Error(), w)
-		return
-	}
+// 	vars := mux.Vars(r)
+// 	_, err = strconv.Atoi(vars["id"])
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-invalid-store", "", err.Error(), w)
+// 		return
+// 	}
 
-	// Decode the JSON body
-	store := datastore.Substore{}
-	err = json.NewDecoder(r.Body).Decode(&store)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-store-data", "", "No sub-store data supplied.", w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
-		return
-	}
+// 	// Decode the JSON body
+// 	store := datastore.Substore{}
+// 	err = json.NewDecoder(r.Body).Decode(&store)
+// 	switch {
+// 	// Check we have some data
+// 	case err == io.EOF:
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-store-data", "", "No sub-store data supplied.", w)
+// 		return
+// 		// Check for parsing errors
+// 	case err != nil:
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
+// 		return
+// 	}
 
-	err = datastore.Environ.DB.UpdateAllowedSubstore(store, authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-updating-store", "", err.Error(), w)
-		return
-	}
+// 	err = datastore.Environ.DB.UpdateAllowedSubstore(store, authUser)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-updating-store", "", err.Error(), w)
+// 		return
+// 	}
 
-	w.WriteHeader(http.StatusOK)
-	formatBooleanResponse(true, "", "", "", w)
-}
+// 	w.WriteHeader(http.StatusOK)
+// 	formatBooleanResponse(true, "", "", "", w)
+// }
 
 // SubstoreCreateHandler is the API method to update a sub-store
 func SubstoreCreateHandler(w http.ResponseWriter, r *http.Request) {
