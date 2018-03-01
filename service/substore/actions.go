@@ -85,6 +85,26 @@ func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 	response.FormatStandardResponse(true, "", "", "", w)
 }
 
+func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, store datastore.Substore) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	err = datastore.Environ.DB.CreateAllowedSubstore(store, user)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-stores-json", "", "", w)
+		return
+	}
+
+	// Return successful JSON response
+	w.WriteHeader(http.StatusOK)
+	response.FormatStandardResponse(true, "", "", "", w)
+}
+
 func formatListResponse(success bool, errorCode, errorSubcode, message string, stores []datastore.Substore, w http.ResponseWriter) error {
 	response := ListResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Substores: stores}
 

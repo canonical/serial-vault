@@ -95,3 +95,36 @@ func APIUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	// Call the API with the user
 	updateHandler(w, user, true, storeID, store)
 }
+
+// APICreateHandler is the API method to create a sub-store model
+func APICreateHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the user and API key from the header
+	username := r.Header.Get("user")
+	apiKey := r.Header.Get("api-key")
+
+	// Find the user by API key
+	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	// Decode the JSON body
+	store := datastore.Substore{}
+	err = json.NewDecoder(r.Body).Decode(&store)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		response.FormatStandardResponse(false, "error-store-data", "", "No sub-store data supplied.", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	// Call the API with the user
+	createHandler(w, user, true, store)
+}

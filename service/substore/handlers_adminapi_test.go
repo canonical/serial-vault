@@ -58,12 +58,18 @@ func (s *SubstoreSuite) TestAPIListHandler(c *check.C) {
 	}
 }
 
-func (s *SubstoreSuite) TestAPIUpdateHandler(c *check.C) {
+func (s *SubstoreSuite) TestAPICreateUpdateHandler(c *check.C) {
+	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
+	ssn, _ := json.Marshal(substoreNew)
 
 	substore := datastore.Substore{ID: 1, AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
 	ss, _ := json.Marshal(substore)
 
 	tests := []SubstoreTest{
+		{"POST", "/api/accounts/stores", ssn, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"POST", "/api/accounts/stores", ssn, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"POST", "/api/accounts/stores", ssn, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/api/accounts/stores", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{"PUT", "/api/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", 0, false, false, 0},
 		{"PUT", "/api/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
 		{"PUT", "/api/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},

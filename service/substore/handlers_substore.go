@@ -84,3 +84,30 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	updateHandler(w, authUser, false, storeID, store)
 }
+
+// CreateHandler is the API method to create a sub-store model
+func CreateHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	// Decode the JSON body
+	store := datastore.Substore{}
+	err = json.NewDecoder(r.Body).Decode(&store)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		response.FormatStandardResponse(false, "error-store-data", "", "No sub-store data supplied.", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	createHandler(w, authUser, false, store)
+}
