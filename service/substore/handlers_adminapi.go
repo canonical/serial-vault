@@ -74,7 +74,7 @@ func APIUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	storeID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		response.FormatStandardResponse(false, "error-invalid-account", "", err.Error(), w)
+		response.FormatStandardResponse(false, "error-invalid-store", "", err.Error(), w)
 		return
 	}
 
@@ -127,4 +127,30 @@ func APICreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Call the API with the user
 	createHandler(w, user, true, store)
+}
+
+// APIDeleteHandler is the API method to delete a sub-store model
+func APIDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Get the user and API key from the header
+	username := r.Header.Get("user")
+	apiKey := r.Header.Get("api-key")
+
+	// Find the user by API key
+	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	storeID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		response.FormatStandardResponse(false, "error-invalid-store", "", err.Error(), w)
+		return
+	}
+
+	// Call the API with the user
+	deleteHandler(w, user, true, storeID)
 }

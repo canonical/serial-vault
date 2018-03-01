@@ -58,7 +58,7 @@ func (s *SubstoreSuite) TestAPIListHandler(c *check.C) {
 	}
 }
 
-func (s *SubstoreSuite) TestAPICreateUpdateHandler(c *check.C) {
+func (s *SubstoreSuite) TestAPICreateUpdateDeleteHandler(c *check.C) {
 	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
 	ssn, _ := json.Marshal(substoreNew)
 
@@ -74,6 +74,9 @@ func (s *SubstoreSuite) TestAPICreateUpdateHandler(c *check.C) {
 		{"PUT", "/api/accounts/stores/1", ss, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
 		{"PUT", "/api/accounts/stores/1", ss, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 		{"PUT", "/api/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"DELETE", "/api/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"DELETE", "/api/accounts/stores/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"DELETE", "/api/accounts/stores/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 	}
 
 	for _, t := range tests {

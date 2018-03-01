@@ -115,3 +115,23 @@ func formatListResponse(success bool, errorCode, errorSubcode, message string, s
 	}
 	return nil
 }
+
+func deleteHandler(w http.ResponseWriter, user datastore.User, apiCall bool, storeID int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	errorSubcode, err := datastore.Environ.DB.DeleteAllowedSubstore(storeID, user)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-deleting-store", errorSubcode, err.Error(), w)
+		return
+	}
+
+	// Return successful JSON response
+	w.WriteHeader(http.StatusOK)
+	response.FormatStandardResponse(true, "", "", "", w)
+}

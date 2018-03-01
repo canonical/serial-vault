@@ -111,3 +111,23 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	createHandler(w, authUser, false, store)
 }
+
+// DeleteHandler is the API method to delete a sub-store model
+func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	storeID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		response.FormatStandardResponse(false, "error-invalid-account", "", err.Error(), w)
+		return
+	}
+
+	deleteHandler(w, authUser, false, storeID)
+}
