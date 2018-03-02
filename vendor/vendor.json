@@ -89,152 +89,134 @@
 		{
 			"checksumSHA1": "XIMaXfW7l9qmmrObEnlbGYEZirQ=",
 			"path": "github.com/snapcore/snapd/arch",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "cNLsTel29ANkvto/p2Qy1H+JMUk=",
 			"path": "github.com/snapcore/snapd/asserts",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "BnmsqbETfx6ou54dyF6KqIPJapI=",
 			"path": "github.com/snapcore/snapd/asserts/sysdb",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "/TL6oo8qYYXfiLNvE5ZOBNvAP2E=",
 			"path": "github.com/snapcore/snapd/asserts/systestkeys",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "ZByKmnihWaPWCPXETbdQy1alssM=",
+			"checksumSHA1": "v3b8VhUad/o8p8rii533aEqAr+0=",
 			"path": "github.com/snapcore/snapd/dirs",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "l5uz5ZSU1sbhcRpslWj3bagiQfI=",
 			"path": "github.com/snapcore/snapd/httputil",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "sx+Cu+12aBJ7+R01mvtLUbD8Rt4=",
 			"path": "github.com/snapcore/snapd/i18n",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
-		},
-		{
-			"checksumSHA1": "bEMTWOSV80NXuZ4Kmg2whzC+ZP8=",
-			"path": "github.com/snapcore/snapd/jsonutil",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "A7smbHTL7nkh4FIspK3hXV5TPTM=",
 			"path": "github.com/snapcore/snapd/logger",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "Ln1QetHbtP5QFJD5lk2Z0HEABIs=",
+			"checksumSHA1": "QadC7DXa+jvszVb4IhhgfMENnwQ=",
 			"path": "github.com/snapcore/snapd/osutil",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "roA89ImjkpsslVpcjOfhWuAR2FQ=",
 			"path": "github.com/snapcore/snapd/osutil/sys",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "gfHhsonttRP4t6A6PhszjeUNWlE=",
+			"checksumSHA1": "bXvwNL0VCSJ8kVBXftpQTCMPCHQ=",
 			"path": "github.com/snapcore/snapd/overlord/auth",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
-		},
-		{
-			"checksumSHA1": "mJaya27/eWQ/8/8XIvAVJ02BkL8=",
-			"path": "github.com/snapcore/snapd/overlord/configstate/config",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "vkoU0A8zug6BhNqXN2gH3vp6HNw=",
 			"path": "github.com/snapcore/snapd/overlord/state",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "N9AQhrj5Z/GelRX24RmbpWc4G1o=",
 			"path": "github.com/snapcore/snapd/progress",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "lQdju1QFX+zC7y6u+UfXzX9MQVw=",
+			"checksumSHA1": "JrpKxQboXCidVITJgZ8ijH0mplw=",
 			"path": "github.com/snapcore/snapd/release",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "KJOuTM6+k2xit/Ph4fPB9NtkXL4=",
+			"checksumSHA1": "/t3z4eSlkDQQU9TiAns3dhJ6mAs=",
 			"path": "github.com/snapcore/snapd/snap",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "fG0pgHM5bCVJJY4UYfmsKhLOx54=",
 			"path": "github.com/snapcore/snapd/snap/snapdir",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "PgDjSnvUM0KhjnYhqAQxz6Avr5I=",
+			"checksumSHA1": "OjJcULnXL+Uxpu2mcQYkdgGjZ0k=",
 			"path": "github.com/snapcore/snapd/snap/squashfs",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "SJ2TDJksphfJ9x5TBucAPtTuWgk=",
 			"path": "github.com/snapcore/snapd/spdx",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "bF68Bz49VDaTMg0mSySCTg4psTs=",
+			"checksumSHA1": "kZlVkyMYcRLtA/yKMHvdLGYOfsQ=",
 			"path": "github.com/snapcore/snapd/store",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
-			"checksumSHA1": "IgM7/6vR1SY9M78aVDnk3wLm/Fs=",
+			"checksumSHA1": "YdSHhmrkq51OHMSvrE65k4fNtjM=",
 			"path": "github.com/snapcore/snapd/strutil",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "QtnO3LTYo8uSO2bPSZD0DxGbLwM=",
 			"path": "github.com/snapcore/snapd/strutil/quantity",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "leL+WTjj2xj4V+wbm76CXw2Eo/c=",
 			"path": "github.com/snapcore/snapd/timeout",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
-		},
-		{
-			"checksumSHA1": "K+BrNmSQcG6VKAxHBamXap49Ilw=",
-			"path": "github.com/snapcore/snapd/timeutil",
-			"revision": "17ab2545057250006c2feb5a658732b78681fd8c",
-			"revisionTime": "2018-02-23T16:28:32Z"
+			"revision": "162796b4ae2813295e234ff61a11e0aa570e6c0b",
+			"revisionTime": "2018-02-20T16:32:36Z"
 		},
 		{
 			"checksumSHA1": "8RSQDPLdGNV6q4jiM+OEoN41wgw=",
