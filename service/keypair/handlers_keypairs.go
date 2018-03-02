@@ -26,9 +26,9 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
-// ListHandler fetches the available keypairs for display from the database.
+// List fetches the available keypairs for display from the database.
 // Only viewable reference data is stored in the database, not the restricted private key.
-func ListHandler(w http.ResponseWriter, r *http.Request) {
+func List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	authUser, err := auth.GetUserFromJWT(w, r)

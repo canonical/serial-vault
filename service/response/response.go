@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/http/httptest"
 )
 
 // StandardResponse is the JSON response from an API method, indicating success or failure.
@@ -48,4 +49,12 @@ func FormatStandardResponse(success bool, errorCode, errorSubcode, message strin
 		return err
 	}
 	return nil
+}
+
+// ParseStandardResponse parses the response body and returns a standard response object
+func ParseStandardResponse(w *httptest.ResponseRecorder) (StandardResponse, error) {
+	// Check the JSON response
+	result := StandardResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
 }

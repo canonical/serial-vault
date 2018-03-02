@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2018-2019 Canonical Ltd
+ * Copyright (C) 2016-2017 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,24 +17,20 @@
  *
  */
 
-package signinglog
+package request
 
 import (
 	"net/http"
 
-	"github.com/CanonicalLtd/serial-vault/service/auth"
-	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-// List is the API method to fetch the log records from signing
-func List(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// CheckUserAPI validates the user and API key
+func CheckUserAPI(r *http.Request) (datastore.User, error) {
+	// Get the user and API key from the header
+	username := r.Header.Get("user")
+	apiKey := r.Header.Get("api-key")
 
-	authUser, err := auth.GetUserFromJWT(w, r)
-	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
-		return
-	}
-
-	listHandler(w, authUser, false)
+	// Find the user by API key
+	return datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
 }

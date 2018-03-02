@@ -220,6 +220,10 @@ func (db *DB) GetUserByUsername(username string) (User, error) {
 
 // GetUserByAPIKey fetches a single user from database
 func (db *DB) GetUserByAPIKey(apiKey, username string) (User, error) {
+	if len(apiKey) == 0 || len(username) == 0 {
+		return User{}, errors.New("The 'user' and 'api-key' must be supplied")
+	}
+
 	row := db.QueryRow(getUserByAPIKeySQL, apiKey, username)
 	user, err := db.rowToUser(row)
 	if err != nil {
