@@ -76,7 +76,8 @@ func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 
 	err = datastore.Environ.DB.UpdateAllowedSubstore(store, user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-stores-json", "", "", w)
+		log.Println("Error updating the store:", err)
+		response.FormatStandardResponse(false, "error-stores-substore", "", "Error updating the store", w)
 		return
 	}
 
