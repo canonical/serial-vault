@@ -38,6 +38,15 @@ type ListResponse struct {
 	SigningLog   []datastore.SigningLog `json:"logs"`
 }
 
+// FiltersResponse is the JSON response from the API Signing Log Filters method
+type FiltersResponse struct {
+	Success      bool                        `json:"success"`
+	ErrorCode    string                      `json:"error_code"`
+	ErrorSubcode string                      `json:"error_subcode"`
+	ErrorMessage string                      `json:"message"`
+	Filters      datastore.SigningLogFilters `json:"filters"`
+}
+
 // listHandler is the API method to fetch the log records from signing
 func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -51,7 +60,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatListResponse(false, "error-fetch-signinglog", "", err.Error(), nil, w)
+		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
 		return
 	}
 
@@ -60,8 +69,41 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	formatListResponse(true, "", "", "", logs, w)
 }
 
+// listFiltersHandler is the API method to fetch the log filter values
+func listFiltersHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	filters, err := datastore.Environ.DB.AllowedSigningLogFilterValues(user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
+		return
+	}
+
+	// Encode the response as JSON
+	w.WriteHeader(http.StatusOK)
+	formatFiltersResponse(true, "", "", "", filters, w)
+}
+
 func formatListResponse(success bool, errorCode, errorSubcode, message string, logs []datastore.SigningLog, w http.ResponseWriter) error {
 	response := ListResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the signing log response.")
+		return err
+	}
+	return nil
+}
+
+func formatFiltersResponse(success bool, errorCode, errorSubcode, message string, filters datastore.SigningLogFilters, w http.ResponseWriter) error {
+	response := FiltersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Filters: filters}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {

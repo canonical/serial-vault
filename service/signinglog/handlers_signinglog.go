@@ -28,8 +28,6 @@ import (
 
 // List is the API method to fetch the log records from signing
 func List(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
@@ -37,4 +35,15 @@ func List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	listHandler(w, authUser, false)
+}
+
+// ListFilters is the API method to fetch the log filter values
+func ListFilters(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	listFiltersHandler(w, authUser, false)
 }
