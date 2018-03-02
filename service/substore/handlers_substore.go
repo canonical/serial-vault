@@ -31,8 +31,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ListHandler is the API method to fetch the sub-store models
-func ListHandler(w http.ResponseWriter, r *http.Request) {
+// List is the API method to fetch the sub-store models
+func List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	authUser, err := auth.GetUserFromJWT(w, r)
@@ -51,8 +51,8 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	listHandler(w, authUser, false, accountID)
 }
 
-// UpdateHandler is the API method to update a sub-store model
-func UpdateHandler(w http.ResponseWriter, r *http.Request) {
+// Update is the API method to update a sub-store model
+func Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	authUser, err := auth.GetUserFromJWT(w, r)
@@ -85,8 +85,8 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	updateHandler(w, authUser, false, storeID, store)
 }
 
-// CreateHandler is the API method to create a sub-store model
-func CreateHandler(w http.ResponseWriter, r *http.Request) {
+// Create is the API method to create a sub-store model
+func Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	authUser, err := auth.GetUserFromJWT(w, r)
@@ -112,8 +112,8 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 	createHandler(w, authUser, false, store)
 }
 
-// DeleteHandler is the API method to delete a sub-store model
-func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+// Delete is the API method to delete a sub-store model
+func Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	authUser, err := auth.GetUserFromJWT(w, r)

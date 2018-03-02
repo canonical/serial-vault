@@ -26,20 +26,17 @@ import (
 	"strconv"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/gorilla/mux"
 )
 
-// APIListHandler is the API method to fetch the sub-store models
-func APIListHandler(w http.ResponseWriter, r *http.Request) {
+// APIList is the API method to fetch the sub-store models
+func APIList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user and API key from the header
-	username := r.Header.Get("user")
-	apiKey := r.Header.Get("api-key")
-
-	// Find the user by API key
-	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
@@ -56,16 +53,12 @@ func APIListHandler(w http.ResponseWriter, r *http.Request) {
 	listHandler(w, user, true, accountID)
 }
 
-// APIUpdateHandler is the API method to update a sub-store model
-func APIUpdateHandler(w http.ResponseWriter, r *http.Request) {
+// APIUpdate is the API method to update a sub-store model
+func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user and API key from the header
-	username := r.Header.Get("user")
-	apiKey := r.Header.Get("api-key")
-
-	// Find the user by API key
-	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
@@ -96,16 +89,12 @@ func APIUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	updateHandler(w, user, true, storeID, store)
 }
 
-// APICreateHandler is the API method to create a sub-store model
-func APICreateHandler(w http.ResponseWriter, r *http.Request) {
+// APICreate is the API method to create a sub-store model
+func APICreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user and API key from the header
-	username := r.Header.Get("user")
-	apiKey := r.Header.Get("api-key")
-
-	// Find the user by API key
-	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
@@ -129,16 +118,12 @@ func APICreateHandler(w http.ResponseWriter, r *http.Request) {
 	createHandler(w, user, true, store)
 }
 
-// APIDeleteHandler is the API method to delete a sub-store model
-func APIDeleteHandler(w http.ResponseWriter, r *http.Request) {
+// APIDelete is the API method to delete a sub-store model
+func APIDelete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user and API key from the header
-	username := r.Header.Get("user")
-	apiKey := r.Header.Get("api-key")
-
-	// Find the user by API key
-	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return

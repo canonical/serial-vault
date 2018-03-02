@@ -70,7 +70,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelDeleteHandler))).Methods("DELETE")
 
 	// API routes: signing-keys
-	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.ListHandler))).Methods("GET")
+	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.List))).Methods("GET")
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
@@ -82,7 +82,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
 
 	// API routes: signing log
-	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListHandler))).Methods("GET")
+	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(signinglog.List))).Methods("GET")
 	router.Handle("/v1/signinglog/filters", MiddlewareWithCSRF(http.HandlerFunc(SigningLogFiltersHandler))).Methods("GET")
 
 	// API routes: account assertions
@@ -91,10 +91,10 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountGetHandler))).Methods("GET")
 	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
-	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.ListHandler))).Methods("GET")
-	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.UpdateHandler))).Methods("PUT")
-	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.DeleteHandler))).Methods("DELETE")
-	router.Handle("/v1/accounts/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.CreateHandler))).Methods("POST")
+	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.List))).Methods("GET")
+	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.Update))).Methods("PUT")
+	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.Delete))).Methods("DELETE")
+	router.Handle("/v1/accounts/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.Create))).Methods("POST")
 
 	// API routes: system-user assertion
 	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
@@ -126,12 +126,12 @@ func AdminRouter() *mux.Router {
 	router.Handle("/", MiddlewareWithCSRF(http.HandlerFunc(IndexHandler))).Methods("GET")
 
 	// Admin API routes
-	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APIListHandler))).Methods("GET")
-	router.Handle("/api/keypairs", Middleware(http.HandlerFunc(keypair.APIListHandler))).Methods("GET")
-	router.Handle("/api/accounts/{id:[0-9]+}/stores", Middleware(http.HandlerFunc(substore.APIListHandler))).Methods("GET")
-	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIUpdateHandler))).Methods("PUT")
-	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIDeleteHandler))).Methods("DELETE")
-	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreateHandler))).Methods("POST")
+	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APIList))).Methods("GET")
+	router.Handle("/api/keypairs", Middleware(http.HandlerFunc(keypair.APIList))).Methods("GET")
+	router.Handle("/api/accounts/{id:[0-9]+}/stores", Middleware(http.HandlerFunc(substore.APIList))).Methods("GET")
+	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIUpdate))).Methods("PUT")
+	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIDelete))).Methods("DELETE")
+	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreate))).Methods("POST")
 
 	return router
 }

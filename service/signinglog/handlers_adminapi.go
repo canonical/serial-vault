@@ -22,20 +22,16 @@ package signinglog
 import (
 	"net/http"
 
-	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
-// APIListHandler is the API method to fetch the log records from signing
-func APIListHandler(w http.ResponseWriter, r *http.Request) {
+// APIList is the API method to fetch the log records from signing
+func APIList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Get the user and API key from the header
-	username := r.Header.Get("user")
-	apiKey := r.Header.Get("api-key")
-
-	// Find the user by API key
-	user, err := datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
