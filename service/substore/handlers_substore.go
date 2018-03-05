@@ -125,7 +125,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	storeID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		response.FormatStandardResponse(false, "error-invalid-account", "", err.Error(), w)
+		response.FormatStandardResponse(false, "error-invalid-store", "", err.Error(), w)
 		return
 	}
 

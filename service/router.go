@@ -27,6 +27,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
+	"github.com/CanonicalLtd/serial-vault/service/user"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
 )
@@ -100,12 +101,12 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
 
 	// API routes: users management
-	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(UsersHandler))).Methods("GET")
-	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(UserCreateHandler))).Methods("POST")
-	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(UserGetHandler))).Methods("GET")
-	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(UserUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(UserDeleteHandler))).Methods("DELETE")
-	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", MiddlewareWithCSRF(http.HandlerFunc(UserOtherAccountsGetHandler))).Methods("GET")
+	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(user.List))).Methods("GET")
+	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(user.Create))).Methods("POST")
+	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(user.Get))).Methods("GET")
+	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(user.Update))).Methods("PUT")
+	router.Handle("/v1/users/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(user.Delete))).Methods("DELETE")
+	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", MiddlewareWithCSRF(http.HandlerFunc(user.GetOtherAccounts))).Methods("GET")
 
 	// OpenID routes: using Ubuntu SSO
 	router.Handle("/login", MiddlewareWithCSRF(http.HandlerFunc(usso.LoginHandler)))

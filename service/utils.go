@@ -175,28 +175,6 @@ func formatRequestIDResponse(success bool, message string, nonce datastore.Devic
 	return nil
 }
 
-func formatUserResponse(success bool, errorCode, errorSubcode, message string, user datastore.User, w http.ResponseWriter) error {
-	response := UserResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, User: user}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the user response.")
-		return err
-	}
-	return nil
-}
-
-func formatUsersResponse(success bool, errorCode, errorSubcode, message string, users []datastore.User, w http.ResponseWriter) error {
-	response := UsersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Users: users}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the users response.")
-		return err
-	}
-	return nil
-}
-
 func formatKeypairStatusResponse(success bool, errorCode, errorSubcode, message string, status []datastore.KeypairStatus, w http.ResponseWriter) error {
 	response := KeypairStatusResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Status: status}
 

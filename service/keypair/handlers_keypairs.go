@@ -29,8 +29,6 @@ import (
 // List fetches the available keypairs for display from the database.
 // Only viewable reference data is stored in the database, not the restricted private key.
 func List(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
