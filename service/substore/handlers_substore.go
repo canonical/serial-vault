@@ -68,6 +68,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer r.Body.Close()
+
 	// Decode the JSON body
 	store := datastore.Substore{}
 	err = json.NewDecoder(r.Body).Decode(&store)
@@ -94,6 +96,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}
+
+	defer r.Body.Close()
 
 	// Decode the JSON body
 	store := datastore.Substore{}

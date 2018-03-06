@@ -82,16 +82,16 @@ func formatAssertionResponse(success bool, errorCode, errorSubcode, message stri
 	return nil
 }
 
-func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelSerialize, w http.ResponseWriter) error {
-	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
+// func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelSerialize, w http.ResponseWriter) error {
+// 	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
 
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the models response.")
-		return err
-	}
-	return nil
-}
+// 	// Encode the response as JSON
+// 	if err := json.NewEncoder(w).Encode(response); err != nil {
+// 		log.Println("Error forming the models response.")
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func formatPivotResponse(success bool, message string, store datastore.Substore, w http.ResponseWriter) error {
 	response := PivotResponse{Success: success, ErrorMessage: message, Pivot: store}

@@ -78,6 +78,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer r.Body.Close()
+
 	// Decode the JSON body
 	userRequest := Request{}
 	err = json.NewDecoder(r.Body).Decode(&userRequest)
@@ -122,6 +124,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		response.FormatStandardResponse(false, "error-invalid-account", "", err.Error(), w)
 		return
 	}
+
+	defer r.Body.Close()
 
 	// Decode the JSON body
 	userRequest := Request{}

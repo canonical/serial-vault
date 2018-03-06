@@ -27,30 +27,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-func TestFormatModelsResponse(t *testing.T) {
-	var models []ModelSerialize
-	models = append(models, ModelSerialize{ID: 1, BrandID: "Vendor", Name: "Alder 聖誕快樂"})
-	models = append(models, ModelSerialize{ID: 2, BrandID: "Vendor", Name: "Ash"})
-
-	w := httptest.NewRecorder()
-	err := formatModelsResponse(true, "", "", "", models, w)
-	if err != nil {
-		t.Errorf("Error forming models response: %v", err)
-	}
-
-	var result ModelsResponse
-	err = json.NewDecoder(w.Body).Decode(&result)
-	if err != nil {
-		t.Errorf("Error decoding the models response: %v", err)
-	}
-	if len(result.Models) != len(models) || !result.Success || result.ErrorMessage != "" {
-		t.Errorf("Models response not as expected: %v", result)
-	}
-	if result.Models[0].Name != models[0].Name {
-		t.Errorf("Expected the first model name of '%s', got: %s", models[0].Name, result.Models[0].Name)
-	}
-}
-
 func TestFormatKeypairsResponse(t *testing.T) {
 	var keypairs []datastore.Keypair
 	keypairs = append(keypairs, datastore.Keypair{ID: 1, AuthorityID: "Vendor", KeyID: "12345678abcde", Active: true})
