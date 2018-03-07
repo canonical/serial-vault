@@ -82,17 +82,6 @@ func formatAssertionResponse(success bool, errorCode, errorSubcode, message stri
 	return nil
 }
 
-// func formatModelsResponse(success bool, errorCode, errorSubcode, message string, models []ModelSerialize, w http.ResponseWriter) error {
-// 	response := ModelsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Models: models}
-
-// 	// Encode the response as JSON
-// 	if err := json.NewEncoder(w).Encode(response); err != nil {
-// 		log.Println("Error forming the models response.")
-// 		return err
-// 	}
-// 	return nil
-// }
-
 func formatPivotResponse(success bool, message string, store datastore.Substore, w http.ResponseWriter) error {
 	response := PivotResponse{Success: success, ErrorMessage: message, Pivot: store}
 	return jsonEncode(response, w)
@@ -115,17 +104,6 @@ func formatBooleanResponse(success bool, errorCode, errorSubcode, message string
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error forming the boolean response.")
-		return err
-	}
-	return nil
-}
-
-func formatModelResponse(success bool, errorCode, errorSubcode, message string, model ModelSerialize, w http.ResponseWriter) error {
-	response := ModelResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Model: model}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the model response.")
 		return err
 	}
 	return nil
@@ -170,17 +148,6 @@ func formatRequestIDResponse(success bool, message string, nonce datastore.Devic
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Error forming the request-id response: %v\n", err)
-		return err
-	}
-	return nil
-}
-
-func formatKeypairStatusResponse(success bool, errorCode, errorSubcode, message string, status []datastore.KeypairStatus, w http.ResponseWriter) error {
-	response := KeypairStatusResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Status: status}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the keypair status response.")
 		return err
 	}
 	return nil

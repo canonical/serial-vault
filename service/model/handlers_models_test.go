@@ -144,7 +144,7 @@ func (s *ModelsSuite) TestListHandler(c *check.C) {
 			c.Assert(result.Models[0].Name, check.Equals, "alder")
 		}
 
-		datastore.Environ.Config.EnableUserAuth = !t.EnableAuth
+		datastore.Environ.Config.EnableUserAuth = true
 		if t.MockError {
 			datastore.Environ.DB = &datastore.MockDB{}
 		}
@@ -179,7 +179,7 @@ func (s *ModelsSuite) TestGetHandler(c *check.C) {
 			c.Assert(result.Model.Name, check.Equals, "alder")
 		}
 
-		datastore.Environ.Config.EnableUserAuth = !t.EnableAuth
+		datastore.Environ.Config.EnableUserAuth = true
 		if t.MockError {
 			datastore.Environ.DB = &datastore.MockDB{}
 		}
@@ -249,7 +249,7 @@ func (s *ModelsSuite) TestUpdateDeleteHandler(c *check.C) {
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
-		datastore.Environ.Config.EnableUserAuth = !t.EnableAuth
+		datastore.Environ.Config.EnableUserAuth = true
 		if t.MockError {
 			datastore.Environ.DB = &datastore.MockDB{}
 		}
@@ -296,7 +296,7 @@ func (s *ModelsSuite) TestAssertionHandler(c *check.C) {
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
-		datastore.Environ.Config.EnableUserAuth = !t.EnableAuth
+		datastore.Environ.Config.EnableUserAuth = true
 		if t.MockError {
 			datastore.Environ.DB = &datastore.MockDB{}
 		}

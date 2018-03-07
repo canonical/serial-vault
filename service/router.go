@@ -73,14 +73,14 @@ func AdminRouter() *mux.Router {
 
 	// API routes: signing-keys
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.List))).Methods("GET")
-	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/assertion", MiddlewareWithCSRF(http.HandlerFunc(KeypairAssertionHandler))).Methods("POST")
+	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.Create))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(keypair.Disable))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(keypair.Enable))).Methods("POST")
+	router.Handle("/v1/keypairs/assertion", MiddlewareWithCSRF(http.HandlerFunc(keypair.Assertion))).Methods("POST")
 
 	router.Handle("/v1/keypairs/generate", MiddlewareWithCSRF(http.HandlerFunc(KeypairGenerateHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", MiddlewareWithCSRF(http.HandlerFunc(KeypairStatusHandler))).Methods("GET")
-	router.Handle("/v1/keypairs/status", MiddlewareWithCSRF(http.HandlerFunc(KeypairStatusProgressHandler))).Methods("GET")
+	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Status))).Methods("GET")
+	router.Handle("/v1/keypairs/status", MiddlewareWithCSRF(http.HandlerFunc(keypair.Progress))).Methods("GET")
 	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
 
 	// API routes: signing log
