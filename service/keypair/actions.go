@@ -103,6 +103,23 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, key
 	response.FormatStandardResponse(true, "", "", "", w)
 }
 
+// generateHandler is the API method to generate a signing key
+func generateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, keypairWithKey WithPrivateKey) {
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	go datastore.GenerateKeypair(keypairWithKey.AuthorityID, "", keypairWithKey.KeyName)
+
+	// Return the URL to watch for the response
+	statusURL := fmt.Sprintf("/v1/keypairs/status/%s/%s", keypairWithKey.AuthorityID, keypairWithKey.KeyName)
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Location", statusURL)
+	response.FormatStandardResponse(true, "", "", statusURL, w)
+}
+
 // enableDisableHandler is the API method to enable/disable a signing key
 func enableDisableHandler(w http.ResponseWriter, user datastore.User, apiCall bool, enabled bool, keypairID int) {
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)

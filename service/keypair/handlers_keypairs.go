@@ -65,7 +65,6 @@ func List(w http.ResponseWriter, r *http.Request) {
 // stored in the models database. Models can then be linked to one of the
 // existing signing-keys.
 func Create(w http.ResponseWriter, r *http.Request) {
-
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
@@ -80,11 +79,29 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	createHandler(w, authUser, false, keypairWithKey)
 }
 
+// Generate is the API method to generate a new keypair that can be used
+// for signing serial (or model) assertions. The keypairs are stored in the signing database
+// and the authority-id/key-id is stored in the models database. Models can then be
+// linked to one of the existing signing-keys.
+func Generate(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	keypairWithKey, ok := verifyKeypair(w, r, authUser)
+	if !ok {
+		return
+	}
+
+	generateHandler(w, authUser, false, keypairWithKey)
+}
+
 // Disable disables an existing keypair, which will mean that any
 // linked Models will not be able to be signed. The asserts module does not allow
 // a keypair to be deleted, so the keypair will just be disabled in the local database.
 func Disable(w http.ResponseWriter, r *http.Request) {
-
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
@@ -107,7 +124,6 @@ func Disable(w http.ResponseWriter, r *http.Request) {
 // linked Models will be able to be signed. The asserts module does not allow
 // a keypair to be deleted, so the keypair will just be enabled in the local database.
 func Enable(w http.ResponseWriter, r *http.Request) {
-
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)

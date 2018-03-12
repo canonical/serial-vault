@@ -131,7 +131,7 @@ func (s *KeypairSuite) TestKeypairsErrorHandler(c *check.C) {
 	}
 }
 
-func (s *KeypairSuite) TestCreateEnableDisableHandler(c *check.C) {
+func (s *KeypairSuite) TestCreateGenerateEnableDisableHandler(c *check.C) {
 	// Mock the database and the keystore
 	config := config.Settings{KeyStoreType: "memory", EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -159,6 +159,14 @@ func (s *KeypairSuite) TestCreateEnableDisableHandler(c *check.C) {
 		{"POST", "/v1/keypairs", dataBad, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{"POST", "/v1/keypairs", data, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 		{"POST", "/v1/keypairs", data, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+
+		{"POST", "/v1/keypairs/generate", data, 202, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"POST", "/v1/keypairs/generate", data, 202, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"POST", "/v1/keypairs/generate", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", []byte("{}"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", data, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/v1/keypairs/generate", data, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 
 		{"POST", "/v1/keypairs/1/disable", []byte(""), 200, "application/json; charset=UTF-8", 0, false, true, 0},
 		{"POST", "/v1/keypairs/1/disable", []byte(""), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
