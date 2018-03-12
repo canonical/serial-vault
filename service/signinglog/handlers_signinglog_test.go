@@ -116,9 +116,65 @@ func (s *SigningLogSuite) TestSigningLogErrorHandler(c *check.C) {
 	}
 }
 
+func (s *SigningLogSuite) TestListFilters(c *check.C) {
+	tests := []SigningLogTest{
+		{"GET", "/v1/signinglog/filters", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"GET", "/v1/signinglog/filters", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := parseFiltersResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+
+		datastore.Environ.Config.EnableUserAuth = false
+	}
+}
+
+func (s *SigningLogSuite) TestListFiltersError(c *check.C) {
+	datastore.Environ.DB = &datastore.ErrorMockDB{}
+	tests := []SigningLogTest{
+		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := parseFiltersResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+
+		datastore.Environ.Config.EnableUserAuth = false
+	}
+}
+
 func parseListResponse(w *httptest.ResponseRecorder) (signinglog.ListResponse, error) {
 	// Check the JSON response
 	result := signinglog.ListResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
+func parseFiltersResponse(w *httptest.ResponseRecorder) (signinglog.FiltersResponse, error) {
+	// Check the JSON response
+	result := signinglog.FiltersResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }

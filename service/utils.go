@@ -164,56 +164,12 @@ func formatAccountsResponse(success bool, errorCode, errorSubcode, message strin
 	return nil
 }
 
-func formatSigningLogResponse(success bool, errorCode, errorSubcode, message string, logs []datastore.SigningLog, w http.ResponseWriter) error {
-	response := SigningLogResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the signing log response.")
-		return err
-	}
-	return nil
-}
-
-func formatSigningLogFiltersResponse(success bool, errorCode, errorSubcode, message string, filters datastore.SigningLogFilters, w http.ResponseWriter) error {
-	response := SigningLogFiltersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLogFilters: filters}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the signing log response.")
-		return err
-	}
-	return nil
-}
-
 func formatRequestIDResponse(success bool, message string, nonce datastore.DeviceNonce, w http.ResponseWriter) error {
 	response := RequestIDResponse{Success: success, ErrorMessage: message, RequestID: nonce.Nonce}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Error forming the request-id response: %v\n", err)
-		return err
-	}
-	return nil
-}
-
-func formatUserResponse(success bool, errorCode, errorSubcode, message string, user datastore.User, w http.ResponseWriter) error {
-	response := UserResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, User: user}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the user response.")
-		return err
-	}
-	return nil
-}
-
-func formatUsersResponse(success bool, errorCode, errorSubcode, message string, users []datastore.User, w http.ResponseWriter) error {
-	response := UsersResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Users: users}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the users response.")
 		return err
 	}
 	return nil
