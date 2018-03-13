@@ -89,10 +89,10 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/signinglog/filters", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListFilters))).Methods("GET")
 
 	// API routes: account assertions
-	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.ListHandler))).Methods("GET")
-	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(AccountCreateHandler))).Methods("POST")
+	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.List))).Methods("GET")
+	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.Create))).Methods("POST")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountGetHandler))).Methods("GET")
+	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(account.Get))).Methods("GET")
 	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
 	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.List))).Methods("GET")
 	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.Update))).Methods("PUT")

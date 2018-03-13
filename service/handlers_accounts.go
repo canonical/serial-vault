@@ -25,11 +25,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 
 	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/gorilla/mux"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -79,34 +77,34 @@ type AssertionRequest struct {
 // 	formatAccountsResponse(true, "", "", "", accounts, w)
 // }
 
-// AccountGetHandler is the API method to fetch an account
-func AccountGetHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// // AccountGetHandler is the API method to fetch an account
+// func AccountGetHandler(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		formatBooleanResponse(false, "error-auth", "", "", w)
-		return
-	}
+// 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+// 	if err != nil {
+// 		formatBooleanResponse(false, "error-auth", "", "", w)
+// 		return
+// 	}
 
-	vars := mux.Vars(r)
-	accountID, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		errorMessage := fmt.Sprintf("%v", vars)
-		formatBooleanResponse(false, "error-invalid-account", "", errorMessage, w)
-		return
-	}
+// 	vars := mux.Vars(r)
+// 	accountID, err := strconv.Atoi(vars["id"])
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusNotFound)
+// 		errorMessage := fmt.Sprintf("%v", vars)
+// 		formatBooleanResponse(false, "error-invalid-account", "", errorMessage, w)
+// 		return
+// 	}
 
-	account, err := datastore.Environ.DB.GetAccountByID(accountID, authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-account", "", err.Error(), w)
-		return
-	}
+// 	account, err := datastore.Environ.DB.GetAccountByID(accountID, authUser)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-account", "", err.Error(), w)
+// 		return
+// 	}
 
-	formatAccountResponse(true, "", "", "", account, w)
-}
+// 	formatAccountResponse(true, "", "", "", account, w)
+// }
 
 // AccountUpdateHandler is the API method to update an account
 func AccountUpdateHandler(w http.ResponseWriter, r *http.Request) {

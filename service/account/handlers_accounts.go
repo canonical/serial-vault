@@ -23,14 +23,16 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/gorilla/mux"
 )
 
-// ListHandler is the API method to list the account assertions
-func ListHandler(w http.ResponseWriter, r *http.Request) {
+// List is the API method to list the account assertions
+func List(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
@@ -65,4 +67,22 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	createHandler(w, authUser, false, acct)
+}
+
+// Get is the API method to fetch an account
+func Get(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		response.FormatStandardResponse(false, "error-invalid-acccount", "", err.Error(), w)
+		return
+	}
+
+	getHandler(w, authUser, false, id)
 }

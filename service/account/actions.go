@@ -38,6 +38,15 @@ type ListResponse struct {
 	Accounts     []datastore.Account `json:"accounts"`
 }
 
+// GetResponse is the JSON response from the API Account method
+type GetResponse struct {
+	Success      bool              `json:"success"`
+	ErrorCode    string            `json:"error_code"`
+	ErrorSubcode string            `json:"error_subcode"`
+	ErrorMessage string            `json:"message"`
+	Account      datastore.Account `json:"account"`
+}
+
 // listHandler is the API method to fetch the user records
 func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -79,12 +88,44 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acc
 	response.FormatStandardResponse(true, "", "", "", w)
 }
 
+// getHandler is the API method to fetch the accounts
+func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, accountID int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	account, err := datastore.Environ.DB.GetAccountByID(accountID, user)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-fetch-account", "", err.Error(), w)
+		return
+	}
+
+	// Return successful JSON response with the list of models
+	w.WriteHeader(http.StatusOK)
+	formatGetResponse(account, w)
+}
+
 func formatListResponse(accounts []datastore.Account, w http.ResponseWriter) error {
 	response := ListResponse{Success: true, Accounts: accounts}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error forming the accounts response.")
+		return err
+	}
+	return nil
+}
+
+func formatGetResponse(account datastore.Account, w http.ResponseWriter) error {
+	response := GetResponse{Success: true, Account: account}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the account response.")
 		return err
 	}
 	return nil

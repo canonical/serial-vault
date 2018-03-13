@@ -68,7 +68,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	formatListResponse(dbModels, w)
 }
 
-// getHandler is the API method to fetch the log records from signing
+// getHandler is the API method to fetch the models
 func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, modelID int) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
