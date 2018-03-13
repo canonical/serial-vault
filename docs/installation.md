@@ -62,18 +62,14 @@ juju deploy cs:~canonical-solutions/bundle/serial-vault-bundle
 
 # Configure the signing service
 #   keystore_secret: part of the key used that is used to encrypt the stored data
-#   api_keys: the key that must be provided in the header of the web service requests
 #   (The keystore_secret and API key must be the same for the two services)
 juju config serial-vault keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
-juju config serial-vault api_keys=Heib2vah2aen3ai
 
 # Configure the admin service
 #   keystore_secret: part of the key used that is used to encrypt the stored data
-#   api_keys: the key that must be provided in the header of the web service requests
 #   csrf_auth_key: 32 bytes long key to protect server from cross site request forgery attacks
 #   (The keystore_secret and API key must be the same for the two services)
 juju config serial-vault-admin keystore_secret=uXeid2iy1Roo0Io0Beigae3iza5oechu
-juju config serial-vault-admin api_keys=Heib2vah2aen3aid
 juju config serial-vault-admin csrf_auth_key="2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="
 
 #   superusers: comma-separated list of users that will be full site admins
