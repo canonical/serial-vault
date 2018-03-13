@@ -154,7 +154,8 @@ func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error
 
 // HealthCheck returns an error if there is a problem talking to the underlying Datastore
 func (db *DB) HealthCheck() error {
-	return db.Ping()
+	_, err := db.Exec("select 1;")
+	return err
 }
 
 // ListSubstores returns a list of sub-stores
