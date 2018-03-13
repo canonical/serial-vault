@@ -17,10 +17,13 @@
  *
  */
 
-package service
+package account_test
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,9 +32,15 @@ import (
 
 	"encoding/base64"
 
-	"github.com/CanonicalLtd/serial-vault/account"
+	acc "github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service/account"
+	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/CanonicalLtd/serial-vault/usso"
+	"github.com/juju/usso/openid"
 	"github.com/snapcore/snapd/asserts"
 	check "gopkg.in/check.v1"
 )
@@ -56,29 +65,59 @@ var _ = check.Suite(&AccountSuite{})
 
 func (s *AccountSuite) SetUpTest(c *check.C) {
 	// Mock the store
-	account.FetchAssertionFromStore = account.MockFetchAssertionFromStore
+	acc.FetchAssertionFromStore = acc.MockFetchAssertionFromStore
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
 	// Disable CSRF for tests as we do not have a secure connection
-	MiddlewareWithCSRF = Middleware
+	service.MiddlewareWithCSRF = service.Middleware
 }
 
-func (s *AccountSuite) parseAccountsResponse(w *httptest.ResponseRecorder) (AccountsResponse, error) {
+func sendAdminRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(method, url, data)
+
+	if datastore.Environ.Config.EnableUserAuth {
+		// Create a JWT and add it to the request
+		err := createJWTWithRole(r, permissions)
+		c.Assert(err, check.IsNil)
+	}
+
+	service.AdminRouter().ServeHTTP(w, r)
+
+	return w
+}
+
+func createJWTWithRole(r *http.Request, role int) error {
+	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
+	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
+	jwtToken, err := usso.NewJWTToken(&resp, role)
+	if err != nil {
+		return fmt.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	return nil
+}
+
+func parseListResponse(w *httptest.ResponseRecorder) (account.ListResponse, error) {
 	// Check the JSON response
-	result := AccountsResponse{}
+	result := account.ListResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }
 
-func (s *AccountSuite) parseBooleanResponse(w *httptest.ResponseRecorder) (BooleanResponse, error) {
-	// Check the JSON response
-	result := BooleanResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	return result, err
+func generatePrivateKey() (asserts.PrivateKey, error) {
+	signingKey, err := ioutil.ReadFile("../../keystore/TestDeviceKey.asc")
+	if err != nil {
+		return nil, err
+	}
+	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
+
+	privateKey, _, err := crypt.DeserializePrivateKey(encodedSigningKey)
+	return privateKey, err
 }
 
 func (s *AccountSuite) TestAccountsHandler(c *check.C) {
@@ -86,7 +125,7 @@ func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 	tests := []AccountTest{
 		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, 3},
 		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 3},
-		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -98,7 +137,7 @@ func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := s.parseAccountsResponse(w)
+		result, err := parseListResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 		c.Assert(len(result.Accounts), check.Equals, t.Accounts)
@@ -136,7 +175,7 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := s.parseBooleanResponse(w)
+		result, err := response.ParseStandardResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 
@@ -150,7 +189,7 @@ func (s *AccountSuite) TestAccountsHandlerError(c *check.C) {
 	w := sendAdminRequest("GET", "/v1/accounts", bytes.NewReader(nil), datastore.Admin, c)
 	c.Assert(w.Code, check.Equals, 400)
 
-	result, err := s.parseAccountsResponse(w)
+	result, err := response.ParseStandardResponse(w)
 	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)
 }
@@ -195,7 +234,7 @@ func TestAccountsUploadHandler(t *testing.T) {
 	// Mock the database
 	config := config.Settings{
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -209,18 +248,17 @@ func TestAccountsUploadHandler(t *testing.T) {
 
 	// Encode the assertion and create the request
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
-	http.HandlerFunc(AccountsUploadHandler).ServeHTTP(w, r)
+	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
+	service.AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	result, err := response.ParseStandardResponse(w)
 	if err != nil {
 		t.Errorf("Error decoding the accounts response: %v", err)
 	}
@@ -235,7 +273,7 @@ func TestAccountsUploadHandlerWithPermissions(t *testing.T) {
 	config := config.Settings{
 		EnableUserAuth: true,
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -249,13 +287,13 @@ func TestAccountsUploadHandlerWithPermissions(t *testing.T) {
 
 	// Encode the assertion and create the request
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
+	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
 
 	// Create a JWT and add it to the request
 	err = createJWTWithRole(r, datastore.Admin)
@@ -263,11 +301,10 @@ func TestAccountsUploadHandlerWithPermissions(t *testing.T) {
 		t.Errorf("Error creating a JWT: %v", err)
 	}
 
-	http.HandlerFunc(AccountsUploadHandler).ServeHTTP(w, r)
+	service.AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	result, err := response.ParseStandardResponse(w)
 	if err != nil {
 		t.Errorf("Error decoding the accounts response: %v", err)
 	}
@@ -282,7 +319,7 @@ func TestAccountsUploadHandlerWithoutPermissions(t *testing.T) {
 	config := config.Settings{
 		EnableUserAuth: true,
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -296,18 +333,17 @@ func TestAccountsUploadHandlerWithoutPermissions(t *testing.T) {
 
 	// Encode the assertion and create the request
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
-	http.HandlerFunc(AccountsUploadHandler).ServeHTTP(w, r)
+	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
+	service.AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err = json.NewDecoder(w.Body).Decode(&result)
+	result, err := response.ParseStandardResponse(w)
 	if err != nil {
 		t.Errorf("Error decoding the accounts response: %v", err)
 	}
@@ -322,12 +358,11 @@ func TestAccountsUploadHandlerWithoutPermissions(t *testing.T) {
 func sendAccountsUploadError(request []byte, t *testing.T) {
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts", bytes.NewBuffer(request))
-	http.HandlerFunc(AccountsUploadHandler).ServeHTTP(w, r)
+	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
+	service.AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := BooleanResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
+	result, err := response.ParseStandardResponse(w)
 	if err != nil {
 		t.Errorf("Error decoding the accounts response: %v", err)
 	}
@@ -341,7 +376,7 @@ func TestAccountsUploadNilRequest(t *testing.T) {
 	// Mock the database
 	config := config.Settings{
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -355,7 +390,7 @@ func TestAccountsUploadInvalidRequest(t *testing.T) {
 	// Mock the database
 	config := config.Settings{
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -369,13 +404,13 @@ func TestAccountsUploadInvalidEncoding(t *testing.T) {
 	// Mock the database
 	config := config.Settings{
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
-	request, err := json.Marshal(AssertionRequest{Assertion: "InvalidData"})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: "InvalidData"})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -386,7 +421,7 @@ func TestAccountsUploadInvalidAssertion(t *testing.T) {
 
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -394,7 +429,7 @@ func TestAccountsUploadInvalidAssertion(t *testing.T) {
 
 	// Encode the assertion and create the request
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte("InvalidData"))
-	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -406,7 +441,7 @@ func TestAccountsUploadInvalidAssertionType(t *testing.T) {
 	// Mock the database
 	config := config.Settings{
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
@@ -418,7 +453,7 @@ func TestAccountsUploadInvalidAssertionType(t *testing.T) {
 		t.Errorf("Error generating the assertion: %v", err)
 	}
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
-	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}
@@ -430,7 +465,7 @@ func TestAccountsUploadPutError(t *testing.T) {
 	// Mock the database
 	config := config.Settings{
 		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../keystore",
+		KeyStorePath:   "../../keystore",
 		KeyStoreSecret: "secret code to encrypt the auth-key hash",
 		JwtSecret:      "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
@@ -442,7 +477,7 @@ func TestAccountsUploadPutError(t *testing.T) {
 		t.Errorf("Error generating the assertion: %v", err)
 	}
 	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
-	request, err := json.Marshal(AssertionRequest{Assertion: encodedAssert})
+	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
 	if err != nil {
 		t.Errorf("Error marshalling the assertion to JSON: %v", err)
 	}

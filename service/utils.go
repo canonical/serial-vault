@@ -131,17 +131,6 @@ func formatAccountResponse(success bool, errorCode, errorSubcode, message string
 	return nil
 }
 
-func formatAccountsResponse(success bool, errorCode, errorSubcode, message string, accounts []datastore.Account, w http.ResponseWriter) error {
-	response := AccountsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Accounts: accounts}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the accounts response.")
-		return err
-	}
-	return nil
-}
-
 func formatRequestIDResponse(success bool, message string, nonce datastore.DeviceNonce, w http.ResponseWriter) error {
 	response := RequestIDResponse{Success: success, ErrorMessage: message, RequestID: nonce.Nonce}
 

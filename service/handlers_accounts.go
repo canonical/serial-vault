@@ -57,27 +57,27 @@ type AssertionRequest struct {
 	Assertion string `json:"assertion"`
 }
 
-// AccountsHandler is the API method to list the account assertions
-func AccountsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// // AccountsHandler is the API method to list the account assertions
+// func AccountsHandler(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		formatAccountsResponse(false, "error-auth", "", "", nil, w)
-		return
-	}
+// 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+// 	if err != nil {
+// 		formatAccountsResponse(false, "error-auth", "", "", nil, w)
+// 		return
+// 	}
 
-	accounts, err := datastore.Environ.DB.ListAllowedAccounts(authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
-		return
-	}
+// 	accounts, err := datastore.Environ.DB.ListAllowedAccounts(authUser)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatAccountsResponse(false, "error-accounts-json", "", err.Error(), nil, w)
+// 		return
+// 	}
 
-	// Format the model for output and return JSON response
-	w.WriteHeader(http.StatusOK)
-	formatAccountsResponse(true, "", "", "", accounts, w)
-}
+// 	// Format the model for output and return JSON response
+// 	w.WriteHeader(http.StatusOK)
+// 	formatAccountsResponse(true, "", "", "", accounts, w)
+// }
 
 // AccountGetHandler is the API method to fetch an account
 func AccountGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -85,7 +85,7 @@ func AccountGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
 	if err != nil {
-		formatAccountsResponse(false, "error-auth", "", "", nil, w)
+		formatBooleanResponse(false, "error-auth", "", "", w)
 		return
 	}
 
@@ -94,14 +94,14 @@ func AccountGetHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		errorMessage := fmt.Sprintf("%v", vars)
-		formatAccountResponse(false, "error-invalid-account", "", errorMessage, datastore.Account{}, w)
+		formatBooleanResponse(false, "error-invalid-account", "", errorMessage, w)
 		return
 	}
 
 	account, err := datastore.Environ.DB.GetAccountByID(accountID, authUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		formatAccountResponse(false, "error-account", "", err.Error(), datastore.Account{}, w)
+		formatBooleanResponse(false, "error-account", "", err.Error(), w)
 		return
 	}
 

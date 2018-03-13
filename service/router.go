@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
@@ -88,7 +89,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/signinglog/filters", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListFilters))).Methods("GET")
 
 	// API routes: account assertions
-	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(AccountsHandler))).Methods("GET")
+	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.ListHandler))).Methods("GET")
 	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(AccountCreateHandler))).Methods("POST")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountGetHandler))).Methods("GET")
