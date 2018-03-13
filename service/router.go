@@ -25,6 +25,7 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
+	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
 	"github.com/CanonicalLtd/serial-vault/service/user"
@@ -63,23 +64,23 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/authtoken", MiddlewareWithCSRF(http.HandlerFunc(TokenHandler))).Methods("GET")
 
 	// API routes: models admin
-	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(ModelsHandler))).Methods("GET")
-	router.Handle("/v1/models/assertion", MiddlewareWithCSRF(http.HandlerFunc(ModelAssertionHeadersHandler))).Methods("POST")
-	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(ModelCreateHandler))).Methods("POST")
-	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelGetHandler))).Methods("GET")
-	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelUpdateHandler))).Methods("PUT")
-	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(ModelDeleteHandler))).Methods("DELETE")
+	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(model.List))).Methods("GET")
+	router.Handle("/v1/models/assertion", MiddlewareWithCSRF(http.HandlerFunc(model.AssertionHeaders))).Methods("POST")
+	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(model.Create))).Methods("POST")
+	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(model.Get))).Methods("GET")
+	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(model.Update))).Methods("PUT")
+	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(model.Delete))).Methods("DELETE")
 
 	// API routes: signing-keys
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.List))).Methods("GET")
-	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(KeypairCreateHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(KeypairDisableHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(KeypairEnableHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/assertion", MiddlewareWithCSRF(http.HandlerFunc(KeypairAssertionHandler))).Methods("POST")
+	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.Create))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(keypair.Disable))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(keypair.Enable))).Methods("POST")
+	router.Handle("/v1/keypairs/assertion", MiddlewareWithCSRF(http.HandlerFunc(keypair.Assertion))).Methods("POST")
 
-	router.Handle("/v1/keypairs/generate", MiddlewareWithCSRF(http.HandlerFunc(KeypairGenerateHandler))).Methods("POST")
-	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", MiddlewareWithCSRF(http.HandlerFunc(KeypairStatusHandler))).Methods("GET")
-	router.Handle("/v1/keypairs/status", MiddlewareWithCSRF(http.HandlerFunc(KeypairStatusProgressHandler))).Methods("GET")
+	router.Handle("/v1/keypairs/generate", MiddlewareWithCSRF(http.HandlerFunc(keypair.Generate))).Methods("POST")
+	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Status))).Methods("GET")
+	router.Handle("/v1/keypairs/status", MiddlewareWithCSRF(http.HandlerFunc(keypair.Progress))).Methods("GET")
 	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
 
 	// API routes: signing log
@@ -146,7 +147,7 @@ func SystemUserRouter() *mux.Router {
 	// API routes
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
 	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(ModelsHandler))).Methods("GET")
+	router.Handle("/v1/models", Middleware(http.HandlerFunc(model.List))).Methods("GET")
 	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
 
 	// Web application routes

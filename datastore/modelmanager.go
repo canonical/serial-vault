@@ -149,7 +149,7 @@ type Model struct {
 	KeyActiveUser   bool           `json:"key-active-user"`   // from the system-user keypair
 	SealedKeyUser   string         `json:"-"`                 // from the system-user keypair
 	AssertionUser   string         `json:"-"`                 // from the system-user keypair
-	ModelAssertion  ModelAssertion `json:"-"`
+	ModelAssertion  ModelAssertion `json:"assertion"`
 }
 
 // CreateModelTable creates the database table for a model.

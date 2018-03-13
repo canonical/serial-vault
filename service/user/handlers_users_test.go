@@ -58,7 +58,7 @@ var _ = check.Suite(&ServiceSuite{})
 
 func (s *ServiceSuite) SetUpTest(c *check.C) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
