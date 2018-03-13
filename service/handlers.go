@@ -94,8 +94,10 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	err := datastore.Environ.DB.HealthCheck()
 	var database string
+
 	if err != nil {
 		database = err.Error()
+		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		database = "healthy"
 	}

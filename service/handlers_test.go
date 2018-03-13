@@ -649,7 +649,7 @@ func TestHealthHandlerHealthy(t *testing.T) {
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	response, _ := sendRequestHealth(t, "GET", "/v1/health", nil)
 
-	if response.Code != 200 {
+	if response.Code != http.StatusOK {
 		t.Errorf("Response to healthy data store should be 200 but was %v", response.Code)
 	}
 	result := HealthResponse{}
@@ -669,15 +669,16 @@ func TestHealthHandlerUnhealthy(t *testing.T) {
 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
 	response, _ := sendRequestHealth(t, "GET", "/v1/health", nil)
 
-	if response.Code != 500 {
-		t.Errorf("Response to healthy data store should be 500 but was %v", response.Code)
+	if response.Code != http.StatusBadRequest {
+		t.Errorf("Response to healthy data store should be 400 but was %v", response.Code)
 	}
+
 	result := HealthResponse{}
 	err := json.NewDecoder(response.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the health response: %v", err)
 	}
-	if result.Database != "healthy" {
+	if result.Database == "healthy" {
 		t.Errorf("Health endpoint should not have returned healthy, got %s", result.Database)
 	}
 
