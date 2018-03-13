@@ -163,7 +163,7 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 		{"PUT", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
 		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
 		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {

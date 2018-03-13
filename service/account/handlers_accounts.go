@@ -86,3 +86,32 @@ func Get(w http.ResponseWriter, r *http.Request) {
 
 	getHandler(w, authUser, false, id)
 }
+
+// Update is the API method to update a model
+func Update(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	defer r.Body.Close()
+
+	// Decode the JSON body
+	acct := datastore.Account{}
+	err = json.NewDecoder(r.Body).Decode(&acct)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		w.WriteHeader(http.StatusBadRequest)
+		response.FormatStandardResponse(false, "error-account-data", "", "No account data supplied", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		w.WriteHeader(http.StatusBadRequest)
+		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	updateHandler(w, authUser, false, acct)
+}

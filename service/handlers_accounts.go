@@ -106,41 +106,41 @@ type AssertionRequest struct {
 // 	formatAccountResponse(true, "", "", "", account, w)
 // }
 
-// AccountUpdateHandler is the API method to update an account
-func AccountUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+// // AccountUpdateHandler is the API method to update an account
+// func AccountUpdateHandler(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
-	if err != nil {
-		formatBooleanResponse(false, "error-auth", "", "", w)
-		return
-	}
+// 	authUser, err := checkIsAdminAndGetUserFromJWT(w, r)
+// 	if err != nil {
+// 		formatBooleanResponse(false, "error-auth", "", "", w)
+// 		return
+// 	}
 
-	// Decode the JSON body
-	acct := datastore.Account{}
-	err = json.NewDecoder(r.Body).Decode(&acct)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-account-data", "", "No account data supplied", w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
-		return
-	}
+// 	// Decode the JSON body
+// 	acct := datastore.Account{}
+// 	err = json.NewDecoder(r.Body).Decode(&acct)
+// 	switch {
+// 	// Check we have some data
+// 	case err == io.EOF:
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-account-data", "", "No account data supplied", w)
+// 		return
+// 		// Check for parsing errors
+// 	case err != nil:
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
+// 		return
+// 	}
 
-	err = datastore.Environ.DB.UpdateAccount(acct, authUser)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-account", "", err.Error(), w)
-		return
-	}
+// 	err = datastore.Environ.DB.UpdateAccount(acct, authUser)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		formatBooleanResponse(false, "error-account", "", err.Error(), w)
+// 		return
+// 	}
 
-	formatBooleanResponse(true, "", "", "", w)
-}
+// 	formatBooleanResponse(true, "", "", "", w)
+// }
 
 // AccountCreateHandler is the API method to create an account
 func AccountCreateHandler(w http.ResponseWriter, r *http.Request) {

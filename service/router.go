@@ -91,7 +91,7 @@ func AdminRouter() *mux.Router {
 	// API routes: account assertions
 	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.List))).Methods("GET")
 	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.Create))).Methods("POST")
-	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(AccountUpdateHandler))).Methods("PUT")
+	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(account.Update))).Methods("PUT")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(account.Get))).Methods("GET")
 	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
 	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.List))).Methods("GET")

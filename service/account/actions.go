@@ -100,13 +100,34 @@ func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, accoun
 
 	account, err := datastore.Environ.DB.GetAccountByID(accountID, user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-fetch-account", "", err.Error(), w)
+		response.FormatStandardResponse(false, "error-account", "", err.Error(), w)
 		return
 	}
 
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
 	formatGetResponse(account, w)
+}
+
+func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acct datastore.Account) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	err = datastore.Environ.DB.UpdateAccount(acct, user)
+	if err != nil {
+		log.Println("Error updating the account:", err)
+		response.FormatStandardResponse(false, "error-account", "", "Error updating the model", w)
+		return
+	}
+
+	// Return successful JSON response
+	w.WriteHeader(http.StatusOK)
+	response.FormatStandardResponse(true, "", "", "", w)
 }
 
 func formatListResponse(accounts []datastore.Account, w http.ResponseWriter) error {
