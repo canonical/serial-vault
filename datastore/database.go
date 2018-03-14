@@ -114,6 +114,8 @@ type Datastore interface {
 	UpdateAllowedSubstore(store Substore, authorization User) error
 	DeleteAllowedSubstore(storeID int, authorization User) (string, error)
 	GetSubstore(fromModelID int, serialNumber string) (Substore, error)
+
+	HealthCheck() error
 }
 
 // DB local database interface with our custom methods.

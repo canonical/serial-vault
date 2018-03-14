@@ -660,6 +660,11 @@ func (mdb *MockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, 
 	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"}, nil
 }
 
+// HealthCheck mock for a healthy datastore
+func (mdb *MockDB) HealthCheck() error {
+	return nil
+}
+
 // -----------------------------------------------------------------------------
 
 // ErrorMockDB holds the unsuccessful mocks for the database
@@ -1056,4 +1061,9 @@ func (mdb *ErrorMockDB) DeleteAllowedSubstore(storeID int, authorization User) (
 // GetSubstore mock to get a substore record
 func (mdb *ErrorMockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
 	return Substore{}, errors.New("Cannot get the sub-store model")
+}
+
+// HealthCheck mock to simulate failed HealthCheck
+func (mdb *ErrorMockDB) HealthCheck() error {
+	return errors.New("Health check failed")
 }

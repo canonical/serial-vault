@@ -41,6 +41,11 @@ type VersionResponse struct {
 	Version string `json:"version"`
 }
 
+// HealthResponse is the JSON response from the health check method
+type HealthResponse struct {
+	Database string `json:"database"`
+}
+
 // RequestIDResponse is the JSON response from the API Version method
 type RequestIDResponse struct {
 	Success      bool   `json:"success"`
@@ -81,6 +86,25 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		message := fmt.Sprintf("Error encoding the version response: %v", err)
 		logMessage("VERSION", "get-version", message)
+	}
+}
+
+// HealthHandler is the API method to return if the app is up and db.Ping() doesn't return an error
+func HealthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	err := datastore.Environ.DB.HealthCheck()
+	var database string
+
+	if err != nil {
+		database = err.Error()
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		database = "healthy"
+	}
+	response := HealthResponse{Database: database}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		message := fmt.Sprintf("Error ecoding the health response: %v", err)
+		logMessage("HEALTH", "health", message)
 	}
 }
 
