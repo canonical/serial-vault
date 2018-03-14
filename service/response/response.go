@@ -26,6 +26,9 @@ import (
 	"net/http/httptest"
 )
 
+// JSONHeader is the JSON HTTP header
+const JSONHeader = "application/json; charset=UTF-8"
+
 // StandardResponse is the JSON response from an API method, indicating success or failure.
 type StandardResponse struct {
 	Success      bool   `json:"success"`

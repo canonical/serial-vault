@@ -150,7 +150,7 @@ func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	if modelName == "inactive" {
 		model = Model{ID: 1, BrandID: "System", Name: "inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}
-	if model.BrandID != brandID || model.Name != modelName {
+	if model.BrandID != brandID || model.Name != modelName || modelName == "invalid" {
 		return model, errors.New("Cannot find a model for that brand and model")
 	}
 	if apiKey == "NoModelForApiKey" {
@@ -601,17 +601,18 @@ func (mdb *MockDB) UpdateModelAssert(m ModelAssertion) error {
 // GetModelAssert mock for updating model assertion record
 func (mdb *MockDB) GetModelAssert(modelID int) (ModelAssertion, error) {
 	return ModelAssertion{
-		ID:           1,
-		ModelID:      1,
-		KeypairID:    1,
-		Series:       16,
-		Architecture: "amd64",
-		Revision:     1,
-		Gadget:       "pc",
-		Kernel:       "pc-kernel",
-		Store:        "ubuntu",
-		Created:      time.Now().UTC(),
-		Modified:     time.Now().UTC(),
+		ID:            1,
+		ModelID:       1,
+		KeypairID:     1,
+		Series:        16,
+		Architecture:  "amd64",
+		Revision:      1,
+		Gadget:        "pc",
+		Kernel:        "pc-kernel",
+		Store:         "ubuntu",
+		Created:       time.Now().UTC(),
+		Modified:      time.Now().UTC(),
+		RequiredSnaps: "snapweb,juju",
 	}, nil
 }
 

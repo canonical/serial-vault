@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package response
 
 import "net/http"
 
@@ -43,8 +43,8 @@ var (
 	ErrorInactiveModel        = ErrorResponse{false, "invalid-model", "", "The model is linked with an inactive signing-key", http.StatusBadRequest}
 	ErrorEmptySerial          = ErrorResponse{false, "create-assertion", "", "The serial number is missing from both the header and body", http.StatusBadRequest}
 	ErrorCreateAssertion      = ErrorResponse{false, "create-assertion", "", "Error converting the serial-request to a serial assertion", http.StatusBadRequest}
-	ErrorCheckAssertion       = ErrorResponse{false, "duplicate-assertion", "", "Error checking the serial-request. Please try again later", http.StatusInternalServerError}
+	ErrorCheckAssertion       = ErrorResponse{false, "duplicate-assertion", "", "Error checking the serial-request. Please try again later", http.StatusBadRequest}
 	ErrorCreateModelAssertion = ErrorResponse{false, "create-assertion", "", "Error with the model assertion headers", http.StatusBadRequest}
 	ErrorDuplicateAssertion   = ErrorResponse{false, "duplicate-assertion", "", "The serial number and/or device-key have already been used to sign a device", http.StatusBadRequest}
-	ErrorGenerateNonce        = ErrorResponse{false, "generate-nonce", "", "Error generating a nonce. Please try again later", http.StatusInternalServerError}
+	ErrorGenerateNonce        = ErrorResponse{false, "generate-nonce", "", "Error generating a nonce. Please try again later", http.StatusBadRequest}
 )

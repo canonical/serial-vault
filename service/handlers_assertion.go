@@ -20,10 +20,7 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"time"
 
@@ -38,75 +35,75 @@ type ModelAssertionRequest struct {
 	Name    string `json:"model"`
 }
 
-// ModelAssertionHandler is the API method to generate a model assertion
-func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
+// // ModelAssertionHandler is the API method to generate a model assertion
+// func ModelAssertionHandler(w http.ResponseWriter, r *http.Request) ErrorResponse {
 
-	// Check that we have an authorised API key header
-	err := checkAPIKey(r.Header.Get("api-key"))
-	if err != nil {
-		logMessage("MODEL", "invalid-api-key", "Invalid API key used")
-		return ErrorInvalidAPIKey
-	}
+// 	// Check that we have an authorised API key header
+// 	err := checkAPIKey(r.Header.Get("api-key"))
+// 	if err != nil {
+// 		logMessage("MODEL", "invalid-api-key", "Invalid API key used")
+// 		return ErrorInvalidAPIKey
+// 	}
 
-	defer r.Body.Close()
+// 	defer r.Body.Close()
 
-	// Decode the JSON body
-	request := ModelAssertionRequest{}
-	err = json.NewDecoder(r.Body).Decode(&request)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		return ErrorEmptyData
-		// Check for parsing errors
-	case err != nil:
-		return ErrorResponse{false, "error-decode-json", "", err.Error(), http.StatusBadRequest}
-	}
+// 	// Decode the JSON body
+// 	request := ModelAssertionRequest{}
+// 	err = json.NewDecoder(r.Body).Decode(&request)
+// 	switch {
+// 	// Check we have some data
+// 	case err == io.EOF:
+// 		return ErrorEmptyData
+// 		// Check for parsing errors
+// 	case err != nil:
+// 		return ErrorResponse{false, "error-decode-json", "", err.Error(), http.StatusBadRequest}
+// 	}
 
-	// Check that the reseller functionality is enabled for the brand
-	acc, err := datastore.Environ.DB.GetAccount(request.BrandID)
-	if err != nil {
-		return ErrorResponse{false, "error-account", "", err.Error(), http.StatusBadRequest}
-	}
-	if !acc.ResellerAPI {
-		return ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
-	}
+// 	// Check that the reseller functionality is enabled for the brand
+// 	acc, err := datastore.Environ.DB.GetAccount(request.BrandID)
+// 	if err != nil {
+// 		return ErrorResponse{false, "error-account", "", err.Error(), http.StatusBadRequest}
+// 	}
+// 	if !acc.ResellerAPI {
+// 		return ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
+// 	}
 
-	// Validate the model by checking that it exists on the database
-	model, err := datastore.Environ.DB.FindModel(request.BrandID, request.Name, r.Header.Get("api-key"))
-	if err != nil {
-		logMessage("MODEL", "invalid-model", "Cannot find model with the matching brand and model")
-		return ErrorInvalidModel
-	}
+// 	// Validate the model by checking that it exists on the database
+// 	model, err := datastore.Environ.DB.FindModel(request.BrandID, request.Name, r.Header.Get("api-key"))
+// 	if err != nil {
+// 		logMessage("MODEL", "invalid-model", "Cannot find model with the matching brand and model")
+// 		return ErrorInvalidModel
+// 	}
 
-	assertions := []asserts.Assertion{}
+// 	assertions := []asserts.Assertion{}
 
-	// Build the model assertion headers
-	assertionHeaders, keypair, err := createModelAssertionHeaders(model)
-	if err != nil {
-		logMessage("MODEL", "create-assertion", err.Error())
-		return ErrorCreateModelAssertion
-	}
+// 	// Build the model assertion headers
+// 	assertionHeaders, keypair, err := createModelAssertionHeaders(model)
+// 	if err != nil {
+// 		logMessage("MODEL", "create-assertion", err.Error())
+// 		return ErrorCreateModelAssertion
+// 	}
 
-	// Sign the assertion with the snapd assertions module
-	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), model.BrandID, keypair.KeyID, keypair.SealedKey)
-	if err != nil {
-		logMessage("MODEL", "signing-assertion", err.Error())
-		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusBadRequest}
-	}
+// 	// Sign the assertion with the snapd assertions module
+// 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), model.BrandID, keypair.KeyID, keypair.SealedKey)
+// 	if err != nil {
+// 		logMessage("MODEL", "signing-assertion", err.Error())
+// 		return ErrorResponse{false, "signing-assertion", "", err.Error(), http.StatusBadRequest}
+// 	}
 
-	// Add the account assertion to the assertions list
-	fetchAssertionFromStore(&assertions, asserts.AccountType, []string{model.BrandID})
+// 	// Add the account assertion to the assertions list
+// 	fetchAssertionFromStore(&assertions, asserts.AccountType, []string{model.BrandID})
 
-	// Add the account-key assertion to the assertions list
-	fetchAssertionFromStore(&assertions, asserts.AccountKeyType, []string{keypair.KeyID})
+// 	// Add the account-key assertion to the assertions list
+// 	fetchAssertionFromStore(&assertions, asserts.AccountKeyType, []string{keypair.KeyID})
 
-	// Add the model assertion after the account and account-key assertions
-	assertions = append(assertions, signedAssertion)
+// 	// Add the model assertion after the account and account-key assertions
+// 	assertions = append(assertions, signedAssertion)
 
-	// Return successful response with the signed assertions
-	formatAssertionResponse(true, "", "", "", assertions, w)
-	return ErrorResponse{Success: true}
-}
+// 	// Return successful response with the signed assertions
+// 	formatAssertionResponse(true, "", "", "", assertions, w)
+// 	return ErrorResponse{Success: true}
+// }
 
 func fetchAssertionFromStore(assertions *[]asserts.Assertion, modelType *asserts.AssertionType, headers []string) {
 	accountKeyAssertion, err := account.FetchAssertionFromStore(modelType, headers)

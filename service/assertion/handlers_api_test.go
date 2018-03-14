@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package assertion_test
 
 import (
 	"bytes"
@@ -30,6 +30,9 @@ import (
 	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service/assertion"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
 	check "gopkg.in/check.v1"
 )
@@ -52,7 +55,7 @@ func (s *AssertionSuite) SetUpTest(c *check.C) {
 	account.FetchAssertionFromStore = account.MockFetchAssertionFromStore
 
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", JwtSecret: "SomeTestSecretValue"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 }
@@ -62,20 +65,38 @@ func (s *AssertionSuite) sendRequest(method, url string, data io.Reader, apiKey 
 	r, _ := http.NewRequest(method, url, data)
 	r.Header.Set("api-key", apiKey)
 
-	SigningRouter().ServeHTTP(w, r)
+	service.SigningRouter().ServeHTTP(w, r)
 
 	return w
 }
 
 func (s *AssertionSuite) TestAssertionHandler(c *check.C) {
 	tests := []AssertionTest{
-		{nil, 400, jsonType, "ValidAPIKey"},
-		{[]byte{}, 400, jsonType, "ValidAPIKey"},
+		{nil, 400, response.JSONHeader, "ValidAPIKey"},
+		{[]byte{}, 400, response.JSONHeader, "ValidAPIKey"},
 		{validModel(), 200, asserts.MediaType, "ValidAPIKey"},
-		{validModel(), 400, jsonType, "InvalidAPIKey"},
-		{invalidModel(), 400, jsonType, "ValidAPIKey"},
-		{unauthBrand(), 400, jsonType, "ValidAPIKey"},
-		{unknownBrand(), 400, jsonType, "ValidAPIKey"},
+		{validModel(), 400, response.JSONHeader, "InvalidAPIKey"},
+		{invalidModel(), 400, response.JSONHeader, "ValidAPIKey"},
+		{unauthBrand(), 400, response.JSONHeader, "ValidAPIKey"},
+		{unknownBrand(), 400, response.JSONHeader, "ValidAPIKey"},
+	}
+
+	for _, t := range tests {
+		w := s.sendRequest("POST", "/v1/model", bytes.NewReader(t.Data), t.APIKey, c)
+		c.Log(w.Body)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+	}
+
+}
+
+func (s *AssertionSuite) TestAssertionErrorHandler(c *check.C) {
+	datastore.Environ.DB = &datastore.ErrorMockDB{}
+	// Mock the store with an error
+	account.FetchAssertionFromStore = account.MockFetchAssertionFromStoreError
+
+	tests := []AssertionTest{
+		{validModel(), 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
@@ -87,7 +108,7 @@ func (s *AssertionSuite) TestAssertionHandler(c *check.C) {
 }
 
 func validModel() []byte {
-	a := ModelAssertionRequest{
+	a := assertion.ModelAssertionRequest{
 		BrandID: "system",
 		Name:    "alder",
 	}
@@ -96,7 +117,7 @@ func validModel() []byte {
 }
 
 func invalidModel() []byte {
-	a := ModelAssertionRequest{
+	a := assertion.ModelAssertionRequest{
 		BrandID: "system",
 		Name:    "invalid",
 	}
@@ -105,7 +126,7 @@ func invalidModel() []byte {
 }
 
 func unauthBrand() []byte {
-	a := ModelAssertionRequest{
+	a := assertion.ModelAssertionRequest{
 		BrandID: "vendor",
 		Name:    "alder",
 	}
@@ -114,7 +135,7 @@ func unauthBrand() []byte {
 }
 
 func unknownBrand() []byte {
-	a := ModelAssertionRequest{
+	a := assertion.ModelAssertionRequest{
 		BrandID: "unknown",
 		Name:    "alder",
 	}

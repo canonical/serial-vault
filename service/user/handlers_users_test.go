@@ -391,9 +391,6 @@ func (s *ServiceSuite) TestOtherAccountsHandler(c *check.C) {
 		//}
 
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
-		c.Log("---", t.Permissions)
-		c.Log("---", t.EnableAuth, datastore.Environ.Config.EnableUserAuth)
-		c.Log("---", string(w.Body.Bytes()))
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
