@@ -58,6 +58,8 @@ type AccountTest struct {
 	Permissions int
 	EnableAuth  bool
 	Success     bool
+	SkipJWT     bool
+	MockError   bool
 	Accounts    int
 }
 
@@ -76,11 +78,11 @@ func (s *AccountSuite) SetUpTest(c *check.C) {
 	service.MiddlewareWithCSRF = service.Middleware
 }
 
-func sendAdminRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
+func sendAdminRequest(method, url string, data io.Reader, permissions int, skipJWT bool, c *check.C) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
 
-	if datastore.Environ.Config.EnableUserAuth {
+	if datastore.Environ.Config.EnableUserAuth && !skipJWT {
 		// Create a JWT and add it to the request
 		err := createJWTWithRole(r, permissions)
 		c.Assert(err, check.IsNil)
@@ -123,9 +125,10 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 
 	tests := []AccountTest{
-		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, 3},
-		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 3},
-		{"GET", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 3},
+		{"GET", "/v1/accounts", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 3},
+		{"GET", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"GET", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
 	}
 
 	for _, t := range tests {
@@ -133,7 +136,7 @@ func (s *AccountSuite) TestAccountsHandler(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, t.SkipJWT, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -152,18 +155,23 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 	acc, _ := json.Marshal(account)
 
 	tests := []AccountTest{
-		{"POST", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 1},
-		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", 0, true, false, 0},
-		{"GET", "/v1/accounts/99999", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
-		{"PUT", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"POST", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
+		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 1},
+		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 1},
+		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
+
+		{"GET", "/v1/accounts/99999", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
+
+		{"PUT", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
 	}
 
 	for _, t := range tests {
@@ -171,7 +179,7 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 			datastore.Environ.Config.EnableUserAuth = true
 		}
 
-		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, t.SkipJWT, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -186,12 +194,72 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 func (s *AccountSuite) TestAccountsHandlerError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 
-	w := sendAdminRequest("GET", "/v1/accounts", bytes.NewReader(nil), datastore.Admin, c)
+	w := sendAdminRequest("GET", "/v1/accounts", bytes.NewReader(nil), datastore.Admin, false, c)
 	c.Assert(w.Code, check.Equals, 400)
 
 	result, err := response.ParseStandardResponse(w)
 	c.Assert(err, check.IsNil)
 	c.Assert(result.Success, check.Equals, false)
+}
+
+func (s *AccountSuite) TestAccountsUploadHandler(c *check.C) {
+
+	// Create the account assertion
+	assertAcc, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
+	c.Assert(err, check.IsNil)
+
+	// Encode the assertion and create the request
+	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
+	request, err := json.Marshal(account.AssertionRequest{Assertion: encodedAssert})
+	c.Assert(err, check.IsNil)
+
+	invalidRequest1, err := json.Marshal(account.AssertionRequest{Assertion: "InvalidData"})
+	c.Assert(err, check.IsNil)
+
+	encodedAssert = base64.StdEncoding.EncodeToString([]byte("InvalidData"))
+	invalidRequest2, err := json.Marshal(account.AssertionRequest{Assertion: encodedAssert})
+	c.Assert(err, check.IsNil)
+
+	// Encode the assertion and create the request (account-key instead of an account assertion)
+	assertion, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
+	c.Assert(err, check.IsNil)
+	encodedAssert = base64.StdEncoding.EncodeToString([]byte(assertion))
+	invalidRequest3, err := json.Marshal(account.AssertionRequest{Assertion: encodedAssert})
+	c.Assert(err, check.IsNil)
+
+	tests := []AccountTest{
+		{"POST", "/v1/accounts/upload", request, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
+		{"POST", "/v1/accounts/upload", request, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", []byte("InvalidData"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", invalidRequest1, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", invalidRequest2, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", invalidRequest3, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, true, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+		if t.MockError {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
+		}
+
+		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, t.SkipJWT, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := response.ParseStandardResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+
+		datastore.Environ.Config.EnableUserAuth = false
+		datastore.Environ.DB = &datastore.MockDB{}
+	}
+
 }
 
 func generateAccountAssertion(assertType *asserts.AssertionType, accountID, username string) (string, error) {
@@ -227,259 +295,4 @@ func generateAccountAssertion(assertType *asserts.AssertionType, accountID, user
 
 	assertAcc := asserts.Encode(accAssert)
 	return string(assertAcc), nil
-}
-
-func TestAccountsUploadHandler(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	// Create the account assertion
-	assertAcc, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
-	if err != nil {
-		t.Errorf("Error generating the assertion: %v", err)
-	}
-
-	// Encode the assertion and create the request
-	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
-	service.AdminRouter().ServeHTTP(w, r)
-
-	// Check the JSON response
-	result, err := response.ParseStandardResponse(w)
-	if err != nil {
-		t.Errorf("Error decoding the accounts response: %v", err)
-	}
-	if !result.Success {
-		t.Errorf("Expected success, got failure: %s", result.ErrorMessage)
-	}
-}
-
-func TestAccountsUploadHandlerWithPermissions(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		EnableUserAuth: true,
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	// Create the account assertion
-	assertAcc, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
-	if err != nil {
-		t.Errorf("Error generating the assertion: %v", err)
-	}
-
-	// Encode the assertion and create the request
-	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
-
-	// Create a JWT and add it to the request
-	err = createJWTWithRole(r, datastore.Admin)
-	if err != nil {
-		t.Errorf("Error creating a JWT: %v", err)
-	}
-
-	service.AdminRouter().ServeHTTP(w, r)
-
-	// Check the JSON response
-	result, err := response.ParseStandardResponse(w)
-	if err != nil {
-		t.Errorf("Error decoding the accounts response: %v", err)
-	}
-	if !result.Success {
-		t.Errorf("Expected success, got failure: %s", result.ErrorMessage)
-	}
-}
-
-func TestAccountsUploadHandlerWithoutPermissions(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		EnableUserAuth: true,
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	// Create the account assertion
-	assertAcc, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
-	if err != nil {
-		t.Errorf("Error generating the assertion: %v", err)
-	}
-
-	// Encode the assertion and create the request
-	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertAcc))
-	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
-	service.AdminRouter().ServeHTTP(w, r)
-
-	// Check the JSON response
-	result, err := response.ParseStandardResponse(w)
-	if err != nil {
-		t.Errorf("Error decoding the accounts response: %v", err)
-	}
-	if result.Success {
-		t.Error("Expected failure, got success")
-	}
-	if result.ErrorCode != "error-auth" {
-		t.Error("Expected error-auth code")
-	}
-}
-
-func sendAccountsUploadError(request []byte, t *testing.T) {
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/v1/accounts/upload", bytes.NewBuffer(request))
-	service.AdminRouter().ServeHTTP(w, r)
-
-	// Check the JSON response
-	result, err := response.ParseStandardResponse(w)
-	if err != nil {
-		t.Errorf("Error decoding the accounts response: %v", err)
-	}
-	if result.Success {
-		t.Errorf("Expected failure, got success")
-	}
-}
-
-func TestAccountsUploadNilRequest(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	sendAccountsUploadError(nil, t)
-}
-
-func TestAccountsUploadInvalidRequest(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	sendAccountsUploadError([]byte("InvalidData"), t)
-}
-
-func TestAccountsUploadInvalidEncoding(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	request, err := json.Marshal(service.AssertionRequest{Assertion: "InvalidData"})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-	sendAccountsUploadError(request, t)
-}
-
-func TestAccountsUploadInvalidAssertion(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	// Encode the assertion and create the request
-	encodedAssert := base64.StdEncoding.EncodeToString([]byte("InvalidData"))
-	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-	sendAccountsUploadError(request, t)
-}
-
-func TestAccountsUploadInvalidAssertionType(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	// Encode the assertion and create the request (account-key instead of an account assertion)
-	assertion, err := generateAccountAssertion(asserts.AccountKeyType, "alder", "maple-inc")
-	if err != nil {
-		t.Errorf("Error generating the assertion: %v", err)
-	}
-	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
-	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-	sendAccountsUploadError(request, t)
-}
-
-func TestAccountsUploadPutError(t *testing.T) {
-
-	// Mock the database
-	config := config.Settings{
-		KeyStoreType:   "filesystem",
-		KeyStorePath:   "../../keystore",
-		KeyStoreSecret: "secret code to encrypt the auth-key hash",
-		JwtSecret:      "SomeTestSecretValue"}
-	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
-	datastore.OpenKeyStore(config)
-
-	// Encode the assertion and create the request
-	assertion, err := generateAccountAssertion(asserts.AccountType, "alder", "maple-inc")
-	if err != nil {
-		t.Errorf("Error generating the assertion: %v", err)
-	}
-	encodedAssert := base64.StdEncoding.EncodeToString([]byte(assertion))
-	request, err := json.Marshal(service.AssertionRequest{Assertion: encodedAssert})
-	if err != nil {
-		t.Errorf("Error marshalling the assertion to JSON: %v", err)
-	}
-	sendAccountsUploadError(request, t)
 }

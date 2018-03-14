@@ -31,6 +31,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// AssertionRequest is the JSON version of a account assertion
+type AssertionRequest struct {
+	ID        int    `json:"id"`
+	Assertion string `json:"assertion"`
+}
+
 // List is the API method to list the account assertions
 func List(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
@@ -114,4 +120,31 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updateHandler(w, authUser, false, acct)
+}
+
+// Upload is the API method to upload an account assertion
+func Upload(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	defer r.Body.Close()
+
+	// Decode the JSON body
+	assertionRequest := AssertionRequest{}
+	err = json.NewDecoder(r.Body).Decode(&assertionRequest)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		response.FormatStandardResponse(false, "error-assertion-data", "", "No assertion data supplied.", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+		return
+	}
+
+	uploadHandler(w, authUser, false, assertionRequest)
 }

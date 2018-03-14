@@ -20,13 +20,16 @@
 package account
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // ListResponse is the JSON response from the API Accounts method
@@ -122,6 +125,51 @@ func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acc
 	if err != nil {
 		log.Println("Error updating the account:", err)
 		response.FormatStandardResponse(false, "error-account", "", "Error updating the model", w)
+		return
+	}
+
+	// Return successful JSON response
+	w.WriteHeader(http.StatusOK)
+	response.FormatStandardResponse(true, "", "", "", w)
+}
+
+func uploadHandler(w http.ResponseWriter, user datastore.User, apiCall bool, assertionRequest AssertionRequest) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Decode the file
+	decodedAssertion, err := base64.StdEncoding.DecodeString(assertionRequest.Assertion)
+	if err != nil {
+		response.FormatStandardResponse(false, "decode-assertion", "", err.Error(), w)
+		return
+	}
+
+	// Validate the assertion in the request
+	assertion, err := asserts.Decode(decodedAssertion)
+	if err != nil {
+		response.FormatStandardResponse(false, "decode-assertion", "", err.Error(), w)
+		return
+	}
+
+	// Check that we have an account assertion
+	if assertion.Type().Name != asserts.AccountType.Name {
+		response.FormatStandardResponse(false, "invalid-assertion", "", fmt.Sprintf("An assertion of type '%s' is required", asserts.AccountType.Name), w)
+		return
+	}
+
+	account := datastore.Account{
+		AuthorityID: assertion.HeaderString("account-id"),
+		Assertion:   string(decodedAssertion),
+	}
+
+	errorCode, err := datastore.Environ.DB.PutAccount(account, user)
+	if err != nil {
+		response.FormatStandardResponse(false, errorCode, "", err.Error(), w)
 		return
 	}
 

@@ -93,7 +93,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.Create))).Methods("POST")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(account.Update))).Methods("PUT")
 	router.Handle("/v1/accounts/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(account.Get))).Methods("GET")
-	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(AccountsUploadHandler))).Methods("POST")
+	router.Handle("/v1/accounts/upload", MiddlewareWithCSRF(http.HandlerFunc(account.Upload))).Methods("POST")
 	router.Handle("/v1/accounts/{id:[0-9]+}/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.List))).Methods("GET")
 	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.Update))).Methods("PUT")
 	router.Handle("/v1/accounts/stores/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(substore.Delete))).Methods("DELETE")
