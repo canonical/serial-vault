@@ -31,6 +31,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/service/pivot"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
+	"github.com/CanonicalLtd/serial-vault/service/store"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
 	"github.com/CanonicalLtd/serial-vault/service/user"
 	"github.com/CanonicalLtd/serial-vault/usso"
@@ -85,7 +86,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/keypairs/generate", MiddlewareWithCSRF(http.HandlerFunc(keypair.Generate))).Methods("POST")
 	router.Handle("/v1/keypairs/status/{authorityID}/{keyName}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Status))).Methods("GET")
 	router.Handle("/v1/keypairs/status", MiddlewareWithCSRF(http.HandlerFunc(keypair.Progress))).Methods("GET")
-	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(StoreKeyRegisterHandler))).Methods("POST")
+	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(store.KeyRegister))).Methods("POST")
 
 	// API routes: signing log
 	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(signinglog.List))).Methods("GET")
