@@ -28,6 +28,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/assertion"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/model"
+	"github.com/CanonicalLtd/serial-vault/service/pivot"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
 	"github.com/CanonicalLtd/serial-vault/service/user"
@@ -47,9 +48,9 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/serial", Middleware(ErrorHandler(SignHandler))).Methods("POST")
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler))).Methods("POST")
 	router.Handle("/v1/model", Middleware(ErrorHandler(assertion.ModelAssertion))).Methods("POST")
-	router.Handle("/v1/pivot", Middleware(ErrorHandler(PivotModelHandler))).Methods("POST")
-	router.Handle("/v1/pivotmodel", Middleware(ErrorHandler(PivotModelAssertionHandler))).Methods("POST")
-	router.Handle("/v1/pivotserial", Middleware(ErrorHandler(PivotSerialAssertionHandler))).Methods("POST")
+	router.Handle("/v1/pivot", Middleware(ErrorHandler(pivot.Model))).Methods("POST")
+	router.Handle("/v1/pivotmodel", Middleware(ErrorHandler(pivot.ModelAssertion))).Methods("POST")
+	router.Handle("/v1/pivotserial", Middleware(ErrorHandler(pivot.SerialAssertion))).Methods("POST")
 
 	return router
 }

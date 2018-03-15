@@ -82,11 +82,6 @@ func formatAssertionResponse(success bool, errorCode, errorSubcode, message stri
 	return nil
 }
 
-func formatPivotResponse(success bool, message string, store datastore.Substore, w http.ResponseWriter) error {
-	response := PivotResponse{Success: success, ErrorMessage: message, Pivot: store}
-	return jsonEncode(response, w)
-}
-
 func jsonEncode(response interface{}, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	// Encode the response as JSON

@@ -17,27 +17,33 @@
  *
  */
 
-package service
+package pivot
 
 import (
+	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	assert "github.com/CanonicalLtd/serial-vault/service/assertion"
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
 )
 
-// PivotResponse is the JSON response from the API Sub-Stores method
-type PivotResponse struct {
+// Response is the JSON response from the API Sub-Stores method
+type Response struct {
 	Success      bool               `json:"success"`
 	ErrorMessage string             `json:"message"`
 	Pivot        datastore.Substore `json:"pivot"`
 }
 
-// PivotModelHandler is the API method to determine the pivot details of a model
-func PivotModelHandler(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
+// Model is the API method to determine the pivot details of a model
+func Model(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 
 	assertion, errResponse := parseSerialAssertion(r)
 	if !errResponse.Success {
@@ -54,9 +60,9 @@ func PivotModelHandler(w http.ResponseWriter, r *http.Request) response.ErrorRes
 	return response.ErrorResponse{Success: true}
 }
 
-// PivotModelAssertionHandler is the API method to get the model assertions for a pivoted model
+// ModelAssertion is the API method to get the model assertions for a pivoted model
 // The serial assertion of the original model is supplied, and the assertions for the pivoted model are returned
-func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
+func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	assertion, errResponse := parseSerialAssertion(r)
 	if !errResponse.Success {
 		return errResponse
@@ -79,9 +85,9 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) response
 	assertions := []asserts.Assertion{}
 
 	// Build the model assertion headers for the original model
-	assertionHeaders, keypair, err := createModelAssertionHeaders(substore.FromModel)
+	assertionHeaders, keypair, err := assert.CreateModelAssertionHeaders(substore.FromModel)
 	if err != nil {
-		logMessage("PIVOT", "create-assertion", err.Error())
+		svlog.Message("PIVOT", "create-assertion", err.Error())
 		return response.ErrorCreateModelAssertion
 	}
 
@@ -92,7 +98,7 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) response
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), substore.FromModel.BrandID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
-		logMessage("PIVOT", "signing-assertion", err.Error())
+		svlog.Message("PIVOT", "signing-assertion", err.Error())
 		return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
@@ -106,14 +112,14 @@ func PivotModelAssertionHandler(w http.ResponseWriter, r *http.Request) response
 	assertions = append(assertions, signedAssertion)
 
 	// Return successful response with the signed assertions
-	formatAssertionResponse(true, "", "", "", assertions, w)
+	formatAssertionResponse(assertions, w)
 	return response.ErrorResponse{Success: true}
 
 }
 
-// PivotSerialAssertionHandler is the API method to get the serial assertions for a pivoted model
+// SerialAssertion is the API method to get the serial assertions for a pivoted model
 // The serial assertion of the original model is supplied, and the assertions for the pivoted model are returned
-func PivotSerialAssertionHandler(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
+func SerialAssertion(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	assertion, errResponse := parseSerialAssertion(r)
 	if !errResponse.Success {
 		return errResponse
@@ -144,7 +150,7 @@ func PivotSerialAssertionHandler(w http.ResponseWriter, r *http.Request) respons
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SerialType, assertionHeaders, assertion.Body(), substore.FromModel.BrandID, substore.FromModel.KeyID, substore.FromModel.SealedKey)
 	if err != nil {
-		logMessage("PIVOT", "signing-assertion", err.Error())
+		svlog.Message("PIVOT", "signing-assertion", err.Error())
 		return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
@@ -158,16 +164,16 @@ func PivotSerialAssertionHandler(w http.ResponseWriter, r *http.Request) respons
 	assertions = append(assertions, signedAssertion)
 
 	// Return successful response with the signed assertions
-	formatAssertionResponse(true, "", "", "", assertions, w)
+	formatAssertionResponse(assertions, w)
 	return response.ErrorResponse{Success: true}
 
 }
 
 func parseSerialAssertion(r *http.Request) (asserts.Assertion, response.ErrorResponse) {
 	// Check that we have an authorised API key header
-	err := checkAPIKey(r.Header.Get("api-key"))
+	_, err := request.CheckModelAPI(r)
 	if err != nil {
-		logMessage("PIVOT", "invalid-api-key", "Invalid API key used")
+		svlog.Message("PIVOT", "invalid-api-key", "Invalid API key used")
 		return nil, response.ErrorInvalidAPIKey
 	}
 
@@ -177,17 +183,17 @@ func parseSerialAssertion(r *http.Request) (asserts.Assertion, response.ErrorRes
 	dec := asserts.NewDecoder(r.Body)
 	assertion, err := dec.Decode()
 	if err == io.EOF {
-		logMessage("PIVOT", "invalid-assertion", "No data supplied for pivot")
+		svlog.Message("PIVOT", "invalid-assertion", "No data supplied for pivot")
 		return nil, response.ErrorEmptyData
 	}
 	if err != nil {
-		logMessage("PIVOT", "invalid-assertion", err.Error())
+		svlog.Message("PIVOT", "invalid-assertion", err.Error())
 		return nil, response.ErrorResponse{Success: false, Code: "decode-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Check that we have a serial assertion (the details will have been validated by Decode call)
 	if assertion.Type() != asserts.SerialType {
-		logMessage("PIVOT", "invalid-type", "The assertion type must be 'serial'")
+		svlog.Message("PIVOT", "invalid-type", "The assertion type must be 'serial'")
 		return nil, response.ErrorInvalidType
 	}
 
@@ -198,16 +204,57 @@ func findModelPivot(assertion asserts.Assertion, apiKey string) (datastore.Subst
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), apiKey)
 	if err != nil {
-		logMessage("PIVOT", "invalid-model", "Cannot find model with the matching brand and model")
+		svlog.Message("PIVOT", "invalid-model", "Cannot find model with the matching brand and model")
 		return datastore.Substore{}, response.ErrorInvalidModel
 	}
 
 	// Check for a sub-store model for the pivot
 	substore, err := datastore.Environ.DB.GetSubstore(model.ID, assertion.HeaderString("serial"))
 	if err != nil {
-		logMessage("PIVOT", "invalid-substore", "Cannot find sub-store mapping for the model")
+		svlog.Message("PIVOT", "invalid-substore", "Cannot find sub-store mapping for the model")
 		return substore, response.ErrorInvalidSubstore
 	}
 
 	return substore, response.ErrorResponse{Success: true}
+}
+
+func formatPivotResponse(success bool, message string, store datastore.Substore, w http.ResponseWriter) error {
+	response := Response{Success: success, ErrorMessage: message, Pivot: store}
+	return jsonEncode(response, w)
+}
+
+func jsonEncode(response interface{}, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the JSON response.")
+		return err
+	}
+	return nil
+}
+
+func fetchAssertionFromStore(assertions *[]asserts.Assertion, modelType *asserts.AssertionType, headers []string) {
+	assertion, err := account.FetchAssertionFromStore(modelType, headers)
+	if err != nil {
+		svlog.Message("MODEL", "assertion", err.Error())
+	} else {
+		*assertions = append(*assertions, assertion)
+	}
+}
+
+func formatAssertionResponse(assertions []asserts.Assertion, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", asserts.MediaType)
+	w.WriteHeader(http.StatusOK)
+	encoder := asserts.NewEncoder(w)
+
+	for _, assert := range assertions {
+		err := encoder.Encode(assert)
+		if err != nil {
+			// Not much we can do if we're here - apart from panic!
+			svlog.Message("MODEL", "assertion", "Error encoding the assertions.")
+			return err
+		}
+	}
+
+	return nil
 }
