@@ -60,6 +60,7 @@ func AdminRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
+	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
 
 	// API routes: csrf token and auth token
 	router.Handle("/v1/token", MiddlewareWithCSRF(http.HandlerFunc(TokenHandler))).Methods("GET")
@@ -148,6 +149,7 @@ func SystemUserRouter() *mux.Router {
 
 	// API routes
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
+	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
 	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
 	router.Handle("/v1/models", Middleware(http.HandlerFunc(model.List))).Methods("GET")
 	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
