@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package app
 
 import (
 	"encoding/json"
@@ -35,11 +35,14 @@ import (
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/random"
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
 )
 
-var userIndexTemplate = "/static/app_user.html"
+// UserIndexTemplate is the path to the HTML template
+var UserIndexTemplate = "/static/app_user.html"
 
 const oneYearDuration = time.Duration(24*365) * time.Hour
 const userAssertionRevision = "1"
@@ -63,11 +66,11 @@ type SystemUserResponse struct {
 	Assertion    string `json:"assertion"`
 }
 
-// UserIndexHandler is the front page of the web application
-func UserIndexHandler(w http.ResponseWriter, r *http.Request) {
+// UserIndex is the front page of the web application
+func UserIndex(w http.ResponseWriter, r *http.Request) {
 	page := Page{Title: datastore.Environ.Config.Title, Logo: datastore.Environ.Config.Logo}
 
-	path := []string{datastore.Environ.Config.DocRoot, userIndexTemplate}
+	path := []string{datastore.Environ.Config.DocRoot, UserIndexTemplate}
 	t, err := template.ParseFiles(strings.Join(path, ""))
 	if err != nil {
 		log.Printf("Error loading the application template: %v\n", err)
@@ -80,8 +83,8 @@ func UserIndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// SystemUserAssertionHandler is the API method to generate a signed system-user assertion for a device
-func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
+// SystemUserAssertion is the API method to generate a signed system-user assertion for a device
+func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	// Decode the body
@@ -90,13 +93,11 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	switch {
 	// Check we have some data
 	case err == io.EOF:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-user-data", "", "No system-user data supplied", w)
+		response.FormatStandardResponse(false, "error-user-data", "", "No system-user data supplied", w)
 		return
 		// Check for parsing errors
 	case err != nil:
-		w.WriteHeader(http.StatusBadRequest)
-		formatBooleanResponse(false, "error-decode-json", "", err.Error(), w)
+		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
 		return
 	}
 
@@ -105,23 +106,23 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	// an empty authorization object that should allow us getting any model.
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
-		logMessage("USER", "invalid-model", "Cannot find model with the selected ID")
-		formatBooleanResponse(false, "invalid-model", "", "Cannot find model with the selected ID", w)
+		svlog.Message("USER", "invalid-model", "Cannot find model with the selected ID")
+		response.FormatStandardResponse(false, "invalid-model", "", "Cannot find model with the selected ID", w)
 		return
 	}
 
 	// Check that the model has an active system-user keypair
 	if !model.KeyActiveUser {
-		logMessage("USER", "invalid-model", "The model is linked with an inactive signing-key")
-		formatBooleanResponse(false, "invalid-model", "", "The model is linked with an inactive signing-key", w)
+		svlog.Message("USER", "invalid-model", "The model is linked with an inactive signing-key")
+		response.FormatStandardResponse(false, "invalid-model", "", "The model is linked with an inactive signing-key", w)
 		return
 	}
 
 	// Fetch the account assertion from the database
 	account, err := datastore.Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
-		logMessage("USER", "account-assertions", err.Error())
-		formatBooleanResponse(false, "account-assertions", "", "Error retrieving the account assertion from the database", w)
+		svlog.Message("USER", "account-assertions", err.Error())
+		response.FormatStandardResponse(false, "account-assertions", "", "Error retrieving the account assertion from the database", w)
 		return
 	}
 
@@ -131,8 +132,8 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	// Sign the system-user assertion using the system-user key
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
-		logMessage("USER", "signing-assertion", err.Error())
-		formatBooleanResponse(false, "signing-assertion", "", err.Error(), w)
+		svlog.Message("USER", "signing-assertion", err.Error())
+		response.FormatStandardResponse(false, "signing-assertion", "", err.Error(), w)
 		return
 	}
 
@@ -144,7 +145,7 @@ func SystemUserAssertionHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := SystemUserResponse{Success: true, Assertion: composite}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		logMessage("USER", "signing-assertion", err.Error())
+		svlog.Message("USER", "signing-assertion", err.Error())
 	}
 }
 
@@ -154,7 +155,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
 	randomText, err := random.GenerateRandomString(32)
 	if err != nil {
-		logMessage("USER", "generate-assertion", err.Error())
+		svlog.Message("USER", "generate-assertion", err.Error())
 		return map[string]interface{}{}
 	}
 	baseSalt := reg.ReplaceAllString(randomText, "")

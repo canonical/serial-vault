@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package app_test
 
 import (
 	"bytes"
@@ -28,18 +28,19 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service/app"
 )
 
 func TestUserIndexHandler(t *testing.T) {
-
-	userIndexTemplate = "../static/app_user.html"
+	app.UserIndexTemplate = "../../static/app_user.html"
 
 	config := config.Settings{Title: "Site Title", Logo: "/url"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
-	http.HandlerFunc(UserIndexHandler).ServeHTTP(w, r)
+	service.SystemUserRouter().ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status %d, got: %d", http.StatusOK, w.Code)
@@ -47,15 +48,14 @@ func TestUserIndexHandler(t *testing.T) {
 }
 
 func TestUserIndexHandlerInvalidTemplate(t *testing.T) {
-
-	userIndexTemplate = "../static/does_not_exist.html"
+	app.UserIndexTemplate = "../../static/does_not_exist.html"
 
 	config := config.Settings{Title: "Site Title", Logo: "/url"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
-	http.HandlerFunc(UserIndexHandler).ServeHTTP(w, r)
+	service.SystemUserRouter().ServeHTTP(w, r)
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status %d, got: %d", http.StatusInternalServerError, w.Code)
@@ -63,40 +63,35 @@ func TestUserIndexHandlerInvalidTemplate(t *testing.T) {
 }
 
 func generateSystemUserRequest() string {
-
-	request := SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
+	request := app.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
 }
 
 func generateSystemUserRequestInvalidModel() string {
-
-	request := SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 99, Since: "20170324T12:34:00Z"}
+	request := app.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 99, Since: "20170324T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
 }
 
 func generateSystemUserRequestInactiveModel() string {
-
-	request := SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 2, Since: "20170324T12:34:00Z"}
+	request := app.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 2, Since: "20170324T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
 }
 
 func generateSystemUserRequestInvalidSince() string {
-
-	request := SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "2024T12:34:00Z"}
+	request := app.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "2024T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
 }
 
 func generateSystemUserRequestInvalidAssertion() string {
-
-	request := SystemUserRequest{Email: "test", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
+	request := app.SystemUserRequest{Email: "test", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
@@ -113,9 +108,9 @@ func TestSystemUserAssertionHandler(t *testing.T) {
 		{generateSystemUserRequest(), 200, true},
 		{"", 400, false},
 		{"<invalid\\", 400, false},
-		{generateSystemUserRequestInvalidModel(), 200, false},
-		{generateSystemUserRequestInactiveModel(), 200, false},
-		{generateSystemUserRequestInvalidAssertion(), 200, false},
+		{generateSystemUserRequestInvalidModel(), 400, false},
+		{generateSystemUserRequestInactiveModel(), 400, false},
+		{generateSystemUserRequestInvalidAssertion(), 400, false},
 		{generateSystemUserRequestInvalidSince(), 200, true},
 	}
 
@@ -132,17 +127,17 @@ func TestSystemUserAssertionHandler(t *testing.T) {
 
 func sendSystemUserAssertion(request string, t *testing.T) (int, bool, string) {
 	// Mock the database
-	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
 	datastore.OpenKeyStore(config)
 
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/assertions", bytes.NewBufferString(request))
-	SystemUserRouter().ServeHTTP(w, r)
+	service.SystemUserRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
-	result := SystemUserResponse{}
+	result := app.SystemUserResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	if err != nil {
 		t.Errorf("Error decoding the version response: %v", err)

@@ -25,6 +25,7 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/account"
+	"github.com/CanonicalLtd/serial-vault/service/app"
 	"github.com/CanonicalLtd/serial-vault/service/assertion"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/model"
@@ -38,7 +39,6 @@ import (
 
 // SigningRouter returns the application route handler for the signing service methods
 func SigningRouter() *mux.Router {
-
 	// Start the web service router
 	router := mux.NewRouter()
 
@@ -57,7 +57,6 @@ func SigningRouter() *mux.Router {
 
 // AdminRouter returns the application route handler for administrating the application
 func AdminRouter() *mux.Router {
-
 	// Start the web service router
 	router := mux.NewRouter()
 
@@ -104,7 +103,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.Create))).Methods("POST")
 
 	// API routes: system-user assertion
-	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
+	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(app.SystemUserAssertion))).Methods("POST")
 
 	// API routes: users management
 	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(user.List))).Methods("GET")
@@ -122,15 +121,15 @@ func AdminRouter() *mux.Router {
 	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
-	router.PathPrefix("/signing-keys").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/models").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/keypairs").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/accounts").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/signinglog").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/systemuser").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/users").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.PathPrefix("/notfound").Handler(MiddlewareWithCSRF(http.HandlerFunc(IndexHandler)))
-	router.Handle("/", MiddlewareWithCSRF(http.HandlerFunc(IndexHandler))).Methods("GET")
+	router.PathPrefix("/signing-keys").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/models").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/keypairs").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/accounts").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/signinglog").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/systemuser").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/users").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.PathPrefix("/notfound").Handler(MiddlewareWithCSRF(http.HandlerFunc(app.Index)))
+	router.Handle("/", MiddlewareWithCSRF(http.HandlerFunc(app.Index))).Methods("GET")
 
 	// Admin API routes
 	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APIList))).Methods("GET")
@@ -145,7 +144,6 @@ func AdminRouter() *mux.Router {
 
 // SystemUserRouter returns the application route handler for the system-user service methods
 func SystemUserRouter() *mux.Router {
-
 	// Start the web service router
 	router := mux.NewRouter()
 
@@ -154,13 +152,13 @@ func SystemUserRouter() *mux.Router {
 	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
 	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
 	router.Handle("/v1/models", Middleware(http.HandlerFunc(model.List))).Methods("GET")
-	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(SystemUserAssertionHandler))).Methods("POST")
+	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(app.SystemUserAssertion))).Methods("POST")
 
 	// Web application routes
 	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
 	router.PathPrefix("/static/").Handler(fs)
-	router.Handle("/", Middleware(http.HandlerFunc(UserIndexHandler))).Methods("GET")
+	router.Handle("/", Middleware(http.HandlerFunc(app.UserIndex))).Methods("GET")
 
 	return router
 }
