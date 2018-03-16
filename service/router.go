@@ -30,6 +30,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/service/pivot"
+	"github.com/CanonicalLtd/serial-vault/service/sign"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/service/store"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
@@ -46,7 +47,7 @@ func SigningRouter() *mux.Router {
 	// API routes
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
 	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
-	router.Handle("/v1/serial", Middleware(ErrorHandler(SignHandler))).Methods("POST")
+	router.Handle("/v1/serial", Middleware(ErrorHandler(sign.Serial))).Methods("POST")
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(RequestIDHandler))).Methods("POST")
 	router.Handle("/v1/model", Middleware(ErrorHandler(assertion.ModelAssertion))).Methods("POST")
 	router.Handle("/v1/pivot", Middleware(ErrorHandler(pivot.Model))).Methods("POST")

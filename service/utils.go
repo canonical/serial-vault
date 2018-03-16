@@ -92,18 +92,6 @@ func jsonEncode(response interface{}, w http.ResponseWriter) error {
 	return nil
 }
 
-func formatBooleanResponse(success bool, errorCode, errorSubcode, message string, w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	response := BooleanResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message}
-
-	// Encode the response as JSON
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the boolean response.")
-		return err
-	}
-	return nil
-}
-
 func formatKeypairsResponse(success bool, errorCode, errorSubcode, message string, keypairs []datastore.Keypair, w http.ResponseWriter) error {
 	response := KeypairsResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, Keypairs: keypairs}
 

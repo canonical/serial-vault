@@ -1,16 +1,45 @@
-package service
+// -*- Mode: Go; indent-tabs-mode: t -*-
+
+/*
+ * Copyright (C) 2018-2019 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+package auth_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/auth"
+	"github.com/CanonicalLtd/serial-vault/usso"
+	"github.com/juju/usso/openid"
 	check "gopkg.in/check.v1"
 )
 
 func TestAuth(t *testing.T) { check.TestingT(t) }
+
+type SuiteTest struct {
+	User        datastore.User
+	Permissions int
+	Check       check.Checker
+}
 
 type authSuite struct{}
 
@@ -23,14 +52,14 @@ func (s *authSuite) TestGetUserAuthWhenAuthEnabled(c *check.C) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
 
-	_, err := getUserFromJWT(w, r)
+	_, err := auth.GetUserFromJWT(w, r)
 	c.Assert(err, check.NotNil)
 
 	theRoles := []int{datastore.Standard, datastore.Admin, datastore.Superuser}
 	for _, role := range theRoles {
 		err := createJWTWithRole(r, role)
 		c.Assert(err, check.IsNil)
-		user, err := getUserFromJWT(w, r)
+		user, err := auth.GetUserFromJWT(w, r)
 		c.Assert(err, check.IsNil)
 		c.Assert(user.Username, check.Equals, "sv")
 		c.Assert(user.Role, check.Equals, role)
@@ -44,7 +73,7 @@ func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
 
-	user, err := getUserFromJWT(w, r)
+	user, err := auth.GetUserFromJWT(w, r)
 	c.Assert(err, check.IsNil)
 	c.Assert(user.Username, check.Equals, "")
 	c.Assert(user.Role, check.Equals, 0)
@@ -53,7 +82,7 @@ func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
 	for _, role := range roles {
 		err := createJWTWithRole(r, role)
 		c.Assert(err, check.IsNil)
-		user, err := getUserFromJWT(w, r)
+		user, err := auth.GetUserFromJWT(w, r)
 		c.Assert(err, check.IsNil)
 		c.Assert(user.Username, check.Equals, "")
 		c.Assert(user.Role, check.Equals, 0)
@@ -61,113 +90,113 @@ func (s *authSuite) TestGetUserAuthWhenAuthDisabled(c *check.C) {
 }
 
 func (s *authSuite) TestCheckStandardPermissionsWhenAuthEnabled(c *check.C) {
-
 	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
-	err := checkUserPermissions(noRoleUser, datastore.Standard)
-	c.Assert(err, check.NotNil)
-
 	standardUser := datastore.User{Username: "auser", Role: datastore.Standard}
-	err = checkUserPermissions(standardUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
-
 	adminUser := datastore.User{Username: "auser", Role: datastore.Admin}
-	err = checkUserPermissions(adminUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
-
 	superUser := datastore.User{Username: "auser", Role: datastore.Superuser}
-	err = checkUserPermissions(superUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
+
+	tests := []SuiteTest{
+		{noRoleUser, datastore.Standard, check.NotNil},
+		{standardUser, datastore.Standard, check.IsNil},
+		{adminUser, datastore.Standard, check.IsNil},
+		{superUser, datastore.Standard, check.IsNil},
+	}
+
+	for _, t := range tests {
+		err := auth.CheckUserPermissions(t.User, t.Permissions, false)
+		c.Assert(err, t.Check)
+	}
 }
 
 func (s *authSuite) TestCheckStandardPermissionsWhenAuthDisabled(c *check.C) {
-
 	config := config.Settings{EnableUserAuth: false, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
-	err := checkUserPermissions(noRoleUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
-
 	standardUser := datastore.User{Username: "auser", Role: datastore.Standard}
-	err = checkUserPermissions(standardUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
-
 	adminUser := datastore.User{Username: "auser", Role: datastore.Admin}
-	err = checkUserPermissions(adminUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
-
 	superUser := datastore.User{Username: "auser", Role: datastore.Superuser}
-	err = checkUserPermissions(superUser, datastore.Standard)
-	c.Assert(err, check.IsNil)
+
+	tests := []SuiteTest{
+		{noRoleUser, datastore.Standard, check.IsNil},
+		{standardUser, datastore.Standard, check.IsNil},
+		{adminUser, datastore.Standard, check.IsNil},
+		{superUser, datastore.Standard, check.IsNil},
+	}
+
+	for _, t := range tests {
+		err := auth.CheckUserPermissions(t.User, t.Permissions, false)
+		c.Assert(err, t.Check)
+	}
 }
 
 func (s *authSuite) TestCheckAdminPermissionsWhenAuthEnabled(c *check.C) {
-
 	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
-	err := checkUserPermissions(noRoleUser, datastore.Admin)
-	c.Assert(err, check.NotNil)
-
 	standardUser := datastore.User{Username: "auser", Role: datastore.Standard}
-	err = checkUserPermissions(standardUser, datastore.Admin)
-	c.Assert(err, check.NotNil)
-
 	adminUser := datastore.User{Username: "auser", Role: datastore.Admin}
-	err = checkUserPermissions(adminUser, datastore.Admin)
-	c.Assert(err, check.IsNil)
-
 	superUser := datastore.User{Username: "auser", Role: datastore.Superuser}
-	err = checkUserPermissions(superUser, datastore.Admin)
-	c.Assert(err, check.IsNil)
+
+	tests := []SuiteTest{
+		{noRoleUser, datastore.Admin, check.NotNil},
+		{standardUser, datastore.Admin, check.NotNil},
+		{adminUser, datastore.Admin, check.IsNil},
+		{superUser, datastore.Admin, check.IsNil},
+	}
+
+	for _, t := range tests {
+		err := auth.CheckUserPermissions(t.User, t.Permissions, false)
+		c.Assert(err, t.Check)
+	}
 }
 
 func (s *authSuite) TestCheckAdminPermissionsWhenAuthDisabled(c *check.C) {
-
 	config := config.Settings{EnableUserAuth: false, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
-	err := checkUserPermissions(noRoleUser, datastore.Admin)
-	c.Assert(err, check.IsNil)
-
 	standardUser := datastore.User{Username: "auser", Role: datastore.Standard}
-	err = checkUserPermissions(standardUser, datastore.Admin)
-	c.Assert(err, check.IsNil)
-
 	adminUser := datastore.User{Username: "auser", Role: datastore.Admin}
-	err = checkUserPermissions(adminUser, datastore.Admin)
-	c.Assert(err, check.IsNil)
-
 	superUser := datastore.User{Username: "auser", Role: datastore.Superuser}
-	err = checkUserPermissions(superUser, datastore.Admin)
-	c.Assert(err, check.IsNil)
+
+	tests := []SuiteTest{
+		{noRoleUser, datastore.Admin, check.IsNil},
+		{standardUser, datastore.Admin, check.IsNil},
+		{adminUser, datastore.Admin, check.IsNil},
+		{superUser, datastore.Admin, check.IsNil},
+	}
+
+	for _, t := range tests {
+		err := auth.CheckUserPermissions(t.User, t.Permissions, false)
+		c.Assert(err, t.Check)
+	}
 }
 
 func (s *authSuite) TestCheckSuperuserPermissionsWhenAuthEnabled(c *check.C) {
-
 	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
-	err := checkUserPermissions(noRoleUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
-
 	standardUser := datastore.User{Username: "auser", Role: datastore.Standard}
-	err = checkUserPermissions(standardUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
-
 	adminUser := datastore.User{Username: "auser", Role: datastore.Admin}
-	err = checkUserPermissions(adminUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
-
 	superUser := datastore.User{Username: "auser", Role: datastore.Superuser}
-	err = checkUserPermissions(superUser, datastore.Superuser)
-	c.Assert(err, check.IsNil)
+
+	tests := []SuiteTest{
+		{noRoleUser, datastore.Superuser, check.NotNil},
+		{standardUser, datastore.Superuser, check.NotNil},
+		{adminUser, datastore.Superuser, check.NotNil},
+		{superUser, datastore.Superuser, check.IsNil},
+	}
+
+	for _, t := range tests {
+		err := auth.CheckUserPermissions(t.User, t.Permissions, false)
+		c.Assert(err, t.Check)
+	}
 }
 
 func (s *authSuite) TestCheckSuperuserPermissionsWhenAuthDisabled(c *check.C) {
@@ -176,19 +205,31 @@ func (s *authSuite) TestCheckSuperuserPermissionsWhenAuthDisabled(c *check.C) {
 	datastore.Environ = &datastore.Env{Config: config}
 
 	noRoleUser := datastore.User{Username: "auser", Role: 0}
-	err := checkUserPermissions(noRoleUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
-
 	standardUser := datastore.User{Username: "auser", Role: datastore.Standard}
-	err = checkUserPermissions(standardUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
-
 	adminUser := datastore.User{Username: "auser", Role: datastore.Admin}
-	err = checkUserPermissions(adminUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
-
 	superUser := datastore.User{Username: "auser", Role: datastore.Superuser}
-	err = checkUserPermissions(superUser, datastore.Superuser)
-	c.Assert(err, check.NotNil)
 
+	tests := []SuiteTest{
+		{noRoleUser, datastore.Superuser, check.NotNil},
+		{standardUser, datastore.Superuser, check.NotNil},
+		{adminUser, datastore.Superuser, check.NotNil},
+		{superUser, datastore.Superuser, check.NotNil},
+	}
+
+	for _, t := range tests {
+		err := auth.CheckUserPermissions(t.User, t.Permissions, false)
+		c.Assert(err, t.Check)
+	}
+
+}
+
+func createJWTWithRole(r *http.Request, role int) error {
+	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
+	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
+	jwtToken, err := usso.NewJWTToken(&resp, role)
+	if err != nil {
+		return fmt.Errorf("Error creating a JWT: %v", err)
+	}
+	r.Header.Set("Authorization", "Bearer "+jwtToken)
+	return nil
 }

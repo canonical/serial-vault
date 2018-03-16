@@ -83,7 +83,6 @@ func (s *AssertionSuite) TestAssertionHandler(c *check.C) {
 
 	for _, t := range tests {
 		w := s.sendRequest("POST", "/v1/model", bytes.NewReader(t.Data), t.APIKey, c)
-		c.Log(w.Body)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 	}
