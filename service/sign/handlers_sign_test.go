@@ -70,16 +70,6 @@ func sendRequest(method, url string, data io.Reader, apiKey string, c *check.C) 
 	return w
 }
 
-func sendRequest1(t *testing.T, method, url string, data io.Reader, apiKey string) *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(method, url, data)
-	r.Header.Set("api-key", apiKey)
-
-	service.SigningRouter().ServeHTTP(w, r)
-
-	return w
-}
-
 func (s *SignSuite) TestSerial(c *check.C) {
 	// Generate a test serial-request assertion
 	assert, err := generateSerialRequestAssertion("alder", "A123456L", "")
@@ -337,69 +327,3 @@ func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 	c.Assert(w.Code, check.Equals, 400)
 	c.Assert(w.Header().Get("Content-Type"), check.Equals, response.JSONHeader)
 }
-
-// func TestVersionHandler(t *testing.T) {
-
-// 	config := config.Settings{Version: "1.2.5", JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{Config: config}
-
-// 	result, _ := sendRequestVersion(t, "GET", "/v1/version", nil)
-
-// 	if result.Version != datastore.Environ.Config.Version {
-// 		t.Errorf("Incorrect version returned. Expected '%s' got: %v", datastore.Environ.Config.Version, result.Version)
-// 	}
-
-// }
-
-// func TestHealthHandlerHealthy(t *testing.T) {
-
-// 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-// 	response, _ := sendRequestHealth(t, "GET", "/v1/health", nil)
-
-// 	if response.Code != http.StatusOK {
-// 		t.Errorf("Response to healthy data store should be 200 but was %v", response.Code)
-// 	}
-// 	result := HealthResponse{}
-// 	err := json.NewDecoder(response.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the health response: %v", err)
-// 	}
-// 	if result.Database != "healthy" {
-// 		t.Errorf("Health endpoint should have returned healthy, instead got %s", result.Database)
-// 	}
-
-// }
-
-// func TestHealthHandlerUnhealthy(t *testing.T) {
-
-// 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
-// 	response, _ := sendRequestHealth(t, "GET", "/v1/health", nil)
-
-// 	if response.Code != http.StatusBadRequest {
-// 		t.Errorf("Response to healthy data store should be 400 but was %v", response.Code)
-// 	}
-
-// 	result := HealthResponse{}
-// 	err := json.NewDecoder(response.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the health response: %v", err)
-// 	}
-// 	if result.Database == "healthy" {
-// 		t.Errorf("Health endpoint should not have returned healthy, got %s", result.Database)
-// 	}
-
-// }
-// func TestTokenHandler(t *testing.T) {
-
-// 	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{Config: config}
-
-// 	result, _ := sendRequestToken(t, "GET", "/v1/authtoken", nil)
-
-// 	if result.EnableUserAuth != datastore.Environ.Config.EnableUserAuth {
-// 		t.Errorf("Incorrect token response returned. Expected '%v' got: %v", datastore.Environ.Config.EnableUserAuth, result.EnableUserAuth)
-// 	}
-
-// }

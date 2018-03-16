@@ -27,6 +27,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/service/app"
 	"github.com/CanonicalLtd/serial-vault/service/assertion"
+	"github.com/CanonicalLtd/serial-vault/service/core"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/service/pivot"
@@ -45,8 +46,8 @@ func SigningRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	// API routes
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
-	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(core.Version))).Methods("GET")
+	router.Handle("/v1/health", Middleware(http.HandlerFunc(core.Health))).Methods("GET")
 	router.Handle("/v1/serial", Middleware(ErrorHandler(sign.Serial))).Methods("POST")
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(sign.RequestID))).Methods("POST")
 	router.Handle("/v1/model", Middleware(ErrorHandler(assertion.ModelAssertion))).Methods("POST")
@@ -62,12 +63,12 @@ func AdminRouter() *mux.Router {
 	// Start the web service router
 	router := mux.NewRouter()
 
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
-	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(core.Version))).Methods("GET")
+	router.Handle("/v1/health", Middleware(http.HandlerFunc(core.Health))).Methods("GET")
 
 	// API routes: csrf token and auth token
-	router.Handle("/v1/token", MiddlewareWithCSRF(http.HandlerFunc(TokenHandler))).Methods("GET")
-	router.Handle("/v1/authtoken", MiddlewareWithCSRF(http.HandlerFunc(TokenHandler))).Methods("GET")
+	router.Handle("/v1/token", MiddlewareWithCSRF(http.HandlerFunc(core.Token))).Methods("GET")
+	router.Handle("/v1/authtoken", MiddlewareWithCSRF(http.HandlerFunc(core.Token))).Methods("GET")
 
 	// API routes: models admin
 	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(model.List))).Methods("GET")
@@ -150,9 +151,9 @@ func SystemUserRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	// API routes
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(VersionHandler))).Methods("GET")
-	router.Handle("/v1/health", Middleware(http.HandlerFunc(HealthHandler))).Methods("GET")
-	router.Handle("/v1/token", Middleware(http.HandlerFunc(TokenHandler))).Methods("GET")
+	router.Handle("/v1/version", Middleware(http.HandlerFunc(core.Version))).Methods("GET")
+	router.Handle("/v1/health", Middleware(http.HandlerFunc(core.Health))).Methods("GET")
+	router.Handle("/v1/token", Middleware(http.HandlerFunc(core.Token))).Methods("GET")
 	router.Handle("/v1/models", Middleware(http.HandlerFunc(model.List))).Methods("GET")
 	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(app.SystemUserAssertion))).Methods("POST")
 
