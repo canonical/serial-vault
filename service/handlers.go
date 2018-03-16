@@ -26,7 +26,6 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
-	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/gorilla/csrf"
 )
 
@@ -45,14 +44,6 @@ type RequestIDResponse struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"message"`
 	RequestID    string `json:"request-id"`
-}
-
-// SignResponse is the JSON response from the API Sign method
-type SignResponse struct {
-	Success      bool   `json:"success"`
-	ErrorCode    string `json:"error_code"`
-	ErrorSubcode string `json:"error_subcode"`
-	ErrorMessage string `json:"message"`
 }
 
 // KeypairsResponse is the JSON response from the API Keypairs method
@@ -295,29 +286,3 @@ func TokenHandler(w http.ResponseWriter, r *http.Request) {
 // 	return asserts.Assemble(headers, assertion.Body(), content, signature)
 
 // }
-
-// RequestIDHandler is the API method to generate a nonce
-func RequestIDHandler(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
-	// Check that we have an authorised API key header
-	err := checkAPIKey(r.Header.Get("api-key"))
-	if err != nil {
-		logMessage("REQUESTID", "invalid-api-key", "Invalid API key used")
-		return response.ErrorInvalidAPIKey
-	}
-
-	err = datastore.Environ.DB.DeleteExpiredDeviceNonces()
-	if err != nil {
-		logMessage("REQUESTID", "delete-expired-nonces", err.Error())
-		return response.ErrorGenerateNonce
-	}
-
-	nonce, err := datastore.Environ.DB.CreateDeviceNonce()
-	if err != nil {
-		logMessage("REQUESTID", "generate-request-id", err.Error())
-		return response.ErrorGenerateNonce
-	}
-
-	// Return successful JSON response with the nonce
-	formatRequestIDResponse(true, "", nonce, w)
-	return response.ErrorResponse{Success: true}
-}

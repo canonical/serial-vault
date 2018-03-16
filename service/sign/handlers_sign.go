@@ -20,6 +20,7 @@
 package sign
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -33,6 +34,40 @@ import (
 	"github.com/snapcore/snapd/asserts"
 	yaml "gopkg.in/yaml.v2"
 )
+
+// RequestIDResponse is the JSON response from the API Version method
+type RequestIDResponse struct {
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"message"`
+	RequestID    string `json:"request-id"`
+}
+
+// RequestID is the API method to generate a nonce
+func RequestID(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
+	w.Header().Set("Content-Type", response.JSONHeader)
+	// Check that we have an authorised API key header
+	_, err := request.CheckModelAPI(r)
+	if err != nil {
+		log.Message("REQUESTID", "invalid-api-key", "Invalid API key used")
+		return response.ErrorInvalidAPIKey
+	}
+
+	err = datastore.Environ.DB.DeleteExpiredDeviceNonces()
+	if err != nil {
+		log.Message("REQUESTID", "delete-expired-nonces", err.Error())
+		return response.ErrorGenerateNonce
+	}
+
+	nonce, err := datastore.Environ.DB.CreateDeviceNonce()
+	if err != nil {
+		log.Message("REQUESTID", "generate-request-id", err.Error())
+		return response.ErrorGenerateNonce
+	}
+
+	// Return successful JSON response with the nonce
+	formatRequestIDResponse(nonce, w)
+	return response.ErrorResponse{Success: true}
+}
 
 // Serial is the API method to sign serial assertions from the device
 func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
@@ -214,5 +249,16 @@ func formatSignResponse(assertion asserts.Assertion, w http.ResponseWriter) erro
 		return err
 	}
 
+	return nil
+}
+
+func formatRequestIDResponse(nonce datastore.DeviceNonce, w http.ResponseWriter) error {
+	response := RequestIDResponse{Success: true, RequestID: nonce.Nonce}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Message("REQUESTID", "error-form-requestid", err.Error())
+		return err
+	}
 	return nil
 }

@@ -142,6 +142,26 @@ func (s *SignSuite) TestSerial(c *check.C) {
 	}
 }
 
+func (s *SignSuite) TestRequestIDHandler(c *check.C) {
+	tests := []SuiteTest{
+		{false, "POST", "/v1/request-id", nil, 200, response.JSONHeader, "InbuiltAPIKey"},
+		{false, "POST", "/v1/request-id", nil, 400, response.JSONHeader, "InvalidAPIKey"},
+		{true, "POST", "/v1/request-id", nil, 400, response.JSONHeader, "InbuiltAPIKey"},
+	}
+
+	for _, t := range tests {
+		if t.MockError {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
+		}
+
+		w := sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		datastore.Environ.DB = &datastore.MockDB{}
+	}
+}
+
 func generatePrivateKey() (asserts.PrivateKey, error) {
 	signingKey, err := ioutil.ReadFile("../../keystore/TestDeviceKey.asc")
 	if err != nil {
@@ -382,175 +402,4 @@ func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 // 		t.Errorf("Incorrect token response returned. Expected '%v' got: %v", datastore.Environ.Config.EnableUserAuth, result.EnableUserAuth)
 // 	}
 
-// }
-
-// func sendRequestVersion(t *testing.T, method, url string, data io.Reader) (VersionResponse, error) {
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest(method, url, data)
-// 	service.SigningRouter().ServeHTTP(w, r)
-
-// 	// Check the JSON response
-// 	result := VersionResponse{}
-// 	err := json.NewDecoder(w.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the version response: %v", err)
-// 	}
-
-// 	return result, err
-// }
-
-// func sendRequestHealth(t *testing.T, method, url string, data io.Reader) (httptest.ResponseRecorder, error) {
-// 	w := httptest.NewRecorder()
-// 	r, err := http.NewRequest(method, url, data)
-// 	service.SigningRouter().ServeHTTP(w, r)
-
-// 	return *w, err
-// }
-
-// func createJWT(r *http.Request, t *testing.T) {
-// 	err := createJWTWithRole(r, datastore.Standard)
-// 	if err != nil {
-// 		t.Errorf("Error creating a JWT: %v", err)
-// 	}
-// }
-
-// func createJWTWithRole(r *http.Request, role int) error {
-// 	sreg := map[string]string{"nickname": "sv", "fullname": "Steven Vault", "email": "sv@example.com"}
-// 	resp := openid.Response{ID: "identity", Teams: []string{}, SReg: sreg}
-// 	jwtToken, err := usso.NewJWTToken(&resp, role)
-// 	if err != nil {
-// 		return fmt.Errorf("Error creating a JWT: %v", err)
-// 	}
-// 	r.Header.Set("Authorization", "Bearer "+jwtToken)
-// 	return nil
-// }
-
-// func sendRequestToken(t *testing.T, method, url string, data io.Reader) (TokenResponse, error) {
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest(method, url, data)
-
-// 	// Create a JWT and add it to the request
-// 	createJWT(r, t)
-
-// 	AdminRouter().ServeHTTP(w, r)
-
-// 	// Check the JSON response
-// 	result := TokenResponse{}
-// 	err := json.NewDecoder(w.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the token response: %v", err)
-// 	}
-
-// 	return result, err
-// }
-
-// func sendRequestSignError(t *testing.T, method, url string, data io.Reader, apiKey string) (SignResponse, error) {
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest(method, url, data)
-// 	r.Header.Add("api-key", apiKey)
-// 	service.SigningRouter().ServeHTTP(w, r)
-
-// 	if w.Code == http.StatusOK {
-// 		t.Errorf("Expected error HTTP status, got: %d", w.Code)
-// 	}
-// 	if w.Header().Get("Content-Type") != "application/json; charset=UTF-8" {
-// 		t.Errorf("Expected JSON content-type, got: %s", w.Header().Get("Content-Type"))
-// 		return SignResponse{}, errors.New("Expected an error, got success")
-// 	}
-
-// 	// Check the JSON response
-// 	result := SignResponse{}
-// 	err := json.NewDecoder(w.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the signed response: %v", err)
-// 	}
-// 	if result.Success {
-// 		t.Error("Expected an error, got success response")
-// 	}
-
-// 	return result, err
-// }
-
-// func TestRequestIDHandler(t *testing.T) {
-// 	// Mock the database
-// 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-// 	datastore.OpenKeyStore(config)
-
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest("POST", "/v1/request-id", nil)
-// 	r.Header.Add("api-key", "InbuiltAPIKey")
-// 	service.SigningRouter().ServeHTTP(w, r)
-
-// 	// Check the JSON response
-// 	result := RequestIDResponse{}
-// 	err := json.NewDecoder(w.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the request-id response: %v", err)
-// 	}
-
-// }
-
-// func TestRequestIDHandlerInvalidAPIKey(t *testing.T) {
-// 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
-// 	datastore.OpenKeyStore(config)
-
-// 	sendRequestRequestIDError(t, "POST", "/v1/request-id", new(bytes.Buffer), "InvalidAPIKey")
-// }
-
-// func TestRequestIDHandlerError(t *testing.T) {
-// 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
-// 	datastore.Environ = &datastore.Env{DB: &datastore.ErrorMockDB{}, Config: config}
-// 	datastore.OpenKeyStore(config)
-
-// 	sendRequestRequestIDError(t, "POST", "/v1/request-id", new(bytes.Buffer), "InbuiltAPIKey")
-// }
-
-// func sendRequestRequestIDError(t *testing.T, method, url string, data io.Reader, apiKey string) (RequestIDResponse, error) {
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest(method, url, data)
-// 	r.Header.Add("api-key", apiKey)
-// 	service.SigningRouter().ServeHTTP(w, r)
-
-// 	if w.Code == http.StatusOK {
-// 		t.Errorf("Expected error HTTP status, got: %d", w.Code)
-// 	}
-
-// 	// Check the JSON response
-// 	result := RequestIDResponse{}
-// 	err := json.NewDecoder(w.Body).Decode(&result)
-// 	if err != nil {
-// 		t.Errorf("Error decoding the request-id response: %v", err)
-// 	}
-// 	if result.Success {
-// 		t.Error("Expected an error, got success response")
-// 	}
-
-// 	return result, err
-// }
-
-// func sendAdminRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest(method, url, data)
-
-// 	if permissions > 0 {
-// 		// Create a JWT and add it to the request
-// 		err := createJWTWithRole(r, permissions)
-// 		c.Assert(err, check.IsNil)
-// 	}
-
-// 	AdminRouter().ServeHTTP(w, r)
-
-// 	return w
-// }
-
-// func sendSigningRequest(method, url string, data io.Reader, apiKey string, c *check.C) *httptest.ResponseRecorder {
-// 	w := httptest.NewRecorder()
-// 	r, _ := http.NewRequest(method, url, data)
-// 	r.Header.Set("api-key", apiKey)
-
-// 	service.SigningRouter().ServeHTTP(w, r)
-
-// 	return w
 // }
