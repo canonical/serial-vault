@@ -31,7 +31,8 @@ import (
 	"os"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
-	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/CanonicalLtd/serial-vault/service/sign"
 	"github.com/snapcore/snapd/asserts"
 )
 
@@ -119,7 +120,7 @@ func (cmd ClientCommand) getRequestID() (string, error) {
 	defer resp.Body.Close()
 
 	// Parse the API response
-	result := service.RequestIDResponse{}
+	result := sign.RequestIDResponse{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		log.Println("Error parsing the request-id")
@@ -145,7 +146,7 @@ func (cmd ClientCommand) getSerial(serialRequest string) (string, error) {
 	// Check the content-type to see if we have a JSON error response
 	if resp.Header.Get("Content-Type") == "application/json; charset=UTF-8" {
 		// Parse the API response
-		result := service.SignResponse{}
+		result := response.StandardResponse{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			log.Println("Error parsing the serial assertion error")

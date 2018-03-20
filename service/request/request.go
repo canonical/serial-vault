@@ -20,6 +20,7 @@
 package request
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
@@ -33,4 +34,18 @@ func CheckUserAPI(r *http.Request) (datastore.User, error) {
 
 	// Find the user by API key
 	return datastore.Environ.DB.GetUserByAPIKey(apiKey, username)
+}
+
+// CheckModelAPI the API key header to make sure it is an allowed header
+func CheckModelAPI(r *http.Request) (string, error) {
+	apiKey := r.Header.Get("api-key")
+	if len(apiKey) == 0 {
+		return apiKey, errors.New("Blank API key used")
+	}
+
+	if ok := datastore.Environ.DB.CheckAPIKey(apiKey); !ok {
+		return apiKey, errors.New("Unauthorized API key used")
+	}
+
+	return apiKey, nil
 }

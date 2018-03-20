@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package app_test
 
 import (
 	"net/http"
@@ -26,18 +26,19 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/app"
 )
 
 func TestIndexHandler(t *testing.T) {
 
-	indexTemplate = "../static/app.html"
+	app.IndexTemplate = "../../static/app.html"
 
 	config := config.Settings{Title: "Site Title", Logo: "/url"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
-	http.HandlerFunc(IndexHandler).ServeHTTP(w, r)
+	http.HandlerFunc(app.Index).ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status %d, got: %d", http.StatusOK, w.Code)
@@ -46,14 +47,14 @@ func TestIndexHandler(t *testing.T) {
 
 func TestIndexHandlerInvalidTemplate(t *testing.T) {
 
-	indexTemplate = "../static/does_not_exist.html"
+	app.IndexTemplate = "../../static/does_not_exist.html"
 
 	config := config.Settings{Title: "Site Title", Logo: "/url"}
 	datastore.Environ = &datastore.Env{Config: config}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
-	http.HandlerFunc(IndexHandler).ServeHTTP(w, r)
+	http.HandlerFunc(app.Index).ServeHTTP(w, r)
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status %d, got: %d", http.StatusInternalServerError, w.Code)

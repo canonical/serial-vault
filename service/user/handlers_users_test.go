@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2018-2019 Canonical Ltd
+ * Copyright (C) 2017-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -391,9 +391,6 @@ func (s *ServiceSuite) TestOtherAccountsHandler(c *check.C) {
 		//}
 
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
-		c.Log("---", t.Permissions)
-		c.Log("---", t.EnableAuth, datastore.Environ.Config.EnableUserAuth)
-		c.Log("---", string(w.Body.Bytes()))
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 

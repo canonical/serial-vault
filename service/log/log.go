@@ -17,26 +17,12 @@
  *
  */
 
-package keypair
+package log
 
-import (
-	"net/http"
+import "log"
 
-	"github.com/CanonicalLtd/serial-vault/service/request"
-	"github.com/CanonicalLtd/serial-vault/service/response"
-)
-
-// APIList is the API method to fetch the log records from signing
-func APIList(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// Validate the user and API key
-	user, err := request.CheckUserAPI(r)
-	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
-		return
-	}
-
-	// Call the API with the user
-	listHandler(w, user, true)
+// Message logs a message in a fixed format so it can be analyzed by log handlers
+// e.g. "METHOD CODE descriptive reason"
+func Message(method, code, reason string) {
+	log.Printf("%s %s %s\n", method, code, reason)
 }

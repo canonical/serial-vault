@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/handlers"
 )
@@ -42,7 +43,7 @@ func Logger(start time.Time, r *http.Request) {
 }
 
 // ErrorHandler is a standard error handler middleware that generates the error response
-func ErrorHandler(f func(http.ResponseWriter, *http.Request) ErrorResponse) http.HandlerFunc {
+func ErrorHandler(f func(http.ResponseWriter, *http.Request) response.ErrorResponse) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Call the handler and it will return a custom error
 		e := f(w, r)

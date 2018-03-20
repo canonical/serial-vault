@@ -10,30 +10,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func checkIsStandardAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Standard)
-}
-
-func checkIsAdminAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Admin)
-}
-
-func checkIsSuperuserAndGetUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
-	return checkPermissionsAndGetUserFromJWT(w, r, datastore.Superuser)
-}
-
-func checkPermissionsAndGetUserFromJWT(w http.ResponseWriter, r *http.Request, minimumAuthorizedRole int) (datastore.User, error) {
-	user, err := getUserFromJWT(w, r)
-	if err != nil {
-		return user, err
-	}
-	err = checkUserPermissions(user, minimumAuthorizedRole)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
-}
-
 func getUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
 	token, err := auth.JWTCheck(w, r)
 	if err != nil {

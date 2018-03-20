@@ -17,7 +17,7 @@
  *
  */
 
-package service
+package app
 
 import (
 	"log"
@@ -28,7 +28,8 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
 
-var indexTemplate = "/static/app.html"
+// IndexTemplate is the path to the HTML template
+var IndexTemplate = "/static/app.html"
 
 // Page is the page details for the web application
 type Page struct {
@@ -36,11 +37,11 @@ type Page struct {
 	Logo  string
 }
 
-// IndexHandler is the front page of the web application
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+// Index is the front page of the web application
+func Index(w http.ResponseWriter, r *http.Request) {
 	page := Page{Title: datastore.Environ.Config.Title, Logo: datastore.Environ.Config.Logo}
 
-	path := []string{datastore.Environ.Config.DocRoot, indexTemplate}
+	path := []string{datastore.Environ.Config.DocRoot, IndexTemplate}
 	t, err := template.ParseFiles(strings.Join(path, ""))
 	if err != nil {
 		log.Printf("Error loading the application template: %v\n", err)

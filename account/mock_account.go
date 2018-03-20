@@ -19,7 +19,11 @@
 
 package account
 
-import "github.com/snapcore/snapd/asserts"
+import (
+	"errors"
+
+	"github.com/snapcore/snapd/asserts"
+)
 
 // MockFetchAssertionFromStore mocks the retrieval of the assertion from the store (using a fixed assertion)
 func MockFetchAssertionFromStore(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
@@ -55,4 +59,9 @@ LQAdm3xZ7t4WnxYC8YSCk9mXf3CZg59SpmnV5Q5Z6A5Pl7Nc3sj7hcsMBZEsOMPzNC9dPsBnZvjs
 WpPUffJzEdhHBFhvYMuD4Vqj6ejUv9l3oTrjQWVC`)
 
 	return asserts.Assemble(headersMap, nil, nil, signature)
+}
+
+// MockFetchAssertionFromStoreError mocks the retrieval of the assertion from the store with an error
+func MockFetchAssertionFromStoreError(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
+	return nil, errors.New("MOCK error fetching assertion from store")
 }
