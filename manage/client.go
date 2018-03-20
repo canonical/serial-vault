@@ -36,6 +36,8 @@ import (
 	"github.com/snapcore/snapd/asserts"
 )
 
+var deviceKey = "./keystore/TestDeviceKey.asc"
+
 // ClientCommand is the command for the serial-vault test client
 type ClientCommand struct {
 	Brand        string `short:"b" long:"brand" description:"The brand-id of the device" required:"yes"`
@@ -66,7 +68,7 @@ func (cmd ClientCommand) Execute(args []string) error {
 }
 
 func (cmd ClientCommand) generatePrivateKey() (asserts.PrivateKey, error) {
-	signingKey, err := ioutil.ReadFile("./keystore/TestDeviceKey.asc")
+	signingKey, err := ioutil.ReadFile(deviceKey)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +109,26 @@ func (cmd ClientCommand) generateSerialRequestAssertion() (string, error) {
 }
 
 func (cmd ClientCommand) getRequestID() (string, error) {
+	return getRequestID(cmd.URL, cmd.APIKey)
+}
+
+func (cmd ClientCommand) getSerial(serialRequest string) (string, error) {
+	return getSerial(serialRequest, cmd.URL, cmd.APIKey)
+}
+
+func getHTTPRequest(method, url, body, apiKey string) *http.Request {
 	// Format the URL and headers for the HTTP call
-	req := cmd.getHTTPRequest("request-id", "")
+	fullURL := fmt.Sprintf("%s%s", url, method)
+	req, _ := http.NewRequest("POST", fullURL, bytes.NewBufferString(body))
+	req.Header.Set("api-key", apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	return req
+}
+
+var getRequestID = func(url, apiKey string) (string, error) {
+	// Format the URL and headers for the HTTP call
+	req := getHTTPRequest("request-id", url, "", apiKey)
 
 	// Call the /request-id API
 	client := &http.Client{}
@@ -130,9 +150,9 @@ func (cmd ClientCommand) getRequestID() (string, error) {
 	return result.RequestID, nil
 }
 
-func (cmd ClientCommand) getSerial(serialRequest string) (string, error) {
+var getSerial = func(serialRequest, url, apiKey string) (string, error) {
 	// Format the URL and headers for the HTTP call
-	req := cmd.getHTTPRequest("serial", serialRequest)
+	req := getHTTPRequest("serial", url, serialRequest, apiKey)
 
 	// Call the /request-id API
 	client := &http.Client{}
@@ -160,14 +180,4 @@ func (cmd ClientCommand) getSerial(serialRequest string) (string, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	return string(body), err
-}
-
-func (cmd ClientCommand) getHTTPRequest(method, body string) *http.Request {
-	// Format the URL and headers for the HTTP call
-	url := fmt.Sprintf("%s%s", cmd.URL, method)
-	req, _ := http.NewRequest("POST", url, bytes.NewBufferString(body))
-	req.Header.Set("api-key", cmd.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	return req
 }

@@ -50,7 +50,6 @@ func RunMain() error {
 }
 
 func runTest(c *check.C, args []string, errorMessage string) {
-
 	restore := mockArgs(args...)
 	defer restore()
 
