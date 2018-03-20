@@ -32,36 +32,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/app"
 )
 
-func TestUserIndexHandler(t *testing.T) {
-	app.UserIndexTemplate = "../../static/app_user.html"
-
-	config := config.Settings{Title: "Site Title", Logo: "/url"}
-	datastore.Environ = &datastore.Env{Config: config}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/", nil)
-	service.SystemUserRouter().ServeHTTP(w, r)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status %d, got: %d", http.StatusOK, w.Code)
-	}
-}
-
-func TestUserIndexHandlerInvalidTemplate(t *testing.T) {
-	app.UserIndexTemplate = "../../static/does_not_exist.html"
-
-	config := config.Settings{Title: "Site Title", Logo: "/url"}
-	datastore.Environ = &datastore.Env{Config: config}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("GET", "/", nil)
-	service.SystemUserRouter().ServeHTTP(w, r)
-
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("Expected status %d, got: %d", http.StatusInternalServerError, w.Code)
-	}
-}
-
 func generateSystemUserRequest() string {
 	request := app.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
 	req, _ := json.Marshal(request)
@@ -98,6 +68,13 @@ func generateSystemUserRequestInvalidAssertion() string {
 }
 
 func TestSystemUserAssertionHandler(t *testing.T) {
+	// Mock the database
+	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", KeyStoreSecret: "secret code to encrypt the auth-key hash"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.OpenKeyStore(config)
+
+	service.MiddlewareWithCSRF = service.Middleware
+
 	type TestType struct {
 		data       string
 		statusCode int
@@ -134,7 +111,7 @@ func sendSystemUserAssertion(request string, t *testing.T) (int, bool, string) {
 	// Submit the serial-request assertion for signing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/v1/assertions", bytes.NewBufferString(request))
-	service.SystemUserRouter().ServeHTTP(w, r)
+	service.AdminRouter().ServeHTTP(w, r)
 
 	// Check the JSON response
 	result := app.SystemUserResponse{}

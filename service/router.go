@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -141,27 +141,6 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIUpdate))).Methods("PUT")
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIDelete))).Methods("DELETE")
 	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreate))).Methods("POST")
-
-	return router
-}
-
-// SystemUserRouter returns the application route handler for the system-user service methods
-func SystemUserRouter() *mux.Router {
-	// Start the web service router
-	router := mux.NewRouter()
-
-	// API routes
-	router.Handle("/v1/version", Middleware(http.HandlerFunc(core.Version))).Methods("GET")
-	router.Handle("/v1/health", Middleware(http.HandlerFunc(core.Health))).Methods("GET")
-	router.Handle("/v1/token", Middleware(http.HandlerFunc(core.Token))).Methods("GET")
-	router.Handle("/v1/models", Middleware(http.HandlerFunc(model.List))).Methods("GET")
-	router.Handle("/v1/assertions", Middleware(http.HandlerFunc(app.SystemUserAssertion))).Methods("POST")
-
-	// Web application routes
-	path := []string{datastore.Environ.Config.DocRoot, "/static/"}
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(strings.Join(path, ""))))
-	router.PathPrefix("/static/").Handler(fs)
-	router.Handle("/", Middleware(http.HandlerFunc(app.UserIndex))).Methods("GET")
 
 	return router
 }
