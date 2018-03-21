@@ -30,6 +30,8 @@ func (db *DB) ListAllowedAccounts(authorization User) ([]Account, error) {
 		fallthrough
 	case Superuser:
 		return db.listAllAccounts()
+	case SyncUser:
+		fallthrough
 	case Admin:
 		return db.listAccountsFilteredByUser(authorization.Username)
 	default:

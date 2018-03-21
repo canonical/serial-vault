@@ -245,6 +245,7 @@ class UserEdit extends Component {
                                     <select value={this.state.user.Role} id="role" onChange={this.handleChangeRole}>
                                         <option></option>
                                         <option key="standard" value="100">Standard</option>
+                                        <option key="syncuser" value="150">Sync API</option>
                                         <option key="admin" value="200">Admin</option>
                                         <option key="superuser" value="300">Superuser</option>
                                     </select>

@@ -26,6 +26,7 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
@@ -109,7 +110,8 @@ func createHandler(w http.ResponseWriter, authUser datastore.User, apiCall bool,
 
 	user.ID, err = datastore.Environ.DB.CreateUser(user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-creating-user", "", "", w)
+		svlog.Error("error-creating-user", err)
+		response.FormatStandardResponse(false, "error-creating-user", "", err.Error(), w)
 		return
 	}
 
@@ -123,7 +125,7 @@ func formatListResponse(users []datastore.User, w http.ResponseWriter) error {
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the users response.")
+		svlog.Error("error-user-response", err)
 		return err
 	}
 	return nil
@@ -134,7 +136,7 @@ func formatUserResponse(user datastore.User, w http.ResponseWriter) error {
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the user response.")
+		svlog.Error("error-user-response", err)
 		return err
 	}
 	return nil

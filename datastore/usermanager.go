@@ -86,6 +86,7 @@ const alterUserAPIKeyNotNullable = `alter table userinfo
 //
 // * Invalid:	default value set in case there is no authentication previous process for this user and thus not got a valid role.
 // * Standard:	role for regular users. This is the less privileged role
+// * SyncUser:	role for users that will used the Sync API
 // * Admin:		role for admin users, including standard role permissions but not superuser ones
 // * Superuser:	role for users having all the permissions
 const (
@@ -93,13 +94,14 @@ const (
 	Standard  = 100 * iota // 100
 	Admin                  // 200
 	Superuser              // 300
+	SyncUser  = 150
 )
 
 // RoleName holds the names for each of the roles
-var RoleName = map[int]string{0: "", 100: "standard", 200: "admin", 300: "superuser"}
+var RoleName = map[int]string{0: "", 100: "standard", 150: "syncuser", 200: "admin", 300: "superuser"}
 
 // RoleID holds the ID for each of the named roles
-var RoleID = map[string]int{"": 0, "standard": 100, "admin": 200, "superuser": 300}
+var RoleID = map[string]int{"": 0, "standard": 100, "syncuser": 150, "admin": 200, "superuser": 300}
 
 // User holds user personal, authentication and authorization info
 type User struct {
@@ -390,12 +392,14 @@ func (db *DB) rowsToUser(rows *sql.Rows) (User, error) {
 	user := User{}
 	err := rows.Scan(&user.ID, &user.Username, &user.Name, &user.Email, &user.Role, &user.APIKey)
 	if err != nil {
+		log.Printf("Error scanning user fields: %v", err)
 		return User{}, err
 	}
 
 	// Get related accounts and fill related User field
 	user.Accounts, err = db.listAccountsFilteredByUser(user.Username)
 	if err != nil {
+		log.Printf("Error fetching user accounts: %v", err)
 		return User{}, err
 	}
 

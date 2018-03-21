@@ -26,6 +26,8 @@ import (
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+	logging "github.com/op/go-logging"
 )
 
 func main() {
@@ -60,6 +62,7 @@ func main() {
 		address = ":8080"
 	}
 
-	log.Printf("Starting service on port %s", address)
+	svlog.InitLogger(logging.INFO)
+	svlog.Infof("Starting service on port %s", address)
 	log.Fatal(http.ListenAndServe(address, handler))
 }

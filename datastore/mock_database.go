@@ -462,6 +462,25 @@ func (mdb *MockDB) ListUsers() ([]User, error) {
 		Name:     "Root User",
 		Email:    "the_root_user@thisdb.com",
 		Role:     Superuser})
+	users = append(users, User{
+		ID:       6,
+		Username: "sync",
+		Name:     "Sync Vault",
+		Email:    "sync@example.com",
+		Role:     SyncUser,
+		Accounts: []Account{
+			{
+				ID:          3,
+				AuthorityID: "authority3",
+				Assertion:   "assertioncontent3",
+			},
+			{
+				ID:          4,
+				AuthorityID: "authority4",
+				Assertion:   "assertioncontent4",
+			},
+		}})
+
 	return users, nil
 }
 

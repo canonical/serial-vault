@@ -142,5 +142,8 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIDelete))).Methods("DELETE")
 	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreate))).Methods("POST")
 
+	// Sync API routes
+	router.Handle("/api/accounts", Middleware(http.HandlerFunc(account.APIList))).Methods("GET")
+
 	return router
 }
