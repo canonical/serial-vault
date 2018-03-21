@@ -22,8 +22,8 @@ Depends: ${shlibs:Depends},
 Description: 
  A Go web service that digitally signs device assertion details.
  .
- The application can be run in three modes: signing service, admin service
- and system-user assertion services. All the web services operate under
+ The application can be run in three modes: signing service and admin service.
+ All the web services operate under
  unencrypted HTTP connections, so these should not be exposed to a public
  network as-is. The services should be protected by web server front-end
  services, such as Apache, that provide secure HTTPS connections. Also,
@@ -39,9 +39,9 @@ Description:
  The service mode (signing or admin) is defined in the settings.yaml
  file. The selected service should be accessible on port :8080 or :8081:
   - Signing Service: http://localhost:8080/v1/version - Admin Service:
-  http://localhost:8081/ - System-User Service: http://localhost:8082/
+  http://localhost:8081/
  .
- The Admin and System-User services' CSRF protection sends a cookie over
+ The Admin service's CSRF protection sends a cookie over
  a secure channel. If the cookie is to be sent over an insecure channel,
  it is needed to workaround it by setting the environment variable: bash $
  export CSRF_SECURE=disable

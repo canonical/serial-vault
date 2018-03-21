@@ -19,13 +19,20 @@
 
 package manage
 
-import "gopkg.in/check.v1"
+import (
+	"gopkg.in/check.v1"
+)
 
 type ClientSuite struct{}
 
 var _ = check.Suite(&ClientSuite{})
 
-func (s *ClientSuite) SetUpTest(c *check.C) {}
+func (s *ClientSuite) SetUpTest(c *check.C) {
+
+	getRequestID = MockGetRequestID
+	getSerial = MockSerial
+	deviceKey = "../keystore/TestDeviceKey.asc"
+}
 
 func (s *ClientSuite) TestAccount(c *check.C) {
 	tests := []manTest{
@@ -35,9 +42,20 @@ func (s *ClientSuite) TestAccount(c *check.C) {
 		{
 			Args:         []string{"serial-vault-admin", "client", "invalid"},
 			ErrorMessage: "the required flags `-a, --api', `-b, --brand', `-m, --model', `-s, --serial' and `-u, --url' were not specified"},
+		{
+			Args:         []string{"serial-vault-admin", "client", "-a", "ValidAPIKey", "-b", "system", "-m", "alder", "-s", "A1234", "-u", "http://example.com/v1/"},
+			ErrorMessage: ""},
 	}
 
 	for _, t := range tests {
 		runTest(c, t.Args, t.ErrorMessage)
 	}
+}
+
+func MockGetRequestID(url, apiKey string) (string, error) {
+	return "abc1234", nil
+}
+
+func MockSerial(serialRequest, url, apiKey string) (string, error) {
+	return "MOCK: serial", nil
 }

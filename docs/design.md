@@ -11,15 +11,11 @@ The SerialVault is comprised of three services, deployed at a data centre:
 
 * Signing Service
 * Admin Service
-* System-User Service (optional)
 
 The Signing Service is the publicly accessible service that is used to generate a 
 signed serial assertion using a predefined signing key. The Admin Service is a private 
 service, that is designed to be accessible only from the data centre, that allows 
-signing keys and models to be defined. The System-User Service is an optional service 
-that allows a signed, system-user assertion to be generated. The system-user assertion 
-can be used on an unmanaged device to create a user that allows an operator to login 
-to the device.
+signing keys and models to be defined.
 
 # Design
 
@@ -39,7 +35,3 @@ a valid sign request is made, the serial number and device-key fingerprint are s
 database. The Admin Service provides a Signing Log view that shows the valid serial number 
 and device-keys fingerprints that have been used.
 
-The System-User Service is an optional service that allows a signed system-user assertion 
-to be generated. The most common use case is for creating system users in the factory line 
-or on first boot, by using a USB dongle which would contain this assertion. Typically, the 
-service will only be exposed to the operators on the factory line.

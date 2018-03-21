@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -22,11 +22,8 @@ package app
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"regexp"
-	"strings"
-	"text/template"
 
 	"time"
 
@@ -40,9 +37,6 @@ import (
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
 )
-
-// UserIndexTemplate is the path to the HTML template
-var UserIndexTemplate = "/static/app_user.html"
 
 const oneYearDuration = time.Duration(24*365) * time.Hour
 const userAssertionRevision = "1"
@@ -64,23 +58,6 @@ type SystemUserResponse struct {
 	ErrorSubcode string `json:"error_subcode"`
 	ErrorMessage string `json:"message"`
 	Assertion    string `json:"assertion"`
-}
-
-// UserIndex is the front page of the web application
-func UserIndex(w http.ResponseWriter, r *http.Request) {
-	page := Page{Title: datastore.Environ.Config.Title, Logo: datastore.Environ.Config.Logo}
-
-	path := []string{datastore.Environ.Config.DocRoot, UserIndexTemplate}
-	t, err := template.ParseFiles(strings.Join(path, ""))
-	if err != nil {
-		log.Printf("Error loading the application template: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = t.Execute(w, page)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
 
 // SystemUserAssertion is the API method to generate a signed system-user assertion for a device

@@ -22,12 +22,10 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
-	"github.com/gorilla/csrf"
 )
 
 func main() {
@@ -56,30 +54,6 @@ func main() {
 		// Create the admin web service router
 		handler = service.AdminRouter()
 		address = ":8081"
-	case "system-user":
-		// configure request forgery protection
-		csrfSecure := true
-		csrfSecureEnv := os.Getenv("CSRF_SECURE")
-		if csrfSecureEnv == "disable" {
-			log.Println("Disable secure flag")
-			csrfSecure = false
-		}
-
-		CSRF := csrf.Protect(
-			[]byte(datastore.Environ.Config.CSRFAuthKey),
-			csrf.Secure(csrfSecure),
-			csrf.HttpOnly(csrfSecure),
-			csrf.CookieName("XSRF-TOKEN"),
-		)
-
-		// Create the admin web service router
-		if csrfSecure {
-			handler = CSRF(service.SystemUserRouter())
-		} else {
-			// Allow cross-origin access for local development
-			handler = service.CORSMiddleware()(CSRF(service.SystemUserRouter()))
-		}
-		address = ":8082"
 	default:
 		// Create the user web service router
 		handler = service.SigningRouter()
