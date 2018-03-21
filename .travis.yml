@@ -19,4 +19,5 @@ before_install:
 install:
     - echo $GOPATH
     - echo "Remaining install is done by the test script."
+    - travis_wait sh ./get-deps.sh
 script: sh -v ./run-checks $TEST_SUITE
