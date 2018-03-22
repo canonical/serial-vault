@@ -25,7 +25,6 @@ import (
 	"regexp"
 )
 
-var validStoreNameRegexp = regexp.MustCompile(defaultNicknamePattern)
 var validSerialNumberRegexp = regexp.MustCompile(defaultNicknamePattern)
 
 // ListSubstores return account sub-stores the user is authorized to see
@@ -109,12 +108,12 @@ func validateSubstore(store Substore, validateStoreLabel string) (string, error)
 		return validateStoreLabel, err
 	}
 
-	err = validateSyntax("Sub-store name", store.Store, validStoreNameRegexp)
+	err = validateNotEmpty("Sub-store name", store.Store)
 	if err != nil {
 		return validateStoreLabel, err
 	}
 
-	err = validateSyntax("Serial-number", store.SerialNumber, validSerialNumberRegexp)
+	err = validateNotEmpty("Serial-number", store.SerialNumber)
 	if err != nil {
 		return validateStoreLabel, err
 	}
