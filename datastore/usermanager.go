@@ -90,11 +90,11 @@ const alterUserAPIKeyNotNullable = `alter table userinfo
 // * Admin:		role for admin users, including standard role permissions but not superuser ones
 // * Superuser:	role for users having all the permissions
 const (
-	Invalid   = iota       // 0
-	Standard  = 100 * iota // 100
-	Admin                  // 200
-	Superuser              // 300
+	Invalid   = 0
+	Standard  = 100
 	SyncUser  = 150
+	Admin     = 200
+	Superuser = 300
 )
 
 // RoleName holds the names for each of the roles
