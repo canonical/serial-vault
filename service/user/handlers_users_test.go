@@ -72,7 +72,7 @@ func (s *ServiceSuite) TestUsersHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.MockDB{}
 
 	result := s.sendRequestRepliesUsersList("GET", "/v1/users", nil, c)
-	c.Assert(len(result.Users), check.Equals, 5)
+	c.Assert(len(result.Users), check.Equals, 6)
 	c.Assert(result.Users[0].Name, check.Equals, "Rigoberto Picaporte")
 	c.Assert(result.Users[1].Name, check.Equals, "Nancy Reagan")
 	c.Assert(result.Users[2].Name, check.Equals, "Steven Vault")

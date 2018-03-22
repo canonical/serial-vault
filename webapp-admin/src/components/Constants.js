@@ -17,6 +17,7 @@
 
 export const Role = {
     Standard: 100,
+    SyncUser: 150,
     Admin: 200,
     Superuser: 300,
 }

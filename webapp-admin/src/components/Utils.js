@@ -133,6 +133,9 @@ export function roleAsString(role) {
         case Role.Standard:
             str = "Standard"	
             break;
+        case Role.SyncUser:
+            str = "Sync API"
+            break;
         case Role.Admin:
             str = "Admin"
             break;

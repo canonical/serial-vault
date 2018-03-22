@@ -96,7 +96,7 @@ func validateUsername(username string) error {
 }
 
 func validateUserRole(role int) error {
-	if role != Standard && role != Admin && role != Superuser {
+	if role != Standard && role != SyncUser && role != Admin && role != Superuser {
 		return errors.New("Role is not amongst valid ones")
 	}
 	return nil

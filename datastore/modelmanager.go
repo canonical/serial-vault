@@ -36,14 +36,14 @@ const createModelTableSQL = `
 	)
 `
 const listModelsSQL = `
-	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, name, m.keypair_id, m.api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	order by name
 `
 const listModelsForUserSQL = `
-	select m.id, brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
+	select m.id, brand_id, m.name, m.keypair_id, m.api_key, k.authority_id, k.key_id, k.active, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
@@ -54,19 +54,19 @@ const listModelsForUserSQL = `
 	order by name
 `
 const findModelSQL = `
-	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, m.keypair_id, m.api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where brand_id=$1 and name=$2 and api_key=$3`
 const getModelSQL = `
-	select m.id, brand_id, name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, brand_id, name, m.keypair_id, m.api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
 	where m.id=$1`
 const getModelForUserSQL = `
-	select m.id, m.brand_id, m.name, m.keypair_id, api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
+	select m.id, m.brand_id, m.name, m.keypair_id, m.api_key, k.authority_id, k.key_id, k.active, k.sealed_key, user_keypair_id, ku.authority_id, ku.key_id, ku.active, ku.sealed_key, ku.assertion
 	from model m
 	inner join keypair k on k.id = m.keypair_id
 	inner join keypair ku on ku.id = m.user_keypair_id
