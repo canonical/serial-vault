@@ -28,7 +28,7 @@ import (
 )
 
 // Set the application version from a constant
-const version = "2.1-3"
+const version = "2.1-4"
 
 // Settings defines the parsed config file settings.
 type Settings struct {

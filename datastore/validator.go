@@ -35,6 +35,17 @@ func validateAuthorityID(AuthorityID string) error {
 	return validateNotEmpty("Authority ID", AuthorityID)
 }
 
+func validateCaseInsensitive(fieldName, fieldValue string) error {
+	if err := validateNotEmpty(fieldName, fieldValue); err != nil {
+		return err
+	}
+
+	if strings.ToLower(fieldValue) != fieldValue {
+		return fmt.Errorf("%v must not contain uppercase characters", normalize(fieldName))
+	}
+	return nil
+}
+
 func normalize(fieldName string) string {
 	theFieldName := strings.TrimSpace(fieldName)
 	if len(theFieldName) == 0 {

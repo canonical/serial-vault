@@ -20,7 +20,6 @@
 package datastore
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -39,17 +38,6 @@ func TestModelNameEmpty(t *testing.T) {
 		t.Error("Expected name not to be valid, but it is")
 	}
 	if err.Error() != "Model name must not be empty" {
-		t.Error("Error happening is not the one searched for")
-	}
-}
-
-func TestModelNameInvalidChar(t *testing.T) {
-	name := "my-model-01_"
-	err := validateModelName(name)
-	if err == nil {
-		t.Error("Expected name not to be valid, but it is")
-	}
-	if !strings.Contains(err.Error(), "Model name contains invalid characters") {
 		t.Error("Error happening is not the one searched for")
 	}
 }

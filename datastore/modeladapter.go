@@ -28,10 +28,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/random"
 )
 
-const validModelNamePattern = defaultNicknamePattern
-
-var validModelNameRegexp = regexp.MustCompile(validModelNamePattern)
-
 // ListAllowedModels returns the models allowed to be seen to the authorization
 func (db *DB) ListAllowedModels(authorization User) ([]Model, error) {
 	switch authorization.Role {
@@ -178,7 +174,7 @@ func validateBrandID(brandID string) error {
 
 // validateModelName validates name for the model; the rule is: lowercase with no spaces
 func validateModelName(name string) error {
-	return validateSyntax("Model name", name, validModelNameRegexp)
+	return validateCaseInsensitive("Model name", name)
 }
 
 func validateKeypairID(keypairID int) error {

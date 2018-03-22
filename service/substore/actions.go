@@ -97,7 +97,7 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 
 	err = datastore.Environ.DB.CreateAllowedSubstore(store, user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-stores-json", "", "", w)
+		response.FormatStandardResponse(false, "error-stores-json", "", err.Error(), w)
 		return
 	}
 

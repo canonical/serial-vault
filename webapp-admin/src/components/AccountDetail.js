@@ -65,7 +65,7 @@ class AccountDetail extends Component {
             if (response.statusCode >= 300) {
                 this.setState({error: formatError(data), hideForm: true});
             } else {
-                this.setState({substores: data.substores, showNew: false, showEdit: null, showDelete: null, hideForm: false});
+                this.setState({substores: data.substores, showNew: false, showEdit: null, showDelete: null, hideForm: false, error: null});
             }
         });
     }
