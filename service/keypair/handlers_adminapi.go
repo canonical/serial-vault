@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -20,16 +21,22 @@
 package keypair
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
+// SyncRequest is the request to fetch keypairs
+type SyncRequest struct {
+	Secret string `json:"secret"`
+}
+
 // APIList is the API method to fetch the log records from signing
 func APIList(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	// Validate the user and API key
 	user, err := request.CheckUserAPI(r)
 	if err != nil {
@@ -39,4 +46,32 @@ func APIList(w http.ResponseWriter, r *http.Request) {
 
 	// Call the API with the user
 	listHandler(w, user, true)
+}
+
+// APISyncKeypairs fetches the signing-keys accessible by a user
+// A encryption secret is provided and the keypairs are decrypted and re-encrypted
+// using the supplied keystore secret
+func APISyncKeypairs(w http.ResponseWriter, r *http.Request) {
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
+	if err != nil {
+		log.Error("error-auth", err)
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	request := SyncRequest{}
+	err = json.NewDecoder(r.Body).Decode(&request)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		response.FormatStandardResponse(false, "error-keypair-data", "", "No keypair sync data supplied", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		response.FormatStandardResponse(false, "error-keypair-json", "", err.Error(), w)
+		return
+	}
+
+	syncHandler(w, user, true, request)
 }

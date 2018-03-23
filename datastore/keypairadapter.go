@@ -1,7 +1,8 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -28,6 +29,8 @@ func (db *DB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 		fallthrough
 	case Superuser:
 		return db.listAllKeypairs()
+	case SyncUser:
+		fallthrough
 	case Admin:
 		return db.listKeypairsFilteredByUser(authorization.Username)
 	default:

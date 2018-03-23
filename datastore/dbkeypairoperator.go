@@ -1,7 +1,8 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -54,14 +55,10 @@ func (dbStore *DatabaseKeypairOperator) ImportKeypair(authorityID, keyID, base64
 }
 
 func (dbStore *DatabaseKeypairOperator) generateEncryptionKey(authorityID, keyID string) (string, error) {
-	keyText := crypt.GenerateAuthKey(authorityID, keyID)
-	secretText, err := crypt.CreateSecret(32)
+	encryptionKey, err := generateEncryptionKey(authorityID, keyID, Environ.Config.KeyStoreSecret)
 	if err != nil {
 		return "", err
 	}
-	h := hmac.New(sha256.New, []byte(secretText))
-	h.Write([]byte(keyText))
-	encryptionKey := string(h.Sum(nil)[:])
 
 	// Encrypt and store the auth-key hash
 	encryptedAuthKeyHash, err := crypt.EncryptKey(string(encryptionKey[:]), Environ.Config.KeyStoreSecret)
@@ -92,34 +89,7 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 	if err != nil {
 		// The key has not been unsealed and stored in the memory store
 
-		// Decode and decrypt the auth-key
-		authKeySetting, err := Environ.DB.GetSetting(crypt.GenerateAuthKey(authorityID, keyID))
-		if err != nil {
-			log.Println("Cannot find the auth-key for the signing-key")
-			return err
-		}
-
-		// Decode the auth-key from storage
-		encryptedAuthKey, err := base64.StdEncoding.DecodeString(authKeySetting.Data)
-		if err != nil {
-			log.Println("Could not decode the auth-key for the signing-key")
-			return err
-		}
-
-		// Decrypt the decoded auth-key
-		authKey, err := crypt.DecryptKey(encryptedAuthKey, Environ.Config.KeyStoreSecret)
-		if err != nil {
-			log.Println("Could not decrypt the auth-key for the signing-key")
-			return err
-		}
-
-		// Decode and decrypt the signing-key
-		sealedSigningKey, err := base64.StdEncoding.DecodeString(base64SealedSigningKey)
-		if err != nil {
-			log.Println("Could not decode the signing-key")
-			return err
-		}
-		base64SigningKey, err := crypt.DecryptKey(sealedSigningKey, string(authKey[:]))
+		base64SigningKey, err := decryptKeypair(authorityID, keyID, base64SealedSigningKey)
 		if err != nil {
 			log.Println("Could not decrypt the signing-key")
 			return err
@@ -142,4 +112,91 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 	}
 
 	return nil
+}
+
+// ReEncryptKeypair unseals the existing private key and re-encrypts it with the new secret
+var ReEncryptKeypair = func(keypair Keypair, newSecret string) (string, string, error) {
+
+	// Decrypt the sealed key
+	base64SigningKey, err := decryptKeypair(keypair.AuthorityID, keypair.KeyID, keypair.SealedKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Generate the encryption key
+	encryptionKey, err := generateEncryptionKey(keypair.AuthorityID, keypair.KeyID, newSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Use the HMAC-ed auth-key as the key to encrypt the signing-key
+	sealedSigningKey, err := crypt.EncryptKey(string(base64SigningKey), encryptionKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	// base64 encode the sealed signing-key for storage
+	base64SealedSigningkey := base64.StdEncoding.EncodeToString(sealedSigningKey)
+
+	// Encrypt the encryption key
+	encryptedAuthKeyHash, err := crypt.EncryptKey(string(encryptionKey), newSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Encrypt the HMAC-ed auth-key for storage
+	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
+
+	// Return the sealed key and sealed encryption key
+	return base64SealedSigningkey, base64AuthKeyHash, nil
+}
+
+func decryptKeypair(authorityID, keyID, base64SealedSigningKey string) ([]byte, error) {
+	// Decode and decrypt the auth-key
+	authKeySetting, err := Environ.DB.GetSetting(crypt.GenerateAuthKey(authorityID, keyID))
+	if err != nil {
+		log.Println("Cannot find the auth-key for the signing-key")
+		return nil, err
+	}
+
+	// Decode the auth-key from storage
+	encryptedAuthKey, err := base64.StdEncoding.DecodeString(authKeySetting.Data)
+	if err != nil {
+		log.Println("Could not decode the auth-key for the signing-key")
+		return nil, err
+	}
+
+	// Decrypt the decoded auth-key
+	authKey, err := crypt.DecryptKey(encryptedAuthKey, Environ.Config.KeyStoreSecret)
+	if err != nil {
+		log.Println("Could not decrypt the auth-key for the signing-key")
+		return nil, err
+	}
+
+	// Decode and decrypt the signing-key
+	sealedSigningKey, err := base64.StdEncoding.DecodeString(base64SealedSigningKey)
+	if err != nil {
+		log.Println("Could not decode the signing-key")
+		return nil, err
+	}
+	base64SigningKey, err := crypt.DecryptKey(sealedSigningKey, string(authKey[:]))
+	if err != nil {
+		log.Println("Could not decrypt the signing-key")
+		return nil, err
+	}
+
+	return base64SigningKey, nil
+}
+
+func generateEncryptionKey(authorityID, keyID, keystoreSecret string) (string, error) {
+	keyText := crypt.GenerateAuthKey(authorityID, keyID)
+	secretText, err := crypt.CreateSecret(32)
+	if err != nil {
+		return "", err
+	}
+	h := hmac.New(sha256.New, []byte(secretText))
+	h.Write([]byte(keyText))
+	encryptionKey := string(h.Sum(nil)[:])
+
+	return encryptionKey, nil
 }
