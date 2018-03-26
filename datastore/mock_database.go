@@ -257,7 +257,7 @@ func (mdb *MockDB) GetKeypairByName(authorityID, keyName string) (Keypair, error
 // ListAllowedKeypairs mocks listing the keypairs
 func (mdb *MockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 	var keypairs []Keypair
-	if authorization.Username == "" || authorization.Username == "sv" {
+	if authorization.Username == "" || authorization.Username == "sv" || authorization.Username == "sync" {
 		keypairs = append(keypairs, keypairSystem())
 		keypairs = append(keypairs, Keypair{ID: 2, AuthorityID: "system", KeyID: "invalidone", Active: true})
 	}
@@ -284,6 +284,9 @@ func (mdb *MockDB) GetSetting(code string) (Setting, error) {
 	case "System/12345678abcdef":
 		// Returning the encrypted, base64 encoded HMAC-ed auth-key: fake-hmac-ed-data
 		return Setting{Code: "System/12345678abcdef", Data: "pmXt1iwvM5P947KATp24rMQFHEnAf2tUXGl1XXyfhDhf"}, nil
+
+	case "system/UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO":
+		return Setting{Code: "system/UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Data: mdb.encryptedAuthKeyHash}, nil
 
 	case "System/abcdef12345678":
 		return Setting{Code: "System/abcdef12345678", Data: mdb.encryptedAuthKeyHash}, nil
