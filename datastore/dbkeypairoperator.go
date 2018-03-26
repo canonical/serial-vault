@@ -118,18 +118,21 @@ func unsealKeypair(authorityID string, keyID string, base64SealedSigningKey stri
 var ReEncryptKeypair = func(keypair Keypair, newSecret string) (string, string, error) {
 
 	// Decrypt the sealed key
+	// The existing signing-key in the database is encrypted, so it needs to be decrypted
 	base64SigningKey, err := decryptKeypair(keypair.AuthorityID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
 		return "", "", err
 	}
 
 	// Generate the encryption key
+	// Use the new secret to generate a key that will be used to encrypt the signing-key
 	encryptionKey, err := generateEncryptionKey(keypair.AuthorityID, keypair.KeyID, newSecret)
 	if err != nil {
 		return "", "", err
 	}
 
 	// Use the HMAC-ed auth-key as the key to encrypt the signing-key
+	// This encrypts the signing-key with the secret provided in the API call
 	sealedSigningKey, err := crypt.EncryptKey(string(base64SigningKey), encryptionKey)
 	if err != nil {
 		return "", "", err
@@ -139,12 +142,14 @@ var ReEncryptKeypair = func(keypair Keypair, newSecret string) (string, string, 
 	base64SealedSigningkey := base64.StdEncoding.EncodeToString(sealedSigningKey)
 
 	// Encrypt the encryption key
+	// We need to store the key that was used to encrypt the signing-key in a database, so
+	// encrypt it with the new secret... just to add another layer of security
 	encryptedAuthKeyHash, err := crypt.EncryptKey(string(encryptionKey), newSecret)
 	if err != nil {
 		return "", "", err
 	}
 
-	// Encrypt the HMAC-ed auth-key for storage
+	// Encrypt the HMAC-ed encryption key for storage
 	base64AuthKeyHash := base64.StdEncoding.EncodeToString([]byte(encryptedAuthKeyHash))
 
 	// Return the sealed key and sealed encryption key
