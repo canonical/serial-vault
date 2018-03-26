@@ -128,7 +128,7 @@ func (mdb *MockDB) UpdateAccount(account Account, authorization User) error {
 func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 
 	var models []Model
-	if authorization.Username == "" || authorization.Username == "sv" {
+	if authorization.Username == "" || authorization.Username == "sv" || authorization.Username == "sync" {
 		models = append(models, Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true, KeypairIDUser: 1, AuthorityIDUser: "system", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKeyUser: "", KeyActiveUser: true})
 		models = append(models, Model{ID: 2, BrandID: "system", Name: "ash", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: false})
 		models = append(models, Model{ID: 3, BrandID: "system", Name: "basswood", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", SealedKey: "", KeyActive: true})

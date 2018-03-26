@@ -37,6 +37,8 @@ func (db *DB) ListAllowedModels(authorization User) ([]Model, error) {
 		return db.listAllModels()
 	case Standard:
 		fallthrough
+	case SyncUser:
+		fallthrough
 	case Admin:
 		return db.listModelsFilteredByUser(authorization.Username)
 	default:
