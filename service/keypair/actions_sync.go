@@ -61,7 +61,7 @@ func syncHandler(w http.ResponseWriter, user datastore.User, apiCall bool, reque
 		}
 	}
 
-	// Get the keypairs (does not include the sealed key)
+	// Get the keypairs that the user can access (does not include the sealed key)
 	keypairs, err := datastore.Environ.DB.ListAllowedKeypairs(user)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-sync-keypairs", "", err.Error(), w)
@@ -85,7 +85,7 @@ func syncHandler(w http.ResponseWriter, user datastore.User, apiCall bool, reque
 			return
 		}
 
-		// Update the sealed key
+		// Update the sealed key - encrypted with the new keystore secret
 		keypair.SealedKey = base64SealedSigningkey
 
 		skp := SyncKeypair{keypair, base64AuthKeyHash}
