@@ -62,6 +62,11 @@ func (cmd StartCommand) Execute(args []string) error {
 	}
 
 	// Sync the models
+	log.Info("Sync the models from the cloud")
+	err = client.Models()
+	if err != nil {
+		withErrors = true
+	}
 
 	// Sync the signing logs
 

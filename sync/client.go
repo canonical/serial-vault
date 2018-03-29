@@ -126,6 +126,32 @@ func (c *FactoryClient) SigningKeys() error {
 	return nil
 }
 
+// Models synchronizes the model details to the factory instance
+func (c *FactoryClient) Models() error {
+	// Fetch the accounts from the serial-vault
+	result, err := FetchModels(c.URL, c.Username, c.APIKey)
+	if err != nil {
+		log.Errorf("Error parsing models: %v", err)
+		return err
+	}
+	if !result.Success {
+		log.Errorf("Error fetching models: %s", result.ErrorMessage)
+		return errors.New(result.ErrorMessage)
+	}
+
+	// Update the factory database with the accounts
+	for _, m := range result.Models {
+		err = datastore.Environ.DB.SyncModel(m)
+		if err != nil {
+			log.Errorf("Error updating models: %v", err)
+			return err
+		}
+
+	}
+
+	return nil
+}
+
 // GetKeypairByPublicID is the mockable call to the database function
 var GetKeypairByPublicID = func(authorityID, keyID string) (datastore.Keypair, error) {
 	return datastore.Environ.DB.GetKeypairByPublicID(authorityID, keyID)

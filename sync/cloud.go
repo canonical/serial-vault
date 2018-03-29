@@ -28,6 +28,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/CanonicalLtd/serial-vault/service/model"
 )
 
 // SendRequest sends the request to the serial vault
@@ -66,6 +67,18 @@ var FetchSigningKeys = func(url, username, apikey string, data []byte) (keypair.
 	return parseSigningKeyResponse(w)
 }
 
+// FetchModels fetches the models from the cloud serial vault
+var FetchModels = func(url, username, apikey string) (model.ListResponse, error) {
+	w, err := SendRequest("GET", url, "models", username, apikey, nil)
+	if err != nil {
+		log.Errorf("Error fetching models: %v", err)
+		return model.ListResponse{}, err
+	}
+
+	// Parse the response from the accounts
+	return parseModelResponse(w)
+}
+
 func parseAccountResponse(w *http.Response) (account.ListResponse, error) {
 	// Check the JSON response
 	result := account.ListResponse{}
@@ -76,6 +89,13 @@ func parseAccountResponse(w *http.Response) (account.ListResponse, error) {
 func parseSigningKeyResponse(w *http.Response) (keypair.SyncResponse, error) {
 	// Check the JSON response
 	result := keypair.SyncResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
+func parseModelResponse(w *http.Response) (model.ListResponse, error) {
+	// Check the JSON response
+	result := model.ListResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }

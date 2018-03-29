@@ -32,6 +32,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
+	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/sync"
 	check "gopkg.in/check.v1"
 )
@@ -68,10 +69,12 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 		if t.MockErrorDB {
 			sync.FetchAccounts = mockFetchAccountsError
 			sync.FetchSigningKeys = mockFetchSigningKeysError
+			sync.FetchModels = mockFetchModelsError
 		}
 		if t.MockFail {
 			sync.FetchAccounts = mockFetchAccountsFail
 			sync.FetchSigningKeys = mockFetchSigningKeysFail
+			sync.FetchModels = mockFetchModelsFail
 		}
 		if !t.MockErrorDB && !t.MockFail {
 			// This ensures that we treat the keypairs as new
@@ -96,6 +99,7 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 
 		sync.FetchAccounts = mockFetchAccounts
 		sync.FetchSigningKeys = mockFetchSigningKeys
+		sync.FetchModels = mockFetchModels
 	}
 
 }
@@ -126,6 +130,19 @@ func mockFetchSigningKeysFail(url, username, apikey string, data []byte) (keypai
 	return keypair.SyncResponse{Success: false}, nil
 }
 
+func mockFetchModels(url, username, apikey string) (model.ListResponse, error) {
+	w := sendSyncAPIRequest("GET", "/api/models", nil)
+	return parseModelResponse(w)
+}
+
+func mockFetchModelsError(url, username, apikey string) (model.ListResponse, error) {
+	return model.ListResponse{}, errors.New("MOCK error fetching models")
+}
+
+func mockFetchModelsFail(url, username, apikey string) (model.ListResponse, error) {
+	return model.ListResponse{Success: false, ErrorMessage: "MOCK fail fetching models"}, nil
+}
+
 func sendSyncAPIRequest(method, url string, data io.Reader) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
@@ -148,6 +165,13 @@ func parseListResponse(w *httptest.ResponseRecorder) (account.ListResponse, erro
 func parseKeysResponse(w *httptest.ResponseRecorder) (keypair.SyncResponse, error) {
 	// Check the JSON response
 	result := keypair.SyncResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
+func parseModelResponse(w *httptest.ResponseRecorder) (model.ListResponse, error) {
+	// Check the JSON response
+	result := model.ListResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }

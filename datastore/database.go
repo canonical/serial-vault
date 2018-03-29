@@ -119,6 +119,7 @@ type Datastore interface {
 
 	SyncAccount(account Account) (string, error)
 	SyncKeypair(keypair SyncKeypair) error
+	SyncModel(m Model) error
 }
 
 // DB local database interface with our custom methods.

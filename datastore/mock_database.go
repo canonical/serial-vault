@@ -241,6 +241,11 @@ func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, s
 	return model, "", nil
 }
 
+// SyncModel mocks creating a new model
+func (mdb *MockDB) SyncModel(model Model) error {
+	return nil
+}
+
 // GetKeypair mocks getting a keypair by ID
 func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := keypairSystem()
@@ -832,6 +837,11 @@ func (mdb *ErrorMockDB) DeleteAllowedModel(model Model, authorization User) (str
 // CreateAllowedModel mocks creating a new model, returning an error.
 func (mdb *ErrorMockDB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
 	return Model{}, "", errors.New("Error creating the database model")
+}
+
+// SyncModel mocks creating a new model, returning an error.
+func (mdb *ErrorMockDB) SyncModel(model Model) error {
+	return errors.New("Error creating the database model")
 }
 
 // GetKeypair error mock for the database

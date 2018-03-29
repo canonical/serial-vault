@@ -40,6 +40,7 @@ func (s *startSuite) SetUpTest(c *check.C) {
 	sync.FetchAccounts = mockFetchAccounts
 	sync.FetchSigningKeys = mockFetchSigningKeys
 	datastore.ReEncryptKeypair = mockReEncryptKeypair
+	sync.FetchModels = mockFetchModels
 }
 
 func (s *startSuite) TestStart(c *check.C) {
@@ -64,15 +65,18 @@ func (s *startSuite) TestStart(c *check.C) {
 		if t.MockErrorDB {
 			sync.FetchAccounts = mockFetchAccountsError
 			sync.FetchSigningKeys = mockFetchSigningKeysError
+			sync.FetchModels = mockFetchModelsError
 		}
 		if t.MockFail {
 			sync.FetchAccounts = mockFetchAccountsFail
 			sync.FetchSigningKeys = mockFetchSigningKeysFail
+			sync.FetchModels = mockFetchModelsFail
 		}
 
 		runTest(c, t.Args, t.ErrorMessage)
 
 		sync.FetchAccounts = mockFetchAccounts
 		sync.FetchSigningKeys = mockFetchSigningKeys
+		sync.FetchModels = mockFetchModels
 	}
 }
