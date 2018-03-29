@@ -64,10 +64,10 @@ func sendAdminAPIRequest(method, url string, data io.Reader, permissions int, c 
 	switch permissions {
 	case datastore.Admin:
 		r.Header.Set("user", "sv")
-		r.Header.Set("api", "ValidAPIKey")
+		r.Header.Set("api-key", "ValidAPIKey")
 	case datastore.Standard:
 		r.Header.Set("user", "user1")
-		r.Header.Set("api", "ValidAPIKey")
+		r.Header.Set("api-key", "ValidAPIKey")
 	default:
 		break
 	}

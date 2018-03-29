@@ -141,6 +141,11 @@ func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 	return models, nil
 }
 
+// SyncAccount mock to update the account
+func (mdb *MockDB) SyncAccount(account Account) (string, error) {
+	return "", nil
+}
+
 // FindModel mocks the database response for finding a model
 func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
@@ -769,9 +774,14 @@ func (mdb *ErrorMockDB) ListAllowedAccounts(authorization User) ([]Account, erro
 	return nil, errors.New("Error getting the accounts")
 }
 
-// PutAccount mock to update abn account assertion
+// PutAccount mock to update an account assertion
 func (mdb *ErrorMockDB) PutAccount(account Account, authorization User) (string, error) {
 	return "", errors.New("MOCK error upserting the account")
+}
+
+// SyncAccount mock to update the account
+func (mdb *ErrorMockDB) SyncAccount(account Account) (string, error) {
+	return "", errors.New("MOCK error syncing the account")
 }
 
 // UpdateAccountAssertion mock to update the account assertion

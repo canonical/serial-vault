@@ -116,6 +116,8 @@ type Datastore interface {
 	GetSubstore(fromModelID int, serialNumber string) (Substore, error)
 
 	HealthCheck() error
+
+	SyncAccount(account Account) (string, error)
 }
 
 // DB local database interface with our custom methods.
