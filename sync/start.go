@@ -55,6 +55,11 @@ func (cmd StartCommand) Execute(args []string) error {
 	}
 
 	// Sync the signing-keys
+	log.Info("Sync the signing-keys from the cloud")
+	err = client.SigningKeys()
+	if err != nil {
+		withErrors = true
+	}
 
 	// Sync the models
 

@@ -278,6 +278,11 @@ func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", nil
 }
 
+// SyncKeypair database mock
+func (mdb *MockDB) SyncKeypair(keypair SyncKeypair) error {
+	return nil
+}
+
 // UpdateAllowedKeypairActive database mock
 func (mdb *MockDB) UpdateAllowedKeypairActive(keypairID int, active bool, authorization User) error {
 	return nil
@@ -856,6 +861,11 @@ func (mdb *ErrorMockDB) ListAllowedKeypairs(authorization User) ([]Keypair, erro
 // PutKeypair error mock for the database
 func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", errors.New("Error updating the database")
+}
+
+// SyncKeypair error mock for the database
+func (mdb *ErrorMockDB) SyncKeypair(keypair SyncKeypair) error {
+	return errors.New("Error updating the database")
 }
 
 // UpdateAllowedKeypairActive error mock for the database

@@ -118,6 +118,7 @@ type Datastore interface {
 	HealthCheck() error
 
 	SyncAccount(account Account) (string, error)
+	SyncKeypair(keypair SyncKeypair) error
 }
 
 // DB local database interface with our custom methods.

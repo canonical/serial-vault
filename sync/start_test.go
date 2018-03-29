@@ -21,16 +21,8 @@
 package sync_test
 
 import (
-	"encoding/json"
-	"errors"
-	"io"
-	"net/http"
-	"net/http/httptest"
-
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/service"
-	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/sync"
 	check "gopkg.in/check.v1"
 )
@@ -46,60 +38,41 @@ func (s *startSuite) SetUpTest(c *check.C) {
 	datastore.OpenKeyStore(config)
 
 	sync.FetchAccounts = mockFetchAccounts
+	sync.FetchSigningKeys = mockFetchSigningKeys
+	datastore.ReEncryptKeypair = mockReEncryptKeypair
 }
 
 func (s *startSuite) TestStart(c *check.C) {
 	tests := []suiteTest{
 		{
 			Args:         []string{"factory-sync", "start"},
-			ErrorMessage: "The cloud serial vault URL, username and API key must be provided",
-			MockError:    false},
-
+			ErrorMessage: "The cloud serial vault URL, username and API key must be provided"},
 		{
 			Args:         []string{"factory-sync", "start", "--user=sync", "--apikey=ValidAPIKey"},
-			ErrorMessage: "",
-			MockError:    false},
+			ErrorMessage: ""},
 		{
 			Args:         []string{"factory-sync", "start", "--user=sync", "--apikey=ValidAPIKey"},
 			ErrorMessage: "Sync completed with errors",
-			MockError:    true},
+			MockErrorDB:  true},
+		{
+			Args:         []string{"factory-sync", "start", "--user=sync", "--apikey=ValidAPIKey"},
+			ErrorMessage: "Sync completed with errors",
+			MockFail:     true},
 	}
 
 	for _, t := range tests {
-		if t.MockError {
+		if t.MockErrorDB {
 			sync.FetchAccounts = mockFetchAccountsError
+			sync.FetchSigningKeys = mockFetchSigningKeysError
+		}
+		if t.MockFail {
+			sync.FetchAccounts = mockFetchAccountsFail
+			sync.FetchSigningKeys = mockFetchSigningKeysFail
 		}
 
 		runTest(c, t.Args, t.ErrorMessage)
 
 		sync.FetchAccounts = mockFetchAccounts
+		sync.FetchSigningKeys = mockFetchSigningKeys
 	}
-}
-
-func mockFetchAccounts(url, username, apikey string) (account.ListResponse, error) {
-	w := sendSyncAPIRequest("GET", "/api/accounts", nil)
-	return parseListResponse(w)
-}
-
-func mockFetchAccountsError(url, username, apikey string) (account.ListResponse, error) {
-	return account.ListResponse{}, errors.New("MOCK error fetching accounts")
-}
-
-func sendSyncAPIRequest(method, url string, data io.Reader) *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(method, url, data)
-
-	r.Header.Set("user", "sync")
-	r.Header.Set("api-key", "ValidAPIKey")
-
-	service.AdminRouter().ServeHTTP(w, r)
-
-	return w
-}
-
-func parseListResponse(w *httptest.ResponseRecorder) (account.ListResponse, error) {
-	// Check the JSON response
-	result := account.ListResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	return result, err
 }

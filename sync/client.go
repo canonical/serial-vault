@@ -21,13 +21,12 @@
 package sync
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"net/http"
 
+	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/service/account"
+	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
@@ -50,28 +49,6 @@ func NewFactoryClient(url, username, apiKey string) *FactoryClient {
 	}
 }
 
-// SendRequest sends the request to the serial vault
-var SendRequest = func(method, url, endpoint, username, apikey string, data []byte) (*http.Response, error) {
-	r, _ := http.NewRequest(method, url, bytes.NewReader(data))
-	r.Header.Set("user", username)
-	r.Header.Set("api-key", apikey)
-
-	client := http.Client{}
-	return client.Do(r)
-}
-
-// FetchAccounts fetches the accounts from the cloud serial vault
-var FetchAccounts = func(url, username, apikey string) (account.ListResponse, error) {
-	w, err := SendRequest("GET", url, "accounts", username, apikey, nil)
-	if err != nil {
-		log.Errorf("Error fetching accounts: %v", err)
-		return account.ListResponse{}, err
-	}
-
-	// Parse the response from the accounts
-	return parseAccountResponse(w)
-}
-
 // Accounts synchronizes the account details to the factory instance
 func (c *FactoryClient) Accounts() error {
 	// Fetch the accounts from the serial-vault
@@ -92,14 +69,64 @@ func (c *FactoryClient) Accounts() error {
 			log.Errorf("Error updating accounts: %v", err)
 			return err
 		}
+
 	}
 
 	return nil
 }
 
-func parseAccountResponse(w *http.Response) (account.ListResponse, error) {
-	// Check the JSON response
-	result := account.ListResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	return result, err
+// SigningKeys synchronizes the signing-keys to the factory instance
+func (c *FactoryClient) SigningKeys() error {
+	// Get the signing keys by sending our keystore secret
+	req := keypair.SyncRequest{Secret: datastore.Environ.Config.KeyStoreSecret}
+	data, err := json.Marshal(req)
+	if err != nil {
+		log.Errorf("Error with keystore secret: %v", err)
+		return err
+	}
+
+	// Fetch the signing-keys from the cloud serial-vault
+	result, err := FetchSigningKeys(c.URL, c.Username, c.APIKey, data)
+	if err != nil {
+		log.Errorf("Error parsing signing-keys: %v", err)
+		return err
+	}
+	if !result.Success {
+		log.Errorf("Error fetching signing-keys")
+		return errors.New("Error fetching signing keys")
+	}
+
+	// Update the factory database with the signing-keys
+	for _, k := range result.Keypairs {
+
+		// Check if we've already sync-ed the keypair
+		_, err = GetKeypairByPublicID(k.AuthorityID, k.KeyID)
+		if err == nil {
+			// Already have the keypair, so no need to store it again
+			// This is important as we get a new encryption key and sealed key each time
+			continue
+		}
+
+		err = datastore.Environ.DB.SyncKeypair(k)
+		if err != nil {
+			log.Errorf("Error updating keypairs: %v", err)
+			return err
+		}
+
+		err = datastore.Environ.DB.PutSetting(
+			datastore.Setting{
+				Code: crypt.GenerateAuthKey(k.AuthorityID, k.KeyID),
+				Data: k.AuthKeyHash})
+		if err != nil {
+			log.Errorf("Error saving keypair auth: %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GetKeypairByPublicID is the mockable call to the database function
+var GetKeypairByPublicID = func(authorityID, keyID string) (datastore.Keypair, error) {
+	return datastore.Environ.DB.GetKeypairByPublicID(authorityID, keyID)
 }

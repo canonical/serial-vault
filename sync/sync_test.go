@@ -35,7 +35,8 @@ func Test(t *testing.T) { check.TestingT(t) }
 type suiteTest struct {
 	Args         []string
 	ErrorMessage string
-	MockError    bool
+	MockErrorDB  bool
+	MockFail     bool
 }
 
 func mockArgs(args ...string) (restore func()) {

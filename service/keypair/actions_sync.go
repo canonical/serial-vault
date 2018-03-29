@@ -30,16 +30,10 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
-// SyncKeypair is the response to fetch keypairs
-type SyncKeypair struct {
-	datastore.Keypair
-	AuthKeyHash string
-}
-
 // SyncResponse is the response to fetch keypairs
 type SyncResponse struct {
-	Success  bool          `json:"success"`
-	Keypairs []SyncKeypair `json:"keypairs"`
+	Success  bool                    `json:"success"`
+	Keypairs []datastore.SyncKeypair `json:"keypairs"`
 }
 
 // syncHandler fetches the signing-keys accessible by a user
@@ -68,7 +62,7 @@ func syncHandler(w http.ResponseWriter, user datastore.User, apiCall bool, reque
 		return
 	}
 
-	syncKeypairs := []SyncKeypair{}
+	syncKeypairs := []datastore.SyncKeypair{}
 
 	for _, k := range keypairs {
 		// Get the keypair with the sealed key
@@ -88,7 +82,7 @@ func syncHandler(w http.ResponseWriter, user datastore.User, apiCall bool, reque
 		// Update the sealed key - encrypted with the new keystore secret
 		keypair.SealedKey = base64SealedSigningkey
 
-		skp := SyncKeypair{keypair, base64AuthKeyHash}
+		skp := datastore.SyncKeypair{Keypair: keypair, AuthKeyHash: base64AuthKeyHash}
 		syncKeypairs = append(syncKeypairs, skp)
 	}
 
@@ -97,7 +91,7 @@ func syncHandler(w http.ResponseWriter, user datastore.User, apiCall bool, reque
 	formatSyncResponse(syncKeypairs, w)
 }
 
-func formatSyncResponse(keypairs []SyncKeypair, w http.ResponseWriter) error {
+func formatSyncResponse(keypairs []datastore.SyncKeypair, w http.ResponseWriter) error {
 	response := SyncResponse{Success: true, Keypairs: keypairs}
 
 	// Encode the response as JSON

@@ -75,6 +75,16 @@ const upsertKeypairSQL = `
 	select $1, $2, $3, $4
 	where not exists (select * from upsert)
 `
+const syncUpsertKeypairSQL = `
+	WITH upsert AS (
+		update keypair set authority_id=$2, key_id=$3, sealed_key=$4, assertion=$5, active=$6
+		where id=$1
+		RETURNING *
+	)
+	insert into keypair (id,authority_id,key_id,sealed_key,assertion,active)
+	select $1, $2, $3, $4, $5, $6
+	where not exists (select * from upsert)
+`
 const updateKeypairSQL = "update keypair set assertion=$2 where id=$1"
 
 // Add the assertion field to store the assertion for the account key to the table
@@ -90,6 +100,12 @@ type Keypair struct {
 	Assertion   string
 	KeyName     string
 	Status      string
+}
+
+// SyncKeypair is the response to fetch keypairs
+type SyncKeypair struct {
+	Keypair
+	AuthKeyHash string
 }
 
 // CreateKeypairTable creates the database table for a keypair.
@@ -193,6 +209,22 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 	}
 
 	return "", nil
+}
+
+// SyncKeypair stores a keypair in the database
+func (db *DB) SyncKeypair(keypair SyncKeypair) error {
+	// Validate the data
+	if strings.TrimSpace(keypair.AuthorityID) == "" || strings.TrimSpace(keypair.KeyID) == "" {
+		return errors.New("The Authority ID and the Key ID must be entered")
+	}
+
+	_, err := db.Exec(syncUpsertKeypairSQL, keypair.ID, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion, keypair.Active)
+	if err != nil {
+		log.Printf("Error updating the database keypair: %v\n", err)
+		return err
+	}
+
+	return nil
 }
 
 func (db *DB) updateKeypairActive(keypairID int, active bool) error {
