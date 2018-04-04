@@ -141,6 +141,11 @@ func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 	return models, nil
 }
 
+// SyncAccount mock to update the account
+func (mdb *MockDB) SyncAccount(account Account) error {
+	return nil
+}
+
 // FindModel mocks the database response for finding a model
 func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
@@ -236,6 +241,11 @@ func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, s
 	return model, "", nil
 }
 
+// SyncModel mocks creating a new model
+func (mdb *MockDB) SyncModel(model Model) error {
+	return nil
+}
+
 // GetKeypair mocks getting a keypair by ID
 func (mdb *MockDB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := keypairSystem()
@@ -271,6 +281,11 @@ func (mdb *MockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 // PutKeypair database mock
 func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", nil
+}
+
+// SyncKeypair database mock
+func (mdb *MockDB) SyncKeypair(keypair SyncKeypair) error {
+	return nil
 }
 
 // UpdateAllowedKeypairActive database mock
@@ -769,9 +784,14 @@ func (mdb *ErrorMockDB) ListAllowedAccounts(authorization User) ([]Account, erro
 	return nil, errors.New("Error getting the accounts")
 }
 
-// PutAccount mock to update abn account assertion
+// PutAccount mock to update an account assertion
 func (mdb *ErrorMockDB) PutAccount(account Account, authorization User) (string, error) {
 	return "", errors.New("MOCK error upserting the account")
+}
+
+// SyncAccount mock to update the account
+func (mdb *ErrorMockDB) SyncAccount(account Account) error {
+	return errors.New("MOCK error syncing the account")
 }
 
 // UpdateAccountAssertion mock to update the account assertion
@@ -819,6 +839,11 @@ func (mdb *ErrorMockDB) CreateAllowedModel(model Model, authorization User) (Mod
 	return Model{}, "", errors.New("Error creating the database model")
 }
 
+// SyncModel mocks creating a new model, returning an error.
+func (mdb *ErrorMockDB) SyncModel(model Model) error {
+	return errors.New("Error creating the database model")
+}
+
 // GetKeypair error mock for the database
 func (mdb *ErrorMockDB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", Active: true}
@@ -846,6 +871,11 @@ func (mdb *ErrorMockDB) ListAllowedKeypairs(authorization User) ([]Keypair, erro
 // PutKeypair error mock for the database
 func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", errors.New("Error updating the database")
+}
+
+// SyncKeypair error mock for the database
+func (mdb *ErrorMockDB) SyncKeypair(keypair SyncKeypair) error {
+	return errors.New("Error updating the database")
 }
 
 // UpdateAllowedKeypairActive error mock for the database

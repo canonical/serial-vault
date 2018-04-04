@@ -84,3 +84,12 @@ func (db *DB) UpdateAccount(account Account, authorization User) error {
 		return nil
 	}
 }
+
+// SyncAccount validates permissions and stores an account in the database
+func (db *DB) SyncAccount(account Account) error {
+	if err := validateAuthorityID(account.AuthorityID); err != nil {
+		return err
+	}
+
+	return db.syncAccount(account)
+}

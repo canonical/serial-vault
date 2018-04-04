@@ -84,6 +84,17 @@ const listNotUserAccountsSQL = `
 	)
 `
 
+const syncUpsertAccountSQL = `
+	WITH upsert AS (
+		update account set authority_id=$2, assertion=$3, resellerapi=$4
+		where id=$1
+		RETURNING *
+	)
+	insert into account (id,authority_id,assertion,resellerapi)
+	select $1, $2, $3, $4
+	where not exists (select * from upsert)
+`
+
 // Add the reseller API field to indicate whether the reseller functions are available for an account
 const alterAccountResellerAPI = "alter table account add column resellerapi bool default false"
 
@@ -212,6 +223,17 @@ func (db *DB) putAccount(account Account) (string, error) {
 	}
 
 	return "", nil
+}
+
+// syncAccount stores an account in the database
+func (db *DB) syncAccount(account Account) error {
+	_, err := db.Exec(syncUpsertAccountSQL, account.ID, account.AuthorityID, account.Assertion, account.ResellerAPI)
+	if err != nil {
+		log.Printf("Error updating the database account: %v\n", err)
+		return err
+	}
+
+	return nil
 }
 
 // ListUserAccounts returns a list of Account objects related with certain user

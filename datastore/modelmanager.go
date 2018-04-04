@@ -82,6 +82,18 @@ const updateModelForUserSQL = `
 	inner join userinfo u on ua.user_id=u.id
 	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7`
 const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key) values ($1,$2,$3,$4,$5) RETURNING id"
+
+const syncUpsertModelSQL = `
+	WITH upsert AS (
+		update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6
+		where id=$1
+		RETURNING *
+	)
+	insert into model (id,brand_id,name,keypair_id,user_keypair_id,api_key)
+	select $1, $2, $3, $4, $5, $6
+	where not exists (select * from upsert)
+`
+
 const deleteModelSQL = "delete from model where id=$1"
 const deleteModelForUserSQL = `
 	delete from model m
@@ -107,9 +119,6 @@ const checkModelExistsSQL = `
 		select * from model where brand_id=$1 and name=$2
 	)
 `
-
-// Add the model keypair to the models table (nullable)
-const alterModelModelKeypairNullable = "alter table model add column model_keypair_id int references keypair"
 
 // Add the user keypair to the models table (nullable)
 const alterModelUserKeypairNullable = "alter table model add column user_keypair_id int references keypair"
@@ -160,9 +169,6 @@ func (db *DB) CreateModelTable() error {
 
 // AlterModelTable updates an existing database model table with additional fields
 func (db *DB) AlterModelTable() error {
-	// Add the optional model assertion keypair field (ignore error as it may already be there)
-	db.Exec(alterModelModelKeypairNullable)
-
 	err := db.addUserKeypairFields()
 	if err != nil {
 		return err
@@ -382,6 +388,22 @@ func (db *DB) createModelFilteredByUser(model Model, username string) (Model, st
 		return model, "", err
 	}
 	return mdl, "", nil
+}
+
+// SyncModel creates a model for the factory sync
+func (db *DB) SyncModel(m Model) error {
+	_, err := validateModel(m, "error-validate-new-model")
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(syncUpsertModelSQL, m.ID, m.BrandID, m.Name, m.KeypairID, m.KeypairIDUser, m.APIKey)
+	if err != nil {
+		log.Printf("Error updating the database model: %v\n", err)
+		return err
+	}
+
+	return nil
 }
 
 func (db *DB) deleteModel(model Model) (string, error) {
