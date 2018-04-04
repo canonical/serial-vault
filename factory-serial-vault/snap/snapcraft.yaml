@@ -34,8 +34,17 @@ apps:
       - network
       - network-bind
     daemon: simple
+  sync:
+    command: bin/snap-run-sync
+    daemon: simple
+    plugs:
+      - network
 
   # Serial-Vault Configuration and Utilities
+  factory:
+    command: bin/factory
+    plugs:
+      - network
   serviceinit:
     command: bin/serviceinit.sh
     plugs:

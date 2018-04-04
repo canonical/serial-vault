@@ -2,5 +2,5 @@
 
 cd $SNAP
 
-bin/serial-vault-admin database -config=$SNAP_DATA/settings.yaml
+bin/factory database -config=$SNAP_DATA/settings.yaml
 bin/serial-vault -mode=signing -config=$SNAP_DATA/settings.yaml

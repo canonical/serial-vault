@@ -17,7 +17,7 @@ The Factory Serial Vault needs to have a PostgreSQL service installed and config
 installation script simplifies this process by handling the full installation process.
 
 ```bash
-cd snaps/factory-serial-vault  # Make sure you are in the correct directory
+cd factory-serial-vault  # Make sure you are in the correct directory
 # sudo is only needed if you are not logged into the store
 sudo snap install --dangerous factory-serial-vault_*_amd64.snap
 ```
@@ -26,7 +26,6 @@ sudo snap install --dangerous factory-serial-vault_*_amd64.snap
 To initialize the database and to show the settings.yaml configuration file:
 
 ```bash
-cd snaps/factory-serial-vault  # Make sure you are in the correct directory
 factory-serial-vault.serviceinit
 ```
 
@@ -43,7 +42,7 @@ Note:
  - The ```serviceinit``` command generates a keystore secret and that is used to encrypt the private keys that are stored in the database. It is important, to backup the keystore secret as well as the database so that the services can be recovered successfully.
 
 The services are then accessible via:
-Signing Service : http://localhost/signing/v1/version
+Signing Service : http://localhost/v1/version
 
 
 ## Set-up Apache and SSL

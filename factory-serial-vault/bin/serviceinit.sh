@@ -42,6 +42,11 @@ keystore: "database"
 keystoreSecret: "$keystore_secret"
 
 csrfAuthKey: "$csrf_key"
+
+# Factory sync - CHANGEME
+syncUrl: "https://serial-vault-partners.canonical.com/api/"
+syncUser: "lpuser"
+syncAPIKey: "user-apikey"
 SETTINGS
 echo "================================================"
 

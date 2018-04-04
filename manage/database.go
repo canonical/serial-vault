@@ -61,12 +61,13 @@ func (cmd DatabaseCommand) Execute(args []string) error {
 
 	openDatabase()
 
-	updateDatabase()
+	UpdateDatabase()
 
 	return nil
 }
 
-func updateDatabase() {
+// UpdateDatabase updates the database schema
+func UpdateDatabase() {
 
 	// Execute all create and alter table operations
 	operations := []operation{
