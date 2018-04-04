@@ -46,10 +46,10 @@ SETTINGS
 echo "================================================"
 
 echo "\nConfigure the serial vault services:"
-echo "cat settings.yaml | sudo serial-vault-services.config"
+echo "cat settings.yaml | sudo factory-serial-vault.config"
 
 echo "\nRestart the services to complete the initialization"
-echo "sudo snap disable serial-vault-services"
-echo "sudo snap enable serial-vault-services"
+echo "sudo snap disable factory-serial-vault"
+echo "sudo snap enable factory-serial-vault"
 echo "\n-------------------------------------------------"
-echo "Signing Service : http://localhost/signing/v1/version"
+echo "Signing Service : http://localhost/v1/version"

@@ -8,7 +8,7 @@ The full suite of Serial Vault Services:
 Install [snapcraft](https://snapcraft.io/)
 
 ```bash
-cd snaps/factory-serial-vault  # Make sure you are in the correct directory
+cd factory-serial-vault  # Make sure you are in the correct directory
 snapcraft
 ```
 
