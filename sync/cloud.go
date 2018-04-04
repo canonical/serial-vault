@@ -31,6 +31,8 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/model"
 )
 
+var hclient http.Client
+
 // SendRequest sends the request to the serial vault
 var SendRequest = func(method, url, endpoint, username, apikey string, data []byte) (*http.Response, error) {
 	log.Infof("Call the cloud %s", url+endpoint)
@@ -38,8 +40,7 @@ var SendRequest = func(method, url, endpoint, username, apikey string, data []by
 	r.Header.Set("user", username)
 	r.Header.Set("api-key", apikey)
 
-	client := http.Client{}
-	return client.Do(r)
+	return hclient.Do(r)
 }
 
 // FetchAccounts fetches the accounts from the cloud serial vault

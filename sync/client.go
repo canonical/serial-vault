@@ -23,6 +23,7 @@ package sync
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
@@ -44,6 +45,7 @@ type FactoryClient struct {
 
 // NewFactoryClient creates a factory client to sync data with the cloud serial-vault
 func NewFactoryClient(url, username, apiKey string) *FactoryClient {
+	hclient = http.Client{}
 	return &FactoryClient{
 		URL: url, Username: username, APIKey: apiKey,
 	}
@@ -64,12 +66,10 @@ func (c *FactoryClient) Accounts() error {
 
 	// Update the factory database with the accounts
 	for _, a := range result.Accounts {
-		_, err = datastore.Environ.DB.SyncAccount(a)
-		if err != nil {
+		if err = datastore.Environ.DB.SyncAccount(a); err != nil {
 			log.Errorf("Error updating accounts: %v", err)
 			return err
 		}
-
 	}
 
 	return nil

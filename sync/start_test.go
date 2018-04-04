@@ -46,17 +46,17 @@ func (s *startSuite) SetUpTest(c *check.C) {
 func (s *startSuite) TestStart(c *check.C) {
 	tests := []suiteTest{
 		{
-			Args:         []string{"factory-sync", "start"},
+			Args:         []string{"factory", "sync"},
 			ErrorMessage: "The cloud serial vault URL, username and API key must be provided"},
 		{
-			Args:         []string{"factory-sync", "start", "--user=sync", "--apikey=ValidAPIKey"},
+			Args:         []string{"factory", "sync", "--user=sync", "--apikey=ValidAPIKey"},
 			ErrorMessage: ""},
 		{
-			Args:         []string{"factory-sync", "start", "--user=sync", "--apikey=ValidAPIKey"},
+			Args:         []string{"factory", "sync", "--user=sync", "--apikey=ValidAPIKey"},
 			ErrorMessage: "Sync completed with errors",
 			MockErrorDB:  true},
 		{
-			Args:         []string{"factory-sync", "start", "--user=sync", "--apikey=ValidAPIKey"},
+			Args:         []string{"factory", "sync", "--user=sync", "--apikey=ValidAPIKey"},
 			ErrorMessage: "Sync completed with errors",
 			MockFail:     true},
 	}

@@ -28,7 +28,7 @@ import (
 // Command defines the options for the serial-vault-admin command-line utility
 type Command struct {
 	SettingsFile string       `short:"c" long:"config" description:"Path to the config file" default:"./settings.yaml"`
-	Start        StartCommand `command:"start" alias:"s" description:"Start the factory sync process"`
+	Start        StartCommand `command:"sync" alias:"s" description:"Start the factory sync process"`
 }
 
 // Sync is the implementation of the command configuration for the serial-vault-admin command-line

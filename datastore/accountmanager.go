@@ -226,14 +226,14 @@ func (db *DB) putAccount(account Account) (string, error) {
 }
 
 // syncAccount stores an account in the database
-func (db *DB) syncAccount(account Account) (string, error) {
+func (db *DB) syncAccount(account Account) error {
 	_, err := db.Exec(syncUpsertAccountSQL, account.ID, account.AuthorityID, account.Assertion, account.ResellerAPI)
 	if err != nil {
 		log.Printf("Error updating the database account: %v\n", err)
-		return "", err
+		return err
 	}
 
-	return "", nil
+	return nil
 }
 
 // ListUserAccounts returns a list of Account objects related with certain user

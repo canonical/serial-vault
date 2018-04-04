@@ -117,7 +117,7 @@ type Datastore interface {
 
 	HealthCheck() error
 
-	SyncAccount(account Account) (string, error)
+	SyncAccount(account Account) error
 	SyncKeypair(keypair SyncKeypair) error
 	SyncModel(m Model) error
 }

@@ -142,8 +142,8 @@ func (mdb *MockDB) ListAllowedModels(authorization User) ([]Model, error) {
 }
 
 // SyncAccount mock to update the account
-func (mdb *MockDB) SyncAccount(account Account) (string, error) {
-	return "", nil
+func (mdb *MockDB) SyncAccount(account Account) error {
+	return nil
 }
 
 // FindModel mocks the database response for finding a model
@@ -790,8 +790,8 @@ func (mdb *ErrorMockDB) PutAccount(account Account, authorization User) (string,
 }
 
 // SyncAccount mock to update the account
-func (mdb *ErrorMockDB) SyncAccount(account Account) (string, error) {
-	return "", errors.New("MOCK error syncing the account")
+func (mdb *ErrorMockDB) SyncAccount(account Account) error {
+	return errors.New("MOCK error syncing the account")
 }
 
 // UpdateAccountAssertion mock to update the account assertion
