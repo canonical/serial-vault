@@ -24,6 +24,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
@@ -42,18 +43,20 @@ func (cmd StartCommand) Execute(args []string) error {
 	withErrors := false
 	repeat := true
 
-	if len(cmd.URL) == 0 || len(cmd.Username) == 0 || len(cmd.APIKey) == 0 {
-		return errors.New("The cloud serial vault URL, username and API key must be provided")
-	}
-
 	// Open the connection to the factory database
 	openDatabase()
+
+	// Check that the parameters are set in the config file or command line
+	if err := cmd.verifyParameters(); err != nil {
+		return err
+	}
 
 	for repeat {
 		withErrors = false
 
 		// Initialize the factory client
-		client := NewFactoryClient(cmd.URL, cmd.Username, cmd.APIKey)
+		client := NewFactoryClient(
+			datastore.Environ.Config.SyncURL, datastore.Environ.Config.SyncUser, datastore.Environ.Config.SyncAPIKey)
 
 		// Sync the accounts
 		log.Info("Sync the accounts from the cloud")
@@ -93,6 +96,26 @@ func (cmd StartCommand) Execute(args []string) error {
 
 	if withErrors {
 		return errors.New("Sync completed with errors")
+	}
+
+	return nil
+}
+
+func (cmd StartCommand) verifyParameters() error {
+
+	// Use the sync parameters from config file first
+	if len(datastore.Environ.Config.SyncURL) == 0 {
+		datastore.Environ.Config.SyncURL = cmd.URL
+	}
+	if len(datastore.Environ.Config.SyncUser) == 0 {
+		datastore.Environ.Config.SyncUser = cmd.Username
+	}
+	if len(datastore.Environ.Config.SyncAPIKey) == 0 {
+		datastore.Environ.Config.SyncAPIKey = cmd.APIKey
+	}
+
+	if len(datastore.Environ.Config.SyncURL) == 0 || len(datastore.Environ.Config.SyncUser) == 0 || len(datastore.Environ.Config.SyncAPIKey) == 0 {
+		return errors.New("The cloud serial vault URL, username and API key must be provided")
 	}
 
 	return nil

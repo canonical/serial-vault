@@ -19,3 +19,4 @@ stage
 snap/.snapcraft
 .tests-extras
 vendor/*/
+__pycache__/

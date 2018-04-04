@@ -1,0 +1,212 @@
+name: factory-serial-vault
+version: 0.1
+summary: Serial Vault for a Factory
+description: Restricted serial vault for deployment in a factory with limited Internet connection
+confinement: strict
+grade: stable
+
+apps:
+  # Apache daemon
+  apache:
+    command: run-httpd -k start -DFOREGROUND
+    stop-command: run-httpd -k stop
+    daemon: simple
+    restart-condition: always
+    plugs: [network, network-bind]
+
+  # Apache Utilities
+  enable-https:
+    command: enable-https
+    plugs: [network, network-bind]
+  disable-https:
+    command: disable-https
+    plugs: [network, network-bind]
+  renew-certs:
+    command: renew-certs
+    daemon: simple
+    restart-condition: always
+    plugs: [network, network-bind]
+
+  # Serial-Vault Services
+  signing:
+    command: bin/snap-run-signing-service
+    plugs:
+      - network
+      - network-bind
+    daemon: simple
+  sync:
+    command: bin/snap-run-sync
+    daemon: simple
+    plugs:
+      - network
+
+  # Serial-Vault Configuration and Utilities
+  factory:
+    command: bin/factory
+    plugs:
+      - network
+  serviceinit:
+    command: bin/serviceinit.sh
+    plugs:
+    - network
+    - network-bind
+  config:
+    command: bin/set-config
+
+  # PostgreSQL wrappers
+  startdb:
+    command: bin/startdb
+    plugs:
+      - network
+      - network-bind
+  stopdb:
+    command: bin/stopdb
+    plugs:
+      - network
+      - network-bind
+  statusdb:
+    command: bin/statusdb
+    plugs:
+      - network
+      - network-bind
+
+  # PostgreSQL
+  createdb:
+    command: usr/bin/createdb
+    plugs:
+      - network
+  createuser:
+    command: usr/bin/createuser
+    plugs:
+      - network
+  dropdb:
+    command: usr/bin/dropdb
+    plugs:
+      - network
+  dropuser:
+    command: usr/bin/dropuser
+    plugs:
+      - network
+  initdb:
+    command: usr/bin/initdb
+  initialize:
+    command: usr/bin/wrapper-initialize
+  pgctl:
+    command: usr/bin/wrapper-pg_ctl
+    plugs:
+    - network
+    - network-bind
+  pgisready:
+    command: usr/bin/pg_isready
+    plugs:
+    - network
+  pgdump:
+    command: usr/bin/pg_dump
+    plugs:
+    - network
+  pgdumpall:
+    command: usr/bin/pg_dumpall
+    plugs:
+    - network
+  psql:
+    command: usr/bin/wrapper-psql
+    plugs:
+    - network
+  reindexdb:
+    command: usr/bin/reindexdb
+    plugs:
+    - network
+  vacuumdb:
+    command: usr/bin/vacuumdb
+    plugs:
+    - network
+
+parts:
+  service:
+      plugin: go
+      source: ../ #git://github.com/CanonicalLtd/serial-vault
+      go-importpath: github.com/CanonicalLtd/serial-vault
+  bin:
+      source: ../bin
+      plugin: dump
+      organize:
+        "*": bin/
+  static:
+      source: ../static
+      plugin: dump
+      organize:
+        "*": static/
+  postgresql:
+      plugin: make
+      build: |
+        make snap
+  serviceinit:
+      source: bin
+      plugin: dump
+      organize:
+        "*": bin/
+  # Private key for the vaultclient
+  keystore:
+    source: ../../keystore
+    plugin: dump
+    organize:
+      TestDeviceKey.asc: keystore/TestDeviceKey.asc
+
+  apache:
+    plugin: apache
+    source: https://archive.apache.org/dist/httpd/httpd-2.4.25.tar.bz2
+    source-checksum: sha1/bd6d138c31c109297da2346c6e7b93b9283993d2
+
+    # The built-in Apache modules to enable
+    modules:
+      - headers
+      - proxy
+      - proxy_http
+      - proxy_wstunnel
+      - setenvif
+      - env
+      - rewrite
+      - mime
+      - dir
+      - authz_core
+      - unixd
+      - alias
+      - ssl
+      - socache_shmcb
+      - log_config
+
+    filesets:
+      exclude:
+        - -man
+        - -manual
+        - -htdocs
+        - -include
+        - -build
+        - -conf/httpd.conf
+        - -conf/magic
+        - -conf/original
+        - -conf/extra
+        - -bin/apachectl
+        - -bin/envvars*
+        - -bin/ab
+        - -bin/apxs
+        - -bin/checkgid
+        - -bin/dbmmanage
+        - -bin/fcgistarter
+        - -bin/htcacheclean
+        - -bin/htdbm
+        - -bin/htdigest
+        - -bin/htpasswd
+        - -bin/httxt2dbm
+        - -bin/logresolve
+        - -bin/rotatelogs
+    stage:
+      - $exclude
+    prime:
+      - $exclude
+
+  apache-customizations:
+    plugin: dump
+    source: src/apache
+    organize:
+      html/*: static/
