@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# The PostgreSQL snap only works with the en_US locale
+LC_ALL=en_US.UTF-8
+
+$SNAP/usr/bin/wrapper-pg_ctl -D $SNAP_USER_COMMON/data -l $SNAP_USER_COMMON/logs/logfile stop
