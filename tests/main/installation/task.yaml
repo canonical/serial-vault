@@ -1,4 +1,4 @@
-summary: Test serial-vault snap installation was successful
+summary: Test factory-serial-vault snap installation was successful
 
 execute: |
     . $TESTSLIB/utilities.sh
