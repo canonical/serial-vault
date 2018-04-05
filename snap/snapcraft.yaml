@@ -126,6 +126,22 @@ parts:
       plugin: go
       source: .
       go-importpath: github.com/CanonicalLtd/serial-vault
+      build: |
+        export GOPATH=$(cd ../go && pwd)
+        GOBIN=$GOPATH/bin
+        PKG=github.com/CanonicalLtd/serial-vault
+        mkdir -p $GOBIN
+        cd $GOPATH/src/$PKG
+        ./get-deps.sh
+        go install ./...
+      install: |
+        GOPATH=$(cd ../go && pwd)
+        GOBIN=$GOPATH/bin
+        PKG=github.com/CanonicalLtd/serial-vault
+        mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+        cp $GOBIN/serial-vault $SNAPCRAFT_PART_INSTALL/bin
+        cp $GOBIN/factory $SNAPCRAFT_PART_INSTALL/bin
+      after: [go]
   bin:
       source: bin
       plugin: dump
