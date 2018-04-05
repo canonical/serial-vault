@@ -19,7 +19,7 @@ project: serial-vault
 environment:
     PROJECT_PATH: /home/serial-vault
     TESTSLIB: $PROJECT_PATH/tests/lib
-    SNAP_NAME: serial-vault
+    SNAP_NAME: factory-serial-vault
     SNAP_ARCH: amd64
     # Allow the host to pass the channel to use for the test run
     SNAP_CHANNEL: $(HOST:echo $SNAP_CHANNEL)
