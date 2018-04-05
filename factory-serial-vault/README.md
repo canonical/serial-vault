@@ -4,20 +4,18 @@ The full suite of Serial Vault Services:
 
  - Signing Service: web service to sign the serial assertion for a device
 
-## Build the Serial Vault Services Snap
+## Build the Factory Serial Vault Snap
 Install [snapcraft](https://snapcraft.io/)
 
 ```bash
-cd factory-serial-vault  # Make sure you are in the correct directory
 snapcraft
 ```
 
-## Install the Serial Vault Services
+## Install the Factory Serial Vault
 The Factory Serial Vault needs to have a PostgreSQL service installed and configured. The 
 installation script simplifies this process by handling the full installation process.
 
 ```bash
-cd factory-serial-vault  # Make sure you are in the correct directory
 # sudo is only needed if you are not logged into the store
 sudo snap install --dangerous factory-serial-vault_*_amd64.snap
 ```
