@@ -52,8 +52,10 @@ func (s *databaseSuite) TestDoTable(c *check.C) {
 	}
 
 	exec([]operation{
-		{m1, create, "the table 1"},
-		{m2, update, "the table 2"},
+		{m1, create, "the table 1", false},
+		{m2, update, "the table 2", false},
+		{m1, create, "the table 1", true},
+		{m2, update, "the table 2", true},
 	})
 }
 
