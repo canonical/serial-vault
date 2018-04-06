@@ -83,15 +83,11 @@ const updateModelForUserSQL = `
 	where acc.authority_id=m.brand_id and m.id=$1 and u.username=$7`
 const createModelSQL = "insert into model (brand_id,name,keypair_id,user_keypair_id,api_key) values ($1,$2,$3,$4,$5) RETURNING id"
 
+// sqlite3 syntax for syncing data locally
 const syncUpsertModelSQL = `
-	WITH upsert AS (
-		update model set brand_id=$2, name=$3, keypair_id=$4, user_keypair_id=$5, api_key=$6
-		where id=$1
-		RETURNING *
-	)
-	insert into model (id,brand_id,name,keypair_id,user_keypair_id,api_key)
-	select $1, $2, $3, $4, $5, $6
-	where not exists (select * from upsert)
+	INSERT OR REPLACE INTO model
+	(id,brand_id,name,keypair_id,user_keypair_id,api_key)
+	VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 const deleteModelSQL = "delete from model where id=$1"

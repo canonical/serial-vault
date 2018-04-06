@@ -32,9 +32,10 @@ const (
 )
 
 type operation struct {
-	method func() error
-	action string
-	table  string
+	method     func() error
+	action     string
+	table      string
+	skipSqlite bool
 }
 
 func execOne(method func() error, action, tableName string) {
@@ -48,6 +49,9 @@ func execOne(method func() error, action, tableName string) {
 
 func exec(operations []operation) {
 	for _, op := range operations {
+		if op.skipSqlite && datastore.Environ.Config.Driver == "sqlite3" {
+			continue
+		}
 		execOne(op.method, op.action, op.table)
 	}
 }
@@ -72,51 +76,51 @@ func UpdateDatabase() {
 	// Execute all create and alter table operations
 	operations := []operation{
 		// Create the keypair table, if it does not exist
-		{datastore.Environ.DB.CreateKeypairTable, create, "keypair"},
+		{datastore.Environ.DB.CreateKeypairTable, create, "keypair", false},
 
 		// Create the model table, if it does not exist
-		{datastore.Environ.DB.CreateModelTable, create, "model"},
+		{datastore.Environ.DB.CreateModelTable, create, "model", false},
 
 		// Create the keypair table, if it does not exist
-		{datastore.Environ.DB.CreateSettingsTable, create, "settings"},
+		{datastore.Environ.DB.CreateSettingsTable, create, "settings", false},
 
 		// Create the signinglog table, if it does not exist
-		{datastore.Environ.DB.CreateSigningLogTable, create, "signinglog"},
+		{datastore.Environ.DB.CreateSigningLogTable, create, "signinglog", false},
 
 		// Create the nonce table, if it does not exist
-		{datastore.Environ.DB.CreateDeviceNonceTable, create, "nonce"},
+		{datastore.Environ.DB.CreateDeviceNonceTable, create, "nonce", false},
 
 		// Create the account table, if it does not exist
-		{datastore.Environ.DB.CreateAccountTable, create, "account"},
-		{datastore.Environ.DB.AlterAccountTable, update, "account"},
+		{datastore.Environ.DB.CreateAccountTable, create, "account", false},
+		{datastore.Environ.DB.AlterAccountTable, update, "account", false},
 
 		// Update the model table, adding the new user-keypair field
-		{datastore.Environ.DB.AlterModelTable, update, "model"},
+		{datastore.Environ.DB.AlterModelTable, update, "model", false},
 
 		// Update the keypair table, adding the new fields
-		{datastore.Environ.DB.AlterKeypairTable, update, "keypair"},
+		{datastore.Environ.DB.AlterKeypairTable, update, "keypair", false},
 
 		// Create the OpenID nonce table, if it does not exist
-		{datastore.Environ.DB.CreateOpenidNonceTable, create, "openid nonce"},
+		{datastore.Environ.DB.CreateOpenidNonceTable, create, "openid nonce", false},
 
 		// Create the User table, if it does not exist
-		{datastore.Environ.DB.CreateUserTable, create, "userinfo"},
+		{datastore.Environ.DB.CreateUserTable, create, "userinfo", false},
 
 		// Create the AccountUserLink table, if it does not exist
-		{datastore.Environ.DB.CreateAccountUserLinkTable, create, "account-user link"},
+		{datastore.Environ.DB.CreateAccountUserLinkTable, create, "account-user link", true},
 
 		// Update the User table, removing not needed openid_identity field
-		{datastore.Environ.DB.AlterUserTable, update, "userinfo"},
+		{datastore.Environ.DB.AlterUserTable, update, "userinfo", true},
 
 		// Create the Keypair Status table, if it does not exist, and add indexes
-		{datastore.Environ.DB.CreateKeypairStatusTable, create, "keypair status"},
-		{datastore.Environ.DB.AlterKeypairStatusTable, update, "keypair status"},
+		{datastore.Environ.DB.CreateKeypairStatusTable, create, "keypair status", false},
+		{datastore.Environ.DB.AlterKeypairStatusTable, update, "keypair status", false},
 
 		// Create the Model Assertion table, if it does not exist
-		{datastore.Environ.DB.CreateModelAssertTable, create, "model assertion"},
+		{datastore.Environ.DB.CreateModelAssertTable, create, "model assertion", false},
 
 		// Create the Sub-store table, if it does not exist
-		{datastore.Environ.DB.CreateSubstoreTable, create, "sub-store"},
+		{datastore.Environ.DB.CreateSubstoreTable, create, "sub-store", false},
 	}
 
 	exec(operations)

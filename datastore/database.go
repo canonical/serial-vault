@@ -21,10 +21,8 @@ package datastore
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/CanonicalLtd/serial-vault/config"
-	_ "github.com/lib/pq" // postgresql driver
 )
 
 const anyUserFilter = ""
@@ -140,22 +138,14 @@ var Environ *Env
 // OpenidNonceStore contains the database nonce store for Openid
 var OpenidNonceStore PgNonceStore
 
-// OpenSysDatabase Return an open database connection
+// OpenSysDatabase return an open database connection
 func OpenSysDatabase(driver, dataSource string) {
 	// Open the database connection
-	db, err := sql.Open(driver, dataSource)
-	if err != nil {
-		log.Fatalf("Error opening the database: %v\n", err)
+	if driver == "sqlite3" {
+		openSQLiteDatabase(driver, dataSource)
+	} else {
+		openPostgreSQLDatabase(driver, dataSource)
 	}
-
-	// Check that we have a valid database connection
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Error accessing the database: %v\n", err)
-	}
-
-	Environ.DB = &DB{db}
-	OpenidNonceStore.DB = &DB{db}
 }
 
 func (db *DB) transaction(txFunc func(*sql.Tx) error) error {

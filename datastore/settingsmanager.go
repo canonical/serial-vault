@@ -49,6 +49,18 @@ const upsertSettingsSQL = `
 	select $1, $2
 	where not exists (select * from upsert)
 `
+
+// sqlite3 syntax for syncing data locally
+const upsertSettingsSQLite = `
+	INSERT INTO settings
+	(id,code,data)
+	VALUES ($1, $2, $3)
+`
+
+const maxIDSettingsSQLite = `
+	SELECT COUNT(*)+1 from settings
+`
+
 const getSettingSQL = "select id, code, data from settings where code=$1"
 
 // Setting holds the keypair reference details in the local database
@@ -66,12 +78,27 @@ func (db *DB) CreateSettingsTable() error {
 
 // PutSetting stores a setting into the database
 func (db *DB) PutSetting(setting Setting) error {
+	var err error
 	// Validate the data
 	if strings.TrimSpace(setting.Code) == "" {
 		return errors.New("The code must be entered to store a Setting")
 	}
 
-	_, err := db.Exec(upsertSettingsSQL, setting.Code, setting.Data)
+	if Environ.Config.Driver == "sqlite3" {
+		// We only add new settings for the factory, we don't ever update a setting
+		// Need to generate our own ID
+		var nextID int
+		err = db.QueryRow(maxIDSettingsSQLite).Scan(&nextID)
+		if err != nil {
+			log.Printf("Error retrieving next setting ID: %v\n", err)
+			return err
+		}
+
+		_, err = db.Exec(upsertSettingsSQLite, nextID, setting.Code, setting.Data)
+	} else {
+		_, err = db.Exec(upsertSettingsSQL, setting.Code, setting.Data)
+	}
+
 	if err != nil {
 		log.Printf("Error updating the database setting: %v\n", err)
 		return err
