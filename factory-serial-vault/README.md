@@ -1,27 +1,25 @@
 # Factory Serial Vault
 
-The full suite of Serial Vault Services:
+The full suite of Serial Vault Services in the factory:
 
  - Signing Service: web service to sign the serial assertion for a device
+ - Sync Service: scheduled task that syncs with a cloud Serial Vault
 
 ## Build the Factory Serial Vault Snap
 Install [snapcraft](https://snapcraft.io/)
 
 ```bash
-snapcraft
+snapcraft cleanbuild
 ```
 
 ## Install the Factory Serial Vault
-The Factory Serial Vault needs to have a PostgreSQL service installed and configured. The 
-installation script simplifies this process by handling the full installation process.
-
 ```bash
 # sudo is only needed if you are not logged into the store
 sudo snap install --dangerous factory-serial-vault_*_amd64.snap
 ```
 
 ## Configure the Factory Serial Vault
-To initialize the database and to show the settings.yaml configuration file:
+To generate a `settings.yaml` configuration file:
 
 ```bash
 factory-serial-vault.serviceinit
@@ -35,9 +33,9 @@ sudo snap disable factory-serial-vault
 sudo snap enable factory-serial-vault
 ```
 
-Note: 
- - The database will be initialized and run as the local user, so it is recommended that a user is created specifically to run the database service.
- - The ```serviceinit``` command generates a keystore secret and that is used to encrypt the private keys that are stored in the database. It is important, to backup the keystore secret as well as the database so that the services can be recovered successfully.
+The local sqlite3 database will be generated and synchronized with the cloud serial vault. 
+The factory database will include all the data needed to provide signed serial assertions 
+to devices in the factory.
 
 The services are then accessible via:
 Signing Service : http://localhost/v1/version
@@ -50,16 +48,3 @@ supplying your own certificate using the ```enable-https``` command.
 sudo factory-serial-vault.enable-https -h
 ```
 Note: snapd will not be able to use the signing API if a self-signed certificate is used.
-
-## Restarting Services
-The factory serial vault will run automatically when the system reboots, apart from the database. The database
-runs as the local user, so it cannot be started as a snappy daemon (which run as root). Consequently, the
-database will need to be restarted manually:
-
-```bash
-factory-serial-vault.startdb
-sudo snap disable factory-serial-vault
-sudo snap enable factory-serial-vault
-
-factory-serial-vault.statusdb
-```
