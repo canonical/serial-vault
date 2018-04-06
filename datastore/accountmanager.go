@@ -84,15 +84,11 @@ const listNotUserAccountsSQL = `
 	)
 `
 
+// sqlite3 syntax for syncing data locally
 const syncUpsertAccountSQL = `
-	WITH upsert AS (
-		update account set authority_id=$2, assertion=$3, resellerapi=$4
-		where id=$1
-		RETURNING *
-	)
-	insert into account (id,authority_id,assertion,resellerapi)
-	select $1, $2, $3, $4
-	where not exists (select * from upsert)
+	INSERT OR REPLACE INTO account
+	(id,authority_id,assertion,resellerapi)
+	VALUES ($1, $2, $3, $4)
 `
 
 // Add the reseller API field to indicate whether the reseller functions are available for an account

@@ -63,6 +63,12 @@
 			"revisionTime": "2016-08-31T22:25:20Z"
 		},
 		{
+			"checksumSHA1": "UXD6iorzeLXDBmLaOGYsAJ/Ls3w=",
+			"path": "github.com/mattn/go-sqlite3",
+			"revision": "d896508f87298565da02ed92730e7065c3de10b8",
+			"revisionTime": "2018-04-04T14:27:34Z"
+		},
+		{
 			"checksumSHA1": "nV76VgoCpwa+JjK/tSyu5jCj8HQ=",
 			"path": "github.com/ojii/gettext.go",
 			"revision": "b6dae1d7af8a8441285e42661565760b530a8a57",

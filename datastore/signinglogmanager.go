@@ -52,6 +52,8 @@ const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx 
 // Queries
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
 const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
+const maxIDSigningLogSQLite = "SELECT COUNT(*)+1 from signinglog"
+const createSigningLogSQLite = "INSERT INTO signinglog (id, make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5, $6)"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 10000"
 const listSigningLogForUserSQL = `
@@ -151,14 +153,28 @@ func (db *DB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 
 // CreateSigningLog logs that a specific serial number has been used, along with the device-key fingerprint.
 func (db *DB) CreateSigningLog(signLog SigningLog) error {
-
+	var err error
 	// Validate the data
 	if strings.TrimSpace(signLog.Make) == "" || strings.TrimSpace(signLog.Model) == "" || strings.TrimSpace(signLog.SerialNumber) == "" || strings.TrimSpace(signLog.Fingerprint) == "" {
 		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
 	}
 
+	// Create the nonce in the database
+	if Environ.Config.Driver == "sqlite3" {
+		// Need to generate our own ID
+		var nextID int
+		err = db.QueryRow(maxIDSigningLogSQLite).Scan(&nextID)
+		if err != nil {
+			log.Printf("Error retrieving next signing-log ID: %v\n", err)
+			return err
+		}
+
+		_, err = db.Exec(createSigningLogSQLite, nextID, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint, signLog.Revision)
+	} else {
+		_, err = db.Exec(createSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint, signLog.Revision)
+	}
+
 	// Create the log in the database
-	_, err := db.Exec(createSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint, signLog.Revision)
 	if err != nil {
 		log.Printf("Error creating the signing log: %v\n", err)
 		return err

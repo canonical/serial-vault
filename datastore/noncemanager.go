@@ -48,6 +48,8 @@ const createDeviceNonceNonceIndexSQL = "CREATE INDEX IF NOT EXISTS nonce_idx ON 
 const createDeviceNonceTimeStampIndexSQL = "CREATE INDEX IF NOT EXISTS timestamp_idx ON devicenonce (timestamp)"
 
 // Queries
+const maxIDDeviceNonceSQLite = "SELECT COUNT(*)+1 from devicenonce"
+const createDeviceNonceSQLite = "INSERT INTO devicenonce (id, nonce, timestamp) VALUES ($1, $2, $3)"
 const createDeviceNonceSQL = "INSERT INTO devicenonce (nonce, timestamp) VALUES ($1, $2)"
 const deleteExpiredDeviceNonceSQL = "DELETE FROM devicenonce where timestamp<$1"
 const deleteDeviceNonceSQL = "DELETE FROM devicenonce where nonce=$1"
@@ -87,7 +89,20 @@ func (db *DB) CreateDeviceNonce() (DeviceNonce, error) {
 	}
 
 	// Create the nonce in the database
-	_, err = db.Exec(createDeviceNonceSQL, nonce.Nonce, nonce.TimeStamp)
+	if Environ.Config.Driver == "sqlite3" {
+		// Need to generate our own ID
+		var nextID int
+		err = db.QueryRow(maxIDDeviceNonceSQLite).Scan(&nextID)
+		if err != nil {
+			log.Printf("Error retrieving next nonce ID: %v\n", err)
+			return nonce, err
+		}
+
+		_, err = db.Exec(createDeviceNonceSQLite, nextID, nonce.Nonce, nonce.TimeStamp)
+	} else {
+		_, err = db.Exec(createDeviceNonceSQL, nonce.Nonce, nonce.TimeStamp)
+	}
+
 	if err != nil {
 		log.Printf("Error creating the nonce: %v\n", err)
 		return DeviceNonce{}, err

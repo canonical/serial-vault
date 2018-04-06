@@ -75,16 +75,14 @@ const upsertKeypairSQL = `
 	select $1, $2, $3, $4
 	where not exists (select * from upsert)
 `
+
+// sqlite3 syntax for syncing data locally
 const syncUpsertKeypairSQL = `
-	WITH upsert AS (
-		update keypair set authority_id=$2, key_id=$3, sealed_key=$4, assertion=$5, active=$6
-		where id=$1
-		RETURNING *
-	)
-	insert into keypair (id,authority_id,key_id,sealed_key,assertion,active)
-	select $1, $2, $3, $4, $5, $6
-	where not exists (select * from upsert)
+	INSERT OR REPLACE INTO keypair
+	(id,authority_id,key_id,sealed_key,assertion,active)
+	VALUES ($1, $2, $3, $4, $5, $6)
 `
+
 const updateKeypairSQL = "update keypair set assertion=$2 where id=$1"
 
 // Add the assertion field to store the assertion for the account key to the table

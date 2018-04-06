@@ -1,5 +1,5 @@
 name: factory-serial-vault
-version: 0.1
+version: 0.2
 summary: Serial Vault for a Factory
 description: Restricted serial vault for deployment in a factory with limited Internet connection
 confinement: strict
@@ -53,77 +53,11 @@ apps:
   config:
     command: bin/set-config
 
-  # PostgreSQL wrappers
-  startdb:
-    command: bin/startdb
-    plugs:
-      - network
-      - network-bind
-  stopdb:
-    command: bin/stopdb
-    plugs:
-      - network
-      - network-bind
-  statusdb:
-    command: bin/statusdb
-    plugs:
-      - network
-      - network-bind
-
-  # PostgreSQL
-  createdb:
-    command: usr/bin/createdb
-    plugs:
-      - network
-  createuser:
-    command: usr/bin/createuser
-    plugs:
-      - network
-  dropdb:
-    command: usr/bin/dropdb
-    plugs:
-      - network
-  dropuser:
-    command: usr/bin/dropuser
-    plugs:
-      - network
-  initdb:
-    command: usr/bin/initdb
-  initialize:
-    command: usr/bin/wrapper-initialize
-  pgctl:
-    command: usr/bin/wrapper-pg_ctl
-    plugs:
-    - network
-    - network-bind
-  pgisready:
-    command: usr/bin/pg_isready
-    plugs:
-    - network
-  pgdump:
-    command: usr/bin/pg_dump
-    plugs:
-    - network
-  pgdumpall:
-    command: usr/bin/pg_dumpall
-    plugs:
-    - network
-  psql:
-    command: usr/bin/wrapper-psql
-    plugs:
-    - network
-  reindexdb:
-    command: usr/bin/reindexdb
-    plugs:
-    - network
-  vacuumdb:
-    command: usr/bin/vacuumdb
-    plugs:
-    - network
-
 parts:
   service:
       plugin: go
+      source-tag: go1.9.4
+      source-depth: 1
       source: .
       go-importpath: github.com/CanonicalLtd/serial-vault
       build: |
@@ -147,10 +81,6 @@ parts:
       plugin: dump
       organize:
         "*": bin/
-  postgresql:
-      plugin: make
-      build: |
-        make snap
   serviceinit:
       source: factory-serial-vault/bin
       plugin: dump
