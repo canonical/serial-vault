@@ -171,12 +171,12 @@ func mockFetchModelsFail(url, username, apikey string) (model.ListResponse, erro
 	return model.ListResponse{Success: false, ErrorMessage: "MOCK fail fetching models"}, nil
 }
 
-func mockSendSigningLog(url, username, apikey string, signLog datastore.SigningLog) error {
-	return nil
+func mockSendSigningLog(url, username, apikey string, signLog datastore.SigningLog) (bool, error) {
+	return true, nil
 }
 
-func mockSendSigningLogError(url, username, apikey string, signLog datastore.SigningLog) error {
-	return errors.New("MOCK error syncing signing log")
+func mockSendSigningLogError(url, username, apikey string, signLog datastore.SigningLog) (bool, error) {
+	return false, errors.New("MOCK error syncing signing log")
 }
 
 func sendSyncAPIRequest(method, url string, data io.Reader) *httptest.ResponseRecorder {
