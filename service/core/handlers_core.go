@@ -49,7 +49,6 @@ type TokenResponse struct {
 // Version is the API method to return the version of the service
 func Version(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", response.JSONHeader)
-	w.WriteHeader(http.StatusOK)
 
 	response := VersionResponse{Version: datastore.Environ.Config.Version}
 

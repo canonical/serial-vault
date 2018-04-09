@@ -25,10 +25,12 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
 	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/model"
+	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
 var hclient http.Client
@@ -76,8 +78,37 @@ var FetchModels = func(url, username, apikey string) (model.ListResponse, error)
 		return model.ListResponse{}, err
 	}
 
-	// Parse the response from the accounts
+	// Parse the response from the cloud
 	return parseModelResponse(w)
+}
+
+// SendSigningLog sends a signing log to the cloud serial vault
+var SendSigningLog = func(url, username, apikey string, signLog datastore.SigningLog) (bool, error) {
+
+	data, err := json.Marshal(signLog)
+	if err != nil {
+		log.Errorf("Error marshalling signing log: %v", err)
+		return false, err
+	}
+
+	w, err := SendRequest("POST", url, "signinglog", username, apikey, data)
+	if err != nil {
+		log.Errorf("Error syncing signing log: %v", err)
+		return false, err
+	}
+
+	// Parse the response from the cloud
+	result, err := parseStandardResponse(w)
+	if err != nil {
+		log.Errorf("Error parsing signing log: %v", err)
+		return false, err
+	}
+	if !result.Success {
+		log.Errorf("Error syncing signing log: %v", result.ErrorMessage)
+		return false, err
+	}
+
+	return result.Success, nil
 }
 
 func parseAccountResponse(w *http.Response) (account.ListResponse, error) {
@@ -97,6 +128,13 @@ func parseSigningKeyResponse(w *http.Response) (keypair.SyncResponse, error) {
 func parseModelResponse(w *http.Response) (model.ListResponse, error) {
 	// Check the JSON response
 	result := model.ListResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
+func parseStandardResponse(w *http.Response) (response.StandardResponse, error) {
+	// Check the JSON response
+	result := response.StandardResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }

@@ -59,7 +59,6 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 
 	logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
 		return
 	}
@@ -81,7 +80,6 @@ func listFiltersHandler(w http.ResponseWriter, user datastore.User, apiCall bool
 
 	filters, err := datastore.Environ.DB.AllowedSigningLogFilterValues(user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
 		return
 	}

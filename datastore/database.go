@@ -120,6 +120,8 @@ type Datastore interface {
 	SyncModel(m Model) error
 	CheckForMatching(signLog SigningLog) (bool, error)
 	CreateSigningLogSync(signLog SigningLog) error
+	SyncSigningLog() ([]SigningLog, error)
+	SyncUpdateSigningLog(id int) error
 }
 
 // DB local database interface with our custom methods.

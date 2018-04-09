@@ -61,20 +61,42 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 			Args:         []string{"signingkey"},
 			ErrorMessage: "Error fetching signing keys",
 			MockFail:     true},
+		{
+			Args:         []string{"model"},
+			ErrorMessage: ""},
+		{
+			Args:         []string{"model"},
+			ErrorMessage: "MOCK error fetching models",
+			MockErrorDB:  true},
+		{
+			Args:         []string{"model"},
+			ErrorMessage: "MOCK fail fetching models",
+			MockFail:     true},
+		{
+			Args:         []string{"signinglog"},
+			ErrorMessage: ""},
+		{
+			Args:         []string{"signinglog"},
+			ErrorMessage: "Error retrieving the signing logs",
+			MockErrorDB:  true},
 	}
 
 	for _, t := range tests {
 		var err error
 
 		if t.MockErrorDB {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
 			sync.FetchAccounts = mockFetchAccountsError
 			sync.FetchSigningKeys = mockFetchSigningKeysError
 			sync.FetchModels = mockFetchModelsError
+			sync.SendSigningLog = mockSendSigningLogError
 		}
 		if t.MockFail {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
 			sync.FetchAccounts = mockFetchAccountsFail
 			sync.FetchSigningKeys = mockFetchSigningKeysFail
 			sync.FetchModels = mockFetchModelsFail
+			sync.SendSigningLog = mockSendSigningLogError
 		}
 		if !t.MockErrorDB && !t.MockFail {
 			// This ensures that we treat the keypairs as new
@@ -88,6 +110,10 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 			err = client.Accounts()
 		case "signingkey":
 			err = client.SigningKeys()
+		case "model":
+			err = client.Models()
+		case "signinglog":
+			err = client.SigningLogs()
 		}
 
 		if len(t.ErrorMessage) == 0 {
@@ -97,9 +123,11 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 			c.Assert(err.Error(), check.Equals, t.ErrorMessage)
 		}
 
+		datastore.Environ.DB = &datastore.MockDB{}
 		sync.FetchAccounts = mockFetchAccounts
 		sync.FetchSigningKeys = mockFetchSigningKeys
 		sync.FetchModels = mockFetchModels
+		sync.SendSigningLog = mockSendSigningLog
 	}
 
 }
@@ -141,6 +169,14 @@ func mockFetchModelsError(url, username, apikey string) (model.ListResponse, err
 
 func mockFetchModelsFail(url, username, apikey string) (model.ListResponse, error) {
 	return model.ListResponse{Success: false, ErrorMessage: "MOCK fail fetching models"}, nil
+}
+
+func mockSendSigningLog(url, username, apikey string, signLog datastore.SigningLog) error {
+	return nil
+}
+
+func mockSendSigningLogError(url, username, apikey string, signLog datastore.SigningLog) error {
+	return errors.New("MOCK error syncing signing log")
 }
 
 func sendSyncAPIRequest(method, url string, data io.Reader) *httptest.ResponseRecorder {

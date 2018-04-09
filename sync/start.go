@@ -79,7 +79,12 @@ func (cmd StartCommand) Execute(args []string) error {
 			withErrors = true
 		}
 
-		// TODO: Sync the signing logs
+		// Sync the signing logs
+		log.Info("Sync the signing logs to the cloud")
+		err = client.SigningLogs()
+		if err != nil {
+			withErrors = true
+		}
 
 		if withErrors {
 			log.Error("Sync completed with errors")
