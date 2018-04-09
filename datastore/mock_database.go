@@ -338,8 +338,27 @@ func (mdb *MockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	return false, 0, nil
 }
 
+// CheckForMatching database mock
+func (mdb *MockDB) CheckForMatching(signLog SigningLog) (bool, error) {
+	switch signLog.SerialNumber {
+	case "Aduplicate":
+		return true, nil
+	case "AnError":
+		return false, errors.New("Error in check for duplicate")
+	}
+	return false, nil
+}
+
 // CreateSigningLog database mock
 func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
+	if signLog.SerialNumber == "AsigninglogError" {
+		return errors.New("Error in check for create signing log entry")
+	}
+	return nil
+}
+
+// CreateSigningLogSync database mock
+func (mdb *MockDB) CreateSigningLogSync(signLog SigningLog) error {
 	if signLog.SerialNumber == "AsigninglogError" {
 		return errors.New("Error in check for create signing log entry")
 	}
@@ -898,8 +917,18 @@ func (mdb *ErrorMockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error
 	return false, 0, nil
 }
 
+// CheckForMatching error mock for the database
+func (mdb *ErrorMockDB) CheckForMatching(signLog SigningLog) (bool, error) {
+	return false, nil
+}
+
 // CreateSigningLog error mock for the database
 func (mdb *ErrorMockDB) CreateSigningLog(signLog SigningLog) error {
+	return nil
+}
+
+// CreateSigningLogSync error mock for the database
+func (mdb *ErrorMockDB) CreateSigningLogSync(signLog SigningLog) error {
 	return nil
 }
 

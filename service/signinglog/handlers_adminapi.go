@@ -20,8 +20,11 @@
 package signinglog
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
@@ -39,4 +42,30 @@ func APIList(w http.ResponseWriter, r *http.Request) {
 
 	// Call the API with the user
 	listHandler(w, user, true)
+}
+
+// APISyncLog is the API method to sync a factory log to the cloud
+func APISyncLog(w http.ResponseWriter, r *http.Request) {
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	request := datastore.SigningLog{}
+	err = json.NewDecoder(r.Body).Decode(&request)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		response.FormatStandardResponse(false, "error-signinglog-data", "", "No signing-log data supplied", w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		response.FormatStandardResponse(false, "error-signinglog-json", "", err.Error(), w)
+		return
+	}
+
+	// Call the API with the user
+	syncLogHandler(w, user, true, request)
 }

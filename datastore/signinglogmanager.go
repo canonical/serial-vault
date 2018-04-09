@@ -50,11 +50,13 @@ const createSigningLogFingerprintIndexSQL = "CREATE INDEX IF NOT EXISTS fingerpr
 const createSigningLogCreatedIndexSQL = "CREATE INDEX IF NOT EXISTS created_idx ON signinglog (created)"
 
 // Queries
+const findMatchingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where make=$1 and model=$2 and serial_number=$3 and revision=$4)"
 const findExistingSigningLogSQL = "SELECT EXISTS(SELECT * FROM signinglog where (make=$1 and model=$2 and serial_number=$3) or fingerprint=$4)"
 const findMaxRevisionSigningLogSQL = "SELECT COALESCE(MAX(revision), 0) FROM signinglog where make=$1 and model=$2 and serial_number=$3"
 const maxIDSigningLogSQLite = "SELECT COUNT(*)+1 from signinglog"
 const createSigningLogSQLite = "INSERT INTO signinglog (id, make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5, $6)"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
+const createSigningLogSyncSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision,created) VALUES ($1, $2, $3, $4, $5, $6)"
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 10000"
 const listSigningLogForUserSQL = `
 	SELECT s.* FROM signinglog s
@@ -151,6 +153,19 @@ func (db *DB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	return duplicateExists, maxRevision, nil
 }
 
+// CheckForMatching checks to see if a matching signing-log entry exists
+// (same brand, model, serial number and revision)
+func (db *DB) CheckForMatching(signLog SigningLog) (bool, error) {
+	var duplicateExists bool
+	err := db.QueryRow(findMatchingSigningLogSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Revision).Scan(&duplicateExists)
+	if err != nil {
+		log.Printf("Error checking signinglog for matching record: %v\n", err)
+		return false, errors.New("Error communicating with the database")
+	}
+
+	return duplicateExists, nil
+}
+
 // CreateSigningLog logs that a specific serial number has been used, along with the device-key fingerprint.
 func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	var err error
@@ -159,7 +174,7 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
 	}
 
-	// Create the nonce in the database
+	// Create the signing log in the database
 	if Environ.Config.Driver == "sqlite3" {
 		// Need to generate our own ID
 		var nextID int
@@ -175,6 +190,24 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	}
 
 	// Create the log in the database
+	if err != nil {
+		log.Printf("Error creating the signing log: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+// CreateSigningLogSync logs that a specific serial number has been used, along with the device-key fingerprint.
+func (db *DB) CreateSigningLogSync(signLog SigningLog) error {
+	var err error
+	// Validate the data
+	if strings.TrimSpace(signLog.Make) == "" || strings.TrimSpace(signLog.Model) == "" || strings.TrimSpace(signLog.SerialNumber) == "" || strings.TrimSpace(signLog.Fingerprint) == "" {
+		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
+	}
+
+	// Create the signing log in the database
+	_, err = db.Exec(createSigningLogSyncSQL, signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint, signLog.Revision, signLog.Created)
 	if err != nil {
 		log.Printf("Error creating the signing log: %v\n", err)
 		return err

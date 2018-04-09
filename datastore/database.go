@@ -118,6 +118,8 @@ type Datastore interface {
 	SyncAccount(account Account) error
 	SyncKeypair(keypair SyncKeypair) error
 	SyncModel(m Model) error
+	CheckForMatching(signLog SigningLog) (bool, error)
+	CreateSigningLogSync(signLog SigningLog) error
 }
 
 // DB local database interface with our custom methods.
