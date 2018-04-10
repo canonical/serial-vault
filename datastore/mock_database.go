@@ -338,8 +338,27 @@ func (mdb *MockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	return false, 0, nil
 }
 
+// CheckForMatching database mock
+func (mdb *MockDB) CheckForMatching(signLog SigningLog) (bool, error) {
+	switch signLog.SerialNumber {
+	case "Aduplicate":
+		return true, nil
+	case "AnError":
+		return false, errors.New("Error in check for duplicate")
+	}
+	return false, nil
+}
+
 // CreateSigningLog database mock
 func (mdb *MockDB) CreateSigningLog(signLog SigningLog) error {
+	if signLog.SerialNumber == "AsigninglogError" {
+		return errors.New("Error in check for create signing log entry")
+	}
+	return nil
+}
+
+// CreateSigningLogSync database mock
+func (mdb *MockDB) CreateSigningLogSync(signLog SigningLog) error {
 	if signLog.SerialNumber == "AsigninglogError" {
 		return errors.New("Error in check for create signing log entry")
 	}
@@ -359,6 +378,20 @@ func (mdb *MockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, erro
 		signingLog = append(signingLog, SigningLog{ID: i, Make: "System", Model: "Router 3400", SerialNumber: fmt.Sprintf("A%d", i), Fingerprint: fmt.Sprintf("a%d", i), Created: time.Now()})
 	}
 	return signingLog, nil
+}
+
+// SyncSigningLog database mock
+func (mdb *MockDB) SyncSigningLog() ([]SigningLog, error) {
+	signingLog := []SigningLog{}
+	for i := 1; i < 5; i++ {
+		signingLog = append(signingLog, SigningLog{ID: i, Make: "system", Model: "alder", SerialNumber: fmt.Sprintf("A%d", i), Fingerprint: fmt.Sprintf("a%d", i), Created: time.Now()})
+	}
+	return signingLog, nil
+}
+
+// SyncUpdateSigningLog database mock
+func (mdb *MockDB) SyncUpdateSigningLog(id int) error {
+	return nil
 }
 
 // AllowedSigningLogFilterValues database mock
@@ -898,8 +931,18 @@ func (mdb *ErrorMockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error
 	return false, 0, nil
 }
 
+// CheckForMatching error mock for the database
+func (mdb *ErrorMockDB) CheckForMatching(signLog SigningLog) (bool, error) {
+	return false, nil
+}
+
 // CreateSigningLog error mock for the database
 func (mdb *ErrorMockDB) CreateSigningLog(signLog SigningLog) error {
+	return nil
+}
+
+// CreateSigningLogSync error mock for the database
+func (mdb *ErrorMockDB) CreateSigningLogSync(signLog SigningLog) error {
 	return nil
 }
 
@@ -912,6 +955,17 @@ func (mdb *ErrorMockDB) CreateSigningLogTable() error {
 func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
+}
+
+// SyncSigningLog error mock for the database
+func (mdb *ErrorMockDB) SyncSigningLog() ([]SigningLog, error) {
+	var signingLog []SigningLog
+	return signingLog, errors.New("Error retrieving the signing logs")
+}
+
+// SyncUpdateSigningLog database mock
+func (mdb *ErrorMockDB) SyncUpdateSigningLog(id int) error {
+	return errors.New("Error updating the signing log")
 }
 
 // AllowedSigningLogFilterValues error mock for the database

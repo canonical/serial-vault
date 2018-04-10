@@ -147,6 +147,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/accounts", Middleware(http.HandlerFunc(account.APIList))).Methods("GET")
 	router.Handle("/api/keypairs/sync", Middleware(http.HandlerFunc(keypair.APISyncKeypairs))).Methods("POST")
 	router.Handle("/api/models", Middleware(http.HandlerFunc(model.APIList))).Methods("GET")
+	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APISyncLog))).Methods("POST")
 
 	return router
 }

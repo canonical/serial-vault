@@ -1,5 +1,5 @@
 name: factory-serial-vault
-version: 0.2
+version: 0.3
 summary: Serial Vault for a Factory
 description: Restricted serial vault for deployment in a factory with limited Internet connection
 confinement: strict
@@ -54,10 +54,13 @@ apps:
     command: bin/set-config
 
 parts:
+  go:
+      source-tag: go1.9.4
   service:
       plugin: go
-      source-tag: go1.9.4
-      source-depth: 1
+      after: [go]
+      stage-packages:
+        - golang-1.9-go
       source: .
       go-importpath: github.com/CanonicalLtd/serial-vault
       build: |
@@ -75,7 +78,6 @@ parts:
         mkdir -p $SNAPCRAFT_PART_INSTALL/bin
         cp $GOBIN/serial-vault $SNAPCRAFT_PART_INSTALL/bin
         cp $GOBIN/factory $SNAPCRAFT_PART_INSTALL/bin
-      after: [go]
   bin:
       source: bin
       plugin: dump

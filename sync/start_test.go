@@ -41,6 +41,7 @@ func (s *startSuite) SetUpTest(c *check.C) {
 	sync.FetchSigningKeys = mockFetchSigningKeys
 	datastore.ReEncryptKeypair = mockReEncryptKeypair
 	sync.FetchModels = mockFetchModels
+	sync.SendSigningLog = mockSendSigningLog
 }
 
 func (s *startSuite) TestStart(c *check.C) {
@@ -63,20 +64,26 @@ func (s *startSuite) TestStart(c *check.C) {
 
 	for _, t := range tests {
 		if t.MockErrorDB {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
 			sync.FetchAccounts = mockFetchAccountsError
 			sync.FetchSigningKeys = mockFetchSigningKeysError
 			sync.FetchModels = mockFetchModelsError
+			sync.SendSigningLog = mockSendSigningLogError
 		}
 		if t.MockFail {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
 			sync.FetchAccounts = mockFetchAccountsFail
 			sync.FetchSigningKeys = mockFetchSigningKeysFail
 			sync.FetchModels = mockFetchModelsFail
+			sync.SendSigningLog = mockSendSigningLogError
 		}
 
 		runTest(c, t.Args, t.ErrorMessage)
 
+		datastore.Environ.DB = &datastore.MockDB{}
 		sync.FetchAccounts = mockFetchAccounts
 		sync.FetchSigningKeys = mockFetchSigningKeys
 		sync.FetchModels = mockFetchModels
+		sync.SendSigningLog = mockSendSigningLog
 	}
 }

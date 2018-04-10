@@ -21,9 +21,11 @@ package signinglog_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
@@ -31,12 +33,18 @@ import (
 )
 
 func (s *SigningLogSuite) TestAPISigningLogHandler(c *check.C) {
+	log1 := datastore.SigningLog{ID: 1, Make: "system", Model: "alder", SerialNumber: "abcd1234", Fingerprint: "aaaabbbbccccdddd", Revision: 1, Created: time.Now()}
+	l1, _ := json.Marshal(log1)
 
 	tests := []SigningLogTest{
 		{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
 		{"GET", "/api/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
 		{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 		{"GET", "/api/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"POST", "/api/signinglog", l1, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"POST", "/api/signinglog", l1, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"POST", "/api/signinglog", l1, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"POST", "/api/signinglog", l1, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
