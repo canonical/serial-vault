@@ -56,11 +56,10 @@ apps:
 parts:
   go:
       source-tag: go1.9.4
+      source-depth: 1
   service:
       plugin: go
       after: [go]
-      stage-packages:
-        - golang-1.9-go
       source: .
       go-importpath: github.com/CanonicalLtd/serial-vault
       build: |
