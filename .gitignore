@@ -20,3 +20,4 @@ snap/.snapcraft
 .tests-extras
 vendor/*/
 __pycache__/
+files/

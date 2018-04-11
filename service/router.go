@@ -36,6 +36,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	"github.com/CanonicalLtd/serial-vault/service/store"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
+	"github.com/CanonicalLtd/serial-vault/service/testlog"
 	"github.com/CanonicalLtd/serial-vault/service/user"
 	"github.com/CanonicalLtd/serial-vault/usso"
 	"github.com/gorilla/mux"
@@ -55,6 +56,12 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/pivot", Middleware(ErrorHandler(pivot.Model))).Methods("POST")
 	router.Handle("/v1/pivotmodel", Middleware(ErrorHandler(pivot.ModelAssertion))).Methods("POST")
 	router.Handle("/v1/pivotserial", Middleware(ErrorHandler(pivot.SerialAssertion))).Methods("POST")
+
+	// Test log upload routes (only in the factory)
+	if datastore.Environ.Config.Driver == "sqlite3" {
+		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Index))).Methods("GET")
+		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Submit))).Methods("POST")
+	}
 
 	return router
 }

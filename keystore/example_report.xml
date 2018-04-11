@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test_report>
+    <uuts>
+        <uut>
+            <summary>
+                <part_number>860-00014</part_number>
+                <serial_number>e4bf7ceb-f7af-442e-b734-5432ef3306b5</serial_number>
+                <operation>Validation Test</operation>
+                <started_at>2018-04-09T17:44:16+02:00</started_at>
+                <ended_at>2018-04-09T17:44:16+02:00</ended_at>
+                <status>Failed</status>
+            </summary>
+            <tests>
+                <test>
+                    <name>factory_cpu/iMX6ULL</name>
+                    <status>failed</status>
+                </test>
+                <test>
+                    <name>factory_ethernet/card-detect</name>
+                    <status>failed</status>
+                </test>
+                <test>
+                    <name>factory_hdd/drive-count</name>
+                    <status>failed</status>
+                </test>
+                <test>
+                    <name>factory_RAM/size</name>
+                    <status>passed</status>
+                </test>
+                <test>
+                    <name>factory_RTC</name>
+                    <status>failed</status>
+                </test>
+                <test>
+                    <name>factory_usb/usb2-root-hub-present</name>
+                    <status>passed</status>
+                </test>
+            </tests>
+</uut>
+</uuts>
+</test_report>
