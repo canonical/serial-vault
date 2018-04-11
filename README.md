@@ -41,6 +41,7 @@ If you have a Go development environment set up, Go get it:
 - Create the database tables:
   ```bash
   $ cd serial-vault
+  $ ./get-deps.sh
   $ go run cmd/serial-vault-admin/main.go database --config=/path/to/settings.yaml
   ```
 

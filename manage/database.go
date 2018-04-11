@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -121,6 +122,9 @@ func UpdateDatabase() {
 
 		// Create the Sub-store table, if it does not exist
 		{datastore.Environ.DB.CreateSubstoreTable, create, "sub-store", false},
+
+		// Create the testlog table, if it does not exist
+		{datastore.Environ.DB.CreateTestLogTable, create, "testlog", false},
 	}
 
 	exec(operations)

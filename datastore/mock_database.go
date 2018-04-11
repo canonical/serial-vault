@@ -327,6 +327,11 @@ func (mdb *MockDB) CreateSigningLogTable() error {
 	return nil
 }
 
+// CreateTestLogTable error mock for the database
+func (mdb *MockDB) CreateTestLogTable() error {
+	return nil
+}
+
 // CheckForDuplicate database mock
 func (mdb *MockDB) CheckForDuplicate(signLog *SigningLog) (bool, int, error) {
 	switch signLog.SerialNumber {
@@ -731,6 +736,11 @@ func (mdb *MockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, 
 	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"}, nil
 }
 
+// CreateTestLog mock to create a test log
+func (mdb *MockDB) CreateTestLog(testLog TestLog) error {
+	return nil
+}
+
 // HealthCheck mock for a healthy datastore
 func (mdb *MockDB) HealthCheck() error {
 	return nil
@@ -951,6 +961,11 @@ func (mdb *ErrorMockDB) CreateSigningLogTable() error {
 	return nil
 }
 
+// CreateTestLogTable error mock for the database
+func (mdb *ErrorMockDB) CreateTestLogTable() error {
+	return nil
+}
+
 // ListAllowedSigningLog error mock for the database
 func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var signingLog []SigningLog
@@ -1168,6 +1183,11 @@ func (mdb *ErrorMockDB) DeleteAllowedSubstore(storeID int, authorization User) (
 // GetSubstore mock to get a substore record
 func (mdb *ErrorMockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
 	return Substore{}, errors.New("Cannot get the sub-store model")
+}
+
+// CreateTestLog mock to create a test log
+func (mdb *ErrorMockDB) CreateTestLog(testLog TestLog) error {
+	return errors.New("MOCK Cannot create the test log")
 }
 
 // HealthCheck mock to simulate failed HealthCheck

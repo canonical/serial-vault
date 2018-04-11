@@ -79,7 +79,7 @@ func sendSigningRequest(method, url string, data io.Reader, path, filename strin
 	return w
 }
 
-func (s *LogSuite) TestSubstoresHandler(c *check.C) {
+func (s *LogSuite) TestLogHandler(c *check.C) {
 	tests := []SuiteTest{
 		{"GET", "/testlog", nil, "", "", 200, "text/html; charset=utf-8", ""},
 		{"POST", "/testlog", nil, "", "", 400, response.JSONHeader, ""},
