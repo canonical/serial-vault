@@ -27,6 +27,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"text/template"
 	"time"
 
@@ -107,16 +108,22 @@ func saveFile(w http.ResponseWriter, file multipart.File, handle *multipart.File
 	if len(path) == 0 {
 		path = "."
 	}
-	path = path + "/files"
-	_ = os.Mkdir(path, 0755)
+	path = filepath.Join(path, "/files")
+
+	// Attempt to create the path, if it doesn't exist
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err = os.Mkdir(path, 0755); err != nil {
+			formatUploadResponse(w, http.StatusBadRequest, err.Error())
+		}
+	}
 
 	// Generate a filename
-	filename := fmt.Sprintf("%s/%d%s", path, time.Now().Unix(), handle.Filename)
+	filename := fmt.Sprintf("%s/%d_%s", path, time.Now().UTC().Unix(), handle.Filename)
 
 	// Save the file
 	err = ioutil.WriteFile(filename, data, 0666)
 	if err != nil {
-		fmt.Fprintf(w, "%v", err)
+		formatUploadResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	formatUploadResponse(w, http.StatusCreated, "File uploaded successfully")
