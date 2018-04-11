@@ -114,6 +114,7 @@ func saveFile(w http.ResponseWriter, file multipart.File, handle *multipart.File
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err = os.Mkdir(path, 0755); err != nil {
 			formatUploadResponse(w, http.StatusBadRequest, err.Error())
+			return
 		}
 	}
 
