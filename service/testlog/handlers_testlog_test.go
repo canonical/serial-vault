@@ -42,14 +42,14 @@ func TestLogSuite(t *testing.T) { check.TestingT(t) }
 type LogSuite struct{}
 
 type SuiteTest struct {
-	Method   string
-	URL      string
-	Data     []byte
-	Path     string
-	Filename string
-	Code     int
-	Type     string
-	Message  string
+	Method    string
+	URL       string
+	ModelName string
+	Path      string
+	WithFile  bool
+	Code      int
+	Type      string
+	Message   string
 }
 
 var _ = check.Suite(&LogSuite{})
@@ -61,17 +61,17 @@ func (s *LogSuite) SetUpTest(c *check.C) {
 	datastore.OpenKeyStore(config)
 }
 
-func sendSigningRequest(method, url string, data io.Reader, path, filename string, c *check.C) *httptest.ResponseRecorder {
+func sendSigningRequest(method, url string, modelName, path string, withFile bool, c *check.C) *httptest.ResponseRecorder {
 	var r *http.Request
 	w := httptest.NewRecorder()
 
-	if len(path) != 0 {
-		ctype, body, err := createFile(path, filename, c)
+	if withFile {
+		ctype, body, err := createFile(modelName, path, c)
 		c.Assert(err, check.IsNil)
 		r, _ = http.NewRequest(method, url, body)
 		r.Header.Add("Content-Type", ctype)
 	} else {
-		r, _ = http.NewRequest(method, url, data)
+		r, _ = http.NewRequest(method, url, nil)
 	}
 
 	service.SigningRouter().ServeHTTP(w, r)
@@ -81,37 +81,56 @@ func sendSigningRequest(method, url string, data io.Reader, path, filename strin
 
 func (s *LogSuite) TestLogHandler(c *check.C) {
 	tests := []SuiteTest{
-		{"GET", "/testlog", nil, "", "", 200, "text/html; charset=utf-8", ""},
-		{"POST", "/testlog", nil, "", "", 400, response.JSONHeader, ""},
-		{"POST", "/testlog", []byte(""), "", "", 400, response.JSONHeader, ""},
-		{"POST", "/testlog", []byte(""), "../../keystore/example_report.xml", "logfile", 201, response.JSONHeader, ""},
+		{"GET", "/testlog", "alder", "", false, 200, "text/html; charset=utf-8", ""},
+		{"POST", "/testlog", "", "", true, 400, response.JSONHeader, "The 'brand' and 'model' must be supplied"},
+		{"POST", "/testlog", "invalid", "", true, 400, response.JSONHeader, "The model does not exist"},
+		{"POST", "/testlog", "alder", "", true, 400, response.JSONHeader, "http: no such file"},
+		{"POST", "/testlog", "alder", "../../keystore/empty_report.xml", true, 400, response.JSONHeader, "The file cannot be empty"},
+		{"POST", "/testlog", "alder", "../../keystore/example_report.xml", true, 201, response.JSONHeader, "File uploaded successfully"},
 	}
 
 	for _, t := range tests {
-		w := sendSigningRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Path, t.Filename, c)
+		w := sendSigningRequest(t.Method, t.URL, t.ModelName, t.Path, t.WithFile, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+		if t.Method != "GET" {
+			c.Assert(w.Body.String(), check.Equals, t.Message)
+		}
 	}
 }
 
-func createFile(path, filename string, c *check.C) (string, *bytes.Buffer, error) {
-	file, err := os.Open(path)
-	c.Assert(err, check.IsNil)
-	defer file.Close()
+func createFile(modelName, path string, c *check.C) (string, *bytes.Buffer, error) {
+	var file *os.File
+	var err error
+	if len(path) > 0 {
+		file, err = os.Open(path)
+		c.Assert(err, check.IsNil)
+		defer file.Close()
+	}
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(filename, filepath.Base(path))
-	if err != nil {
+
+	if len(path) > 0 {
+		part, err := writer.CreateFormFile("logfile", filepath.Base(path))
+		if err != nil {
+			return "", nil, err
+		}
+
+		_, err = io.Copy(part, file)
+		if err != nil {
+			return "", nil, err
+		}
+	}
+
+	if err := writer.WriteField("brand", "system"); err != nil {
+		return "", nil, err
+	}
+	if err := writer.WriteField("model", modelName); err != nil {
 		return "", nil, err
 	}
 
-	_, err = io.Copy(part, file)
-	if err != nil {
-		return "", nil, err
-	}
-
-	if err = writer.Close(); err != nil {
+	if err := writer.Close(); err != nil {
 		return "", nil, err
 	}
 	return writer.FormDataContentType(), body, nil

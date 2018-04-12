@@ -35,14 +35,13 @@ const createTestLogTableSQL = `
 		model            varchar(200) not null,
 		filename         varchar(200) not null,
 		data             text,
-		logged           int,
 		created          timestamp default current_timestamp,
 		synced           timestamp
 	)
 `
 
-const createTestLogSQLite = "INSERT INTO testlog (id,brand_id,model,filename,data,logged) VALUES ($1, $2, $3, $4, $5, $6)"
-const createTestLogSQL = "INSERT INTO testlog (brand_id,model,filename,data,logged) VALUES ($1, $2, $3, $4, $5)"
+const createTestLogSQLite = "INSERT INTO testlog (id,brand_id,model,filename,data) VALUES ($1, $2, $3, $4, $5)"
+const createTestLogSQL = "INSERT INTO testlog (brand_id,model,filename,data) VALUES ($1, $2, $3, $4)"
 
 const listTestLogSQL = "SELECT * FROM testlog WHERE not synced"
 const listTestLogForUserSQL = `
@@ -63,7 +62,6 @@ type TestLog struct {
 	Model    string    `json:"model"`
 	Filename string    `json:"filename"`
 	Data     string    `json:"data"`
-	Logged   int       `json:"logged"`
 	Created  time.Time `json:"created"`
 	Synced   time.Time `json:"synced"` // used to indicate it has been synced to an external system
 }
@@ -96,9 +94,9 @@ func (db *DB) CreateTestLog(testLog TestLog) error {
 			return err
 		}
 
-		_, err = db.Exec(createTestLogSQLite, nextID, testLog.Brand, testLog.Model, testLog.Filename, testLog.Data, testLog.Logged)
+		_, err = db.Exec(createTestLogSQLite, nextID, testLog.Brand, testLog.Model, testLog.Filename, testLog.Data)
 	} else {
-		_, err = db.Exec(createTestLogSQL, testLog.Brand, testLog.Model, testLog.Filename, testLog.Data, testLog.Logged)
+		_, err = db.Exec(createTestLogSQL, testLog.Brand, testLog.Model, testLog.Filename, testLog.Data)
 	}
 
 	// Create the log in the database
@@ -135,7 +133,7 @@ func (db *DB) listTestLogFilteredByUser(username string) ([]TestLog, error) {
 
 	for rows.Next() {
 		testLog := TestLog{}
-		err := rows.Scan(&testLog.ID, &testLog.Brand, &testLog.Model, &testLog.Filename, &testLog.Data, &testLog.Logged, &testLog.Created, &testLog.Synced)
+		err := rows.Scan(&testLog.ID, &testLog.Brand, &testLog.Model, &testLog.Filename, &testLog.Data, &testLog.Created, &testLog.Synced)
 		if err != nil {
 			return nil, err
 		}

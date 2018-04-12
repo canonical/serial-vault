@@ -39,6 +39,7 @@ type Datastore interface {
 	CreateModelTable() error
 	AlterModelTable() error
 	CheckAPIKey(apiKey string) bool
+	CheckModelExists(brandID, name string) bool
 
 	CreateModelAssertTable() error
 	CreateModelAssert(m ModelAssertion) (int, error)
