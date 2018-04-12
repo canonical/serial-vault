@@ -22,10 +22,7 @@ package testlog
 
 import (
 	"encoding/base64"
-	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
@@ -63,22 +60,4 @@ func syncLogHandler(w http.ResponseWriter, user datastore.User, apiCall bool, te
 	// Return successful JSON response
 	w.WriteHeader(http.StatusOK)
 	response.FormatStandardResponse(true, "", "", "", w)
-}
-
-// Filename is in the format <timestamp>_filename
-func parseFilename(filename string) (int, string) {
-	var f string
-	parts := strings.Split(filename, "_")
-	logged, err := strconv.Atoi(parts[0])
-	if err != nil {
-		// The filename is not in the expected format
-		f = filename
-		logged = 0
-	} else {
-		// Remove the timestamp from the filename
-		prefix := fmt.Sprintf("%d_", logged)
-		f = strings.Replace(filename, prefix, "", 1)
-	}
-
-	return logged, f
 }

@@ -24,12 +24,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/CanonicalLtd/serial-vault/service/testlog"
 	check "gopkg.in/check.v1"
 )
 
@@ -42,7 +44,6 @@ type SyncTest struct {
 	Permissions int
 	EnableAuth  bool
 	Success     bool
-	SkipJWT     bool
 	MockError   bool
 	Count       int
 }
@@ -74,16 +75,46 @@ func (s *LogSuite) TestAPISyncHandler(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	tests := []SyncTest{
-		{"POST", "/api/testlog", []byte("bad"), 400, response.JSONHeader, datastore.SyncUser, false, false, false, false, 0},
-		{"POST", "/api/testlog", tLog2, 400, response.JSONHeader, datastore.SyncUser, false, false, false, false, 0},
-		{"POST", "/api/testlog", tLog3, 400, response.JSONHeader, datastore.SyncUser, false, false, false, false, 0},
-		{"POST", "/api/testlog", tLog4, 400, response.JSONHeader, datastore.SyncUser, false, false, false, false, 0},
-		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, 0, false, false, false, false, 0},
-		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, datastore.SyncUser, true, false, false, true, 0},
-		{"POST", "/api/testlog", tLog1, 200, response.JSONHeader, datastore.SyncUser, true, true, false, false, 0},
-		{"POST", "/api/testlog", tLog1, 200, response.JSONHeader, datastore.SyncUser, true, true, false, false, 0},
-		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, datastore.Standard, true, false, false, false, 0},
-		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, 0, true, false, false, false, 0},
+		{"POST", "/api/testlog", []byte("bad"), 400, response.JSONHeader, datastore.SyncUser, false, false, false, 0},
+		{"POST", "/api/testlog", tLog2, 400, response.JSONHeader, datastore.SyncUser, false, false, false, 0},
+		{"POST", "/api/testlog", tLog3, 400, response.JSONHeader, datastore.SyncUser, false, false, false, 0},
+		{"POST", "/api/testlog", tLog4, 400, response.JSONHeader, datastore.SyncUser, false, false, false, 0},
+		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, 0, false, false, false, 0},
+		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, datastore.SyncUser, true, false, true, 0},
+		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, datastore.SyncUser, true, false, true, 0},
+		{"POST", "/api/testlog", tLog1, 200, response.JSONHeader, datastore.SyncUser, true, true, false, 0},
+		{"POST", "/api/testlog", tLog1, 200, response.JSONHeader, datastore.SyncUser, true, true, false, 0},
+		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, datastore.Standard, true, false, false, 0},
+		{"POST", "/api/testlog", tLog1, 400, response.JSONHeader, 0, true, false, false, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+		if t.MockError {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
+		}
+
+		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		log.Println("---", w.Body)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := response.ParseStandardResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+
+		datastore.Environ.Config.EnableUserAuth = false
+		datastore.Environ.DB = &datastore.MockDB{}
+	}
+}
+
+func (s *LogSuite) TestAPIListHandler(c *check.C) {
+	tests := []SyncTest{
+		{"GET", "/api/testlog", nil, 400, response.JSONHeader, datastore.Standard, false, false, false, 0},
+		{"GET", "/api/testlog", nil, 400, response.JSONHeader, datastore.SyncUser, false, false, true, 0},
+		{"GET", "/api/testlog", nil, 200, response.JSONHeader, datastore.SyncUser, false, true, false, 2},
 	}
 
 	for _, t := range tests {
@@ -98,9 +129,10 @@ func (s *LogSuite) TestAPISyncHandler(c *check.C) {
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := response.ParseStandardResponse(w)
+		result, err := parseListResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
+		c.Assert(len(result.TestLog), check.Equals, t.Count)
 
 		datastore.Environ.Config.EnableUserAuth = false
 		datastore.Environ.DB = &datastore.MockDB{}
@@ -125,4 +157,11 @@ func sendAdminAPIRequest(method, url string, data io.Reader, permissions int, c 
 	service.AdminRouter().ServeHTTP(w, r)
 
 	return w
+}
+
+func parseListResponse(w *httptest.ResponseRecorder) (testlog.ListResponse, error) {
+	// Check the JSON response
+	result := testlog.ListResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
 }

@@ -43,7 +43,7 @@ type ListResponse struct {
 func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	err := auth.CheckUserPermissions(user, datastore.SyncUser, apiCall)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
