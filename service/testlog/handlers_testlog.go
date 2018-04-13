@@ -21,16 +21,16 @@
 package testlog
 
 import (
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
+	"strings"
 	"text/template"
-	"time"
 
+	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
@@ -45,15 +45,19 @@ const tpl = `
 		div { margin: 40px}
 		fieldset { padding: 20px}
 		</style>
-    </head>
-    <body>
+	</head>
+	<body>
 		<h1>Serial Vault</h1>
 		<div>
 			<h2>Test Log Upload</h2>
 			<form action="/testlog" method="POST" enctype="multipart/form-data">
 				<fieldset>
+				<label for="brand">Brand:</label><br />
+				<input type="text" name="brand" /><br />
+				<label for="model">Model:</label><br />
+				<input type="text" name="model" /><br />
 				<label for="logfile">Filename:</label><br />
-				<input type="file" name="logfile" accept="text/xml">
+				<input type="file" name="logfile" accept="text/xml" />
 				<input type="Submit">
 				</fieldset>
 			</form>
@@ -80,14 +84,36 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 // Submit is the POST request for caching a test log
 func Submit(w http.ResponseWriter, r *http.Request) {
-	file, handle, err := r.FormFile("logfile")
+	if strings.TrimSpace(r.FormValue("brand")) == "" || strings.TrimSpace(r.FormValue("model")) == "" {
+		formatUploadResponse(w, http.StatusBadRequest, "The 'brand' and 'model' must be supplied")
+		return
+	}
+
+	// Check that the model exists
+	if found := datastore.Environ.DB.CheckModelExists(r.FormValue("brand"), r.FormValue("model")); !found {
+		formatUploadResponse(w, http.StatusBadRequest, "The model does not exist")
+		return
+	}
+
+	// Get the file from the request
+	filename, base64File, err := readFile(r)
 	if err != nil {
 		formatUploadResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	defer file.Close()
 
-	saveFile(w, file, handle)
+	// Store the testlog
+	t := datastore.TestLog{
+		Brand: r.FormValue("brand"), Model: r.FormValue("model"),
+		Filename: filename, Data: base64File,
+	}
+	err = datastore.Environ.DB.CreateTestLog(t)
+	if err != nil {
+		formatUploadResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	formatUploadResponse(w, http.StatusCreated, "File uploaded successfully")
 }
 
 func formatUploadResponse(w http.ResponseWriter, code int, message string) {
@@ -96,36 +122,23 @@ func formatUploadResponse(w http.ResponseWriter, code int, message string) {
 	fmt.Fprint(w, message)
 }
 
-func saveFile(w http.ResponseWriter, file multipart.File, handle *multipart.FileHeader) {
+func readFile(r *http.Request) (string, string, error) {
+	file, handle, err := r.FormFile("logfile")
+	if err != nil {
+		return "", "", err
+	}
+	if handle.Size == 0 {
+		return "", "", errors.New("The file cannot be empty")
+	}
+
+	defer file.Close()
+
+	// Read the file
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		formatUploadResponse(w, http.StatusBadRequest, err.Error())
-		return
+		return "", "", err
 	}
 
-	// Set up the path for the file
-	path := os.Getenv(paramsEnvVar)
-	if len(path) == 0 {
-		path = "."
-	}
-	path = filepath.Join(path, "/files")
-
-	// Attempt to create the path, if it doesn't exist
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err = os.Mkdir(path, 0755); err != nil {
-			formatUploadResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-	}
-
-	// Generate a filename
-	filename := fmt.Sprintf("%s/%d_%s", path, time.Now().UTC().Unix(), handle.Filename)
-
-	// Save the file
-	err = ioutil.WriteFile(filename, data, 0666)
-	if err != nil {
-		formatUploadResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	formatUploadResponse(w, http.StatusCreated, "File uploaded successfully")
+	// Encode the file for storage
+	return handle.Filename, base64.StdEncoding.EncodeToString(data), nil
 }

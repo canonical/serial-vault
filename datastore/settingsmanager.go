@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -22,7 +22,6 @@ package datastore
 import (
 	"errors"
 	"log"
-	"strings"
 )
 
 // Understood settings codes
@@ -80,11 +79,11 @@ func (db *DB) CreateSettingsTable() error {
 func (db *DB) PutSetting(setting Setting) error {
 	var err error
 	// Validate the data
-	if strings.TrimSpace(setting.Code) == "" {
+	if err := validateNotEmpty("code", setting.Code); err != nil {
 		return errors.New("The code must be entered to store a Setting")
 	}
 
-	if Environ.Config.Driver == "sqlite3" {
+	if InFactory() {
 		// We only add new settings for the factory, we don't ever update a setting
 		// Need to generate our own ID
 		var nextID int

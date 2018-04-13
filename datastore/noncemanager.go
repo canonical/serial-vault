@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -89,7 +89,7 @@ func (db *DB) CreateDeviceNonce() (DeviceNonce, error) {
 	}
 
 	// Create the nonce in the database
-	if Environ.Config.Driver == "sqlite3" {
+	if InFactory() {
 		// Need to generate our own ID
 		var nextID int
 		err = db.QueryRow(maxIDDeviceNonceSQLite).Scan(&nextID)

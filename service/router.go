@@ -58,7 +58,7 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/pivotserial", Middleware(ErrorHandler(pivot.SerialAssertion))).Methods("POST")
 
 	// Test log upload routes (only in the factory)
-	if datastore.Environ.Config.Driver == "sqlite3" {
+	if datastore.InFactory() {
 		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Index))).Methods("GET")
 		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Submit))).Methods("POST")
 	}
@@ -155,6 +155,8 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/keypairs/sync", Middleware(http.HandlerFunc(keypair.APISyncKeypairs))).Methods("POST")
 	router.Handle("/api/models", Middleware(http.HandlerFunc(model.APIList))).Methods("GET")
 	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APISyncLog))).Methods("POST")
+	router.Handle("/api/testlog", Middleware(http.HandlerFunc(testlog.APIListLog))).Methods("GET")
+	router.Handle("/api/testlog", Middleware(http.HandlerFunc(testlog.APISyncLog))).Methods("POST")
 
 	return router
 }

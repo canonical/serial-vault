@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -23,7 +23,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -177,12 +176,12 @@ func (db *DB) CheckForMatching(signLog SigningLog) (bool, error) {
 func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	var err error
 	// Validate the data
-	if strings.TrimSpace(signLog.Make) == "" || strings.TrimSpace(signLog.Model) == "" || strings.TrimSpace(signLog.SerialNumber) == "" || strings.TrimSpace(signLog.Fingerprint) == "" {
+	if validateStringsNotEmpty(signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint) {
 		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
 	}
 
 	// Create the signing log in the database
-	if Environ.Config.Driver == "sqlite3" {
+	if InFactory() {
 		// Need to generate our own ID
 		var nextID int
 		err = db.QueryRow(maxIDSigningLogSQLite).Scan(&nextID)
@@ -209,7 +208,7 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 func (db *DB) CreateSigningLogSync(signLog SigningLog) error {
 	var err error
 	// Validate the data
-	if strings.TrimSpace(signLog.Make) == "" || strings.TrimSpace(signLog.Model) == "" || strings.TrimSpace(signLog.SerialNumber) == "" || strings.TrimSpace(signLog.Fingerprint) == "" {
+	if validateStringsNotEmpty(signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint) {
 		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
 	}
 

@@ -442,8 +442,8 @@ func (db *DB) CheckAPIKey(apiKey string) bool {
 	return db.checkBoolQuery(row)
 }
 
-// CheckAPIKey validates that there is a model for the supplied API key
-func (db *DB) checkModelExists(brandID, name string) bool {
+// CheckModelExists validates that there is a model for the brand and name
+func (db *DB) CheckModelExists(brandID, name string) bool {
 	row := db.QueryRow(checkModelExistsSQL, brandID, name)
 	return db.checkBoolQuery(row)
 }

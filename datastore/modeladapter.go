@@ -129,7 +129,7 @@ func (db *DB) CreateAllowedModel(model Model, authorization User) (Model, string
 	model.APIKey = apiKey
 
 	// Check that the model does not exist
-	if found := db.checkModelExists(model.BrandID, model.Name); found {
+	if found := db.CheckModelExists(model.BrandID, model.Name); found {
 		return model, "error-model-exists", errors.New("A device with the same Brand and Model already exists")
 	}
 

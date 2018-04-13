@@ -26,6 +26,8 @@ func (db *DB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 		fallthrough
 	case Superuser:
 		return db.listAllSigningLog()
+	case SyncUser:
+		fallthrough
 	case Admin:
 		return db.listSigningLogFilteredByUser(authorization.Username)
 	default:

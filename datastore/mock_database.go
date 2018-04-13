@@ -164,6 +164,15 @@ func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	return model, nil
 }
 
+// CheckModelExists mocks the database response for finding a model
+func (mdb *MockDB) CheckModelExists(brandID, modelName string) bool {
+	model := Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	if model.BrandID != brandID || model.Name != modelName || modelName == "invalid" {
+		return false
+	}
+	return true
+}
+
 // CheckAPIKey mocks the database response to check the API key
 func (mdb *MockDB) CheckAPIKey(apiKey string) bool {
 	if apiKey == "InvalidAPIKey" {
@@ -324,6 +333,11 @@ func (mdb *MockDB) PutSetting(setting Setting) error {
 
 // CreateSigningLogTable database mock
 func (mdb *MockDB) CreateSigningLogTable() error {
+	return nil
+}
+
+// CreateTestLogTable error mock for the database
+func (mdb *MockDB) CreateTestLogTable() error {
 	return nil
 }
 
@@ -731,6 +745,20 @@ func (mdb *MockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, 
 	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"}, nil
 }
 
+// CreateTestLog mock to create a test log
+func (mdb *MockDB) CreateTestLog(testLog TestLog) error {
+	return nil
+}
+
+// ListAllowedTestLog database mock
+func (mdb *MockDB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
+	logs := []TestLog{
+		{ID: 1, Brand: "system", Model: "alder", Filename: "test1.xml"},
+		{ID: 2, Brand: "system", Model: "alder", Filename: "test2.xml"},
+	}
+	return logs, nil
+}
+
 // HealthCheck mock for a healthy datastore
 func (mdb *MockDB) HealthCheck() error {
 	return nil
@@ -847,6 +875,11 @@ func (mdb *ErrorMockDB) FindModel(brandID, modelName, apiKey string) (Model, err
 	return Model{}, errors.New("Error finding the model")
 }
 
+// CheckModelExists mocks the database response for finding a model
+func (mdb *ErrorMockDB) CheckModelExists(brandID, modelName string) bool {
+	return false
+}
+
 // CheckAPIKey mocks the database response to check the API key
 func (mdb *ErrorMockDB) CheckAPIKey(apiKey string) bool {
 	return true
@@ -948,6 +981,11 @@ func (mdb *ErrorMockDB) CreateSigningLogSync(signLog SigningLog) error {
 
 // CreateSigningLogTable error mock for the database
 func (mdb *ErrorMockDB) CreateSigningLogTable() error {
+	return nil
+}
+
+// CreateTestLogTable error mock for the database
+func (mdb *ErrorMockDB) CreateTestLogTable() error {
 	return nil
 }
 
@@ -1168,6 +1206,16 @@ func (mdb *ErrorMockDB) DeleteAllowedSubstore(storeID int, authorization User) (
 // GetSubstore mock to get a substore record
 func (mdb *ErrorMockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
 	return Substore{}, errors.New("Cannot get the sub-store model")
+}
+
+// CreateTestLog mock to create a test log
+func (mdb *ErrorMockDB) CreateTestLog(testLog TestLog) error {
+	return errors.New("MOCK Cannot create the test log")
+}
+
+// ListAllowedTestLog database mock
+func (mdb *ErrorMockDB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
+	return nil, errors.New("MOCK Cannot fetch the test logs")
 }
 
 // HealthCheck mock to simulate failed HealthCheck

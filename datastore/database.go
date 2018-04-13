@@ -1,7 +1,8 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -38,6 +39,7 @@ type Datastore interface {
 	CreateModelTable() error
 	AlterModelTable() error
 	CheckAPIKey(apiKey string) bool
+	CheckModelExists(brandID, name string) bool
 
 	CreateModelAssertTable() error
 	CreateModelAssert(m ModelAssertion) (int, error)
@@ -113,6 +115,10 @@ type Datastore interface {
 	DeleteAllowedSubstore(storeID int, authorization User) (string, error)
 	GetSubstore(fromModelID int, serialNumber string) (Substore, error)
 
+	CreateTestLogTable() error
+	CreateTestLog(testLog TestLog) error
+	ListAllowedTestLog(authorization User) ([]TestLog, error)
+
 	HealthCheck() error
 
 	SyncAccount(account Account) error
@@ -169,4 +175,12 @@ func (db *DB) transaction(txFunc func(*sql.Tx) error) error {
 	}()
 	err = txFunc(tx)
 	return err
+}
+
+// InFactory checks if we are running in the factory (with a sqlite database)
+func InFactory() bool {
+	if Environ.Config.Driver == "sqlite3" {
+		return true
+	}
+	return false
 }
