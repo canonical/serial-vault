@@ -54,6 +54,15 @@ const listTestLogForUserSQL = `
 `
 const maxIDTestLogSQLite = "SELECT COUNT(*)+1 from testlog"
 const deleteTestLogSQL = "DELETE FROM testlog WHERE id = $1"
+const updateTestLogSyncedSQL = `
+	UPDATE testlog t SET synced=current_timestamp
+	WHERE EXISTS(
+		SELECT * FROM account acc
+		INNER JOIN useraccountlink ua on ua.account_id=acc.id
+		INNER JOIN userinfo u on ua.user_id=u.id
+		WHERE acc.authority_id=t.brand_id and u.username=$2
+	) AND t.id = $1
+`
 
 // TestLog holds a test log sync-ed from the factory
 type TestLog struct {
@@ -76,7 +85,7 @@ func (db *DB) CreateTestLogTable() error {
 func (db *DB) CreateTestLog(testLog TestLog) error {
 	var err error
 	// Validate the data
-	if validateStringsNotEmpty(testLog.Brand, testLog.Model, testLog.Filename, testLog.Data) {
+	if !validateStringsNotEmpty(testLog.Brand, testLog.Model, testLog.Filename, testLog.Data) {
 		return errors.New("The brand, model, filename and file (base64-encoded) must be supplied")
 	}
 

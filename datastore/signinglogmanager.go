@@ -176,7 +176,7 @@ func (db *DB) CheckForMatching(signLog SigningLog) (bool, error) {
 func (db *DB) CreateSigningLog(signLog SigningLog) error {
 	var err error
 	// Validate the data
-	if validateStringsNotEmpty(signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint) {
+	if !validateStringsNotEmpty(signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint) {
 		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
 	}
 
@@ -208,7 +208,7 @@ func (db *DB) CreateSigningLog(signLog SigningLog) error {
 func (db *DB) CreateSigningLogSync(signLog SigningLog) error {
 	var err error
 	// Validate the data
-	if validateStringsNotEmpty(signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint) {
+	if !validateStringsNotEmpty(signLog.Make, signLog.Model, signLog.SerialNumber, signLog.Fingerprint) {
 		return errors.New("The Make, Model, Serial Number and device-key Fingerprint must be supplied")
 	}
 

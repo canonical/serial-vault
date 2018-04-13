@@ -29,6 +29,8 @@ func (db *DB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
 		fallthrough
 	case Superuser:
 		return db.listAllTestLog()
+	case SyncUser:
+		fallthrough
 	case Admin:
 		return db.listTestLogFilteredByUser(authorization.Username)
 	default:
@@ -43,4 +45,19 @@ func (db *DB) SyncListTestLogs() ([]TestLog, error) {
 	}
 
 	return db.listAllTestLog()
+}
+
+// UpdateAllowedTestLog marks a test log as synced
+func (db *DB) UpdateAllowedTestLog(ID int, authorization User) error {
+	switch authorization.Role {
+	case Superuser:
+		fallthrough
+	case SyncUser:
+		fallthrough
+	case Admin:
+		_, err := db.Exec(updateTestLogSyncedSQL, ID, authorization.Username)
+		return err
+	default:
+		return errors.New("Not authorized to update a testlog")
+	}
 }

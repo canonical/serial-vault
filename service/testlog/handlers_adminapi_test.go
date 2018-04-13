@@ -137,6 +137,32 @@ func (s *LogSuite) TestAPIListHandler(c *check.C) {
 	}
 }
 
+func (s *LogSuite) TestAPIUpdateLogHandler(c *check.C) {
+	tests := []SyncTest{
+		{"PUT", "/api/testlog/1", nil, 200, response.JSONHeader, datastore.SyncUser, false, true, false, 0},
+		{"PUT", "/api/testlog/1", nil, 200, response.JSONHeader, datastore.SyncUser, true, true, false, 0},
+		{"PUT", "/api/testlog/1", nil, 400, response.JSONHeader, datastore.SyncUser, true, false, true, 0},
+		{"PUT", "/api/testlog/1", nil, 400, response.JSONHeader, datastore.Standard, true, false, false, 0},
+		{"PUT", "/api/testlog/1", nil, 400, response.JSONHeader, 0, false, false, false, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+		if t.MockError {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
+		}
+
+		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		datastore.Environ.Config.EnableUserAuth = false
+		datastore.Environ.DB = &datastore.MockDB{}
+	}
+}
+
 func sendAdminAPIRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)

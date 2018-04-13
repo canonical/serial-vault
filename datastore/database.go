@@ -130,6 +130,7 @@ type Datastore interface {
 	SyncUpdateSigningLog(id int) error
 	SyncListTestLogs() ([]TestLog, error)
 	SyncDeleteTestLog(ID int) error
+	UpdateAllowedTestLog(ID int, authorization User) error
 }
 
 // DB local database interface with our custom methods.

@@ -776,6 +776,14 @@ func (mdb *MockDB) SyncDeleteTestLog(ID int) error {
 	return nil
 }
 
+// UpdateAllowedTestLog database mock
+func (mdb *MockDB) UpdateAllowedTestLog(ID int, authorization User) error {
+	if authorization.Role >= SyncUser {
+		return nil
+	}
+	return errors.New("MOCK no permissions to update the test log")
+}
+
 // HealthCheck mock for a healthy datastore
 func (mdb *MockDB) HealthCheck() error {
 	return nil
@@ -1243,6 +1251,11 @@ func (mdb *ErrorMockDB) SyncListTestLogs() ([]TestLog, error) {
 // SyncDeleteTestLog database mock
 func (mdb *ErrorMockDB) SyncDeleteTestLog(ID int) error {
 	return errors.New("MOCK error deleting the test log")
+}
+
+// UpdateAllowedTestLog database mock
+func (mdb *ErrorMockDB) UpdateAllowedTestLog(ID int, authorization User) error {
+	return errors.New("MOCK error updating the test log")
 }
 
 // HealthCheck mock to simulate failed HealthCheck
