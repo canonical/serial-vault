@@ -1,5 +1,5 @@
 name: factory-serial-vault
-version: 0.3
+version: 0.4
 summary: Serial Vault for a Factory
 description: Restricted serial vault for deployment in a factory with limited Internet connection
 confinement: strict
