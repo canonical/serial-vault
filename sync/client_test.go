@@ -79,6 +79,13 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 			Args:         []string{"signinglog"},
 			ErrorMessage: "Error retrieving the signing logs",
 			MockErrorDB:  true},
+		{
+			Args:         []string{"testlog"},
+			ErrorMessage: ""},
+		{
+			Args:         []string{"testlog"},
+			ErrorMessage: "MOCK Cannot fetch the test logs",
+			MockErrorDB:  true},
 	}
 
 	for _, t := range tests {
@@ -90,13 +97,14 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 			sync.FetchSigningKeys = mockFetchSigningKeysError
 			sync.FetchModels = mockFetchModelsError
 			sync.SendSigningLog = mockSendSigningLogError
+			sync.SendTestLog = mockSendTestLogError
 		}
 		if t.MockFail {
 			datastore.Environ.DB = &datastore.ErrorMockDB{}
 			sync.FetchAccounts = mockFetchAccountsFail
 			sync.FetchSigningKeys = mockFetchSigningKeysFail
 			sync.FetchModels = mockFetchModelsFail
-			sync.SendSigningLog = mockSendSigningLogError
+			sync.SendTestLog = mockSendTestLogError
 		}
 		if !t.MockErrorDB && !t.MockFail {
 			// This ensures that we treat the keypairs as new
@@ -114,6 +122,8 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 			err = client.Models()
 		case "signinglog":
 			err = client.SigningLogs()
+		case "testlog":
+			err = client.TestLogs()
 		}
 
 		if len(t.ErrorMessage) == 0 {
@@ -128,6 +138,7 @@ func (s *startSuite) TestStartUnit(c *check.C) {
 		sync.FetchSigningKeys = mockFetchSigningKeys
 		sync.FetchModels = mockFetchModels
 		sync.SendSigningLog = mockSendSigningLog
+		sync.SendTestLog = mockSendTestLog
 	}
 
 }
@@ -177,6 +188,14 @@ func mockSendSigningLog(url, username, apikey string, signLog datastore.SigningL
 
 func mockSendSigningLogError(url, username, apikey string, signLog datastore.SigningLog) (bool, error) {
 	return false, errors.New("MOCK error syncing signing log")
+}
+
+func mockSendTestLog(url, username, apikey string, testLog datastore.TestLog) (bool, error) {
+	return true, nil
+}
+
+func mockSendTestLogError(url, username, apikey string, testLog datastore.TestLog) (bool, error) {
+	return false, errors.New("MOCK error syncing test log")
 }
 
 func sendSyncAPIRequest(method, url string, data io.Reader) *httptest.ResponseRecorder {

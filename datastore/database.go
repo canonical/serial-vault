@@ -128,6 +128,8 @@ type Datastore interface {
 	CreateSigningLogSync(signLog SigningLog) error
 	SyncSigningLog() ([]SigningLog, error)
 	SyncUpdateSigningLog(id int) error
+	SyncListTestLogs() ([]TestLog, error)
+	SyncDeleteTestLog(ID int) error
 }
 
 // DB local database interface with our custom methods.

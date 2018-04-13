@@ -20,6 +20,8 @@
 
 package datastore
 
+import "errors"
+
 // ListAllowedTestLog return test logs the user is authorized to see
 func (db *DB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
 	switch authorization.Role {
@@ -32,4 +34,13 @@ func (db *DB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
 	default:
 		return []TestLog{}, nil
 	}
+}
+
+// SyncListTestLogs fetches the test logs from the factory database
+func (db *DB) SyncListTestLogs() ([]TestLog, error) {
+	if Environ.Config.Driver != "sqlite3" {
+		return nil, errors.New("Only valid within a factory")
+	}
+
+	return db.listAllTestLog()
 }

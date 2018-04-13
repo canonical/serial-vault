@@ -111,6 +111,34 @@ var SendSigningLog = func(url, username, apikey string, signLog datastore.Signin
 	return result.Success, nil
 }
 
+// SendTestLog sends a test log to the cloud serial vault
+var SendTestLog = func(url, username, apikey string, testLog datastore.TestLog) (bool, error) {
+	data, err := json.Marshal(testLog)
+	if err != nil {
+		log.Errorf("Error marshalling test log: %v", err)
+		return false, err
+	}
+
+	w, err := SendRequest("POST", url, "testlog", username, apikey, data)
+	if err != nil {
+		log.Errorf("Error syncing test log: %v", err)
+		return false, err
+	}
+
+	// Parse the response from the cloud
+	result, err := parseStandardResponse(w)
+	if err != nil {
+		log.Errorf("Error parsing test log: %v", err)
+		return false, err
+	}
+	if !result.Success {
+		log.Errorf("Error syncing test log: %v", result.ErrorMessage)
+		return false, err
+	}
+
+	return result.Success, nil
+}
+
 func parseAccountResponse(w *http.Response) (account.ListResponse, error) {
 	// Check the JSON response
 	result := account.ListResponse{}
