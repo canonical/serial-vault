@@ -24,7 +24,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -69,23 +68,19 @@ type TestLog struct {
 // CreateTestLogTable creates the database table for a test log
 func (db *DB) CreateTestLogTable() error {
 	_, err := db.Exec(createTestLogTableSQL)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // CreateTestLog keeps a record of a test log
 func (db *DB) CreateTestLog(testLog TestLog) error {
 	var err error
 	// Validate the data
-	if strings.TrimSpace(testLog.Brand) == "" || strings.TrimSpace(testLog.Model) == "" || strings.TrimSpace(testLog.Filename) == "" || strings.TrimSpace(testLog.Data) == "" {
+	if validateStringsNotEmpty(testLog.Brand, testLog.Model, testLog.Filename, testLog.Data) {
 		return errors.New("The brand, model, filename and file (base64-encoded) must be supplied")
 	}
 
 	// Create the signing log in the database
-	if Environ.Config.Driver == "sqlite3" {
+	if InFactory() {
 		// Need to generate our own ID
 		var nextID int
 		err = db.QueryRow(maxIDTestLogSQLite).Scan(&nextID)

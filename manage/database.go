@@ -50,7 +50,7 @@ func execOne(method func() error, action, tableName string) {
 
 func exec(operations []operation) {
 	for _, op := range operations {
-		if op.skipSqlite && datastore.Environ.Config.Driver == "sqlite3" {
+		if op.skipSqlite && datastore.InFactory() {
 			continue
 		}
 		execOne(op.method, op.action, op.table)

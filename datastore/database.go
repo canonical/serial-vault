@@ -176,3 +176,11 @@ func (db *DB) transaction(txFunc func(*sql.Tx) error) error {
 	err = txFunc(tx)
 	return err
 }
+
+// InFactory checks if we are running in the factory (with a sqlite database)
+func InFactory() bool {
+	if Environ.Config.Driver == "sqlite3" {
+		return true
+	}
+	return false
+}
