@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 
@@ -97,7 +96,6 @@ func (s *LogSuite) TestAPISyncHandler(c *check.C) {
 		}
 
 		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
-		log.Println("---", w.Body)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
