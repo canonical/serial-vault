@@ -195,7 +195,7 @@ func (db *DB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
 // PutKeypair stores a keypair in the database
 func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 	// Validate the data
-	if validateStringsNotEmpty(keypair.AuthorityID, keypair.KeyID) {
+	if !validateStringsNotEmpty(keypair.AuthorityID, keypair.KeyID) {
 		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered")
 	}
 
@@ -211,7 +211,7 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 // SyncKeypair stores a keypair in the database
 func (db *DB) SyncKeypair(keypair SyncKeypair) error {
 	// Validate the data
-	if validateStringsNotEmpty(keypair.AuthorityID, keypair.KeyID) {
+	if !validateStringsNotEmpty(keypair.AuthorityID, keypair.KeyID) {
 		return errors.New("The Authority ID and the Key ID must be entered")
 	}
 

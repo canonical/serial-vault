@@ -179,6 +179,33 @@ func (c *FactoryClient) SigningLogs() error {
 	return nil
 }
 
+// TestLogs sends logs to the cloud from the factory
+func (c *FactoryClient) TestLogs() error {
+	// Fetch the test logs that have not been synced
+	logs, err := datastore.Environ.DB.SyncListTestLogs()
+	if err != nil {
+		log.Errorf("Error fetching unsynced test logs: %v", err)
+		return err
+	}
+
+	// Send each signing log to the cloud
+	for _, l := range logs {
+		success, err := SendTestLog(c.URL, c.Username, c.APIKey, l)
+		if err != nil || !success {
+			// Leave this one till the next sync
+			continue
+		}
+
+		// Delete the factory test log
+		err = datastore.Environ.DB.SyncDeleteTestLog(l.ID)
+		if err != nil {
+			log.Errorf("Error deleting test log: %v", err)
+		}
+	}
+
+	return nil
+}
+
 // GetKeypairByPublicID is the mockable call to the database function
 var GetKeypairByPublicID = func(authorityID, keyID string) (datastore.Keypair, error) {
 	return datastore.Environ.DB.GetKeypairByPublicID(authorityID, keyID)

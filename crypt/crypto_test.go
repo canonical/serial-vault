@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -19,7 +19,11 @@
 
 package crypt
 
-import "testing"
+import (
+	"encoding/base64"
+	"io/ioutil"
+	"testing"
+)
 
 func TestEncryptDecrypt(t *testing.T) {
 
@@ -39,5 +43,40 @@ func TestEncryptDecrypt(t *testing.T) {
 	}
 	if string(plainTextAgain[:]) != plainText {
 		t.Error("Invalid decryption")
+	}
+}
+
+func TestCreateSecretCLibCryptUser(t *testing.T) {
+	secret, err := CreateSecret(16)
+	if err != nil {
+		t.Errorf("Error creating secret: %v", err)
+	}
+	if len(secret) < 16 {
+		t.Errorf("Created secret is smaller than expected: %s", secret)
+	}
+
+	hash := CLibCryptUser("Hello", "World")
+	if len(secret) < 16 {
+		t.Errorf("Created hash is smaller than expected: %s", hash)
+	}
+}
+
+func TestGenerateAuthKey(t *testing.T) {
+	key := GenerateAuthKey("Hello", "World")
+	if len(key) < 10 {
+		t.Errorf("Created secret is smaller than expected: %s", key)
+	}
+}
+
+func TestDeserializePrivateKey(t *testing.T) {
+	signingKey, err := ioutil.ReadFile("../keystore/TestKey.asc")
+	if err != nil {
+		t.Errorf("Error reading the signing-key file: %v", err)
+	}
+	base64PrivateKey := base64.StdEncoding.EncodeToString(signingKey)
+
+	_, _, err = DeserializePrivateKey(base64PrivateKey)
+	if err != nil {
+		t.Errorf("Error deserializing the test key: %v", err)
 	}
 }

@@ -86,6 +86,13 @@ func (cmd StartCommand) Execute(args []string) error {
 			withErrors = true
 		}
 
+		// Sync the test logs
+		log.Info("Sync the test logs to the cloud")
+		err = client.TestLogs()
+		if err != nil {
+			withErrors = true
+		}
+
 		if withErrors {
 			log.Error("Sync completed with errors")
 		}

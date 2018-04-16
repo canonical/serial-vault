@@ -42,17 +42,27 @@ const createTestLogTableSQL = `
 const createTestLogSQLite = "INSERT INTO testlog (id,brand_id,model,filename,data) VALUES ($1, $2, $3, $4, $5)"
 const createTestLogSQL = "INSERT INTO testlog (brand_id,model,filename,data) VALUES ($1, $2, $3, $4)"
 
-const listTestLogSQL = "SELECT * FROM testlog WHERE not synced"
+const listTestLogSQL = "SELECT id,brand_id,model,filename,data,created FROM testlog WHERE synced IS NULL"
 const listTestLogForUserSQL = `
-	SELECT t.* FROM testlog t
+	SELECT t.id, t.brand_id, t.model, t.filename, t.data, t.created FROM testlog t
 	WHERE EXISTS(
 		SELECT * FROM account acc
 		INNER JOIN useraccountlink ua on ua.account_id=acc.id
 		INNER JOIN userinfo u on ua.user_id=u.id
 		WHERE acc.authority_id=t.brand_id and u.username=$1
-	)
+	) AND synced IS NULL
 `
 const maxIDTestLogSQLite = "SELECT COUNT(*)+1 from testlog"
+const deleteTestLogSQL = "DELETE FROM testlog WHERE id = $1"
+const updateTestLogSyncedSQL = `
+	UPDATE testlog t SET synced=current_timestamp
+	WHERE EXISTS(
+		SELECT * FROM account acc
+		INNER JOIN useraccountlink ua on ua.account_id=acc.id
+		INNER JOIN userinfo u on ua.user_id=u.id
+		WHERE acc.authority_id=t.brand_id and u.username=$2
+	) AND t.id = $1
+`
 
 // TestLog holds a test log sync-ed from the factory
 type TestLog struct {
@@ -75,7 +85,7 @@ func (db *DB) CreateTestLogTable() error {
 func (db *DB) CreateTestLog(testLog TestLog) error {
 	var err error
 	// Validate the data
-	if validateStringsNotEmpty(testLog.Brand, testLog.Model, testLog.Filename, testLog.Data) {
+	if !validateStringsNotEmpty(testLog.Brand, testLog.Model, testLog.Filename, testLog.Data) {
 		return errors.New("The brand, model, filename and file (base64-encoded) must be supplied")
 	}
 
@@ -128,7 +138,7 @@ func (db *DB) listTestLogFilteredByUser(username string) ([]TestLog, error) {
 
 	for rows.Next() {
 		testLog := TestLog{}
-		err := rows.Scan(&testLog.ID, &testLog.Brand, &testLog.Model, &testLog.Filename, &testLog.Data, &testLog.Created, &testLog.Synced)
+		err := rows.Scan(&testLog.ID, &testLog.Brand, &testLog.Model, &testLog.Filename, &testLog.Data, &testLog.Created)
 		if err != nil {
 			return nil, err
 		}
@@ -136,4 +146,14 @@ func (db *DB) listTestLogFilteredByUser(username string) ([]TestLog, error) {
 	}
 
 	return testLogs, nil
+}
+
+// SyncDeleteTestLog remove a test log from the factory
+func (db *DB) SyncDeleteTestLog(ID int) error {
+	if Environ.Config.Driver != "sqlite3" {
+		return errors.New("Only valid within a factory")
+	}
+
+	_, err := db.Exec(deleteTestLogSQL, ID)
+	return err
 }

@@ -24,10 +24,12 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/gorilla/mux"
 )
 
 // APISyncLog is the API method to sync a factory test log to the cloud
@@ -67,4 +69,24 @@ func APIListLog(w http.ResponseWriter, r *http.Request) {
 
 	// Call the API with the user
 	listHandler(w, user, true)
+}
+
+// APISyncUpdateLog is the API method to marka test log as synced
+func APISyncUpdateLog(w http.ResponseWriter, r *http.Request) {
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	logID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		response.FormatStandardResponse(false, "error-invalid-testlog", "", err.Error(), w)
+		return
+	}
+
+	// Call the API with the user
+	syncUpdateLogHandler(w, user, true, logID)
 }

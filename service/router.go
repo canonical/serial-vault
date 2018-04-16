@@ -157,6 +157,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/signinglog", Middleware(http.HandlerFunc(signinglog.APISyncLog))).Methods("POST")
 	router.Handle("/api/testlog", Middleware(http.HandlerFunc(testlog.APIListLog))).Methods("GET")
 	router.Handle("/api/testlog", Middleware(http.HandlerFunc(testlog.APISyncLog))).Methods("POST")
+	router.Handle("/api/testlog/{id:[0-9]+}", Middleware(http.HandlerFunc(testlog.APISyncUpdateLog))).Methods("PUT")
 
 	return router
 }

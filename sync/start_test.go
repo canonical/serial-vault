@@ -42,6 +42,7 @@ func (s *startSuite) SetUpTest(c *check.C) {
 	datastore.ReEncryptKeypair = mockReEncryptKeypair
 	sync.FetchModels = mockFetchModels
 	sync.SendSigningLog = mockSendSigningLog
+	sync.SendTestLog = mockSendTestLog
 }
 
 func (s *startSuite) TestStart(c *check.C) {

@@ -50,10 +50,31 @@ func syncLogHandler(w http.ResponseWriter, user datastore.User, apiCall bool, te
 		return
 	}
 
-	// Create the test log record (use the first account for the record)
+	// Create the test log record
 	err = datastore.Environ.DB.CreateTestLog(testLog)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-testlog-create", "", err.Error(), w)
+		return
+	}
+
+	// Return successful JSON response
+	w.WriteHeader(http.StatusOK)
+	response.FormatStandardResponse(true, "", "", "", w)
+}
+
+func syncUpdateLogHandler(w http.ResponseWriter, user datastore.User, apiCall bool, logID int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.SyncUser, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	// Update the test log record to indicate that it's been synced
+	err = datastore.Environ.DB.UpdateAllowedTestLog(logID, user)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-testlog-update", "", err.Error(), w)
 		return
 	}
 

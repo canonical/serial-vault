@@ -759,6 +759,31 @@ func (mdb *MockDB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
 	return logs, nil
 }
 
+// SyncListTestLogs database mock
+func (mdb *MockDB) SyncListTestLogs() ([]TestLog, error) {
+	logs := []TestLog{
+		{ID: 1, Brand: "system", Model: "alder", Filename: "test1.xml"},
+		{ID: 2, Brand: "system", Model: "alder", Filename: "test2.xml"},
+	}
+	return logs, nil
+}
+
+// SyncDeleteTestLog database mock
+func (mdb *MockDB) SyncDeleteTestLog(ID int) error {
+	if ID > 2 {
+		return errors.New("MOCK error deleting the test log")
+	}
+	return nil
+}
+
+// UpdateAllowedTestLog database mock
+func (mdb *MockDB) UpdateAllowedTestLog(ID int, authorization User) error {
+	if authorization.Role >= SyncUser {
+		return nil
+	}
+	return errors.New("MOCK no permissions to update the test log")
+}
+
 // HealthCheck mock for a healthy datastore
 func (mdb *MockDB) HealthCheck() error {
 	return nil
@@ -1216,6 +1241,21 @@ func (mdb *ErrorMockDB) CreateTestLog(testLog TestLog) error {
 // ListAllowedTestLog database mock
 func (mdb *ErrorMockDB) ListAllowedTestLog(authorization User) ([]TestLog, error) {
 	return nil, errors.New("MOCK Cannot fetch the test logs")
+}
+
+// SyncListTestLogs database mock
+func (mdb *ErrorMockDB) SyncListTestLogs() ([]TestLog, error) {
+	return nil, errors.New("MOCK Cannot fetch the test logs")
+}
+
+// SyncDeleteTestLog database mock
+func (mdb *ErrorMockDB) SyncDeleteTestLog(ID int) error {
+	return errors.New("MOCK error deleting the test log")
+}
+
+// UpdateAllowedTestLog database mock
+func (mdb *ErrorMockDB) UpdateAllowedTestLog(ID int, authorization User) error {
+	return errors.New("MOCK error updating the test log")
 }
 
 // HealthCheck mock to simulate failed HealthCheck

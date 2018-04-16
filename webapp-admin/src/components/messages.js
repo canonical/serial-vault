@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -110,7 +110,7 @@ var intlData = {
       "key-name": "Key Name",
       "login": "Login",
       "logout": "Logout",
-      "makes": "Makes",
+      "makes": "Brands",
       "model-description": "The name of the device model",
       "model": "Model",
       "modelname": "Model Name",

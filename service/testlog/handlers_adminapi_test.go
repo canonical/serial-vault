@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 
@@ -97,7 +96,6 @@ func (s *LogSuite) TestAPISyncHandler(c *check.C) {
 		}
 
 		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
-		log.Println("---", w.Body)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -133,6 +131,32 @@ func (s *LogSuite) TestAPIListHandler(c *check.C) {
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 		c.Assert(len(result.TestLog), check.Equals, t.Count)
+
+		datastore.Environ.Config.EnableUserAuth = false
+		datastore.Environ.DB = &datastore.MockDB{}
+	}
+}
+
+func (s *LogSuite) TestAPIUpdateLogHandler(c *check.C) {
+	tests := []SyncTest{
+		{"PUT", "/api/testlog/1", nil, 200, response.JSONHeader, datastore.SyncUser, false, true, false, 0},
+		{"PUT", "/api/testlog/1", nil, 200, response.JSONHeader, datastore.SyncUser, true, true, false, 0},
+		{"PUT", "/api/testlog/1", nil, 400, response.JSONHeader, datastore.SyncUser, true, false, true, 0},
+		{"PUT", "/api/testlog/1", nil, 400, response.JSONHeader, datastore.Standard, true, false, false, 0},
+		{"PUT", "/api/testlog/1", nil, 400, response.JSONHeader, 0, false, false, false, 0},
+	}
+
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+		if t.MockError {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
+		}
+
+		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
 		datastore.Environ.Config.EnableUserAuth = false
 		datastore.Environ.DB = &datastore.MockDB{}
