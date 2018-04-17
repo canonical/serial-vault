@@ -70,21 +70,21 @@ func sendSystemUserAssertion(request string, c *check.C) (int, bool, string) {
 }
 
 func generateSystemUserRequest() string {
-	request := assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
+	request := assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "2017-03-24T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
 }
 
 func generateSystemUserRequestInvalidModel() string {
-	request := assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 99, Since: "20170324T12:34:00Z"}
+	request := assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 99, Since: "2017-03-24T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
 }
 
 func generateSystemUserRequestInactiveModel() string {
-	request := assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 2, Since: "20170324T12:34:00Z"}
+	request := assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 2, Since: "2017-03-24T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)
@@ -98,7 +98,7 @@ func generateSystemUserRequestInvalidSince() string {
 }
 
 func generateSystemUserRequestInvalidAssertion() string {
-	request := assertion.SystemUserRequest{Email: "test", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "20170324T12:34:00Z"}
+	request := assertion.SystemUserRequest{Email: "test", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "2017-03-24T12:34:00Z"}
 	req, _ := json.Marshal(request)
 
 	return string(req)

@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -50,7 +51,7 @@ func Model(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 		return errResponse
 	}
 
-	substore, errResponse := findModelPivot(assertion, r.Header.Get("api-key"))
+	substore, errResponse := findModelPivot(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.HeaderString("serial"), r.Header.Get("api-key"))
 	if !errResponse.Success {
 		return errResponse
 	}
@@ -77,7 +78,7 @@ func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorRespon
 		return response.ErrorResponse{Success: false, Code: "error-auth", Message: "This feature is not enabled for this account", StatusCode: http.StatusBadRequest}
 	}
 
-	substore, errResponse := findModelPivot(assertion, r.Header.Get("api-key"))
+	substore, errResponse := findModelPivot(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.HeaderString("serial"), r.Header.Get("api-key"))
 	if !errResponse.Success {
 		return errResponse
 	}
@@ -134,7 +135,7 @@ func SerialAssertion(w http.ResponseWriter, r *http.Request) response.ErrorRespo
 		return response.ErrorResponse{Success: false, Code: "error-auth", Message: "This feature is not enabled for this account", StatusCode: http.StatusBadRequest}
 	}
 
-	substore, errResponse := findModelPivot(assertion, r.Header.Get("api-key"))
+	substore, errResponse := findModelPivot(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.HeaderString("serial"), r.Header.Get("api-key"))
 	if !errResponse.Success {
 		return errResponse
 	}
@@ -200,16 +201,16 @@ func parseSerialAssertion(r *http.Request) (asserts.Assertion, response.ErrorRes
 	return assertion, response.ErrorResponse{Success: true}
 }
 
-func findModelPivot(assertion asserts.Assertion, apiKey string) (datastore.Substore, response.ErrorResponse) {
+func findModelPivot(brand, modelName, serial, apiKey string) (datastore.Substore, response.ErrorResponse) {
 	// Validate the model by checking that it exists on the database
-	model, err := datastore.Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), apiKey)
+	model, err := datastore.Environ.DB.FindModel(brand, modelName, apiKey)
 	if err != nil {
 		svlog.Message("PIVOT", "invalid-model", "Cannot find model with the matching brand and model")
 		return datastore.Substore{}, response.ErrorInvalidModel
 	}
 
 	// Check for a sub-store model for the pivot
-	substore, err := datastore.Environ.DB.GetSubstore(model.ID, assertion.HeaderString("serial"))
+	substore, err := datastore.Environ.DB.GetSubstore(model.ID, serial)
 	if err != nil {
 		svlog.Message("PIVOT", "invalid-substore", "Cannot find sub-store mapping for the model")
 		return substore, response.ErrorInvalidSubstore

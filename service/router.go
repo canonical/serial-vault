@@ -56,6 +56,7 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/pivot", Middleware(ErrorHandler(pivot.Model))).Methods("POST")
 	router.Handle("/v1/pivotmodel", Middleware(ErrorHandler(pivot.ModelAssertion))).Methods("POST")
 	router.Handle("/v1/pivotserial", Middleware(ErrorHandler(pivot.SerialAssertion))).Methods("POST")
+	router.Handle("/v1/pivotuser", Middleware(ErrorHandler(pivot.SystemUserAssertion))).Methods("POST")
 
 	// Test log upload routes (only in the factory)
 	if datastore.InFactory() {

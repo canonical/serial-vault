@@ -37,8 +37,8 @@ import (
 	"github.com/snapcore/snapd/release"
 )
 
-// systemUserHandler is the API method to generate a system-user assertion
-func systemUserHandler(w http.ResponseWriter, authUser datastore.User, apiCall bool, user SystemUserRequest) {
+// SystemUserAction is the API method to generate a system-user assertion
+func systemUserAction(w http.ResponseWriter, authUser datastore.User, apiCall bool, user SystemUserRequest) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	err := auth.CheckUserPermissions(authUser, datastore.Standard, apiCall)
@@ -48,8 +48,6 @@ func systemUserHandler(w http.ResponseWriter, authUser datastore.User, apiCall b
 	}
 
 	// Get the model:
-	// NOTE: As this operation is available regardless of authentication enabled/disabled, we pass
-	// an empty authorization object that should allow us getting any model.
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
 		svlog.Message("USER", "invalid-model", "Cannot find model with the selected ID")
@@ -57,19 +55,37 @@ func systemUserHandler(w http.ResponseWriter, authUser datastore.User, apiCall b
 		return
 	}
 
+	// Generate the system-user and return the response
+	resp := GenerateSystemUser(user, model)
+	if !resp.Success {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		svlog.Message("USER", "system-user-assertion", err.Error())
+		response.FormatStandardResponse(false, "system-user-assertion", "", err.Error(), w)
+	}
+
+}
+
+// GenerateSystemUser creates a system-user assertion from the model and user details
+func GenerateSystemUser(user SystemUserRequest, model datastore.Model) SystemUserResponse {
+	response := SystemUserResponse{}
+
 	// Check that the model has an active system-user keypair
 	if !model.KeyActiveUser {
 		svlog.Message("USER", "invalid-model", "The model is linked with an inactive signing-key")
-		response.FormatStandardResponse(false, "invalid-model", "", "The model is linked with an inactive signing-key", w)
-		return
+		response.ErrorCode = "invalid-model"
+		response.ErrorMessage = "The model is linked with an inactive signing-key"
+		return response
 	}
 
 	// Fetch the account assertion from the database
 	account, err := datastore.Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
 		svlog.Message("USER", "account-assertions", err.Error())
-		response.FormatStandardResponse(false, "account-assertions", "", "Error retrieving the account assertion from the database", w)
-		return
+		response.ErrorCode = "account-assertions"
+		response.ErrorMessage = "Error retrieving the account assertion from the database"
+		return response
 	}
 
 	// Create the system-user assertion headers from the request
@@ -79,8 +95,9 @@ func systemUserHandler(w http.ResponseWriter, authUser datastore.User, apiCall b
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
 		svlog.Message("USER", "signing-assertion", err.Error())
-		response.FormatStandardResponse(false, "signing-assertion", "", err.Error(), w)
-		return
+		response.ErrorCode = "signing-assertion"
+		response.ErrorMessage = err.Error()
+		return response
 	}
 
 	// Get the signed assertion
@@ -89,11 +106,9 @@ func systemUserHandler(w http.ResponseWriter, authUser datastore.User, apiCall b
 	// Format the composite assertion
 	composite := fmt.Sprintf("%s\n%s\n%s", account.Assertion, model.AssertionUser, serializedAssertion)
 
-	response := SystemUserResponse{Success: true, Assertion: composite}
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		svlog.Message("USER", "signing-assertion", err.Error())
-	}
-
+	response.Success = true
+	response.Assertion = composite
+	return response
 }
 
 func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[string]interface{} {
@@ -111,11 +126,17 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 	password := crypt.CLibCryptUser(user.Password, salt)
 
 	// Set the since and end date/times
-	since, err := time.Parse("YYYY-MM-DDThh:mm:ssZ00:00", user.Since)
+	since, err := time.Parse(time.RFC3339, user.Since)
 	if err != nil {
 		since = time.Now().UTC()
 	}
-	until := since.Add(oneYearDuration)
+	until, err := time.Parse(time.RFC3339, user.Until)
+	if err != nil {
+		until = since.Add(oneYearDuration)
+	}
+	if since.After(until) {
+		until = since.Add(oneYearDuration)
+	}
 
 	// Create the serial assertion header from the serial-request headers
 	headers := map[string]interface{}{

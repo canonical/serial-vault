@@ -42,6 +42,15 @@ type SystemUserRequest struct {
 	Password string `json:"password"`
 	ModelID  int    `json:"model"`
 	Since    string `json:"since"`
+	Until    string `json:"until"`
+}
+
+// PivotSystemUserRequest is the JSON version of the request to create a system-user assertion
+type PivotSystemUserRequest struct {
+	SystemUserRequest
+	Brand        string `json:"brand-id"`
+	ModelName    string `json:"model-name"`
+	SerialNumber string `json:"serial"`
 }
 
 // SystemUserResponse is the response from a system-user creation
@@ -75,5 +84,5 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	systemUserHandler(w, authUser, false, user)
+	systemUserAction(w, authUser, false, user)
 }

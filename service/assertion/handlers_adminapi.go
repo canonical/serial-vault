@@ -53,5 +53,5 @@ func APISystemUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	systemUserHandler(w, authUser, true, user)
+	systemUserAction(w, authUser, true, user)
 }

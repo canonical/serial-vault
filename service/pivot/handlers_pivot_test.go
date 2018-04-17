@@ -27,6 +27,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CanonicalLtd/serial-vault/service/assertion"
+
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
@@ -249,6 +251,33 @@ func (s *PivotSuite) TestPivotModelSerialAssertionHandler(c *check.C) {
 		}
 	}
 
+}
+
+func (s *PivotSuite) TestPivotSystemUserAssertionHandler(c *check.C) {
+	r := assertion.PivotSystemUserRequest{
+		SystemUserRequest: assertion.SystemUserRequest{Email: "test@example.com", Name: "John Doe", Username: "jdoe", Password: "super", Since: "2017-03-24T12:34:00Z"},
+		Brand:             "system", ModelName: "alder", SerialNumber: "abcd1234",
+	}
+	req, _ := json.Marshal(r)
+
+	tests := []PivotTest{
+		{"POST", "/v1/pivotuser", nil, 400, jsonType, "ValidAPIKey", false},
+		{"POST", "/v1/pivotuser", []byte{}, 400, jsonType, "ValidAPIKey", false},
+		{"POST", "/v1/pivotuser", []byte("invalid"), 400, jsonType, "ValidAPIKey", false},
+		{"POST", "/v1/pivotuser", req, 200, asserts.MediaType, "ValidAPIKey", true},
+	}
+
+	for _, t := range tests {
+		w := sendSigningRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		if t.Type == jsonType {
+			result, err := parsePivotResponse(w)
+			c.Assert(err, check.IsNil)
+			c.Assert(result.Success, check.Equals, t.Success)
+		}
+	}
 }
 
 func sendSigningRequest(method, url string, data io.Reader, apiKey string, c *check.C) *httptest.ResponseRecorder {

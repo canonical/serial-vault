@@ -42,16 +42,15 @@ type SuiteTest struct {
 	Success     bool
 	SkipJWT     bool
 	MockError   bool
-	Accounts    int
 }
 
 func (s *AssertionSuite) TestAPISystemUserHandler(c *check.C) {
 	tests := []SuiteTest{
-		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
-		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 200, "application/json; charset=UTF-8", datastore.SyncUser, true, true, false, false, 0},
-		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 200, "application/json; charset=UTF-8", datastore.Standard, true, false, false, false, 0},
-		{"POST", "/api/assertions", []byte(generateSystemUserRequestInactiveModel()), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, false, false, 0},
-		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
+		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 400, "application/json; charset=UTF-8", 0, false, false, false, false},
+		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 200, "application/json; charset=UTF-8", datastore.SyncUser, true, true, false, false},
+		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 200, "application/json; charset=UTF-8", datastore.Standard, true, true, false, false},
+		{"POST", "/api/assertions", []byte(generateSystemUserRequestInactiveModel()), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, false, false},
+		{"POST", "/api/assertions", []byte(generateSystemUserRequest()), 400, "application/json; charset=UTF-8", 0, true, false, false, false},
 	}
 
 	for _, t := range tests {
