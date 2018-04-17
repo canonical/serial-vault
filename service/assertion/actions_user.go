@@ -1,7 +1,8 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2018 Canonical Ltd
+ * Copyright (C) 2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,64 +18,32 @@
  *
  */
 
-package app
+package assertion
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"regexp"
-
 	"time"
-
-	"fmt"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/random"
+	"github.com/CanonicalLtd/serial-vault/service/auth"
 	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
 )
 
-const oneYearDuration = time.Duration(24*365) * time.Hour
-const userAssertionRevision = "1"
-
-// SystemUserRequest is the JSON version of the request to create a system-user assertion
-type SystemUserRequest struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	ModelID  int    `json:"model"`
-	Since    string `json:"since"`
-}
-
-// SystemUserResponse is the response from a system-user creation
-type SystemUserResponse struct {
-	Success      bool   `json:"success"`
-	ErrorCode    string `json:"error_code"`
-	ErrorSubcode string `json:"error_subcode"`
-	ErrorMessage string `json:"message"`
-	Assertion    string `json:"assertion"`
-}
-
-// SystemUserAssertion is the API method to generate a signed system-user assertion for a device
-func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
+// systemUserHandler is the API method to generate a system-user assertion
+func systemUserHandler(w http.ResponseWriter, authUser datastore.User, apiCall bool, user SystemUserRequest) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Decode the body
-	user := SystemUserRequest{}
-	err := json.NewDecoder(r.Body).Decode(&user)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		response.FormatStandardResponse(false, "error-user-data", "", "No system-user data supplied", w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+	err := auth.CheckUserPermissions(authUser, datastore.Standard, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
 	}
 
@@ -124,10 +93,10 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		svlog.Message("USER", "signing-assertion", err.Error())
 	}
+
 }
 
 func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[string]interface{} {
-
 	// Create the salt from a random string
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
 	randomText, err := random.GenerateRandomString(32)

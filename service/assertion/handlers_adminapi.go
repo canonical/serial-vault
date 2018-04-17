@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2017-2018 Canonical Ltd
+ * Copyright (C) 2018 Canonical Ltd
  * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,39 +25,33 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
-// ModelAssertionRequest is the JSON version of a model assertion request
-type ModelAssertionRequest struct {
-	BrandID string `json:"brand-id"`
-	Name    string `json:"model"`
-}
+// APISystemUser is the API method to generate a signed system-user assertion for a device
+func APISystemUser(w http.ResponseWriter, r *http.Request) {
 
-// ModelAssertion is the API method to generate a model assertion
-func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
-	// Validate the model API key
-	apiKey, err := request.CheckModelAPI(r)
+	// Validate the user and API key
+	authUser, err := request.CheckUserAPI(r)
 	if err != nil {
-		log.Message("MODEL", "invalid-api-key", "Invalid API key used")
-		return response.ErrorInvalidAPIKey
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
 	}
 
-	defer r.Body.Close()
-
-	// Decode the JSON body
-	request := ModelAssertionRequest{}
-	err = json.NewDecoder(r.Body).Decode(&request)
+	// Decode the body
+	user := SystemUserRequest{}
+	err = json.NewDecoder(r.Body).Decode(&user)
 	switch {
 	// Check we have some data
 	case err == io.EOF:
-		return response.ErrorEmptyData
+		response.FormatStandardResponse(false, "error-user-data", "", "No system-user data supplied", w)
+		return
 		// Check for parsing errors
 	case err != nil:
-		return response.ErrorResponse{Success: false, Code: "error-decode-json", SubCode: "", Message: err.Error(), StatusCode: http.StatusBadRequest}
+		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+		return
 	}
 
-	return modelAssertionHandler(w, apiKey, request)
+	systemUserHandler(w, authUser, true, user)
 }
