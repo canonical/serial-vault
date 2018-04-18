@@ -1,7 +1,8 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2018 Canonical Ltd
+ * Copyright (C) 2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,90 +18,68 @@
  *
  */
 
-package app
+package assertion
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"regexp"
-
 	"time"
-
-	"fmt"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/random"
+	"github.com/CanonicalLtd/serial-vault/service/auth"
 	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
 )
 
-const oneYearDuration = time.Duration(24*365) * time.Hour
-const userAssertionRevision = "1"
-
-// SystemUserRequest is the JSON version of the request to create a system-user assertion
-type SystemUserRequest struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	ModelID  int    `json:"model"`
-	Since    string `json:"since"`
-}
-
-// SystemUserResponse is the response from a system-user creation
-type SystemUserResponse struct {
-	Success      bool   `json:"success"`
-	ErrorCode    string `json:"error_code"`
-	ErrorSubcode string `json:"error_subcode"`
-	ErrorMessage string `json:"message"`
-	Assertion    string `json:"assertion"`
-}
-
-// SystemUserAssertion is the API method to generate a signed system-user assertion for a device
-func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
+// systemUserAssertionAction is called by the API method to generate a system-user assertion
+func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, apiCall bool, user SystemUserRequest) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	// Decode the body
-	user := SystemUserRequest{}
-	err := json.NewDecoder(r.Body).Decode(&user)
-	switch {
-	// Check we have some data
-	case err == io.EOF:
-		response.FormatStandardResponse(false, "error-user-data", "", "No system-user data supplied", w)
-		return
-		// Check for parsing errors
-	case err != nil:
-		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+	err := auth.CheckUserPermissions(authUser, datastore.Standard, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", "", w)
 		return
 	}
 
 	// Get the model:
-	// NOTE: As this operation is available regardless of authentication enabled/disabled, we pass
-	// an empty authorization object that should allow us getting any model.
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
-		svlog.Message("USER", "invalid-model", "Cannot find model with the selected ID")
-		response.FormatStandardResponse(false, "invalid-model", "", "Cannot find model with the selected ID", w)
+		svlog.Message("USER", response.ErrorInvalidModelID.Code, response.ErrorInvalidModelID.Message)
+		response.FormatStandardResponse(false, response.ErrorInvalidModelID.Code, "", response.ErrorInvalidModelID.Message, w)
 		return
 	}
 
+	// Generate the system-user assertion and return the response
+	resp := GenerateSystemUserAssertion(user, model)
+	if !resp.Success {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		svlog.Message("USER", response.ErrorCreateSystemUserAssertion.Code, err.Error())
+		response.FormatStandardResponse(false, response.ErrorCreateSystemUserAssertion.Code, "", err.Error(), w)
+	}
+
+}
+
+// GenerateSystemUserAssertion creates a system-user assertion from the model and user details
+func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) SystemUserResponse {
 	// Check that the model has an active system-user keypair
 	if !model.KeyActiveUser {
-		svlog.Message("USER", "invalid-model", "The model is linked with an inactive signing-key")
-		response.FormatStandardResponse(false, "invalid-model", "", "The model is linked with an inactive signing-key", w)
-		return
+		svlog.Message("USER", response.ErrorInactiveModel.Code, response.ErrorInactiveModel.Message)
+		return SystemUserResponse{ErrorCode: response.ErrorInactiveModel.Code, ErrorMessage: response.ErrorInactiveModel.Message}
 	}
 
 	// Fetch the account assertion from the database
 	account, err := datastore.Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
-		svlog.Message("USER", "account-assertions", err.Error())
-		response.FormatStandardResponse(false, "account-assertions", "", "Error retrieving the account assertion from the database", w)
-		return
+		svlog.Message("USER", response.ErrorAccountAssertion.Code, err.Error())
+		return SystemUserResponse{ErrorCode: response.ErrorAccountAssertion.Code, ErrorMessage: response.ErrorAccountAssertion.Message}
 	}
 
 	// Create the system-user assertion headers from the request
@@ -109,9 +88,8 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	// Sign the system-user assertion using the system-user key
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
-		svlog.Message("USER", "signing-assertion", err.Error())
-		response.FormatStandardResponse(false, "signing-assertion", "", err.Error(), w)
-		return
+		svlog.Message("USER", response.ErrorSignAssertion.Code, err.Error())
+		return SystemUserResponse{ErrorCode: response.ErrorSignAssertion.Code, ErrorMessage: err.Error()}
 	}
 
 	// Get the signed assertion
@@ -120,19 +98,15 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	// Format the composite assertion
 	composite := fmt.Sprintf("%s\n%s\n%s", account.Assertion, model.AssertionUser, serializedAssertion)
 
-	response := SystemUserResponse{Success: true, Assertion: composite}
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		svlog.Message("USER", "signing-assertion", err.Error())
-	}
+	return SystemUserResponse{Success: true, Assertion: composite}
 }
 
 func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[string]interface{} {
-
 	// Create the salt from a random string
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
 	randomText, err := random.GenerateRandomString(32)
 	if err != nil {
-		svlog.Message("USER", "generate-assertion", err.Error())
+		svlog.Message("USER", response.ErrorSignAssertion.Code, err.Error())
 		return map[string]interface{}{}
 	}
 	baseSalt := reg.ReplaceAllString(randomText, "")
@@ -142,11 +116,17 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 	password := crypt.CLibCryptUser(user.Password, salt)
 
 	// Set the since and end date/times
-	since, err := time.Parse("YYYY-MM-DDThh:mm:ssZ00:00", user.Since)
+	since, err := time.Parse(time.RFC3339, user.Since)
 	if err != nil {
 		since = time.Now().UTC()
 	}
-	until := since.Add(oneYearDuration)
+	until, err := time.Parse(time.RFC3339, user.Until)
+	if err != nil {
+		until = since.Add(oneYearDuration)
+	}
+	if since.After(until) {
+		until = since.Add(oneYearDuration)
+	}
 
 	// Create the serial assertion header from the serial-request headers
 	headers := map[string]interface{}{

@@ -56,6 +56,7 @@ func SigningRouter() *mux.Router {
 	router.Handle("/v1/pivot", Middleware(ErrorHandler(pivot.Model))).Methods("POST")
 	router.Handle("/v1/pivotmodel", Middleware(ErrorHandler(pivot.ModelAssertion))).Methods("POST")
 	router.Handle("/v1/pivotserial", Middleware(ErrorHandler(pivot.SerialAssertion))).Methods("POST")
+	router.Handle("/v1/pivotuser", Middleware(ErrorHandler(pivot.SystemUserAssertion))).Methods("POST")
 
 	// Test log upload routes (only in the factory)
 	if datastore.InFactory() {
@@ -114,7 +115,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/accounts/stores", MiddlewareWithCSRF(http.HandlerFunc(substore.Create))).Methods("POST")
 
 	// API routes: system-user assertion
-	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(app.SystemUserAssertion))).Methods("POST")
+	router.Handle("/v1/assertions", MiddlewareWithCSRF(http.HandlerFunc(assertion.SystemUserAssertion))).Methods("POST")
 
 	// API routes: users management
 	router.Handle("/v1/users", MiddlewareWithCSRF(http.HandlerFunc(user.List))).Methods("GET")
@@ -149,6 +150,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIUpdate))).Methods("PUT")
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIDelete))).Methods("DELETE")
 	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreate))).Methods("POST")
+	router.Handle("/api/assertions", Middleware(http.HandlerFunc(assertion.APISystemUser))).Methods("POST")
 
 	// Sync API routes
 	router.Handle("/api/accounts", Middleware(http.HandlerFunc(account.APIList))).Methods("GET")

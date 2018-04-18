@@ -36,6 +36,7 @@ class SystemUserForm extends Component {
             name: '',
             model: 0,
             since: moment.utc(),
+            until: moment.utc().add(1, 'year'),
             message: '',
             models: [],
             assertion: null,
@@ -121,6 +122,25 @@ class SystemUserForm extends Component {
         this.setState({since: t});
     }
 
+    handleChangeUntilDate = (date) => {
+        // Get the time from the current setting
+        date.hours(this.state.until.hours())
+        date.minutes(this.state.until.minutes())
+        date.seconds(this.state.until.seconds())
+
+        this.setState({until: date});
+    }
+
+    handleChangeUntilTime = (e) => {
+        var time = e.target.value.split(':')
+        var t = this.state.until
+        t.hours(time[0])
+        t.minutes(time[1])
+        t.seconds(0)
+
+        this.setState({until: t});
+    }
+
     onSubmit = (e) => {
         e.preventDefault()
 
@@ -130,7 +150,8 @@ class SystemUserForm extends Component {
             password: this.state.password,
             name:     this.state.name,
             model:    this.state.model,
-            since:    this.state.since.format('YYYY-MM-DDThh:mm:ss'),
+            since:    this.state.since.format('YYYY-MM-DDTHH:mm:ss') + 'Z',
+            until:    this.state.until.format('YYYY-MM-DDTHH:mm:ss') + 'Z',
         }
         if (this.validate(form)) {
             // this.props.onSubmit(form)
@@ -214,10 +235,21 @@ class SystemUserForm extends Component {
                                     <DatePicker selected={this.state.since} onChange={this.handleChangeSinceDate} />
                                 </div>
                                 <div className="col-3">
-                                    <input type="time" name="since_time" title="the time the assertion is valid from (UTC)" onChange={this.handleChangeSinceTime} value={this.state.since.format('hh:mm')} />
+                                    <input type="time" name="since_time" title="the time the assertion is valid from (UTC)" onChange={this.handleChangeSinceTime} value={this.state.since.format('HH:mm')} />
                                 </div>
                             </div>
                         </label>
+                        <label htmlFor="until">Until (UTC):
+                            <div className="row">
+                                <div className="col-3">
+                                    <DatePicker selected={this.state.until} onChange={this.handleChangeUntilDate} />
+                                </div>
+                                <div className="col-3">
+                                    <input type="time" name="until_time" title="the time the assertion is valid until (UTC)" onChange={this.handleChangeUntilTime} value={this.state.until.format('HH:mm')} />
+                                </div>
+                            </div>
+                        </label>
+                    
                     </fieldset>
                     <button className="p-button--brand" onClick={this.onSubmit}>Create</button>
                 </form>

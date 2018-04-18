@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -53,6 +54,7 @@ var _ = check.Suite(&AssertionSuite{})
 func (s *AssertionSuite) SetUpTest(c *check.C) {
 	// Mock the store
 	account.FetchAssertionFromStore = account.MockFetchAssertionFromStore
+	service.MiddlewareWithCSRF = service.Middleware
 
 	// Mock the database
 	config := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
