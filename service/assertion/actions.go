@@ -40,13 +40,13 @@ func modelAssertionHandler(w http.ResponseWriter, apiKey string, request ModelAs
 		return response.ErrorResponse{Success: false, Code: "error-account", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 	if !acc.ResellerAPI {
-		return response.ErrorResponse{Success: false, Code: "error-auth", Message: "This feature is not enabled for this account", StatusCode: http.StatusBadRequest}
+		return response.ErrorResponse{Success: false, Code: response.ErrorAuthDisabled.Code, Message: response.ErrorAuthDisabled.Message, StatusCode: http.StatusBadRequest}
 	}
 
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(request.BrandID, request.Name, apiKey)
 	if err != nil {
-		log.Message("MODEL", "invalid-model", "Cannot find model with the matching brand and model")
+		log.Message("MODEL", response.ErrorInvalidModel.Code, response.ErrorInvalidModel.Message)
 		return response.ErrorInvalidModel
 	}
 
@@ -55,15 +55,15 @@ func modelAssertionHandler(w http.ResponseWriter, apiKey string, request ModelAs
 	// Build the model assertion headers
 	assertionHeaders, keypair, err := CreateModelAssertionHeaders(model)
 	if err != nil {
-		log.Message("MODEL", "create-assertion", err.Error())
+		log.Message("MODEL", response.ErrorCreateModelAssertion.Code, err.Error())
 		return response.ErrorCreateModelAssertion
 	}
 
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType, assertionHeaders, []byte(""), model.BrandID, keypair.KeyID, keypair.SealedKey)
 	if err != nil {
-		log.Message("MODEL", "signing-assertion", err.Error())
-		return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
+		log.Message("MODEL", response.ErrorSignAssertion.Code, err.Error())
+		return response.ErrorResponse{Success: false, Code: response.ErrorSignAssertion.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Add the account assertion to the assertions list

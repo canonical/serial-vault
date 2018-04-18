@@ -32,19 +32,26 @@ type ErrorResponse struct {
 
 // Standard error messages
 var (
-	ErrorInvalidAPIKey        = ErrorResponse{false, "invalid-api-key", "", "Invalid API key used", http.StatusBadRequest}
-	ErrorNilData              = ErrorResponse{false, "nil-data", "", "Uninitialized POST data", http.StatusBadRequest}
-	ErrorEmptyData            = ErrorResponse{false, "empty-data", "", "No data supplied for signing", http.StatusBadRequest}
-	ErrorInvalidType          = ErrorResponse{false, "invalid-type", "", "The assertion type must be 'serial'", http.StatusBadRequest}
-	ErrorInvalidSecondType    = ErrorResponse{false, "invalid-second-type", "", "The 2nd assertion type must be 'model'", http.StatusBadRequest}
-	ErrorInvalidNonce         = ErrorResponse{false, "invalid-nonce", "", "Nonce is invalid or expired", http.StatusBadRequest}
-	ErrorInvalidModel         = ErrorResponse{false, "invalid-model", "", "Cannot find model with the matching brand and model", http.StatusBadRequest}
-	ErrorInvalidSubstore      = ErrorResponse{false, "invalid-substore", "", "Cannot find sub-store mapping for the model", http.StatusBadRequest}
-	ErrorInactiveModel        = ErrorResponse{false, "invalid-model", "", "The model is linked with an inactive signing-key", http.StatusBadRequest}
-	ErrorEmptySerial          = ErrorResponse{false, "create-assertion", "", "The serial number is missing from both the header and body", http.StatusBadRequest}
-	ErrorCreateAssertion      = ErrorResponse{false, "create-assertion", "", "Error converting the serial-request to a serial assertion", http.StatusBadRequest}
-	ErrorCheckAssertion       = ErrorResponse{false, "duplicate-assertion", "", "Error checking the serial-request. Please try again later", http.StatusBadRequest}
-	ErrorCreateModelAssertion = ErrorResponse{false, "create-assertion", "", "Error with the model assertion headers", http.StatusBadRequest}
-	ErrorDuplicateAssertion   = ErrorResponse{false, "duplicate-assertion", "", "The serial number and/or device-key have already been used to sign a device", http.StatusBadRequest}
-	ErrorGenerateNonce        = ErrorResponse{false, "generate-nonce", "", "Error generating a nonce. Please try again later", http.StatusBadRequest}
+	ErrorAuth                      = ErrorResponse{false, "error-auth", "", "Authorization error", http.StatusBadRequest}
+	ErrorAuthDisabled              = ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
+	ErrorInvalidAPIKey             = ErrorResponse{false, "invalid-api-key", "", "Invalid API key used", http.StatusBadRequest}
+	ErrorNilData                   = ErrorResponse{false, "nil-data", "", "Uninitialized POST data", http.StatusBadRequest}
+	ErrorEmptyData                 = ErrorResponse{false, "empty-data", "", "No data supplied for signing", http.StatusBadRequest}
+	ErrorDecodeJSON                = ErrorResponse{false, "error-decode-json", "", "Error decoding JSON", http.StatusBadRequest}
+	ErrorInvalidType               = ErrorResponse{false, "invalid-type", "", "The assertion type must be 'serial'", http.StatusBadRequest}
+	ErrorInvalidSecondType         = ErrorResponse{false, "invalid-second-type", "", "The 2nd assertion type must be 'model'", http.StatusBadRequest}
+	ErrorInvalidNonce              = ErrorResponse{false, "invalid-nonce", "", "Nonce is invalid or expired", http.StatusBadRequest}
+	ErrorInvalidModel              = ErrorResponse{false, "invalid-model", "", "Cannot find model with the matching brand and model", http.StatusBadRequest}
+	ErrorInvalidModelID            = ErrorResponse{false, "invalid-model", "", "Cannot find model with the selected ID", http.StatusBadRequest}
+	ErrorInvalidSubstore           = ErrorResponse{false, "invalid-substore", "", "Cannot find sub-store mapping for the model", http.StatusBadRequest}
+	ErrorInactiveModel             = ErrorResponse{false, "invalid-model", "", "The model is linked with an inactive signing-key", http.StatusBadRequest}
+	ErrorEmptySerial               = ErrorResponse{false, "create-assertion", "", "The serial number is missing from both the header and body", http.StatusBadRequest}
+	ErrorCreateAssertion           = ErrorResponse{false, "create-assertion", "", "Error converting the serial-request to a serial assertion", http.StatusBadRequest}
+	ErrorCheckAssertion            = ErrorResponse{false, "duplicate-assertion", "", "Error checking the serial-request. Please try again later", http.StatusBadRequest}
+	ErrorCreateModelAssertion      = ErrorResponse{false, "create-assertion", "", "Error with the model assertion headers", http.StatusBadRequest}
+	ErrorCreateSystemUserAssertion = ErrorResponse{false, "create-assertion", "", "Error with the system-user assertion", http.StatusBadRequest}
+	ErrorDuplicateAssertion        = ErrorResponse{false, "duplicate-assertion", "", "The serial number and/or device-key have already been used to sign a device", http.StatusBadRequest}
+	ErrorAccountAssertion          = ErrorResponse{false, "account-assertion", "", "Error retrieving the account assertion from the database", http.StatusBadRequest}
+	ErrorSignAssertion             = ErrorResponse{false, "signing-assertion", "", "Error signing the assertion", http.StatusBadRequest}
+	ErrorGenerateNonce             = ErrorResponse{false, "generate-nonce", "", "Error generating a nonce. Please try again later", http.StatusBadRequest}
 )

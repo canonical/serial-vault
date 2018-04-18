@@ -66,7 +66,7 @@ type SystemUserResponse struct {
 func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -76,13 +76,13 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	switch {
 	// Check we have some data
 	case err == io.EOF:
-		response.FormatStandardResponse(false, "error-user-data", "", "No system-user data supplied", w)
+		response.FormatStandardResponse(false, response.ErrorEmptyData.Code, "", response.ErrorEmptyData.Message, w)
 		return
 		// Check for parsing errors
 	case err != nil:
-		response.FormatStandardResponse(false, "error-decode-json", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorDecodeJSON.Code, "", err.Error(), w)
 		return
 	}
 
-	systemUserAction(w, authUser, false, user)
+	systemUserAssertionAction(w, authUser, false, user)
 }

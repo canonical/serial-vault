@@ -41,7 +41,7 @@ func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorRespon
 	// Validate the model API key
 	apiKey, err := request.CheckModelAPI(r)
 	if err != nil {
-		log.Message("MODEL", "invalid-api-key", "Invalid API key used")
+		log.Message("MODEL", response.ErrorInvalidAPIKey.Code, response.ErrorInvalidAPIKey.Message)
 		return response.ErrorInvalidAPIKey
 	}
 
@@ -56,7 +56,7 @@ func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorRespon
 		return response.ErrorEmptyData
 		// Check for parsing errors
 	case err != nil:
-		return response.ErrorResponse{Success: false, Code: "error-decode-json", SubCode: "", Message: err.Error(), StatusCode: http.StatusBadRequest}
+		return response.ErrorResponse{Success: false, Code: response.ErrorDecodeJSON.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	return modelAssertionHandler(w, apiKey, request)

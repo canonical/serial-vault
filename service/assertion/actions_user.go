@@ -37,21 +37,21 @@ import (
 	"github.com/snapcore/snapd/release"
 )
 
-// SystemUserAction is the API method to generate a system-user assertion
-func systemUserAction(w http.ResponseWriter, authUser datastore.User, apiCall bool, user SystemUserRequest) {
+// systemUserAssertionAction is called by the API method to generate a system-user assertion
+func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, apiCall bool, user SystemUserRequest) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	err := auth.CheckUserPermissions(authUser, datastore.Standard, apiCall)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", "", w)
 		return
 	}
 
 	// Get the model:
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
-		svlog.Message("USER", "invalid-model", "Cannot find model with the selected ID")
-		response.FormatStandardResponse(false, "invalid-model", "", "Cannot find model with the selected ID", w)
+		svlog.Message("USER", response.ErrorInvalidModelID.Code, response.ErrorInvalidModelID.Message)
+		response.FormatStandardResponse(false, response.ErrorInvalidModelID.Code, "", response.ErrorInvalidModelID.Message, w)
 		return
 	}
 
@@ -61,31 +61,25 @@ func systemUserAction(w http.ResponseWriter, authUser datastore.User, apiCall bo
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		svlog.Message("USER", "system-user-assertion", err.Error())
-		response.FormatStandardResponse(false, "system-user-assertion", "", err.Error(), w)
+		svlog.Message("USER", response.ErrorCreateSystemUserAssertion.Code, err.Error())
+		response.FormatStandardResponse(false, response.ErrorCreateSystemUserAssertion.Code, "", err.Error(), w)
 	}
 
 }
 
 // GenerateSystemUserAssertion creates a system-user assertion from the model and user details
 func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) SystemUserResponse {
-	response := SystemUserResponse{}
-
 	// Check that the model has an active system-user keypair
 	if !model.KeyActiveUser {
-		svlog.Message("USER", "invalid-model", "The model is linked with an inactive signing-key")
-		response.ErrorCode = "invalid-model"
-		response.ErrorMessage = "The model is linked with an inactive signing-key"
-		return response
+		svlog.Message("USER", response.ErrorInactiveModel.Code, response.ErrorInactiveModel.Message)
+		return SystemUserResponse{ErrorCode: response.ErrorInactiveModel.Code, ErrorMessage: response.ErrorInactiveModel.Message}
 	}
 
 	// Fetch the account assertion from the database
 	account, err := datastore.Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
-		svlog.Message("USER", "account-assertions", err.Error())
-		response.ErrorCode = "account-assertions"
-		response.ErrorMessage = "Error retrieving the account assertion from the database"
-		return response
+		svlog.Message("USER", response.ErrorAccountAssertion.Code, err.Error())
+		return SystemUserResponse{ErrorCode: response.ErrorAccountAssertion.Code, ErrorMessage: response.ErrorAccountAssertion.Message}
 	}
 
 	// Create the system-user assertion headers from the request
@@ -94,10 +88,8 @@ func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) 
 	// Sign the system-user assertion using the system-user key
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
-		svlog.Message("USER", "signing-assertion", err.Error())
-		response.ErrorCode = "signing-assertion"
-		response.ErrorMessage = err.Error()
-		return response
+		svlog.Message("USER", response.ErrorSignAssertion.Code, err.Error())
+		return SystemUserResponse{ErrorCode: response.ErrorSignAssertion.Code, ErrorMessage: err.Error()}
 	}
 
 	// Get the signed assertion
@@ -106,9 +98,7 @@ func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) 
 	// Format the composite assertion
 	composite := fmt.Sprintf("%s\n%s\n%s", account.Assertion, model.AssertionUser, serializedAssertion)
 
-	response.Success = true
-	response.Assertion = composite
-	return response
+	return SystemUserResponse{Success: true, Assertion: composite}
 }
 
 func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[string]interface{} {
@@ -116,7 +106,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
 	randomText, err := random.GenerateRandomString(32)
 	if err != nil {
-		svlog.Message("USER", "generate-assertion", err.Error())
+		svlog.Message("USER", response.ErrorSignAssertion.Code, err.Error())
 		return map[string]interface{}{}
 	}
 	baseSalt := reg.ReplaceAllString(randomText, "")
