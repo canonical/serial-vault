@@ -63,8 +63,8 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) response.ErrorR
 	model := substore.FromModel
 	model.Name = substore.ModelName
 
-	// Generate the system-user for the pivoted model
-	resp := assertion.GenerateSystemUser(user.SystemUserRequest, model)
+	// Generate the system-user assertion for the pivoted model
+	resp := assertion.GenerateSystemUserAssertion(user.SystemUserRequest, model)
 	if !resp.Success {
 		return response.ErrorResponse{Success: false, Code: resp.ErrorCode, Message: resp.ErrorMessage, StatusCode: http.StatusBadRequest}
 	}

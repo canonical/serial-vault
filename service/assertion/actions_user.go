@@ -55,8 +55,8 @@ func systemUserAction(w http.ResponseWriter, authUser datastore.User, apiCall bo
 		return
 	}
 
-	// Generate the system-user and return the response
-	resp := GenerateSystemUser(user, model)
+	// Generate the system-user assertion and return the response
+	resp := GenerateSystemUserAssertion(user, model)
 	if !resp.Success {
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -67,8 +67,8 @@ func systemUserAction(w http.ResponseWriter, authUser datastore.User, apiCall bo
 
 }
 
-// GenerateSystemUser creates a system-user assertion from the model and user details
-func GenerateSystemUser(user SystemUserRequest, model datastore.Model) SystemUserResponse {
+// GenerateSystemUserAssertion creates a system-user assertion from the model and user details
+func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) SystemUserResponse {
 	response := SystemUserResponse{}
 
 	// Check that the model has an active system-user keypair
