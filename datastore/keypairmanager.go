@@ -39,7 +39,7 @@ const createKeypairTableSQL = `
 const listKeypairsSQL = `
 	select k.id, k.authority_id, k.key_id, k.active, k.assertion, COALESCE(ks.key_name,'') AS key_name, COALESCE(ks.status,'') AS status from keypair k 
 	left outer join keypairstatus ks on k.id = ks.keypair_id
-	order by authority_id, key_id`
+	order by k.authority_id, k.key_id`
 const listKeypairsForUserSQL = `
 	select k.id, k.authority_id, k.key_id, k.active, k.assertion, COALESCE(ks.key_name,'') AS key_name, COALESCE(ks.status,'') AS status 
 	from keypair k
@@ -48,7 +48,7 @@ const listKeypairsForUserSQL = `
 	inner join userinfo u on ua.user_id=u.id
 	left outer join keypairstatus ks on k.id = ks.keypair_id
 	where u.username=$1
-	order by authority_id, key_id`
+	order by k.authority_id, k.key_id`
 const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
 const getKeypairByPublicIDSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where authority_id=$1 and key_id=$2"
 const getKeypairByNameSQL = `

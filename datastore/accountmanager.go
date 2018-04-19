@@ -39,11 +39,11 @@ const getAccountSQL = "select id, authority_id, assertion, resellerapi from acco
 
 const getAccountByIDSQL = "select id, authority_id, assertion, resellerapi from account where id=$1"
 const getUserAccountByIDSQL = `
-	select a.id, authority_id, assertion, resellerapi 
+	select a.id, a.authority_id, a.assertion, a.resellerapi 
 	from account a
 	inner join useraccountlink l on a.id = l.account_id
 	inner join userinfo u on l.user_id = u.id
-	where id=$1 and u.username=$2`
+	where a.id=$1 and u.username=$2`
 
 const updateAccountSQL = "update account set authority_id=$2, assertion=$3, resellerapi=$4 where id=$1"
 const updateUserAccountSQL = `
@@ -51,7 +51,7 @@ const updateUserAccountSQL = `
 	SET authority_id=$3, assertion=$4, resellerapi=$5 
 	INNER JOIN useraccountlink l on a.id = l.account_id
 	INNER JOIN userinfo u on l.user_id = u.id
-	WHERE id=$1 AND u.username=$2
+	WHERE a.id=$1 AND u.username=$2
 `
 const upsertAccountSQL = `
 	WITH upsert AS (
@@ -65,7 +65,7 @@ const upsertAccountSQL = `
 `
 
 const listUserAccountsSQL = `
-	select a.id, authority_id, assertion, resellerapi 
+	select a.id, a.authority_id, a.assertion, a.resellerapi 
 	from account a
 	inner join useraccountlink l on a.id = l.account_id
 	inner join userinfo u on l.user_id = u.id
