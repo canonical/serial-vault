@@ -49,7 +49,7 @@ ORDER BY authority_id, key_name
 `
 
 const listKeypairStatusProgressForUserSQL = `
-SELECT id, authority_id, key_name, keypair_id, status
+SELECT ks.id, ks.authority_id, ks.key_name, ks.keypair_id, ks.status
 FROM keypairstatus ks
 INNER JOIN account acc on acc.authority_id=ks.authority_id
 INNER JOIN useraccountlink ua on ua.account_id=acc.id

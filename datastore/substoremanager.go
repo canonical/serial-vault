@@ -54,7 +54,7 @@ const getSubstoreSQL = `
 	WHERE from_model_id=$1 AND serial_number=$2`
 
 const getSubstoreForUserSQL = `
-	SELECT s.id, account_id, from_model_id, store, serial_number, model_name 
+	SELECT s.id, s.account_id, s.from_model_id, s.store, s.serial_number, s.model_name 
 	FROM substore s
 	INNER JOIN useraccountlink l ON s.account_id = l.account_id
 	INNER JOIN userinfo u ON l.user_id = u.id
@@ -66,7 +66,7 @@ const listSubstoreSQL = `
 	WHERE account_id=$1`
 
 const listUserSubstoreSQL = `
-	SELECT s.id, account_id, from_model_id, store, serial_number, model_name 
+	SELECT s.id, s.account_id, s.from_model_id, s.store, s.serial_number, s.model_name 
 	FROM substore s
 	INNER JOIN useraccountlink l ON s.account_id = l.account_id
 	INNER JOIN userinfo u ON l.user_id = u.id

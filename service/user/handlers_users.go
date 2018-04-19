@@ -103,7 +103,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		APIKey:   userRequest.APIKey,
 		Accounts: datastore.BuildAccountsFromAuthorityIDs(userRequest.Accounts),
 	}
-	user.ID, err = datastore.Environ.DB.CreateUser(user)
 
 	createHandler(w, authUser, false, user)
 }
