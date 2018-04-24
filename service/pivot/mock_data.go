@@ -1,0 +1,174 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
+
+/*
+ * Copyright (C) 2018 Canonical Ltd
+ * License granted by Canonical Limited
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+package pivot
+
+// SerialAssert is a valid serial assertion
+const SerialAssert = `type: serial
+authority-id: generic
+brand-id: generic
+model: generic-classic
+serial: 54bdfe2e-607a-4d37-a469-68397070ec0c
+device-key:
+    AcbBTQRWhcGAARAAw0qcnXY26JyBvYpCigzIhWYTAnnHyjyB/MjA1lRVgYqeJUyrsUExj42q4ABC
+    /kgn2yS36DP50ZeyOJDF7bHce7ELNmuknFUnSVL/r/VUYZrMmc3RyuV+7sYg042n++tqPbm0XkHS
+    4Fpy3mC78a3+I8weUuhUaVaYYTEhKXX9FMPRF/qKW7Avt8v04LAaS3iNnYUk+yAyDYqyE/WedB22
+    /GjiYnjk7Z5TpevuV5g4N9BiY12RuJWDOELbYR+Y8SR+js5YUH95uy5Nd2qI7uF8RPh0liSc5Tsz
+    hBy+vwhBcrUTx1JN55bFqDKVtRBcjHe/ynY32Cg0inooB+yqBRbRUXK2LAZKwb4WAyo7xY923b/h
+    p5KcMjmrRGd0AlBTum8FaFEm6M746ZYjSeW/X3wpJCWXnNkwe4mNkVkZJ9TgCh2MlzhtaLMkaqlM
+    MldmwG1+AAE3SGCuZU6rg0BbPXp3iSqLPEIIXAV+l1vY9sxGrITQ61PN3ZqDdx0nCQxUVbha0ke9
+    fFv8ZS/XsletkXME/mFvkhhGd2eaow0+B+SSaPWsaVXC/HIlzShXAZfDHI2dy1kfKmPcdUeSlqlH
+    0zL2+H/h98+5vn71PvU1UXuYEg57aqDqKEvRjyU7hXN66JRzBn+j4ppjK4fo7hQJNIerEMYEKC5B
+    hDkjXVlNalTrcI0AEQEAAQ==
+device-key-sha3-384: cP_JQakFySqvoRbC6RiTP4ik-YXrAK1xFX_V4qN4WWqdGC0X817QpOX6SJf77E_U
+timestamp: 2017-10-11T07:23:40.387695Z
+sign-key-sha3-384: wrfougkz3Huq2T_KklfnufCC0HzG7bJ9wP99GV0FF-D3QH3eJtuSRlQc2JhrAoh1
+
+AcLBUgQAAQoABgUCWd3G/AAA3SYQAJC7A18fmY4NqxLziqoVW65IPNjegi7I5NqJJhPycpedHlbA
+mpZR93a2op+I+ssCj65S0YKTJJHtmeEeVFP2ns9sK3aXJIWSGW3zvVkcuVJlylpW6zFlREjM986I
+9XRZR/lZ/2bMZzut9ZsYxEfzvcGiMTrqqUB0VToVqemrV6rQgmZ0k0BAoTNh4EIpxY83ruBUQqZX
+X/iJOUV2dVXAai4XQ6XZRQlGTtJgVMcpNbm2pPKa71eYstChtGUkKp4klBu8hOcgJVpcIj+bSHZi
+3Zzkx5jMvc6R5qOumTB26Gono8jHcYmn5BHdqZr/7x6UxDXAQm1ac1XklvICK7d7pjI4G/53uROV
+aQKwxUyvVgZNPI3/ieN1L7MriNVFjTfQm7cJq8zVYL26yR0r2B9UGLxP8rG3Tr2S+ySVadqH44yh
+9r/P5ZOfezOTnTeBL9JAHJeXuQNMO2VZFJWhCKZyHCAtCytGwDjCMMTOxqdkySpsM0VsBz4TizEc
+InRto3Z45nadl7RhIK85zF4zycTYXveQsCTZ0zkp5Jfgm90rJ1qM0aKfQiuSOdY14YQZqQG1Fc3w
+iSriN2otHAUwCXgr7vg7wiHOZKHf/LzV0/110iIHGxFRpuitZB+oHXw4EBOPPnDwpiFjBsbgspl9
+4VDviwTwZm6obnuDEAxynpe6lhNz`
+
+// SerialAssertNonReseller is a valid serial assertion for a non-reseller account
+const SerialAssertNonReseller = `type: serial
+authority-id: vendor
+brand-id: vendor
+model: generic-classic
+serial: 54bdfe2e-607a-4d37-a469-68397070ec0c
+device-key:
+    AcbBTQRWhcGAARAAw0qcnXY26JyBvYpCigzIhWYTAnnHyjyB/MjA1lRVgYqeJUyrsUExj42q4ABC
+    /kgn2yS36DP50ZeyOJDF7bHce7ELNmuknFUnSVL/r/VUYZrMmc3RyuV+7sYg042n++tqPbm0XkHS
+    4Fpy3mC78a3+I8weUuhUaVaYYTEhKXX9FMPRF/qKW7Avt8v04LAaS3iNnYUk+yAyDYqyE/WedB22
+    /GjiYnjk7Z5TpevuV5g4N9BiY12RuJWDOELbYR+Y8SR+js5YUH95uy5Nd2qI7uF8RPh0liSc5Tsz
+    hBy+vwhBcrUTx1JN55bFqDKVtRBcjHe/ynY32Cg0inooB+yqBRbRUXK2LAZKwb4WAyo7xY923b/h
+    p5KcMjmrRGd0AlBTum8FaFEm6M746ZYjSeW/X3wpJCWXnNkwe4mNkVkZJ9TgCh2MlzhtaLMkaqlM
+    MldmwG1+AAE3SGCuZU6rg0BbPXp3iSqLPEIIXAV+l1vY9sxGrITQ61PN3ZqDdx0nCQxUVbha0ke9
+    fFv8ZS/XsletkXME/mFvkhhGd2eaow0+B+SSaPWsaVXC/HIlzShXAZfDHI2dy1kfKmPcdUeSlqlH
+    0zL2+H/h98+5vn71PvU1UXuYEg57aqDqKEvRjyU7hXN66JRzBn+j4ppjK4fo7hQJNIerEMYEKC5B
+    hDkjXVlNalTrcI0AEQEAAQ==
+device-key-sha3-384: cP_JQakFySqvoRbC6RiTP4ik-YXrAK1xFX_V4qN4WWqdGC0X817QpOX6SJf77E_U
+timestamp: 2017-10-11T07:23:40.387695Z
+sign-key-sha3-384: wrfougkz3Huq2T_KklfnufCC0HzG7bJ9wP99GV0FF-D3QH3eJtuSRlQc2JhrAoh1
+
+AcLBUgQAAQoABgUCWd3G/AAA3SYQAJC7A18fmY4NqxLziqoVW65IPNjegi7I5NqJJhPycpedHlbA
+mpZR93a2op+I+ssCj65S0YKTJJHtmeEeVFP2ns9sK3aXJIWSGW3zvVkcuVJlylpW6zFlREjM986I
+9XRZR/lZ/2bMZzut9ZsYxEfzvcGiMTrqqUB0VToVqemrV6rQgmZ0k0BAoTNh4EIpxY83ruBUQqZX
+X/iJOUV2dVXAai4XQ6XZRQlGTtJgVMcpNbm2pPKa71eYstChtGUkKp4klBu8hOcgJVpcIj+bSHZi
+3Zzkx5jMvc6R5qOumTB26Gono8jHcYmn5BHdqZr/7x6UxDXAQm1ac1XklvICK7d7pjI4G/53uROV
+aQKwxUyvVgZNPI3/ieN1L7MriNVFjTfQm7cJq8zVYL26yR0r2B9UGLxP8rG3Tr2S+ySVadqH44yh
+9r/P5ZOfezOTnTeBL9JAHJeXuQNMO2VZFJWhCKZyHCAtCytGwDjCMMTOxqdkySpsM0VsBz4TizEc
+InRto3Z45nadl7RhIK85zF4zycTYXveQsCTZ0zkp5Jfgm90rJ1qM0aKfQiuSOdY14YQZqQG1Fc3w
+iSriN2otHAUwCXgr7vg7wiHOZKHf/LzV0/110iIHGxFRpuitZB+oHXw4EBOPPnDwpiFjBsbgspl9
+4VDviwTwZm6obnuDEAxynpe6lhNz`
+
+// SerialAssertInvalidBrand is a valid serial assertion for an invalid account
+const SerialAssertInvalidBrand = `type: serial
+authority-id: invalid
+brand-id: invalid
+model: generic-classic
+serial: 54bdfe2e-607a-4d37-a469-68397070ec0c
+device-key:
+    AcbBTQRWhcGAARAAw0qcnXY26JyBvYpCigzIhWYTAnnHyjyB/MjA1lRVgYqeJUyrsUExj42q4ABC
+    /kgn2yS36DP50ZeyOJDF7bHce7ELNmuknFUnSVL/r/VUYZrMmc3RyuV+7sYg042n++tqPbm0XkHS
+    4Fpy3mC78a3+I8weUuhUaVaYYTEhKXX9FMPRF/qKW7Avt8v04LAaS3iNnYUk+yAyDYqyE/WedB22
+    /GjiYnjk7Z5TpevuV5g4N9BiY12RuJWDOELbYR+Y8SR+js5YUH95uy5Nd2qI7uF8RPh0liSc5Tsz
+    hBy+vwhBcrUTx1JN55bFqDKVtRBcjHe/ynY32Cg0inooB+yqBRbRUXK2LAZKwb4WAyo7xY923b/h
+    p5KcMjmrRGd0AlBTum8FaFEm6M746ZYjSeW/X3wpJCWXnNkwe4mNkVkZJ9TgCh2MlzhtaLMkaqlM
+    MldmwG1+AAE3SGCuZU6rg0BbPXp3iSqLPEIIXAV+l1vY9sxGrITQ61PN3ZqDdx0nCQxUVbha0ke9
+    fFv8ZS/XsletkXME/mFvkhhGd2eaow0+B+SSaPWsaVXC/HIlzShXAZfDHI2dy1kfKmPcdUeSlqlH
+    0zL2+H/h98+5vn71PvU1UXuYEg57aqDqKEvRjyU7hXN66JRzBn+j4ppjK4fo7hQJNIerEMYEKC5B
+    hDkjXVlNalTrcI0AEQEAAQ==
+device-key-sha3-384: cP_JQakFySqvoRbC6RiTP4ik-YXrAK1xFX_V4qN4WWqdGC0X817QpOX6SJf77E_U
+timestamp: 2017-10-11T07:23:40.387695Z
+sign-key-sha3-384: wrfougkz3Huq2T_KklfnufCC0HzG7bJ9wP99GV0FF-D3QH3eJtuSRlQc2JhrAoh1
+
+AcLBUgQAAQoABgUCWd3G/AAA3SYQAJC7A18fmY4NqxLziqoVW65IPNjegi7I5NqJJhPycpedHlbA
+mpZR93a2op+I+ssCj65S0YKTJJHtmeEeVFP2ns9sK3aXJIWSGW3zvVkcuVJlylpW6zFlREjM986I
+9XRZR/lZ/2bMZzut9ZsYxEfzvcGiMTrqqUB0VToVqemrV6rQgmZ0k0BAoTNh4EIpxY83ruBUQqZX
+X/iJOUV2dVXAai4XQ6XZRQlGTtJgVMcpNbm2pPKa71eYstChtGUkKp4klBu8hOcgJVpcIj+bSHZi
+3Zzkx5jMvc6R5qOumTB26Gono8jHcYmn5BHdqZr/7x6UxDXAQm1ac1XklvICK7d7pjI4G/53uROV
+aQKwxUyvVgZNPI3/ieN1L7MriNVFjTfQm7cJq8zVYL26yR0r2B9UGLxP8rG3Tr2S+ySVadqH44yh
+9r/P5ZOfezOTnTeBL9JAHJeXuQNMO2VZFJWhCKZyHCAtCytGwDjCMMTOxqdkySpsM0VsBz4TizEc
+InRto3Z45nadl7RhIK85zF4zycTYXveQsCTZ0zkp5Jfgm90rJ1qM0aKfQiuSOdY14YQZqQG1Fc3w
+iSriN2otHAUwCXgr7vg7wiHOZKHf/LzV0/110iIHGxFRpuitZB+oHXw4EBOPPnDwpiFjBsbgspl9
+4VDviwTwZm6obnuDEAxynpe6lhNz`
+
+// SerialAssertInvalid is an invalid serial assertion
+const SerialAssertInvalid = `type: serial
+authority-id: generic
+brand-id: generic
+model: invalid
+serial: 54bdfe2e-607a-4d37-a469-68397070ec0c
+device-key:
+    AcbBTQRWhcGAARAAw0qcnXY26JyBvYpCigzIhWYTAnnHyjyB/MjA1lRVgYqeJUyrsUExj42q4ABC
+    /kgn2yS36DP50ZeyOJDF7bHce7ELNmuknFUnSVL/r/VUYZrMmc3RyuV+7sYg042n++tqPbm0XkHS
+    4Fpy3mC78a3+I8weUuhUaVaYYTEhKXX9FMPRF/qKW7Avt8v04LAaS3iNnYUk+yAyDYqyE/WedB22
+    /GjiYnjk7Z5TpevuV5g4N9BiY12RuJWDOELbYR+Y8SR+js5YUH95uy5Nd2qI7uF8RPh0liSc5Tsz
+    hBy+vwhBcrUTx1JN55bFqDKVtRBcjHe/ynY32Cg0inooB+yqBRbRUXK2LAZKwb4WAyo7xY923b/h
+    p5KcMjmrRGd0AlBTum8FaFEm6M746ZYjSeW/X3wpJCWXnNkwe4mNkVkZJ9TgCh2MlzhtaLMkaqlM
+    MldmwG1+AAE3SGCuZU6rg0BbPXp3iSqLPEIIXAV+l1vY9sxGrITQ61PN3ZqDdx0nCQxUVbha0ke9
+    fFv8ZS/XsletkXME/mFvkhhGd2eaow0+B+SSaPWsaVXC/HIlzShXAZfDHI2dy1kfKmPcdUeSlqlH
+    0zL2+H/h98+5vn71PvU1UXuYEg57aqDqKEvRjyU7hXN66JRzBn+j4ppjK4fo7hQJNIerEMYEKC5B
+    hDkjXVlNalTrcI0AEQEAAQ==
+device-key-sha3-384: cP_JQakFySqvoRbC6RiTP4ik-YXrAK1xFX_V4qN4WWqdGC0X817QpOX6SJf77E_U
+timestamp: 2017-10-11T07:23:40.387695Z
+sign-key-sha3-384: wrfougkz3Huq2T_KklfnufCC0HzG7bJ9wP99GV0FF-D3QH3eJtuSRlQc2JhrAoh1
+
+AcLBUgQAAQoABgUCWd3G/AAA3SYQAJC7A18fmY4NqxLziqoVW65IPNjegi7I5NqJJhPycpedHlbA
+mpZR93a2op+I+ssCj65S0YKTJJHtmeEeVFP2ns9sK3aXJIWSGW3zvVkcuVJlylpW6zFlREjM986I
+9XRZR/lZ/2bMZzut9ZsYxEfzvcGiMTrqqUB0VToVqemrV6rQgmZ0k0BAoTNh4EIpxY83ruBUQqZX
+X/iJOUV2dVXAai4XQ6XZRQlGTtJgVMcpNbm2pPKa71eYstChtGUkKp4klBu8hOcgJVpcIj+bSHZi
+3Zzkx5jMvc6R5qOumTB26Gono8jHcYmn5BHdqZr/7x6UxDXAQm1ac1XklvICK7d7pjI4G/53uROV
+aQKwxUyvVgZNPI3/ieN1L7MriNVFjTfQm7cJq8zVYL26yR0r2B9UGLxP8rG3Tr2S+ySVadqH44yh
+9r/P5ZOfezOTnTeBL9JAHJeXuQNMO2VZFJWhCKZyHCAtCytGwDjCMMTOxqdkySpsM0VsBz4TizEc
+InRto3Z45nadl7RhIK85zF4zycTYXveQsCTZ0zkp5Jfgm90rJ1qM0aKfQiuSOdY14YQZqQG1Fc3w
+iSriN2otHAUwCXgr7vg7wiHOZKHf/LzV0/110iIHGxFRpuitZB+oHXw4EBOPPnDwpiFjBsbgspl9
+4VDviwTwZm6obnuDEAxynpe6lhNz`
+
+// AssertionWrongType is a model assertion
+const AssertionWrongType = `type: model
+authority-id: System
+brand-id: System
+model: alder
+serial: A1234-L
+series: Alder
+revision: 1
+os: 14.04
+core: apple
+architecture: i686
+gadget: magic wand
+kernel: 4.2.0-35-generic
+store: Canonical
+class: Class
+allowed-modes: all
+required-snaps:
+  - gadget
+timestamp: 2016-01-02T15:04:05Z
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+device-key: openpgp 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
+
+openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
+`

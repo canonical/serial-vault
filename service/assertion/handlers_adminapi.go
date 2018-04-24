@@ -25,8 +25,10 @@ import (
 	"io"
 	"net/http"
 
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/snapcore/snapd/asserts"
 )
 
 // APISystemUser is the API method to generate a signed system-user assertion for a device
@@ -54,4 +56,45 @@ func APISystemUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	systemUserAssertionAction(w, authUser, true, user)
+}
+
+// APIValidateSerial is the API method to validate a serial assertion for a device
+func APIValidateSerial(w http.ResponseWriter, r *http.Request) {
+	// Validate the user and API key
+	authUser, err := request.CheckUserAPI(r)
+	if err != nil {
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
+		return
+	}
+
+	assertion, errResponse := parseSerialAssertion(r)
+	if !errResponse.Success {
+		response.FormatStandardResponse(false, errResponse.Code, "", errResponse.Message, w)
+		return
+	}
+
+	validateAssertionAction(w, authUser, true, assertion)
+}
+
+func parseSerialAssertion(r *http.Request) (asserts.Assertion, response.ErrorResponse) {
+	defer r.Body.Close()
+
+	// Get the serial assertion from the body
+	dec := asserts.NewDecoder(r.Body)
+	assertion, err := dec.Decode()
+	if err == io.EOF {
+		svlog.Message("CHECK", "invalid-assertion", response.ErrorEmptyData.Message)
+		return nil, response.ErrorEmptyData
+	}
+	if err != nil {
+		svlog.Message("CHECK", "invalid-assertion", err.Error())
+		return nil, response.ErrorResponse{Success: false, Code: "decode-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
+	}
+
+	// Check that we have a serial assertion (the details will have been validated by Decode call)
+	if assertion.Type() != asserts.SerialType {
+		svlog.Message("CHECK", "invalid-type", "The assertion type must be 'serial'")
+		return nil, response.ErrorInvalidType
+	}
+	return assertion, response.ErrorResponse{Success: true}
 }

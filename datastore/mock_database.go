@@ -100,6 +100,11 @@ func (mdb *MockDB) GetAccountByID(ID int, user User) (Account, error) {
 	return Account{}, errors.New("Cannot found the account assertion")
 }
 
+// GetAllowedAccount mock to fetch account
+func (mdb *MockDB) GetAllowedAccount(authorityID string, authorization User) (Account, error) {
+	return mdb.GetAccount(authorityID)
+}
+
 // ListAllowedAccounts mock to return a list of the available accounts
 func (mdb *MockDB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	var accounts []Account
@@ -739,10 +744,17 @@ func (mdb *MockDB) DeleteAllowedSubstore(storeID int, authorization User) (strin
 
 // GetSubstore mock to get a substore record
 func (mdb *MockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
-
 	fromModel := Model{ID: 1, BrandID: "generic", Name: "generic-classic", KeypairID: 1, AuthorityID: "generic", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, KeyActiveUser: true, AuthorityIDUser: "generic", KeyIDUser: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO"}
 
 	return Substore{ID: 1, AccountID: 1, FromModelID: 1, FromModel: fromModel, Store: "mybrand", SerialNumber: "abc1234", ModelName: "alder-mybrand"}, nil
+}
+
+// GetSubstoreModel mock to get a substore record
+func (mdb *MockDB) GetSubstoreModel(brand, model, serialNumber string) (Substore, error) {
+	if model == "invalid" {
+		return Substore{}, errors.New("MOCK invalid model")
+	}
+	return mdb.GetSubstore(1, serialNumber)
 }
 
 // CreateTestLog mock to create a test log
@@ -863,6 +875,11 @@ func (mdb *ErrorMockDB) GetAccountByID(ID int, user User) (Account, error) {
 		}
 	}
 	return Account{}, errors.New("Cannot found the account assertion")
+}
+
+// GetAllowedAccount mock to fetch account
+func (mdb *ErrorMockDB) GetAllowedAccount(authorityID string, authorization User) (Account, error) {
+	return Account{}, errors.New("MOCK error getting the account")
 }
 
 // ListAllowedAccounts mock to return a list of the available accounts
@@ -1230,6 +1247,11 @@ func (mdb *ErrorMockDB) DeleteAllowedSubstore(storeID int, authorization User) (
 
 // GetSubstore mock to get a substore record
 func (mdb *ErrorMockDB) GetSubstore(fromModelID int, serialNumber string) (Substore, error) {
+	return Substore{}, errors.New("Cannot get the sub-store model")
+}
+
+// GetSubstoreModel mock to get a substore record
+func (mdb *ErrorMockDB) GetSubstoreModel(brand, model, serialNumber string) (Substore, error) {
 	return Substore{}, errors.New("Cannot get the sub-store model")
 }
 

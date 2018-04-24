@@ -39,6 +39,22 @@ func (db *DB) ListAllowedAccounts(authorization User) ([]Account, error) {
 	}
 }
 
+// GetAllowedAccount fetches an account from the database that the user is allowed to see
+func (db *DB) GetAllowedAccount(authorityID string, authorization User) (Account, error) {
+	switch authorization.Role {
+	case Invalid: // Authentication disabled
+		fallthrough
+	case Superuser:
+		return db.GetAccount(authorityID)
+	case SyncUser:
+		fallthrough
+	case Admin:
+		return db.getAccountForUser(authorityID, authorization.Username)
+	default:
+		return Account{}, nil
+	}
+}
+
 // PutAccount validates permissions and stores an account in the database
 func (db *DB) PutAccount(account Account, authorization User) (string, error) {
 
