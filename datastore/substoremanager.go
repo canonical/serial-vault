@@ -53,12 +53,11 @@ const getSubstoreSQL = `
 	FROM substore 
 	WHERE from_model_id=$1 AND serial_number=$2`
 
-const getSubstoreForUserSQL = `
+const getSubstoreModelSQL = `
 	SELECT s.id, s.account_id, s.from_model_id, s.store, s.serial_number, s.model_name 
 	FROM substore s
-	INNER JOIN useraccountlink l ON s.account_id = l.account_id
-	INNER JOIN userinfo u ON l.user_id = u.id
-	WHERE s.from_model_id=$1 AND s.serial_number=$2 AND u.username=$3`
+	INNER JOIN model m ON m.id = s.from_model_id
+	WHERE m.brand_id=$1 AND m.name=$2 AND s.serial_number=$3`
 
 const listSubstoreSQL = `
 	SELECT id, account_id, from_model_id, store, serial_number, model_name 
@@ -137,6 +136,26 @@ func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error
 	var row *sql.Row
 
 	row = db.QueryRow(getSubstoreSQL, fromModelID, serialNumber)
+	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
+	if err != nil {
+		log.Printf("Error retrieving database model by ID: %v\n", err)
+		return store, err
+	}
+
+	store.FromModel, err = db.getModel(store.FromModelID)
+	if err != nil {
+		log.Printf("Error retrieving database model: %v\n", err)
+		return store, err
+	}
+
+	return store, nil
+}
+
+// GetSubstoreModel fetches a sub-store in the database
+func (db *DB) GetSubstoreModel(brand, model, serialNumber string) (Substore, error) {
+	store := Substore{}
+
+	row := db.QueryRow(getSubstoreModelSQL, brand, model, serialNumber)
 	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)

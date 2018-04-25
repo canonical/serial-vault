@@ -45,6 +45,8 @@ var (
 	ErrorInvalidModelID            = ErrorResponse{false, "invalid-model", "", "Cannot find model with the selected ID", http.StatusBadRequest}
 	ErrorInvalidSubstore           = ErrorResponse{false, "invalid-substore", "", "Cannot find sub-store mapping for the model", http.StatusBadRequest}
 	ErrorInactiveModel             = ErrorResponse{false, "invalid-model", "", "The model is linked with an inactive signing-key", http.StatusBadRequest}
+	ErrorInvalidAccount            = ErrorResponse{false, "invalid-account", "", "The account cannot be found", http.StatusBadRequest}
+	ErrorInvalidAssertion          = ErrorResponse{false, "invalid-assertion", "", "The assertion is invalid", http.StatusBadRequest}
 	ErrorEmptySerial               = ErrorResponse{false, "create-assertion", "", "The serial number is missing from both the header and body", http.StatusBadRequest}
 	ErrorCreateAssertion           = ErrorResponse{false, "create-assertion", "", "Error converting the serial-request to a serial assertion", http.StatusBadRequest}
 	ErrorCheckAssertion            = ErrorResponse{false, "duplicate-assertion", "", "Error checking the serial-request. Please try again later", http.StatusBadRequest}

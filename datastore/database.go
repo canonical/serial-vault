@@ -75,6 +75,7 @@ type Datastore interface {
 	CreateAccountTable() error
 	AlterAccountTable() error
 	ListAllowedAccounts(authorization User) ([]Account, error)
+	GetAllowedAccount(authorityID string, authorization User) (Account, error)
 	GetAccount(authorityID string) (Account, error)
 	GetAccountByID(accountID int, authorization User) (Account, error)
 	CreateAccount(account Account) error
@@ -114,6 +115,7 @@ type Datastore interface {
 	UpdateAllowedSubstore(store Substore, authorization User) error
 	DeleteAllowedSubstore(storeID int, authorization User) (string, error)
 	GetSubstore(fromModelID int, serialNumber string) (Substore, error)
+	GetSubstoreModel(brand, model, serialNumber string) (Substore, error)
 
 	CreateTestLogTable() error
 	CreateTestLog(testLog TestLog) error

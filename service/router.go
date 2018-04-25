@@ -150,6 +150,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIUpdate))).Methods("PUT")
 	router.Handle("/api/accounts/stores/{id:[0-9]+}", Middleware(http.HandlerFunc(substore.APIDelete))).Methods("DELETE")
 	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreate))).Methods("POST")
+	router.Handle("/api/assertions/checkserial", Middleware(http.HandlerFunc(assertion.APIValidateSerial))).Methods("POST")
 	router.Handle("/api/assertions", Middleware(http.HandlerFunc(assertion.APISystemUser))).Methods("POST")
 
 	// Sync API routes

@@ -36,6 +36,12 @@ const createAccountTableSQL = `
 const createAccountSQL = "INSERT INTO account (authority_id, assertion, resellerapi) VALUES ($1,$2,$3)"
 const listAccountsSQL = "select id, authority_id, assertion, resellerapi from account order by authority_id"
 const getAccountSQL = "select id, authority_id, assertion, resellerapi from account where authority_id=$1"
+const getUserAccountSQL = `
+	select a.id, a.authority_id, a.assertion, a.resellerapi 
+	from account a
+	inner join useraccountlink l on a.id = l.account_id
+	inner join userinfo u on l.user_id = u.id
+	where a.authority_id=$1 and u.username=$2`
 
 const getAccountByIDSQL = "select id, authority_id, assertion, resellerapi from account where id=$1"
 const getUserAccountByIDSQL = `
@@ -147,6 +153,18 @@ func (db *DB) CreateAccount(account Account) error {
 		return err
 	}
 	return nil
+}
+
+func (db *DB) getAccountForUser(authorityID, username string) (Account, error) {
+	account := Account{}
+
+	err := db.QueryRow(getUserAccountSQL, authorityID, username).Scan(&account.ID, &account.AuthorityID, &account.Assertion, &account.ResellerAPI)
+	if err != nil {
+		log.Printf("Error retrieving account: %v\n", err)
+		return account, err
+	}
+
+	return account, nil
 }
 
 // GetAccount fetches a single account from the database by the authority ID
