@@ -155,9 +155,7 @@ func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error
 func (db *DB) GetSubstoreModel(brand, model, serialNumber string) (Substore, error) {
 	store := Substore{}
 
-	var row *sql.Row
-
-	row = db.QueryRow(getSubstoreModelSQL, brand, model, serialNumber)
+	row := db.QueryRow(getSubstoreModelSQL, brand, model, serialNumber)
 	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
 		log.Printf("Error retrieving database model by ID: %v\n", err)

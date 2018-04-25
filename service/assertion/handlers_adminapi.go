@@ -83,17 +83,17 @@ func parseSerialAssertion(r *http.Request) (asserts.Assertion, response.ErrorRes
 	dec := asserts.NewDecoder(r.Body)
 	assertion, err := dec.Decode()
 	if err == io.EOF {
-		svlog.Message("CHECK", "invalid-assertion", response.ErrorEmptyData.Message)
+		svlog.Message("CHECK", response.ErrorInvalidAssertion.Code, response.ErrorEmptyData.Message)
 		return nil, response.ErrorEmptyData
 	}
 	if err != nil {
-		svlog.Message("CHECK", "invalid-assertion", err.Error())
+		svlog.Message("CHECK", response.ErrorInvalidAssertion.Code, err.Error())
 		return nil, response.ErrorResponse{Success: false, Code: "decode-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Check that we have a serial assertion (the details will have been validated by Decode call)
 	if assertion.Type() != asserts.SerialType {
-		svlog.Message("CHECK", "invalid-type", "The assertion type must be 'serial'")
+		svlog.Message("CHECK", response.ErrorInvalidType.Code, response.ErrorInvalidType.Message)
 		return nil, response.ErrorInvalidType
 	}
 	return assertion, response.ErrorResponse{Success: true}
