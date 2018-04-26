@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,6 +17,7 @@
 
 import React, {Component} from 'react'
 import Keypairs from '../models/keypairs'
+import Accounts from '../models/accounts';
 import AlertBox from './AlertBox'
 import {T, isUserAdmin} from './Utils';
 
@@ -26,14 +27,40 @@ class KeypairAdd extends Component {
         super(props);
 
         this.state = {
-            authorityId: null, 
-            key: null, 
+            accounts: this.props.accounts || [],
+            authorityId: null,
+            name: null,
+            key: null,
             error: this.props.error,
         };
+
+        this.getAccounts()
+    }
+
+    getAccounts() {
+        Accounts.list().then((response) => {
+            var authority = null;
+            var data = JSON.parse(response.body);
+            var message = "";
+
+            if (!data.success) {
+                message = data.message;
+            } else {
+                // Select the first account
+                if (data.accounts.length > 0) {
+                    authority = data.accounts[0].AuthorityID;
+                }
+            }
+            this.setState({accounts: data.accounts, authorityId: authority, error: message});
+        });
     }
 
     handleChangeAuthorityId = (e) => {
         this.setState({authorityId: e.target.value});
+    }
+
+    handleChangeKeyName = (e) => {
+        this.setState({name: e.target.value});
     }
 
     handleChangeKey = (e) => {
@@ -55,13 +82,12 @@ class KeypairAdd extends Component {
     }
 
     handleSaveClick = (e) => {
-        var self = this;
         e.preventDefault();
 
-        Keypairs.create(this.state.authorityId, this.state.key).then(function(response) {
+        Keypairs.create(this.state.authorityId, this.state.key, this.state.name).then((response) => {
             var data = JSON.parse(response.body);
             if ((response.statusCode >= 300) || (!data.success)) {
-                self.setState({error: self.formatError(data)});
+                this.setState({error: this.formatError(data)});
             } else {
                 window.location = '/signing-keys';
             }
@@ -97,8 +123,15 @@ class KeypairAdd extends Component {
 
                         <form>
                             <fieldset>
+                                <label htmlFor="name">{T('key-name')}:
+                                    <input type="text" id="name" onChange={this.handleChangeKeyName} value={this.state.name} placeholder={T('key-name-description')} />
+                                </label>
                                 <label htmlFor="authority-id">{T('authority-id')}:
-                                    <input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
+                                    <select value={this.state.authorityId} id="authority-id" onChange={this.handleChangeAuthorityId}>
+                                        {this.state.accounts.map(function(a) {
+                                            return <option key={a.AuthorityID} value={a.AuthorityID}>{a.AuthorityID}</option>;
+                                        })}
+                                    </select>
                                 </label>
                                 <label htmlFor="key">{T('signing-key')}:
                                     <textarea onChange={this.handleChangeKey} defaultValue={this.state.key} id="key"

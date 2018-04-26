@@ -92,9 +92,16 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, key
 		AuthorityID: keypairWithKey.AuthorityID,
 		KeyID:       privateKey.PublicKey().ID(),
 		SealedKey:   sealedPrivateKey,
+		KeyName:     keypairWithKey.KeyName,
 	}
 	errorCode, err := datastore.Environ.DB.PutKeypair(keypair)
 	if err != nil {
+		response.FormatStandardResponse(false, errorCode, "", err.Error(), w)
+		return
+	}
+
+	// Store the key name in the database
+	if err = datastore.CreateKeyName(keypair); err != nil {
 		response.FormatStandardResponse(false, errorCode, "", err.Error(), w)
 		return
 	}

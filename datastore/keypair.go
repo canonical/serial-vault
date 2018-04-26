@@ -136,3 +136,27 @@ func updateKeyID(ks *KeypairStatus, keyID string) error {
 	err = Environ.DB.UpdateKeypairStatus(*ks)
 	return err
 }
+
+// CreateKeyName assigns a key name to an existing key
+func CreateKeyName(k Keypair) error {
+	kp, err := Environ.DB.GetKeypairByPublicID(k.AuthorityID, k.KeyID)
+	if err != nil {
+		log.Printf("Error fetching the private key: %v", err)
+		return err
+	}
+
+	ks := KeypairStatus{
+		AuthorityID: k.AuthorityID, KeyName: k.KeyName, KeypairID: kp.ID, Status: KeypairStatusComplete,
+	}
+	if ks.KeyName == "" {
+		ks.KeyName = k.AuthorityID
+	}
+	statusID, err := Environ.DB.CreateKeypairStatus(ks)
+	if err != nil {
+		return err
+	}
+	ks.ID = statusID
+
+	// Update the status and link to the generated keypair record
+	return Environ.DB.UpdateKeypairStatus(ks)
+}
