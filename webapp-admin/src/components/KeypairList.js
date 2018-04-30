@@ -32,7 +32,13 @@ class KeypairList extends Component {
   renderRow(keypr) {
     return (
       <tr key={keypr.ID}>
-        <td>{keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral small">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral small">{T('activate')}</button>}</td>
+        <td className="small">
+          <a href={'/signing-keys/'+keypr.ID} className="p-button--brand small" title={T('edit-keypair')}>
+                <i className="fa fa-edit"></i>
+          </a>
+
+          {keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral small">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral small">{T('activate')}</button>}
+        </td>
         <td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
         <td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
         <td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
@@ -48,7 +54,7 @@ class KeypairList extends Component {
         <table>
           <thead>
             <tr>
-              <th></th><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small">{T('active')}</th>
+              <th /><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small">{T('active')}</th>
               <th>{T('key-name')}</th>
             </tr>
           </thead>

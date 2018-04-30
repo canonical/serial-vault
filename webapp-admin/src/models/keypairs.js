@@ -23,6 +23,14 @@ var Keypair = {
 			return Ajax.get(this.url);
 	},
 
+	get:  function(keypairId) {
+		return Ajax.get(this.url + '/' + keypairId, {});
+	},
+
+	update:  function(keypair) {
+		return Ajax.put(this.url + '/' + keypair.ID, keypair);
+	},
+
 	enable:  function(keypairId) {
 		return Ajax.post(this.url + '/' + keypairId + '/enable', {});
 	},

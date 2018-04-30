@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -52,7 +53,7 @@ type AssertionRequest struct {
 func List(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -67,7 +68,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 func Create(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -79,6 +80,60 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	createHandler(w, authUser, false, keypairWithKey)
 }
 
+// Get is the API method to fetch a keypair
+func Get(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		response.FormatStandardResponse(false, response.ErrorInvalidKeypair.Code, "", err.Error(), w)
+		return
+	}
+
+	getHandler(w, authUser, false, id)
+}
+
+// Update is the API method to update a keypair name
+func Update(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		response.FormatStandardResponse(false, response.ErrorInvalidKeypair.Code, "", err.Error(), w)
+		return
+	}
+
+	keypair := datastore.Keypair{}
+	err = json.NewDecoder(r.Body).Decode(&keypair)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		response.FormatStandardResponse(false, response.ErrorInvalidData.Code, "", response.ErrorInvalidData.Message, w)
+		return
+		// Check for parsing errors
+	case err != nil:
+		response.FormatStandardResponse(false, response.ErrorInvalidData.Code, "", err.Error(), w)
+		return
+	}
+
+	if id != keypair.ID {
+		response.FormatStandardResponse(false, response.ErrorInvalidKeypair.Code, "", response.ErrorInvalidKeypair.Message, w)
+		return
+	}
+
+	updateHandler(w, authUser, false, keypair)
+}
+
 // Generate is the API method to generate a new keypair that can be used
 // for signing serial (or model) assertions. The keypairs are stored in the signing database
 // and the authority-id/key-id is stored in the models database. Models can then be
@@ -86,7 +141,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 func Generate(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -104,7 +159,7 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 func Disable(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -112,8 +167,7 @@ func Disable(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	keypairID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		errorMessage := fmt.Sprintf("%v", vars["id"])
-		response.FormatStandardResponse(false, "error-invalid-key", "", errorMessage, w)
+		response.FormatStandardResponse(false, response.ErrorInvalidID.Code, "", fmt.Sprintf("%v", vars["id"]), w)
 		return
 	}
 
@@ -126,7 +180,7 @@ func Disable(w http.ResponseWriter, r *http.Request) {
 func Enable(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -134,8 +188,7 @@ func Enable(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	keypairID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		errorMessage := fmt.Sprintf("%v", vars["id"])
-		response.FormatStandardResponse(false, "error-invalid-key", "", errorMessage, w)
+		response.FormatStandardResponse(false, response.ErrorInvalidID.Code, "", fmt.Sprintf("%v", vars["id"]), w)
 		return
 	}
 
@@ -146,7 +199,7 @@ func Enable(w http.ResponseWriter, r *http.Request) {
 func Assertion(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -157,11 +210,11 @@ func Assertion(w http.ResponseWriter, r *http.Request) {
 	switch {
 	// Check we have some data
 	case err == io.EOF:
-		response.FormatStandardResponse(false, "error-assertion-data", "", "No assertion data supplied", w)
+		response.FormatStandardResponse(false, response.ErrorInvalidData.Code, "", response.ErrorInvalidData.Message, w)
 		return
 		// Check for parsing errors
 	case err != nil:
-		response.FormatStandardResponse(false, "error-assertion-json", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorDecodeJSON.Code, "", err.Error(), w)
 		return
 	}
 
@@ -172,7 +225,7 @@ func Assertion(w http.ResponseWriter, r *http.Request) {
 func Status(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -185,7 +238,7 @@ func Status(w http.ResponseWriter, r *http.Request) {
 func Progress(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
@@ -203,24 +256,24 @@ func verifyKeypair(w http.ResponseWriter, r *http.Request, authUser datastore.Us
 	switch {
 	// Check we have some data
 	case err == io.EOF:
-		response.FormatStandardResponse(false, "error-keypair-data", "", "No keypair data supplied", w)
+		response.FormatStandardResponse(false, response.ErrorInvalidData.Code, "", err.Error(), w)
 		return keypairWithKey, false
 		// Check for parsing errors
 	case err != nil:
-		response.FormatStandardResponse(false, "error-keypair-json", "", err.Error(), w)
+		response.FormatStandardResponse(false, response.ErrorDecodeJSON.Code, "", err.Error(), w)
 		return keypairWithKey, false
 	}
 
 	// Validate the authority-id
 	keypairWithKey.AuthorityID = strings.TrimSpace(keypairWithKey.AuthorityID)
 	if len(keypairWithKey.AuthorityID) == 0 {
-		response.FormatStandardResponse(false, "error-keypair-json", "", "The authority-id is mandatory", w)
+		response.FormatStandardResponse(false, response.ErrorDecodeJSON.Code, "", "The authority-id is mandatory", w)
 		return keypairWithKey, false
 	}
 
 	// Check that the user has permissions to this authority-id
 	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, keypairWithKey.AuthorityID) {
-		response.FormatStandardResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", "Your user does not have permissions for the Signing Authority", w)
 		return keypairWithKey, false
 	}
 
