@@ -45,7 +45,7 @@ func GenerateKeypair(authorityID, passphrase, keyName string) error {
 		return err
 	}
 
-	err = updateKeyID(&ks, publicID)
+	err = Environ.DB.DeleteKeypairStatus(ks)
 	if err != nil {
 		return err
 	}
@@ -60,10 +60,11 @@ func GenerateKeypair(authorityID, passphrase, keyName string) error {
 }
 
 func generateKeypair(ks *KeypairStatus, passphrase string) (string, error) {
-	_, err := Environ.DB.CreateKeypairStatus(*ks)
+	id, err := Environ.DB.CreateKeypairStatus(*ks)
 	if err != nil {
 		return "", err
 	}
+	ks.ID = id
 
 	// Generate the keypair
 	manager := asserts.NewGPGKeypairManager()
@@ -113,6 +114,7 @@ func storePrivateKey(ks *KeypairStatus, publicID, sealedPrivateKey string) error
 		AuthorityID: ks.AuthorityID,
 		KeyID:       publicID,
 		SealedKey:   sealedPrivateKey,
+		KeyName:     ks.KeyName,
 	}
 	_, err := Environ.DB.PutKeypair(keypair)
 	if err != nil {
@@ -120,20 +122,6 @@ func storePrivateKey(ks *KeypairStatus, publicID, sealedPrivateKey string) error
 		return err
 	}
 
-	return err
-}
-
-func updateKeyID(ks *KeypairStatus, keyID string) error {
-	kp, err := Environ.DB.GetKeypairByPublicID(ks.AuthorityID, keyID)
-	if err != nil {
-		log.Printf("Error fetching the private key: %v", err)
-		return err
-	}
-
-	// Update the status and link to the generated keypair record
-	ks.Status = KeypairStatusComplete
-	ks.KeypairID = kp.ID
-	err = Environ.DB.UpdateKeypairStatus(*ks)
 	return err
 }
 

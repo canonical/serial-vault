@@ -216,6 +216,10 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered")
 	}
 
+	if !validateStringsNotEmpty(keypair.KeyName) {
+		keypair.KeyName = keypair.AuthorityID
+	}
+
 	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion, keypair.KeyName)
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)

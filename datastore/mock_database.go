@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -672,6 +672,11 @@ func (mdb *MockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus,
 	return KeypairStatus{}, errors.New("Cannot find the keypair status")
 }
 
+// DeleteKeypairStatus removes a keypair status
+func (mdb *MockDB) DeleteKeypairStatus(ks KeypairStatus) error {
+	return nil
+}
+
 // CreateModelAssertTable mock for creating database model assertion headers table
 func (mdb *MockDB) CreateModelAssertTable() error {
 	return nil
@@ -1186,6 +1191,11 @@ func (mdb *ErrorMockDB) ListAllowedKeypairStatus(authorization User) ([]KeypairS
 // GetKeypairStatus fetches a single keypair status record
 func (mdb *ErrorMockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error) {
 	return KeypairStatus{}, errors.New("Cannot find the keypair status")
+}
+
+// DeleteKeypairStatus removes a keypair status
+func (mdb *ErrorMockDB) DeleteKeypairStatus(ks KeypairStatus) error {
+	return errors.New("Cannot delete the keypair status")
 }
 
 // CreateModelAssertTable mock for creating database model assertion headers table

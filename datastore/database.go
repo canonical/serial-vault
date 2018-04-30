@@ -106,6 +106,7 @@ type Datastore interface {
 	AlterKeypairStatusTable() error
 	CreateKeypairStatus(ks KeypairStatus) (int, error)
 	UpdateKeypairStatus(ks KeypairStatus) error
+	DeleteKeypairStatus(ks KeypairStatus) error
 	GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error)
 	ListAllowedKeypairStatus(authorization User) ([]KeypairStatus, error)
 

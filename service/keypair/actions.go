@@ -100,12 +100,6 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, key
 		return
 	}
 
-	// Store the key name in the database
-	if err = datastore.CreateKeyName(keypair); err != nil {
-		response.FormatStandardResponse(false, errorCode, "", err.Error(), w)
-		return
-	}
-
 	// Return success response
 	w.WriteHeader(http.StatusOK)
 	response.FormatStandardResponse(true, "", "", "", w)
