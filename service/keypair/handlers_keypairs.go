@@ -131,6 +131,12 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate the keypair
+	k := WithPrivateKey{AuthorityID: keypair.AuthorityID, KeyName: keypair.KeyName}
+	if ok := validateKeypair(w, &k, authUser); !ok {
+		return
+	}
+
 	updateHandler(w, authUser, false, keypair)
 }
 
@@ -264,18 +270,33 @@ func verifyKeypair(w http.ResponseWriter, r *http.Request, authUser datastore.Us
 		return keypairWithKey, false
 	}
 
+	// Validate the keypair
+	if ok := validateKeypair(w, &keypairWithKey, authUser); !ok {
+		return keypairWithKey, false
+	}
+
+	return keypairWithKey, true
+}
+
+func validateKeypair(w http.ResponseWriter, keypairWithKey *WithPrivateKey, authUser datastore.User) bool {
 	// Validate the authority-id
 	keypairWithKey.AuthorityID = strings.TrimSpace(keypairWithKey.AuthorityID)
 	if len(keypairWithKey.AuthorityID) == 0 {
 		response.FormatStandardResponse(false, response.ErrorDecodeJSON.Code, "", "The authority-id is mandatory", w)
-		return keypairWithKey, false
+		return false
 	}
 
 	// Check that the user has permissions to this authority-id
 	if !datastore.Environ.DB.CheckUserInAccount(authUser.Username, keypairWithKey.AuthorityID) {
 		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", "Your user does not have permissions for the Signing Authority", w)
-		return keypairWithKey, false
+		return false
 	}
 
-	return keypairWithKey, true
+	// Check that the key-name does not already exist for the authority-id
+	if datastore.Environ.DB.CheckKeypairKeynameExists(keypairWithKey.AuthorityID, keypairWithKey.KeyName) {
+		response.FormatStandardResponse(false, response.ErrorInvalidKeypair.Code, "", "A key with this name already exists for this Signing Authority", w)
+		return false
+	}
+
+	return true
 }

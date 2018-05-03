@@ -297,6 +297,14 @@ func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", nil
 }
 
+// CheckKeypairKeynameExists mock checking for keypair by name
+func (mdb *MockDB) CheckKeypairKeynameExists(authorityID, name string) bool {
+	if name == "invalid" {
+		return true
+	}
+	return false
+}
+
 // SyncKeypair database mock
 func (mdb *MockDB) SyncKeypair(keypair SyncKeypair) error {
 	return nil
@@ -984,6 +992,14 @@ func (mdb *ErrorMockDB) ListAllowedKeypairs(authorization User) ([]Keypair, erro
 // PutKeypair error mock for the database
 func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", errors.New("Error updating the database")
+}
+
+// CheckKeypairKeynameExists mock checking for keypair by name
+func (mdb *ErrorMockDB) CheckKeypairKeynameExists(authorityID, name string) bool {
+	if name == "invalid" {
+		return true
+	}
+	return false
 }
 
 // SyncKeypair error mock for the database

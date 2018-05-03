@@ -56,6 +56,7 @@ type Datastore interface {
 	UpdateKeypairAssertion(keypair Keypair, authorization User) (string, error)
 	CreateKeypairTable() error
 	AlterKeypairTable() error
+	CheckKeypairKeynameExists(authorityID, name string) bool
 
 	CreateSettingsTable() error
 	PutSetting(setting Setting) error

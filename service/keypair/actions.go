@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
@@ -140,6 +141,11 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, key
 		return
 	}
 
+	if len(strings.TrimSpace(keypairWithKey.KeyName)) == 0 {
+		response.FormatStandardResponse(false, response.ErrorInvalidKeypair.Code, "", "The key name must be supplied", w)
+		return
+	}
+
 	// Store the signing-key in the keypair store using the asserts module
 	privateKey, sealedPrivateKey, err := datastore.Environ.KeypairDB.ImportSigningKey(keypairWithKey.AuthorityID, keypairWithKey.PrivateKey)
 	if err != nil {
@@ -170,6 +176,11 @@ func generateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, k
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
 	if err != nil {
 		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
+		return
+	}
+
+	if len(strings.TrimSpace(keypairWithKey.KeyName)) == 0 {
+		response.FormatStandardResponse(false, response.ErrorInvalidKeypair.Code, "", "The key name must be supplied", w)
 		return
 	}
 

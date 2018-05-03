@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -72,20 +73,20 @@ func (s *KeypairSuite) SetUpTest(c *check.C) {
 
 func (s *KeypairSuite) TestListStatusHandler(c *check.C) {
 	tests := []KeypairTest{
-		{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", 0, false, true, 4},
-		{"GET", "/v1/keypairs", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 2},
-		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/keypairs", nil, 200, response.JSONHeader, 0, false, true, 4},
+		{"GET", "/v1/keypairs", nil, 200, response.JSONHeader, datastore.Admin, true, true, 2},
+		{"GET", "/v1/keypairs", nil, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"GET", "/v1/keypairs", nil, 400, response.JSONHeader, 0, true, false, 0},
 
-		{"GET", "/v1/keypairs/status/system/key1", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"GET", "/v1/keypairs/status/system/key1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"GET", "/v1/keypairs/status/system/key1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"GET", "/v1/keypairs/status/system/key1", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/keypairs/status/system/key1", nil, 200, response.JSONHeader, 0, false, true, 0},
+		{"GET", "/v1/keypairs/status/system/key1", nil, 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"GET", "/v1/keypairs/status/system/key1", nil, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"GET", "/v1/keypairs/status/system/key1", nil, 400, response.JSONHeader, 0, true, false, 0},
 
-		{"GET", "/v1/keypairs/status", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"GET", "/v1/keypairs/status", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"GET", "/v1/keypairs/status", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"GET", "/v1/keypairs/status", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/keypairs/status", nil, 200, response.JSONHeader, 0, false, true, 0},
+		{"GET", "/v1/keypairs/status", nil, 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"GET", "/v1/keypairs/status", nil, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"GET", "/v1/keypairs/status", nil, 400, response.JSONHeader, 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -109,8 +110,8 @@ func (s *KeypairSuite) TestListStatusHandler(c *check.C) {
 func (s *KeypairSuite) TestKeypairsErrorHandler(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 	tests := []KeypairTest{
-		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		{"GET", "/v1/keypairs", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/v1/keypairs", nil, 400, response.JSONHeader, 0, false, false, 0},
+		{"GET", "/v1/keypairs", nil, 400, response.JSONHeader, datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -140,7 +141,7 @@ func (s *KeypairSuite) TestCreateGenerateEnableDisableHandler(c *check.C) {
 	signingKey, err := ioutil.ReadFile("../../keystore/TestKey.asc")
 	c.Assert(err, check.IsNil)
 	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
-	k := keypair.WithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "system"}
+	k := keypair.WithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "system", KeyName: "serial-key"}
 	data, _ := json.Marshal(k)
 
 	// Generate a bad keypair to upload
@@ -150,35 +151,53 @@ func (s *KeypairSuite) TestCreateGenerateEnableDisableHandler(c *check.C) {
 	k = keypair.WithPrivateKey{PrivateKey: string(encodedSigningKey), AuthorityID: "system"}
 	dataBad, _ := json.Marshal(k)
 
+	kp := datastore.Keypair{ID: 1, AuthorityID: "system", KeyName: "serial-key"}
+	keypair, _ := json.Marshal(kp)
+
 	tests := []KeypairTest{
-		{"POST", "/v1/keypairs", data, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"POST", "/v1/keypairs", data, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"POST", "/v1/keypairs", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs", []byte("{}"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs", dataBad, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs", data, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"POST", "/v1/keypairs", data, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/keypairs/1", nil, 200, response.JSONHeader, 0, false, true, 0},
+		{"GET", "/v1/keypairs/1", nil, 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"GET", "/v1/keypairs/1", nil, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"GET", "/v1/keypairs/1", nil, 400, response.JSONHeader, datastore.Admin, true, false, 1},
+		{"GET", "/v1/keypairs/9999999999999999999999999", nil, 400, response.JSONHeader, datastore.Admin, true, false, 0},
 
-		{"POST", "/v1/keypairs/generate", data, 202, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"POST", "/v1/keypairs/generate", data, 202, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"POST", "/v1/keypairs/generate", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs/generate", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs/generate", []byte("{}"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs/generate", data, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"POST", "/v1/keypairs/generate", data, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"POST", "/v1/keypairs", data, 200, response.JSONHeader, 0, false, true, 0},
+		{"POST", "/v1/keypairs", data, 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"POST", "/v1/keypairs", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs", []byte("bad"), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs", []byte("{}"), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs", dataBad, 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs", data, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"POST", "/v1/keypairs", data, 400, response.JSONHeader, 0, true, false, 0},
 
-		{"POST", "/v1/keypairs/1/disable", []byte(""), 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"POST", "/v1/keypairs/1/disable", []byte(""), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"POST", "/v1/keypairs/1/disable", []byte(""), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"POST", "/v1/keypairs/1/disable", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 1},
-		{"POST", "/v1/keypairs/9999999999999999999999999/disable", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"PUT", "/v1/keypairs/1", keypair, 200, response.JSONHeader, 0, false, true, 0},
+		{"PUT", "/v1/keypairs/1", keypair, 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"PUT", "/v1/keypairs/1", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"PUT", "/v1/keypairs/1", []byte("bad"), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"PUT", "/v1/keypairs/1", []byte("{}"), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"PUT", "/v1/keypairs/1", dataBad, 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"PUT", "/v1/keypairs/1", keypair, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"PUT", "/v1/keypairs/1", keypair, 400, response.JSONHeader, 0, true, false, 0},
 
-		{"POST", "/v1/keypairs/1/enable", []byte(""), 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"POST", "/v1/keypairs/1/enable", []byte(""), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"POST", "/v1/keypairs/1/enable", []byte(""), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"POST", "/v1/keypairs/1/enable", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 1},
-		{"POST", "/v1/keypairs/9999999999999999999999999/enable", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", data, 202, response.JSONHeader, 0, false, true, 0},
+		{"POST", "/v1/keypairs/generate", data, 202, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"POST", "/v1/keypairs/generate", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", []byte("bad"), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", []byte("{}"), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/generate", data, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"POST", "/v1/keypairs/generate", data, 400, response.JSONHeader, 0, true, false, 0},
+
+		{"POST", "/v1/keypairs/1/disable", []byte(""), 200, response.JSONHeader, 0, false, true, 0},
+		{"POST", "/v1/keypairs/1/disable", []byte(""), 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"POST", "/v1/keypairs/1/disable", []byte(""), 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"POST", "/v1/keypairs/1/disable", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 1},
+		{"POST", "/v1/keypairs/9999999999999999999999999/disable", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 0},
+
+		{"POST", "/v1/keypairs/1/enable", []byte(""), 200, response.JSONHeader, 0, false, true, 0},
+		{"POST", "/v1/keypairs/1/enable", []byte(""), 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"POST", "/v1/keypairs/1/enable", []byte(""), 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"POST", "/v1/keypairs/1/enable", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 1},
+		{"POST", "/v1/keypairs/9999999999999999999999999/enable", []byte(""), 400, response.JSONHeader, datastore.Admin, true, false, 0},
 	}
 	for _, t := range tests {
 		datastore.Environ.KeypairDB, _ = datastore.GetMemoryKeyStore(config)
@@ -189,6 +208,8 @@ func (s *KeypairSuite) TestCreateGenerateEnableDisableHandler(c *check.C) {
 		datastore.Environ.Config.EnableUserAuth = t.EnableAuth
 
 		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Log(string(t.Data))
+		c.Log(w.Body)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -214,8 +235,8 @@ func (s *KeypairSuite) TestCreateKeyStoreError(c *check.C) {
 	data, _ := json.Marshal(k)
 
 	tests := []KeypairTest{
-		{"POST", "/v1/keypairs", data, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs", data, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 1},
+		{"POST", "/v1/keypairs", data, 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs", data, 400, response.JSONHeader, datastore.Admin, true, false, 1},
 	}
 	for _, t := range tests {
 		datastore.Environ.KeypairDB, _ = datastore.GetErrorMockKeyStore(config)
@@ -262,16 +283,16 @@ func (s *KeypairSuite) TestAssertionHandler(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	tests := []KeypairTest{
-		{"POST", "/v1/keypairs/assertion", data, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"POST", "/v1/keypairs/assertion", data, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"POST", "/v1/keypairs/assertion", data, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", data, 400, "application/json; charset=UTF-8", 0, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", []byte(""), 400, "application/json; charset=UTF-8", 0, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", []byte("bad"), 400, "application/json; charset=UTF-8", 0, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", dataBad1, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", dataBad2, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", dataBad3, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
-		{"POST", "/v1/keypairs/assertion", data, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 1},
+		{"POST", "/v1/keypairs/assertion", data, 200, response.JSONHeader, 0, false, true, 0},
+		{"POST", "/v1/keypairs/assertion", data, 200, response.JSONHeader, datastore.Admin, true, true, 0},
+		{"POST", "/v1/keypairs/assertion", data, 400, response.JSONHeader, datastore.Standard, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", data, 400, response.JSONHeader, 0, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", []byte(""), 400, response.JSONHeader, 0, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", []byte("bad"), 400, response.JSONHeader, 0, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", dataBad1, 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", dataBad2, 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", dataBad3, 400, response.JSONHeader, datastore.Admin, true, false, 0},
+		{"POST", "/v1/keypairs/assertion", data, 400, response.JSONHeader, datastore.Admin, true, false, 1},
 	}
 	for _, t := range tests {
 		if t.List > 0 {

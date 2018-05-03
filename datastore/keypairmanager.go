@@ -75,6 +75,12 @@ const upsertKeypairSQL = `
 	WHERE NOT EXISTS (SELECT * FROM upsert)
 `
 
+const checkKeypairKeynameExistsSQL = `
+	select exists(
+		select * from keypair where authority_id=$1 and key_name=$2
+	)
+`
+
 // sqlite3 syntax for syncing data locally
 const syncUpsertKeypairSQL = `
 	INSERT OR REPLACE INTO keypair
@@ -274,4 +280,10 @@ func (db *DB) updateKeypairAssertion(keypairID int, assertion string) error {
 	}
 
 	return nil
+}
+
+// CheckKeypairKeynameExists validates that there is a keypair for the brand and key name
+func (db *DB) CheckKeypairKeynameExists(authorityID, name string) bool {
+	row := db.QueryRow(checkKeypairKeynameExistsSQL, authorityID, name)
+	return db.checkBoolQuery(row)
 }

@@ -33,7 +33,7 @@ type ErrorResponse struct {
 
 // Standard error messages
 var (
-	ErrorAuth                      = ErrorResponse{false, "error-auth", "", "Authorization error", http.StatusBadRequest}
+	ErrorAuth                      = ErrorResponse{false, "error-auth", "", "Your user does not have permissions for the Signing Authority", http.StatusBadRequest}
 	ErrorAuthDisabled              = ErrorResponse{false, "error-auth", "", "This feature is not enabled for this account", http.StatusBadRequest}
 	ErrorInvalidID                 = ErrorResponse{false, "invalid-record", "", "Invalid record ID", http.StatusBadRequest}
 	ErrorInvalidAPIKey             = ErrorResponse{false, "invalid-api-key", "", "Invalid API key used", http.StatusBadRequest}
