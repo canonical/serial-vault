@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -57,7 +58,7 @@ const getSubstoreModelSQL = `
 	SELECT s.id, s.account_id, s.from_model_id, s.store, s.serial_number, s.model_name 
 	FROM substore s
 	INNER JOIN model m ON m.id = s.from_model_id
-	WHERE m.brand_id=$1 AND m.name=$2 AND s.serial_number=$3`
+	WHERE m.brand_id=$1 AND s.model_name=$2 AND s.serial_number=$3`
 
 const listSubstoreSQL = `
 	SELECT id, account_id, from_model_id, store, serial_number, model_name 
@@ -151,7 +152,7 @@ func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error
 	return store, nil
 }
 
-// GetSubstoreModel fetches a sub-store in the database
+// GetSubstoreModel fetches a sub-store in the database using the pivoted model name
 func (db *DB) GetSubstoreModel(brand, model, serialNumber string) (Substore, error) {
 	store := Substore{}
 

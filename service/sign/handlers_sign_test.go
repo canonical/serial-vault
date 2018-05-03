@@ -1,7 +1,8 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -90,7 +91,7 @@ func (s *SignSuite) TestSerial(c *check.C) {
 	c.Assert(err, check.IsNil)
 	assertNoSerial, err := generateSerialRequestAssertion("alder", "", "")
 	c.Assert(err, check.IsNil)
-	assertFakeModel, err := generateSerialRequestAssertion("cannot-find-this", "A123456L", "")
+	assertFakeModel, err := generateSerialRequestAssertion("invalid", "A123456L", "")
 	c.Assert(err, check.IsNil)
 	assertDuplicate, err := generateSerialRequestAssertion("alder", "Aduplicate", "")
 	c.Assert(err, check.IsNil)
