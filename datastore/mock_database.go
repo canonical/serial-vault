@@ -158,7 +158,7 @@ func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 		model = Model{ID: 1, BrandID: "generic", Name: "generic-classic", KeypairID: 1, AuthorityID: "generic", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	}
 	if modelName == "inactive" {
-		model = Model{ID: 1, BrandID: "System", Name: "inactive", KeypairID: 1, AuthorityID: "System", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
+		model = Model{ID: 1, BrandID: "system", Name: "inactive", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: false, SealedKey: ""}
 	}
 	if model.BrandID != brandID || model.Name != modelName || modelName == "invalid" {
 		return model, errors.New("Cannot find a model for that brand and model")
