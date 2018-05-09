@@ -408,18 +408,24 @@ func (db *DB) deleteModel(model Model) (string, error) {
 
 func (db *DB) deleteModelFilteredByUser(model Model, username string) (string, error) {
 	var err error
+	err = db.transaction(func(tx *sql.Tx) error {
 
-	if len(username) == 0 {
-		_, err = db.Exec(deleteModelSQL, model.ID)
-	} else {
-		_, err = db.Exec(deleteModelForUserSQL, model.ID, username)
-	}
-	if err != nil {
-		log.Printf("Error deleting the database model: %v\n", err)
-		return "", err
-	}
+		// Delete the model assertion - ignore error as it may not exist
+		_ = db.deleteModelAssert(model.ID)
 
-	return "", nil
+		// Delete the model
+		if len(username) == 0 {
+			_, err = db.Exec(deleteModelSQL, model.ID)
+		} else {
+			_, err = db.Exec(deleteModelForUserSQL, model.ID, username)
+		}
+		if err != nil {
+			log.Printf("Error deleting the database model: %v\n", err)
+		}
+		return err
+	})
+
+	return "", err
 }
 
 func (db *DB) checkBrandsMatch(brandID string, keypairID, keypairIDUser int) bool {

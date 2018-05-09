@@ -58,6 +58,11 @@ FROM modelassertion
 WHERE model_id=$1
 `
 
+const deleteModelAssertSQL = `
+DELETE FROM modelassertion
+WHERE model_id=$1
+`
+
 // ModelAssertion holds the model assertion details in the local database
 type ModelAssertion struct {
 	ID            int       `json:"id"`
@@ -120,6 +125,17 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 
 	return err
 
+}
+
+// deleteModelAssert deletes the model assertion details
+func (db *DB) deleteModelAssert(modelID int) error {
+	var err error
+
+	_, err = db.Exec(deleteModelAssertSQL, modelID)
+	if err != nil {
+		log.Printf("Error deleting the model assertion: %v\n", err)
+	}
+	return err
 }
 
 // GetModelAssert fetches the model assertion
