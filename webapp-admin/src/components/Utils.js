@@ -155,3 +155,19 @@ function isUser(role, token) {
 
     return (token.role >= role)
 }
+
+export function saveAccount(account) {
+    sessionStorage.setItem('accountId', account.ID);
+    sessionStorage.setItem('accountCode', account.AuthorityID);
+    sessionStorage.setItem('accountAssertion', account.Assertion);
+    sessionStorage.setItem('accountReseller', account.ResellerAPI);
+}
+
+export function getAccount() {
+    return {
+        ID: parseInt(sessionStorage.getItem('accountId'),10),
+        AuthorityID: sessionStorage.getItem('accountCode'),
+        Assertion: sessionStorage.getItem('accountAssertion'),
+        ResellerAPI: sessionStorage.getItem('accountReseller')==='true',
+    }
+}

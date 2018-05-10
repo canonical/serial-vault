@@ -37,7 +37,7 @@ import UserList from './components/UserList'
 import UserEdit from './components/UserEdit'
 import Accounts from './models/accounts'
 import Keypairs from './models/keypairs'
-import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath, isLoggedIn} from './components/Utils'
+import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath, isLoggedIn, getAccount, saveAccount} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
 
@@ -51,7 +51,7 @@ class App extends Component {
       token: props.token || {},
       accounts: [],
       keypairs: [],
-      selectedAccount: {},
+      selectedAccount: getAccount() || {},
     }
 
     history.listen(this.handleNavigation.bind(this))
@@ -73,10 +73,11 @@ class App extends Component {
           }
 
           var selectedAccount = this.state.selectedAccount;
-          if (!this.state.selectedAccount.ID) {
+          if ((!this.state.selectedAccount.ID) && (!getAccount().AuthorityID)) {
             // Set to the first in the account list
             if (data.accounts.length > 0) {
               selectedAccount = data.accounts[0]
+              saveAccount(selectedAccount)
             }
           }
 
@@ -109,6 +110,7 @@ class App extends Component {
   }
 
   handleAccountChange = (account) => {
+    saveAccount(account)
     this.setState({selectedAccount: account})
 
     this.updateDataForRoute(account)
