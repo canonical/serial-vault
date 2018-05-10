@@ -78,7 +78,8 @@ class Header extends Component {
                 <nav className="p-navigation__nav">
                     <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
                     <Navigation token={this.props.token} />
-                    <NavigationUser token={this.props.token} />
+                    <NavigationUser token={this.props.token}
+                        accounts={this.props.accounts} selectedAccount={this.props.selectedAccount} onAccountChange={this.props.onAccountChange} />
                         {/*<form id="language-form" className="header-search">*/}
                                 {/* Add more languages here */}
                                 {/* this.renderLanguage('en') */}

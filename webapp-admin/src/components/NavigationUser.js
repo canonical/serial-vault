@@ -19,7 +19,72 @@ import React, {Component} from 'react';
 import {T, isLoggedIn} from './Utils'
 
 
-class Navigation extends Component {
+class NavigationUser extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            accountMenu: false
+        }
+    }
+
+    handleAccountChange = (e) => {
+        e.preventDefault()
+
+        // Get the account
+        var accountId = parseInt(e.target.getAttribute('data-key'), 10)
+        var account = this.props.accounts.filter(a => {
+            return a.ID === accountId
+        })[0]
+
+        this.handleAccountMenu()
+        this.props.onAccountChange(account)
+    }
+
+    handleAccountMenu = (e) => {
+        if (e) {
+         e.preventDefault()
+        }
+        this.setState({accountMenu: !this.state.accountMenu})
+    }
+
+    renderAccounts(token) {
+        if (!isLoggedIn(token)) {
+            return <span />
+        }
+
+        if (this.props.accounts.length === 0) {
+            return <span />
+        }
+
+        var name = this.props.selectedAccount.AuthorityID
+        if (name.length > 10) {
+            name = name.slice(0, 10) + '...'
+        }
+
+        return (
+            <li className="p-navigation__link account-menu">
+                <a href="#" onClick={this.handleAccountMenu} className="p-contextual-menu__toggle" aria-controls="#account-menu" aria-expanded="false" aria-haspopup="true">
+                {name} <i className="fa fa-caret-down"></i>
+                
+                {this.state.accountMenu ?
+                <span className="p-contextual-menu__dropdown" id="account-menu" aria-hidden="false" aria-label="submenu">
+                    <span className="p-contextual-menu__group">
+                    {this.props.accounts.map(a => {
+                    return (
+                        <a key={a.ID} data-key={a.ID} href="#" onClick={this.handleAccountChange} className="p-contextual-menu__link">{a.AuthorityID}</a>
+                    )
+                    })}
+                    </span>
+                </span>
+                : ''
+                }
+                </a>
+            </li>
+        )
+
+    }
 
     renderUser(token) {
         if (isLoggedIn(token)) {
@@ -48,11 +113,11 @@ class Navigation extends Component {
     }
 
     render() {
-
         var token = this.props.token
 
         return (
           <ul className="p-navigation__links u-float-right">
+              {this.renderAccounts(token)}
               {this.renderUser(token)}
               {this.renderUserLogout(token)}
           </ul>
@@ -60,4 +125,4 @@ class Navigation extends Component {
     }
 }
 
-export default Navigation;
+export default NavigationUser;

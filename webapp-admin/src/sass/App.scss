@@ -181,6 +181,10 @@ div.filter-section:last-of-type {
     }
 }
 
+.p-navigation {
+    font-size: 14px;
+}
+
 .p-navigation--light .p-navigation__toggle--open {
     float: right;
     margin: 1rem;
@@ -189,4 +193,14 @@ div.filter-section:last-of-type {
 
 .show {
     display: block !important;
+}
+
+// Navigation menu
+.account-menu {
+    width: 120px;
+}
+.account-menu i.fa {
+    position: absolute;
+    top: 0;
+    left: 100px;
 }

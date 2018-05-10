@@ -35,7 +35,8 @@ import SigningLog from './components/SigningLog'
 import SystemUserForm from './components/SystemUserForm'
 import UserList from './components/UserList'
 import UserEdit from './components/UserEdit'
-import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath} from './components/Utils'
+import Accounts from './models/accounts'
+import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath, isLoggedIn} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
 
@@ -47,14 +48,45 @@ class App extends Component {
     this.state = {
       location: history.location,
       token: props.token || {},
+      accounts: [],
+      selectedAccount: {},
     }
 
     history.listen(this.handleNavigation.bind(this))
+    this.getAccounts()
   }
 
   handleNavigation(location) {
     this.setState({ location: location })
     window.scrollTo(0, 0)
+  }
+
+  getAccounts() {
+    if (isLoggedIn(this.props.token)) {
+      Accounts.list().then((response) => {
+          var data = JSON.parse(response.body);
+          var message = "";
+          if (!data.success) {
+              message = data.message;
+          }
+
+          var selectedAccount = this.state.selectedAccount;
+          if (!this.state.selectedAccount.ID) {
+            // Set to the first in the account list
+            if (data.accounts.length > 0) {
+              selectedAccount = data.accounts[0]
+            }
+          }
+
+          this.setState({accounts: data.accounts, selectedAccount: selectedAccount, message: message});
+      });
+    }
+  }
+
+  handleAccountChange = (account) => {
+    this.setState({selectedAccount: account})
+
+    //this.updateDataForRoute(account, true)
   }
 
   renderModels() {
@@ -126,7 +158,9 @@ class App extends Component {
 
     return (
       <div className="App">
-          <Header token={this.props.token} />
+          <Header token={this.props.token}
+            accounts={this.state.accounts} selectedAccount={this.state.selectedAccount} 
+            onAccountChange={this.handleAccountChange} />
 
           <div className="spacer" />
   
