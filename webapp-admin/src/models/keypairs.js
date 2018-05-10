@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -23,6 +23,14 @@ var Keypair = {
 			return Ajax.get(this.url);
 	},
 
+	get:  function(keypairId) {
+		return Ajax.get(this.url + '/' + keypairId, {});
+	},
+
+	update:  function(keypair) {
+		return Ajax.put(this.url + '/' + keypair.ID, keypair);
+	},
+
 	enable:  function(keypairId) {
 		return Ajax.post(this.url + '/' + keypairId + '/enable', {});
 	},
@@ -31,8 +39,8 @@ var Keypair = {
 		return Ajax.post(this.url + '/' + keypairId + '/disable', {});
 	},
 
-	create:  function(authorityId, key) {
-		return Ajax.post(this.url, {'authority-id': authorityId, 'private-key': key});
+	create:  function(authorityId, key, keyName) {
+		return Ajax.post(this.url, {'authority-id': authorityId, 'private-key': key, 'key-name': keyName});
 	},
 
 	generate:  function(authorityId, keyName) {

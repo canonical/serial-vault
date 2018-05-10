@@ -33,59 +33,80 @@ const createKeypairTableSQL = `
 		key_id        varchar(200) not null,
 		active        boolean default true,
 		sealed_key    text,
-		assertion     text default ''
+		assertion     text default '',
+		key_name      varchar(200) default ''
 	)
 `
 const listKeypairsSQL = `
-	select k.id, k.authority_id, k.key_id, k.active, k.assertion, COALESCE(ks.key_name,'') AS key_name, COALESCE(ks.status,'') AS status from keypair k 
-	left outer join keypairstatus ks on k.id = ks.keypair_id
-	order by k.authority_id, k.key_id`
+	SELECT k.id, k.authority_id, k.key_id, k.active, k.assertion, k.key_name
+	FROM keypair k 
+	ORDER BY k.authority_id, k.key_id`
 const listKeypairsForUserSQL = `
-	select k.id, k.authority_id, k.key_id, k.active, k.assertion, COALESCE(ks.key_name,'') AS key_name, COALESCE(ks.status,'') AS status 
-	from keypair k
-	inner join account acc on acc.authority_id=k.authority_id
-	inner join useraccountlink ua on ua.account_id=acc.id
-	inner join userinfo u on ua.user_id=u.id
-	left outer join keypairstatus ks on k.id = ks.keypair_id
-	where u.username=$1
-	order by k.authority_id, k.key_id`
-const getKeypairSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where id=$1"
-const getKeypairByPublicIDSQL = "select id, authority_id, key_id, active, sealed_key, assertion from keypair where authority_id=$1 and key_id=$2"
+	SELECT k.id, k.authority_id, k.key_id, k.active, k.assertion, k.key_name 
+	FROM keypair k
+	INNER JOIN account acc ON acc.authority_id=k.authority_id
+	INNER JOIN useraccountlink ua ON ua.account_id=acc.id
+	INNER JOIN userinfo u ON ua.user_id=u.id
+	WHERE u.username=$1
+	ORDER BY k.authority_id, k.key_id`
+const getKeypairSQL = "SELECT id, authority_id, key_id, active, sealed_key, assertion, key_name FROM keypair WHERE id=$1"
+const getKeypairByPublicIDSQL = "SELECT id, authority_id, key_id, active, sealed_key, assertion, key_name FROM keypair WHERE authority_id=$1 AND key_id=$2"
 const getKeypairByNameSQL = `
 	SELECT k.id, k.authority_id, k.key_id, k.active, k.sealed_key, k.assertion
 	FROM keypair k
 	INNER JOIN keypairstatus ks ON ks.keypair_id=k.id
-	WHERE k.authority_id=$1 and ks.key_name=$2`
-const toggleKeypairSQL = "update keypair set active=$2 where id=$1"
+	WHERE k.authority_id=$1 AND ks.key_name=$2`
+const toggleKeypairSQL = "UPDATE keypair SET active=$2 WHERE id=$1"
 const toggleKeypairForUserSQL = `
-	update keypair k
-	set active=$2
-	from account acc 
-	inner join useraccountlink ua on ua.account_id=acc.id
-	inner join userinfo u on ua.user_id=u.id
-	where k.id=$1 and u.username=$3 and acc.authority_id=k.authority_id`
+	UPDATE keypair k
+	SET active=$2
+	FROM account acc 
+	INNER JOIN useraccountlink ua ON ua.account_id=acc.id
+	INNER JOIN userinfo u ON ua.user_id=u.id
+	WHERE k.id=$1 AND u.username=$3 AND acc.authority_id=k.authority_id`
 const upsertKeypairSQL = `
 	WITH upsert AS (
-		update keypair set authority_id=$1, key_id=$2, sealed_key=$3, assertion=$4
-		where authority_id=$1 and key_id=$2
+		UPDATE keypair SET authority_id=$1, key_id=$2, sealed_key=$3, assertion=$4, key_name=$5
+		WHERE authority_id=$1 AND key_id=$2
 		RETURNING *
 	)
-	insert into keypair (authority_id,key_id,sealed_key,assertion)
-	select $1, $2, $3, $4
-	where not exists (select * from upsert)
+	INSERT INTO keypair (authority_id,key_id,sealed_key,assertion,key_name)
+	SELECT $1, $2, $3, $4, $5
+	WHERE NOT EXISTS (SELECT * FROM upsert)
+`
+
+const checkKeypairKeynameExistsSQL = `
+	select exists(
+		select * from keypair where authority_id=$1 and key_name=$2
+	)
 `
 
 // sqlite3 syntax for syncing data locally
 const syncUpsertKeypairSQL = `
 	INSERT OR REPLACE INTO keypair
-	(id,authority_id,key_id,sealed_key,assertion,active)
-	VALUES ($1, $2, $3, $4, $5, $6)
+	(id,authority_id,key_id,sealed_key,assertion,active,key_name)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
-const updateKeypairSQL = "update keypair set assertion=$2 where id=$1"
+const updateKeypairSQL = "UPDATE keypair SET assertion=$2 WHERE id=$1"
 
 // Add the assertion field to store the assertion for the account key to the table
-const alterKeypairAddAssertion = "alter table keypair add column assertion text default ''"
+const alterKeypairAddAssertion = "ALTER TABLE keypair ADD COLUMN assertion TEXT DEFAULT ''"
+
+// Add the key_name field to store name of the key
+const alterKeypairAddKeyName = "ALTER TABLE keypair ADD COLUMN key_name VARCHAR(200) DEFAULT ''"
+const updateKeypairKeyNameFromStatus = `
+	UPDATE keypair k
+	SET key_name = ks.key_name
+	FROM keypairstatus ks
+	WHERE k.id = ks.keypair_id
+	AND k.key_name = ''
+`
+const updateKeypairKeyNameDefault = `
+	UPDATE keypair
+	SET key_name = key_id
+	WHERE key_name = ''
+`
 
 // Keypair holds the keypair reference details in the local database
 type Keypair struct {
@@ -96,7 +117,6 @@ type Keypair struct {
 	SealedKey   string
 	Assertion   string
 	KeyName     string
-	Status      string
 }
 
 // SyncKeypair is the response to fetch keypairs
@@ -114,6 +134,9 @@ func (db *DB) CreateKeypairTable() error {
 // AlterKeypairTable adds extra fields to an existing keypair database table
 func (db *DB) AlterKeypairTable() error {
 	db.Exec(alterKeypairAddAssertion)
+	db.Exec(alterKeypairAddKeyName)
+	db.Exec(updateKeypairKeyNameFromStatus)
+	db.Exec(updateKeypairKeyNameDefault)
 	// Ignore errors as the field may already be added
 	return nil
 }
@@ -143,7 +166,7 @@ func (db *DB) listKeypairsFilteredByUser(username string) ([]Keypair, error) {
 
 	for rows.Next() {
 		keypair := Keypair{}
-		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.Assertion, &keypair.KeyName, &keypair.Status)
+		err := rows.Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.Assertion, &keypair.KeyName)
 		if err != nil {
 			return nil, err
 		}
@@ -157,7 +180,7 @@ func (db *DB) listKeypairsFilteredByUser(username string) ([]Keypair, error) {
 func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 	keypair := Keypair{}
 
-	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
+	err := db.QueryRow(getKeypairSQL, keypairID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion, &keypair.KeyName)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
 		return keypair, err
@@ -170,7 +193,7 @@ func (db *DB) GetKeypair(keypairID int) (Keypair, error) {
 func (db *DB) GetKeypairByPublicID(authorityID, keyID string) (Keypair, error) {
 	keypair := Keypair{}
 
-	err := db.QueryRow(getKeypairByPublicIDSQL, authorityID, keyID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
+	err := db.QueryRow(getKeypairByPublicIDSQL, authorityID, keyID).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion, &keypair.KeyName)
 	if err != nil {
 		log.Printf("Error retrieving keypair by ID: %v\n", err)
 		return keypair, err
@@ -183,7 +206,7 @@ func (db *DB) GetKeypairByPublicID(authorityID, keyID string) (Keypair, error) {
 func (db *DB) GetKeypairByName(authorityID, keyName string) (Keypair, error) {
 	keypair := Keypair{}
 
-	err := db.QueryRow(getKeypairByNameSQL, authorityID, keyName).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion)
+	err := db.QueryRow(getKeypairByNameSQL, authorityID, keyName).Scan(&keypair.ID, &keypair.AuthorityID, &keypair.KeyID, &keypair.Active, &keypair.SealedKey, &keypair.Assertion, &keypair.KeyName)
 	if err != nil {
 		log.Printf("Error retrieving keypair by name: %v\n", err)
 		return keypair, err
@@ -199,7 +222,11 @@ func (db *DB) PutKeypair(keypair Keypair) (string, error) {
 		return "error-validate-keypair", errors.New("The Authority ID and the Key ID must be entered")
 	}
 
-	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion)
+	if !validateStringsNotEmpty(keypair.KeyName) {
+		keypair.KeyName = keypair.AuthorityID
+	}
+
+	_, err := db.Exec(upsertKeypairSQL, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion, keypair.KeyName)
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
 		return "", err
@@ -215,7 +242,7 @@ func (db *DB) SyncKeypair(keypair SyncKeypair) error {
 		return errors.New("The Authority ID and the Key ID must be entered")
 	}
 
-	_, err := db.Exec(syncUpsertKeypairSQL, keypair.ID, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion, keypair.Active)
+	_, err := db.Exec(syncUpsertKeypairSQL, keypair.ID, keypair.AuthorityID, keypair.KeyID, keypair.SealedKey, keypair.Assertion, keypair.Active, keypair.KeyName)
 	if err != nil {
 		log.Printf("Error updating the database keypair: %v\n", err)
 		return err
@@ -253,4 +280,10 @@ func (db *DB) updateKeypairAssertion(keypairID int, assertion string) error {
 	}
 
 	return nil
+}
+
+// CheckKeypairKeynameExists validates that there is a keypair for the brand and key name
+func (db *DB) CheckKeypairKeynameExists(authorityID, name string) bool {
+	row := db.QueryRow(checkKeypairKeynameExistsSQL, authorityID, name)
+	return db.checkBoolQuery(row)
 }

@@ -104,8 +104,6 @@ func DecryptKey(sealedKey []byte, keyText string) ([]byte, error) {
 // DeserializePrivateKey decodes a base64 encoded private key file and converts
 // it to a private key that can be used for storage in the keypair store
 func DeserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string, error) {
-	const errorInvalidKey = "error-invalid-key"
-
 	// The private-key is base64 encoded, so we need to decode it
 	decodedPrivateKey, err := base64.StdEncoding.DecodeString(base64PrivateKey)
 	if err != nil {
@@ -116,7 +114,7 @@ func DeserializePrivateKey(base64PrivateKey string) (asserts.PrivateKey, string,
 }
 
 func privateKeyToAssertsKey(key []byte) (asserts.PrivateKey, string, error) {
-	const errorInvalidKey = "error-invalid-key"
+	const errorInvalidKey = "invalid-keypair"
 
 	// Validate the signing-key
 	block, err := armor.Decode(bytes.NewReader(key))

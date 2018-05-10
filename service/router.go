@@ -90,6 +90,8 @@ func AdminRouter() *mux.Router {
 	// API routes: signing-keys
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.List))).Methods("GET")
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.Create))).Methods("POST")
+	router.Handle("/v1/keypairs/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Get))).Methods("GET")
+	router.Handle("/v1/keypairs/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Update))).Methods("PUT")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/disable", MiddlewareWithCSRF(http.HandlerFunc(keypair.Disable))).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}/enable", MiddlewareWithCSRF(http.HandlerFunc(keypair.Enable))).Methods("POST")
 	router.Handle("/v1/keypairs/assertion", MiddlewareWithCSRF(http.HandlerFunc(keypair.Assertion))).Methods("POST")

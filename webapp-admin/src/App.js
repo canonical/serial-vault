@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017-2018 Canonical Ltd
+ * License granted by Canonical Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -21,6 +22,7 @@ import Index from './components/Index'
 import ModelList from './components/ModelList'
 import ModelEdit from './components/ModelEdit'
 import KeypairAdd from './components/KeypairAdd'
+import KeypairEdit from './components/KeypairEdit'
 import KeypairGenerate from './components/KeypairGenerate'
 import KeypairStore from './components/KeypairStore'
 import AccountList from './components/AccountList'
@@ -109,10 +111,12 @@ class App extends Component {
         return <KeypairGenerate token={this.props.token} />
       case 'new':
         return <KeypairAdd token={this.props.token} />
+      case '':
+        return <Keypair token={this.props.token} />
       case 'store':
         return <KeypairStore token={this.props.token} />
       default:
-        return <Keypair token={this.props.token} />
+        return <KeypairEdit token={this.props.token} id={id} />
     }
   }
 

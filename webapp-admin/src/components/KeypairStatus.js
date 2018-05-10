@@ -39,7 +39,6 @@ class KeypairStatus extends Component {
   getKeypairs() {
     Keypairs.status().then((response) => {
         var data = JSON.parse(response.body);
-        console.log(data)
         var message = "";
         if (!data.success) {
             message = data.message;

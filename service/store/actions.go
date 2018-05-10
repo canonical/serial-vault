@@ -34,28 +34,28 @@ func keyRegisterHandler(w http.ResponseWriter, user datastore.User, apiCall bool
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", err.Error(), w)
 		return
 	}
 
 	// Check that the user has permissions to this authority-id
 	if !datastore.Environ.DB.CheckUserInAccount(user.Username, keyAuth.AuthorityID) {
-		response.FormatStandardResponse(false, "error-auth", "", "Your user does not have permissions for the Signing Authority", w)
+		response.FormatStandardResponse(false, response.ErrorAuth.Code, "", response.ErrorAuth.Message, w)
 		return
 	}
 
 	keypair, err := datastore.Environ.DB.GetKeypairByName(keyAuth.AuthorityID, keyAuth.KeyName)
 	if err != nil {
-		log.Message("KEYPAIR", "error-keypair-fetch", err.Error())
-		response.FormatStandardResponse(false, "error-invalid-key", "", "Cannot find the signing key", w)
+		log.Message("KEYPAIR", response.ErrorFetchKeypair.Code, err.Error())
+		response.FormatStandardResponse(false, response.ErrorFetchKeypair.Code, "", "Cannot find the signing key", w)
 		return
 	}
 
 	// Register the account key with the store
 	err = store.RegisterKey(keyAuth, keypair)
 	if err != nil {
-		log.Message("KEYPAIR", "error-keypair-register", err.Error())
-		response.FormatStandardResponse(false, "error-store-keypair", "", err.Error(), w)
+		log.Message("KEYPAIR", response.ErrorStoreKeypair.Code, err.Error())
+		response.FormatStandardResponse(false, response.ErrorStoreKeypair.Code, "", err.Error(), w)
 		return
 	}
 

@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -295,6 +295,14 @@ func (mdb *MockDB) ListAllowedKeypairs(authorization User) ([]Keypair, error) {
 // PutKeypair database mock
 func (mdb *MockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", nil
+}
+
+// CheckKeypairKeynameExists mock checking for keypair by name
+func (mdb *MockDB) CheckKeypairKeynameExists(authorityID, name string) bool {
+	if name == "invalid" {
+		return true
+	}
+	return false
 }
 
 // SyncKeypair database mock
@@ -672,6 +680,11 @@ func (mdb *MockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus,
 	return KeypairStatus{}, errors.New("Cannot find the keypair status")
 }
 
+// DeleteKeypairStatus removes a keypair status
+func (mdb *MockDB) DeleteKeypairStatus(ks KeypairStatus) error {
+	return nil
+}
+
 // CreateModelAssertTable mock for creating database model assertion headers table
 func (mdb *MockDB) CreateModelAssertTable() error {
 	return nil
@@ -981,6 +994,14 @@ func (mdb *ErrorMockDB) PutKeypair(keypair Keypair) (string, error) {
 	return "", errors.New("Error updating the database")
 }
 
+// CheckKeypairKeynameExists mock checking for keypair by name
+func (mdb *ErrorMockDB) CheckKeypairKeynameExists(authorityID, name string) bool {
+	if name == "invalid" {
+		return true
+	}
+	return false
+}
+
 // SyncKeypair error mock for the database
 func (mdb *ErrorMockDB) SyncKeypair(keypair SyncKeypair) error {
 	return errors.New("Error updating the database")
@@ -1186,6 +1207,11 @@ func (mdb *ErrorMockDB) ListAllowedKeypairStatus(authorization User) ([]KeypairS
 // GetKeypairStatus fetches a single keypair status record
 func (mdb *ErrorMockDB) GetKeypairStatus(authorityID, keyName string) (KeypairStatus, error) {
 	return KeypairStatus{}, errors.New("Cannot find the keypair status")
+}
+
+// DeleteKeypairStatus removes a keypair status
+func (mdb *ErrorMockDB) DeleteKeypairStatus(ks KeypairStatus) error {
+	return errors.New("Cannot delete the keypair status")
 }
 
 // CreateModelAssertTable mock for creating database model assertion headers table

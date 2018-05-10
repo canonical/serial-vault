@@ -17,6 +17,7 @@
 
 import React, {Component} from 'react'
 import Keypairs from '../models/keypairs'
+import Accounts from '../models/accounts';
 import AlertBox from './AlertBox'
 import {T, isUserAdmin} from './Utils';
 
@@ -26,10 +27,31 @@ class KeypairGenerate extends Component {
         super(props);
 
         this.state = {
+            accounts: this.props.accounts || [],
             authorityId: null, 
             keyName: null, 
             error: this.props.error,
         };
+
+        this.getAccounts()
+    }
+
+    getAccounts() {
+        Accounts.list().then((response) => {
+            var authority = null;
+            var data = JSON.parse(response.body);
+            var message = "";
+
+            if (!data.success) {
+                message = data.message;
+            } else {
+                // Select the first account
+                if (data.accounts.length > 0) {
+                    authority = data.accounts[0].AuthorityID;
+                }
+            }
+            this.setState({accounts: data.accounts, authorityId: authority, error: message});
+        });
     }
 
     handleChangeAuthorityId = (e) => {
@@ -84,8 +106,12 @@ class KeypairGenerate extends Component {
                         <form>
                             <fieldset>
                                 <label htmlFor="authority-id">{T('authority-id')}:
-                                    <input type="text" id="authority-id" onChange={this.handleChangeAuthorityId} placeholder={T('authority-id-description')} />
-                                </label>
+                                    <select value={this.state.authorityId} id="authority-id" onChange={this.handleChangeAuthorityId}>
+                                        {this.state.accounts.map(function(a) {
+                                            return <option key={a.AuthorityID} value={a.AuthorityID}>{a.AuthorityID}</option>;
+                                        })}
+                                    </select>
+                                </label>                                
                                 <label htmlFor="key-name">{T('key-name')}:
                                     <input type="text" id="key-name" onChange={this.handleChangeKeyName} placeholder={T('key-name-description')} />
                                 </label>

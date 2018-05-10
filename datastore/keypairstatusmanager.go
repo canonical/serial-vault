@@ -68,6 +68,10 @@ UPDATE keypairstatus
 SET keypair_id=$3, status=$4
 WHERE authority_id=$1 AND key_name=$2`
 
+const deleteKeypairStatusSQL = `
+DELETE FROM keypairstatus
+WHERE id=$1`
+
 // Indexes
 const createKeypairStatusAuthKeyIndexSQL = "CREATE UNIQUE INDEX IF NOT EXISTS auth_key_idx ON keypairstatus (authority_id, key_name)"
 
@@ -130,6 +134,15 @@ func (db *DB) UpdateKeypairStatus(ks KeypairStatus) error {
 
 	return err
 
+}
+
+// DeleteKeypairStatus updates the status of generating
+func (db *DB) DeleteKeypairStatus(ks KeypairStatus) error {
+	_, err := db.Exec(deleteKeypairStatusSQL, ks.ID)
+	if err != nil {
+		log.Printf("Error deleting the keypair status: %v\n", err)
+	}
+	return err
 }
 
 // GetKeypairStatus fetches the keypair status
