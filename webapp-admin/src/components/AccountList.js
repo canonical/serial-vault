@@ -16,7 +16,6 @@
  */
 import React, {Component} from 'react'
 import Accounts from '../models/accounts'
-import Keypairs from '../models/keypairs'
 import Models from '../models/models'
 import AlertBox from './AlertBox'
 import {T, isUserAdmin} from './Utils'
@@ -27,8 +26,7 @@ class AccountList extends Component {
         super(props);
 
         this.state = {
-            accounts: props.accounts || [],
-            keypairs: props.keypairs || [],
+            //keypairs: props.keypairs || [],
             models: props.models || [],
             message: '',
         }
@@ -36,30 +34,14 @@ class AccountList extends Component {
 
     componentDidMount() {
         this.getModels()
-        this.getAccounts()
-        this.getKeypairs()
     }
 
     getAccounts() {
-        Accounts.list().then((response) => {
-            var data = JSON.parse(response.body);
-            var message = "";
-            if (!data.success) {
-                message = data.message;
-            }
-            this.setState({accounts: data.accounts, message: message});
-        });
-    }
-
-    getKeypairs() {
-        Keypairs.list().then((response) => {
-            var data = JSON.parse(response.body);
-            var message = "";
-            if (!data.success) {
-                message = data.message;
-            }
-            this.setState({keypairs: data.keypairs, message: message});
-        });
+        if (this.props.selectedAccount.ID) {
+            return [this.props.selectedAccount]
+        } else {
+            return []
+        }
     }
 
     getModels() {
@@ -82,7 +64,7 @@ class AccountList extends Component {
 
         // Check that we have an account assertion
         var messages = []
-        if (!this.state.accounts.find(a => a.AuthorityID === acc.AuthorityID)) {
+        if (!this.getAccounts().find(a => a.AuthorityID === acc.AuthorityID)) {
             messages.push(T('no-assertion'))
         }
 
@@ -111,7 +93,7 @@ class AccountList extends Component {
     }
 
     renderAccounts() {
-        if (this.state.accounts.length > 0) {
+        if (this.getAccounts().length > 0) {
             return (
                 <table>
                 <thead>
@@ -121,7 +103,7 @@ class AccountList extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.state.accounts.map((acc) => {
+                    {this.getAccounts().map((acc) => {
                     return (
                         <tr key={acc.ID}>
                             {isUserAdmin(this.props.token) ? 
@@ -151,7 +133,7 @@ class AccountList extends Component {
     }
 
     renderAccountKeys() {
-        if (this.state.keypairs.length > 0) {
+        if (this.props.keypairs.length > 0) {
             return (
                 <table>
                 <thead>
@@ -160,7 +142,7 @@ class AccountList extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.state.keypairs.map((acc) => {
+                    {this.props.keypairs.map((acc) => {
                     return (
                         <tr key={acc.ID}>
                             <td className="overflow">

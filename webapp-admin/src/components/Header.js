@@ -65,12 +65,12 @@ class Header extends Component {
         <div>
             <header className="p-navigation p-navigation--light" role="banner">
                 <div className="p-navigation__logo">
-                        <div className="nav_logo">
-                            <a href="/" className="p-navigation__link">
-                                <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
-                                <span>{T("title")}</span>
-                            </a>
-                        </div>
+                    <div className="nav_logo">
+                        <a href="/" className="p-navigation__link">
+                            <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
+                            <span>{T("title")}</span>
+                        </a>
+                    </div>
                 </div>
                 <a href="#navigation" className="p-navigation__toggle--open" title="menu" onClick={this.handleToggleMenu}>
                     <img src="/static/images/navigation-menu-plain.svg" width="30px" alt="menu" />

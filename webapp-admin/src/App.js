@@ -36,6 +36,7 @@ import SystemUserForm from './components/SystemUserForm'
 import UserList from './components/UserList'
 import UserEdit from './components/UserEdit'
 import Accounts from './models/accounts'
+import Keypairs from './models/keypairs'
 import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath, isLoggedIn} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
@@ -49,6 +50,7 @@ class App extends Component {
       location: history.location,
       token: props.token || {},
       accounts: [],
+      keypairs: [],
       selectedAccount: {},
     }
 
@@ -79,14 +81,37 @@ class App extends Component {
           }
 
           this.setState({accounts: data.accounts, selectedAccount: selectedAccount, message: message});
+          this.updateDataForRoute(selectedAccount)
       });
     }
+  }
+
+  getKeypairs(authorityID) {
+    Keypairs.list().then((response) => {
+        var data = JSON.parse(response.body);
+        var message = "";
+        if (!data.success) {
+            message = data.message;
+        }
+
+        var keypairs = data.keypairs.filter((k) => {
+            return k.AuthorityID === authorityID;
+        })
+
+        this.setState({keypairs: keypairs, message: message});
+    });
+  }
+
+  updateDataForRoute(selectedAccount) {
+    var currentSection = sectionFromPath(window.location.pathname);
+
+    if(currentSection==='accounts') {this.getKeypairs(selectedAccount.AuthorityID)}
   }
 
   handleAccountChange = (account) => {
     this.setState({selectedAccount: account})
 
-    //this.updateDataForRoute(account, true)
+    this.updateDataForRoute(account)
   }
 
   renderModels() {
@@ -118,7 +143,7 @@ class App extends Component {
       case 'key-assertion':
         return <AccountKeyForm token={this.props.token} />
       default:
-        return <AccountList token={this.props.token} />
+        return <AccountList token={this.props.token} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} />
     }
   }
 
@@ -153,7 +178,6 @@ class App extends Component {
   }
 
   render() {
-
     var currentSection = sectionFromPath(window.location.pathname);
 
     return (

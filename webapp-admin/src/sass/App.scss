@@ -26,6 +26,9 @@ $button-text-color: #fff;
 
 // Customise theme
 
+.nav_logo>a {
+    padding: .75rem 1rem;
+}
 
 .p-button--brand {
     color: $button-text-color;
