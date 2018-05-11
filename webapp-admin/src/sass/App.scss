@@ -194,6 +194,10 @@ div.filter-section:last-of-type {
     position: relative;
 }
 
+.p-tabs__list:after {
+    height: 0;
+}
+
 .show {
     display: block !important;
 }
@@ -207,4 +211,9 @@ div.filter-section:last-of-type {
     position: absolute;
     top: 0;
     left: 100px;
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
 }

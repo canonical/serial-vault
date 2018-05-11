@@ -20,7 +20,7 @@ import Ajax from '../models/Ajax'
 import {Role} from './Constants'
 
 
-const sections = ['signing-keys', 'models', 'keypairs', 'accounts', 'signinglog', 'systemuser', 'users', 'notfound']
+const sections = ['signing-keys', 'models', 'keypairs', 'accounts', 'signinglog', 'substores', 'systemuser', 'users', 'notfound']
 
 
 export function sectionFromPath(path) {
@@ -38,7 +38,6 @@ export function sectionIdFromPath(path, section) {
 
 export function subSectionIdFromPath(path, section) {
     const parts = path.split('/').slice(1)
-    console.log('---parts', parts)
     return (parts[0] === section && parts[2]) || ''
 }
 

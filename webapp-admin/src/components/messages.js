@@ -175,7 +175,7 @@ var intlData = {
       "substore": "Sub-Store",
       "substore-description": "Store ID of the Sub-Store",
       "substore-model": "Sub-Store Model",
-      "substores": "Sub-Stores",
+      "substores": "Sub-Store Models",
       "systemuser": "System-User",
       "title": "Serial Vault",
       "upload-account-assertion": "Upload Account Assertion",
