@@ -65,7 +65,7 @@ class NavigationUser extends Component {
 
         return (
             <li className="p-navigation__link account-menu">
-                <a href="#" onClick={this.handleAccountMenu} className="p-contextual-menu__toggle" aria-controls="#account-menu" aria-expanded="false" aria-haspopup="true">
+                <a href="/" onClick={this.handleAccountMenu} className="p-contextual-menu__toggle" aria-controls="#account-menu" aria-expanded="false" aria-haspopup="true">
                 {name} <i className="fa fa-caret-down"></i>
                 
                 {this.state.accountMenu ?
@@ -73,7 +73,7 @@ class NavigationUser extends Component {
                     <span className="p-contextual-menu__group">
                     {this.props.accounts.map(a => {
                     return (
-                        <a key={a.ID} data-key={a.ID} href="#" onClick={this.handleAccountChange} className="p-contextual-menu__link">{a.AuthorityID}</a>
+                        <a key={a.ID} data-key={a.ID} href="/" onClick={this.handleAccountChange} className="p-contextual-menu__link">{a.AuthorityID}</a>
                     )
                     })}
                     </span>

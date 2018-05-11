@@ -18,7 +18,6 @@
 
 import React, {Component} from 'react'
 import Keypairs from '../models/keypairs'
-import Accounts from '../models/accounts';
 import AlertBox from './AlertBox'
 import {T, isUserAdmin} from './Utils';
 
@@ -28,32 +27,18 @@ class KeypairAdd extends Component {
         super(props);
 
         this.state = {
-            accounts: this.props.accounts || [],
-            authorityId: null,
             name: null,
             key: null,
             error: this.props.error,
         };
-
-        this.getAccounts()
     }
 
     getAccounts() {
-        Accounts.list().then((response) => {
-            var authority = null;
-            var data = JSON.parse(response.body);
-            var message = "";
-
-            if (!data.success) {
-                message = data.message;
-            } else {
-                // Select the first account
-                if (data.accounts.length > 0) {
-                    authority = data.accounts[0].AuthorityID;
-                }
-            }
-            this.setState({accounts: data.accounts, authorityId: authority, error: message});
-        });
+        if (this.props.selectedAccount.ID) {
+            return [this.props.selectedAccount]
+        } else {
+            return []
+        }
     }
 
     handleChangeAuthorityId = (e) => {
@@ -85,7 +70,7 @@ class KeypairAdd extends Component {
     handleSaveClick = (e) => {
         e.preventDefault();
 
-        Keypairs.create(this.state.authorityId, this.state.key, this.state.name).then((response) => {
+        Keypairs.create(this.props.selectedAccount.ID, this.state.key, this.state.name).then((response) => {
             var data = JSON.parse(response.body);
             if ((response.statusCode >= 300) || (!data.success)) {
                 this.setState({error: this.formatError(data)});
@@ -128,8 +113,8 @@ class KeypairAdd extends Component {
                                     <input type="text" id="name" onChange={this.handleChangeKeyName} value={this.state.name} placeholder={T('key-name-description')} />
                                 </label>
                                 <label htmlFor="authority-id">{T('authority-id')}:
-                                    <select value={this.state.authorityId} id="authority-id" onChange={this.handleChangeAuthorityId}>
-                                        {this.state.accounts.map(function(a) {
+                                    <select value={this.props.selectedAccount.ID} id="authority-id" onChange={this.handleChangeAuthorityId}>
+                                        {this.getAccounts().map(function(a) {
                                             return <option key={a.AuthorityID} value={a.AuthorityID}>{a.AuthorityID}</option>;
                                         })}
                                     </select>

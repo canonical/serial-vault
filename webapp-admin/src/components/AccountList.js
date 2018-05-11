@@ -15,7 +15,6 @@
  *
  */
 import React, {Component} from 'react'
-import Accounts from '../models/accounts'
 import Models from '../models/models'
 import AlertBox from './AlertBox'
 import {T, isUserAdmin} from './Utils'

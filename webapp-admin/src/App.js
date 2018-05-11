@@ -37,6 +37,7 @@ import UserList from './components/UserList'
 import UserEdit from './components/UserEdit'
 import Accounts from './models/accounts'
 import Keypairs from './models/keypairs'
+import Models from './models/models';
 import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath, isLoggedIn, getAccount, saveAccount} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
@@ -103,10 +104,27 @@ class App extends Component {
     });
   }
 
+  getModels(authorityID) {
+    Models.list().then((response) => {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+
+      var models = data.models.filter((m) => {
+        return m['brand-id'] === authorityID;
+      })
+
+      this.setState({models: models, message: message});
+    });
+  }
+
   updateDataForRoute(selectedAccount) {
     var currentSection = sectionFromPath(window.location.pathname);
 
     if(currentSection==='accounts') {this.getKeypairs(selectedAccount.AuthorityID)}
+    if(currentSection==='signing-keys') {this.getKeypairs(selectedAccount.AuthorityID)}
   }
 
   handleAccountChange = (account) => {
@@ -167,13 +185,13 @@ class App extends Component {
 
     switch(id) {
       case 'generate':
-        return <KeypairGenerate token={this.props.token} />
+        return <KeypairGenerate token={this.props.token} selectedAccount={this.state.selectedAccount} />
       case 'new':
-        return <KeypairAdd token={this.props.token} />
+        return <KeypairAdd token={this.props.token} selectedAccount={this.state.selectedAccount} />
       case '':
-        return <Keypair token={this.props.token} />
+        return <Keypair token={this.props.token} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} onRefresh={this.handleAccountChange} />
       case 'store':
-        return <KeypairStore token={this.props.token} />
+        return <KeypairStore token={this.props.token} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} />
       default:
         return <KeypairEdit token={this.props.token} id={id} />
     }
