@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -30,7 +30,6 @@ class ModelList extends Component {
 
     super(props)
     this.state = {
-      models: this.props.models || [],
       confirmDelete: null,
       message: null,
       showAssert: null,
@@ -42,22 +41,11 @@ class ModelList extends Component {
   }
 
   refresh() {
-    this.getModels();
+
   }
 
   handleRefresh = () => {
     this.refresh()
-  }
-
-  getModels() {
-    Models.list().then((response) => {
-      var data = JSON.parse(response.body);
-      var message = "";
-      if (!data.success) {
-        message = data.message;
-      }
-      this.setState({models: data.models, message: message});
-    });
   }
 
   formatError(data) {
@@ -87,7 +75,7 @@ class ModelList extends Component {
 
   handleDeleteModel = (e) => {
     e.preventDefault();
-    var models = this.state.models.filter((mdl) => {
+    var models = this.props.models.filter((mdl) => {
       return mdl.id === this.state.confirmDelete;
     });
     if (models.length === 0) {
@@ -111,17 +99,17 @@ class ModelList extends Component {
 
   renderTable() {
 
-    if (this.state.models.length > 0) {
+    if (this.props.models.length > 0) {
       return (
         <table>
           <thead>
             <tr>
-              <th></th><th>{T('brand')}</th><th>{T('model')}</th><th>{T('private-key-short')}</th><th>{T('private-key-user-short')}</th>
+              <th></th><th>{T('model')}</th><th>{T('private-key-short')}</th><th>{T('private-key-user-short')}</th>
               <th className="small">{T('active')}</th>
               <th>{T('private-key-model-short')}</th>
             </tr>
           </thead>
-            {this.state.models.map((mdl) => {
+            {this.props.models.map((mdl) => {
               return (
                 <tbody>
                   <ModelRow key={mdl.id} model={mdl} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
@@ -156,9 +144,11 @@ class ModelList extends Component {
             <div className="u-equal-height">
               <h2 className="col-3">{T('models')}</h2>
               &nbsp;
-              <div className="col-1"><a href="/models/new" className="p-button--brand" title={T('add-new-model')}>
-                <i className="fa fa-plus"></i>
-              </a></div>
+              <div className="col-1">
+                <a href="/models/new" className="p-button--brand" title={T('add-new-model')}>
+                  <i className="fa fa-plus"></i>
+                </a>
+              </div>
             </div>
             <div className="col-12">
               <p>{T('models_available')}:</p>

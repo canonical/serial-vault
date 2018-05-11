@@ -50,6 +50,7 @@ class App extends Component {
     this.state = {
       location: history.location,
       token: props.token || {},
+      models: [],
       accounts: [],
       keypairs: [],
       selectedAccount: getAccount() || {},
@@ -82,8 +83,8 @@ class App extends Component {
             }
           }
 
-          this.setState({accounts: data.accounts, selectedAccount: selectedAccount, message: message});
           this.updateDataForRoute(selectedAccount)
+          this.setState({accounts: data.accounts, selectedAccount: selectedAccount, message: message});
       });
     }
   }
@@ -125,6 +126,10 @@ class App extends Component {
 
     if(currentSection==='accounts') {this.getKeypairs(selectedAccount.AuthorityID)}
     if(currentSection==='signing-keys') {this.getKeypairs(selectedAccount.AuthorityID)}
+    if(currentSection==='models') {
+        this.getModels(selectedAccount.AuthorityID)
+        this.getKeypairs(selectedAccount.AuthorityID)
+    }
   }
 
   handleAccountChange = (account) => {
@@ -136,14 +141,14 @@ class App extends Component {
 
   renderModels() {
     const id = sectionIdFromPath(window.location.pathname, 'models')
-
+  
     switch(id) {
       case 'new':
-        return <ModelEdit token={this.props.token} />
+        return <ModelEdit token={this.props.token} id={null} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} />
       case '':
-        return <ModelList token={this.props.token} />
+        return <ModelList token={this.props.token} selectedAccount={this.state.selectedAccount} models={this.state.models} />
       default:
-        return <ModelEdit token={this.props.token} id={id} />
+        return <ModelEdit token={this.props.token} id={id} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} />
     }
   }
 
