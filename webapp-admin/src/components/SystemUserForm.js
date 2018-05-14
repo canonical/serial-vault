@@ -17,7 +17,6 @@
 import React, {Component} from 'react'
 import moment from 'moment'
 import AlertBox from './AlertBox'
-import Models from '../models/models'
 import Assertion from '../models/assertions'
 import {T, isUserStandard} from './Utils'
 

@@ -143,15 +143,16 @@ class App extends Component {
     if(currentSection==='accounts') {this.getKeypairs(selectedAccount.AuthorityID)}
     if(currentSection==='signing-keys') {this.getKeypairs(selectedAccount.AuthorityID)}
     if(currentSection==='models') {
-        this.getModels(selectedAccount.AuthorityID)
-        this.getKeypairs(selectedAccount.AuthorityID)
+      this.getModels(selectedAccount.AuthorityID)
+      this.getKeypairs(selectedAccount.AuthorityID)
     }
     if(currentSection==='substores') {
-        if (selectedAccount.ID) {
-          this.getSubstores(selectedAccount.ID)
-        }
-        this.getModels(selectedAccount.AuthorityID)
+      if (selectedAccount.ID) {
+        this.getSubstores(selectedAccount.ID)
+      }
+      this.getModels(selectedAccount.AuthorityID)
     }
+    if(currentSection==='systemuser') {this.getModels(selectedAccount.AuthorityID)}
   }
 
   handleAccountChange = (account) => {
