@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -30,87 +30,12 @@ class SigningLog extends Component {
 
     super(props)
     this.state = {
-        logs: this.props.logs || [],
-        confirmDelete: null,
         message: null,
-        makes: [],
-        models: [],
-        expanded: {},
+        expanded: {models: true},
         query: '',
-        page: 1,
         startRow: 0,
         endRow: PAGINATION_SIZE,
     };
-  }
-
-  componentDidMount() {
-    this.getLogs();
-    this.getFilters();
-  }
-
-  getLogs() {
-    var self = this;
-
-    SigningLogModel.list().then(function(response) {
-      var data = JSON.parse(response.body);
-      var message = "";
-      if (!data.success) {
-        message = data.message;
-      }
-
-      self.setState({logs: data.logs, message: message});
-    });
-  }
-
-  getFilters() {
-    var self = this;
-
-    SigningLogModel.filters().then(function(response) {
-      var data = JSON.parse(response.body);
-      var message = "";
-      if (!data.success) {
-        message = data.message;
-      }
-
-      var makes = data.filters.makes.map(function(item) {
-            return {name: item, selected: false};
-      });
-      var models = data.filters.models.map(function(item) {
-            return {name: item, selected: false};
-      });
-
-      self.setState({makes: makes, models: models, message: message});
-    });
-  }
-
-  handleDelete = (e) => {
-    e.preventDefault();
-    this.setState({confirmDelete: parseInt(e.target.getAttribute('data-key'), 10)});
-  }
-
-  handleDeleteLog = (e) => {
-    e.preventDefault();
-    var self = this;
-    var logs = this.state.logs.filter(function(log) {
-      return log.id === self.state.confirmDelete;
-    });
-    if (logs.length === 0) {
-      return;
-    }
-
-    SigningLogModel.delete(logs[0]).then(function(response) {
-      var data = JSON.parse(response.body);
-      if ((response.statusCode >= 300) || (!data.success)) {
-        self.setState({message: self.formatError(data)});
-      } else {
-        window.location = '/signinglog';
-      }
-    });
-  }
-
-  handleDeleteLogCancel = (e) => {
-    e.preventDefault();
-    this.setState({confirmDelete: null});
   }
 
   handleExpansionClick = (value) => {
@@ -120,9 +45,8 @@ class SigningLog extends Component {
   }
 
   handleItemClick = (index, key) => {
-    var items = this.state[key];
-    items[index].selected = !items[index].selected;
-    this.setState({key: items, startRow: 0, endRow: PAGINATION_SIZE, page: 1});
+    this.setState({startRow: 0, endRow: PAGINATION_SIZE});
+    this.props.onItemClick(index, key)
   }
 
   handleRecordsForPage = (startRow, endRow) => {
@@ -137,18 +61,12 @@ class SigningLog extends Component {
     SigningLogModel.download(this.displayRows());
   }
 
-  filterRow(l, makes, models) {
+  filterRow(l, models) {
 
     // See if it passes the text search test
     if (this.state.query.length > 0) {
       if (l.serialnumber.toLowerCase().indexOf(this.state.query.toLowerCase()) < 0) return false
     }
-
-    // If no filters are applied, then the row can be displayed
-    if ((makes.length === 0) && (models.length === 0)) return true;
-
-    // See if it passes the makes test
-    if ((makes.length > 0) && (makes.indexOf(l.make) < 0)) return false
 
     // See if it passes the models test
     if ((models.length > 0) && (models.indexOf(l.model) < 0)) return false
@@ -168,19 +86,17 @@ class SigningLog extends Component {
   }
 
   displayRows() {
-    var self = this;
-    var makes = this.selectedFilters(this.state.makes);
-    var models = this.selectedFilters(this.state.models);
+    var models = this.selectedFilters(this.props.filterModels);
 
-    return this.state.logs.filter(function(l) {
+    return this.props.logs.filter((l) => {
       // Check if the row is filtered
-      return self.filterRow(l, makes, models);
+      return this.filterRow(l, models);
     })
   }
 
   renderTable(items) {
 
-    if (this.state.logs.length > 0) {
+    if (this.props.logs.length > 0) {
       return (
         <div>
           <table>
@@ -205,8 +121,7 @@ class SigningLog extends Component {
   renderRows(items) {
     return items.map((l) => {
       return (
-        <SigningLogRow key={l.id} log={l} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
-          deleteLog={this.handleDeleteLog} cancelDelete={this.handleDeleteLogCancel} />
+        <SigningLogRow key={l.id} log={l} />
       );
     });
   }
@@ -241,14 +156,7 @@ class SigningLog extends Component {
                   <div className="filter-section">
                       <h4>Filter By</h4>
                       <SigningLogFilter
-                          name={T('makes')} items={this.state.makes}
-                          keyName={'makes'}
-                          handleItemClick={this.handleItemClick}
-                          expanded={this.state.expanded.makes}
-                          expansionClick={this.handleExpansionClick}
-                      />
-                      <SigningLogFilter
-                          name={T('models')} items={this.state.models}
+                          name={T('models')} items={this.props.filterModels}
                           keyName={'models'}
                           handleItemClick={this.handleItemClick}
                           expanded={this.state.expanded.models}
@@ -258,8 +166,8 @@ class SigningLog extends Component {
                 </div>
               </div>
               <div className="col-9">
-                <Pagination rows={this.state.logs.length} displayRows={displayRows}
-                            page={this.state.page} searchText={T('find-serialnumber')}
+                <Pagination rows={this.props.logs.length} displayRows={displayRows}
+                            searchText={T('find-serialnumber')}
                             pageChange={this.handleRecordsForPage}
                             onDownload={this.handleDownload}
                             onSearchChange={this.handleSearchChange} />

@@ -66,7 +66,8 @@ type Datastore interface {
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
 	ListAllowedSigningLog(authorization User) ([]SigningLog, error)
-	AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error)
+	ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error)
+	AllowedSigningLogFilterValues(authorization User, authorityID string) (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error
 	DeleteExpiredDeviceNonces() error

@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -35,15 +35,31 @@ func (db *DB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	}
 }
 
-// AllowedSigningLogFilterValues return signing log filters authorized for the user
-func (db *DB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
+// ListAllowedSigningLogForAccount return signing logs the user is authorized to see
+func (db *DB) ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error) {
 	switch authorization.Role {
 	case Invalid: // Authentication disabled
 		fallthrough
 	case Superuser:
-		return db.allSigningLogFilterValues()
+		return db.listAllSigningLogForAccount(authorityID)
+	case SyncUser:
+		fallthrough
 	case Admin:
-		return db.signingLogFilterValuesFilteredByUser(authorization.Username)
+		return db.listSigningLogForAccountFilteredByUser(authorization.Username, authorityID)
+	default:
+		return []SigningLog{}, nil
+	}
+}
+
+// AllowedSigningLogFilterValues return signing log filters authorized for the user
+func (db *DB) AllowedSigningLogFilterValues(authorization User, authorityID string) (SigningLogFilters, error) {
+	switch authorization.Role {
+	case Invalid: // Authentication disabled
+		fallthrough
+	case Superuser:
+		return db.allSigningLogFilterValues(authorityID)
+	case Admin:
+		return db.signingLogFilterValuesFilteredByUser(authorization.Username, authorityID)
 	default:
 		return SigningLogFilters{}, nil
 	}

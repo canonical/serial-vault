@@ -40,6 +40,7 @@ import UserEdit from './components/UserEdit'
 import Accounts from './models/accounts'
 import Keypairs from './models/keypairs'
 import Models from './models/models';
+import SigningLogModel from './models/signinglog';
 import {sectionFromPath, sectionIdFromPath, subSectionIdFromPath, isLoggedIn, getAccount, saveAccount, isUserAdmin, isUserSuperuser, formatError} from './components/Utils'
 import createHistory from 'history/createBrowserHistory'
 import './sass/App.css'
@@ -57,6 +58,8 @@ class App extends Component {
       accounts: [],
       keypairs: [],
       substores: [],
+      logs: [],
+      filterModels: [],
       selectedAccount: getAccount() || {},
     }
 
@@ -137,6 +140,43 @@ class App extends Component {
     });
   }
 
+  getSigningLogs(authorityID) {
+    SigningLogModel.listForAccount(authorityID).then((response) => {
+      var data = JSON.parse(response.body);
+      var message = null;
+      if (!data.success) {
+        message = data.message;
+      }
+
+      this.setState({logs: data.logs, message: message});
+    });
+  }
+
+  getSigningLogFilters(authorityID) {
+    SigningLogModel.filters(authorityID).then((response) => {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+
+      var filterModels = data.filters.models.map(function(item) {
+            return {name: item, selected: false};
+      });
+
+      this.setState({filterModels: filterModels, message: message});
+    });
+  }
+
+  handleItemClick = (index, key) => {
+    var items;
+    if (key === 'models') {
+      items = this.state.filterModels;
+      items[index].selected = !items[index].selected;
+      this.setState({filterModels: items});
+    }
+  }
+
   updateDataForRoute(selectedAccount) {
     var currentSection = sectionFromPath(window.location.pathname);
 
@@ -153,6 +193,10 @@ class App extends Component {
       this.getModels(selectedAccount.AuthorityID)
     }
     if(currentSection==='systemuser') {this.getModels(selectedAccount.AuthorityID)}
+    if(currentSection==='signinglog') {
+      this.getSigningLogs(selectedAccount.AuthorityID)
+      this.getSigningLogFilters(selectedAccount.AuthorityID)
+    }
   }
 
   handleAccountChange = (account) => {
@@ -248,7 +292,8 @@ class App extends Component {
           {currentSection==='models'? this.renderModels() : ''}
 
           {currentSection==='accounts'? this.renderAccounts() : ''}
-          {currentSection==='signinglog'? <SigningLog token={this.props.token} /> : ''}
+          {currentSection==='signinglog'? <SigningLog token={this.props.token} selectedAccount={this.state.selectedAccount} 
+            logs={this.state.logs} filterModels={this.state.filterModels} onItemClick={this.handleItemClick} /> : ''}
 
           {currentSection==='substores'? <SubstoreList token={this.props.token}
             selectedAccount={this.state.selectedAccount} onRefresh={this.handleAccountChange}

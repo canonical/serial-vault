@@ -103,7 +103,8 @@ func AdminRouter() *mux.Router {
 
 	// API routes: signing log
 	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(signinglog.List))).Methods("GET")
-	router.Handle("/v1/signinglog/filters", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListFilters))).Methods("GET")
+	router.Handle("/v1/signinglog/account/{authorityID}", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListForAccount))).Methods("GET")
+	router.Handle("/v1/signinglog/account/{authorityID}/filters", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListFilters))).Methods("GET")
 
 	// API routes: account assertions
 	router.Handle("/v1/accounts", MiddlewareWithCSRF(http.HandlerFunc(account.List))).Methods("GET")
