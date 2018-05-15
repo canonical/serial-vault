@@ -71,6 +71,10 @@ func (s *SigningLogSuite) TestSigningLogHandler(c *check.C) {
 		{"GET", "/v1/signinglog", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
 		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
 		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/signinglog/account/system", nil, 200, "application/json; charset=UTF-8", 0, false, true, 10},
+		{"GET", "/v1/signinglog/account/system", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 4},
+		{"GET", "/v1/signinglog/account/system", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/signinglog/account/system", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -96,6 +100,8 @@ func (s *SigningLogSuite) TestSigningLogErrorHandler(c *check.C) {
 	tests := []SigningLogTest{
 		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
 		{"GET", "/v1/signinglog", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/v1/signinglog/account/system", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/signinglog/account/system", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -118,10 +124,10 @@ func (s *SigningLogSuite) TestSigningLogErrorHandler(c *check.C) {
 
 func (s *SigningLogSuite) TestListFilters(c *check.C) {
 	tests := []SigningLogTest{
-		{"GET", "/v1/signinglog/filters", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
-		{"GET", "/v1/signinglog/filters", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
-		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
-		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+		{"GET", "/v1/signinglog/account/system/filters", nil, 200, "application/json; charset=UTF-8", 0, false, true, 0},
+		{"GET", "/v1/signinglog/account/system/filters", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"GET", "/v1/signinglog/account/system/filters", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/v1/signinglog/account/system/filters", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -144,8 +150,8 @@ func (s *SigningLogSuite) TestListFilters(c *check.C) {
 func (s *SigningLogSuite) TestListFiltersError(c *check.C) {
 	datastore.Environ.DB = &datastore.ErrorMockDB{}
 	tests := []SigningLogTest{
-		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
-		{"GET", "/v1/signinglog/filters", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/v1/signinglog/account/system/filters", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/v1/signinglog/account/system/filters", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {

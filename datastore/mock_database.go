@@ -407,6 +407,11 @@ func (mdb *MockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, erro
 	return signingLog, nil
 }
 
+// ListAllowedSigningLogForAccount database mock
+func (mdb *MockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error) {
+	return mdb.ListAllowedSigningLog(authorization)
+}
+
 // SyncSigningLog database mock
 func (mdb *MockDB) SyncSigningLog() ([]SigningLog, error) {
 	signingLog := []SigningLog{}
@@ -422,7 +427,7 @@ func (mdb *MockDB) SyncUpdateSigningLog(id int) error {
 }
 
 // AllowedSigningLogFilterValues database mock
-func (mdb *MockDB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
+func (mdb *MockDB) AllowedSigningLogFilterValues(authorization User, authorityID string) (SigningLogFilters, error) {
 	return SigningLogFilters{Makes: []string{"System"}, Models: []string{"Router 3400"}}, nil
 }
 
@@ -1058,6 +1063,11 @@ func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog,
 	return signingLog, errors.New("Error retrieving the signing logs")
 }
 
+// ListAllowedSigningLogForAccount database mock
+func (mdb *ErrorMockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error) {
+	return mdb.ListAllowedSigningLog(authorization)
+}
+
 // SyncSigningLog error mock for the database
 func (mdb *ErrorMockDB) SyncSigningLog() ([]SigningLog, error) {
 	var signingLog []SigningLog
@@ -1070,7 +1080,7 @@ func (mdb *ErrorMockDB) SyncUpdateSigningLog(id int) error {
 }
 
 // AllowedSigningLogFilterValues error mock for the database
-func (mdb *ErrorMockDB) AllowedSigningLogFilterValues(authorization User) (SigningLogFilters, error) {
+func (mdb *ErrorMockDB) AllowedSigningLogFilterValues(authorization User, authorityID string) (SigningLogFilters, error) {
 	return SigningLogFilters{}, errors.New("Error retrieving the signing log filters")
 }
 
