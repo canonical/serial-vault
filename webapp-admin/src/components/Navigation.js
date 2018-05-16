@@ -64,8 +64,8 @@ class Navigation extends Component {
         }
 
         var name = this.props.selectedAccount.AuthorityID
-        if (name.length > 10) {
-            name = name.slice(0, 10) + '...'
+        if (name.length > 20) {
+            name = name.slice(0, 20) + '...'
         }
 
         return (

@@ -64,6 +64,10 @@ footer div {
 	padding-left: 10px;
 }
 
+button, button:focus {
+    outline: none !important;
+}
+
 .p-button--brand.small, .p-button--neutral.small {
 	padding: 5px 10px !important;
 	width: auto;
@@ -204,13 +208,13 @@ div.filter-section:last-of-type {
 
 // Navigation menu
 .account-menu {
-    width: 120px;
+    width: 200px;
     background-color: #eee;
 }
 .account-menu i.fa {
     position: absolute;
     top: 0;
-    left: 100px;
+    left: 180px;
 }
 
 .account-menu a:focus {
