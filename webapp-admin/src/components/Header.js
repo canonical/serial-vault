@@ -65,21 +65,18 @@ class Header extends Component {
         <div>
             <header className="p-navigation p-navigation--light" role="banner">
                 <div className="p-navigation__logo">
-                    <div className="nav_logo">
                         <a href="/" className="p-navigation__link">
-                            <img src="/static/images/logo-ubuntu-black.svg" alt="Ubuntu" height="20px"/>
-                            <span>{T("title")}</span>
+                            <img src="/static/images/serial-vault-logo.svg" alt={T("title")} width="180px" height="44px" />
                         </a>
-                    </div>
                 </div>
                 <a href="#navigation" className="p-navigation__toggle--open" title="menu" onClick={this.handleToggleMenu}>
                     <img src="/static/images/navigation-menu-plain.svg" width="30px" alt="menu" />
                 </a>
                 <nav className="p-navigation__nav">
                     <span className="u-off-screen"><a href="#navigation">Jump to site</a></span>
-                    <Navigation token={this.props.token} />
-                    <NavigationUser token={this.props.token}
+                    <Navigation token={this.props.token}
                         accounts={this.props.accounts} selectedAccount={this.props.selectedAccount} onAccountChange={this.props.onAccountChange} />
+                    <NavigationUser token={this.props.token} />
                         {/*<form id="language-form" className="header-search">*/}
                                 {/* Add more languages here */}
                                 {/* this.renderLanguage('en') */}

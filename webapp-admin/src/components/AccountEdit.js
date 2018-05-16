@@ -114,9 +114,12 @@ class AccountEdit extends Component {
                             &nbsp;
                             <a href='/accounts' onClick={this.handleSaveClick} className="p-button--brand">{T('save')}</a>
                         </div>
-                        <label htmlFor="assertion">{T('assertion')}:
-                            <pre>{this.state.account.Assertion}</pre>
-                        </label>
+                        {this.props.id? 
+                            <label htmlFor="assertion">{T('assertion')}:
+                                <pre>{this.state.account.Assertion}</pre>
+                            </label>
+                        :   ''
+                        }
                     </div>
                 </section>
                 <br />

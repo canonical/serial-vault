@@ -213,6 +213,10 @@ div.filter-section:last-of-type {
     left: 100px;
 }
 
+.account-menu a:focus {
+    outline: none;
+}
+
 fieldset {
     border: 1px solid #ccc;
     margin-bottom: 0.5rem;
