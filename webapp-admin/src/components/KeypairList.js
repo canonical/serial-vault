@@ -21,12 +21,13 @@ import {T} from './Utils'
 
 class KeypairList extends Component {
 
-  handleDeactivate = (e) => {
-    Keypairs.disable(e.target.getAttribute('data-key')).then(this.props.refresh);
-  }
+  handleToggle = (e) => {
+    if (e.target.getAttribute('aria-checked')==='false') {
+      Keypairs.enable(e.target.getAttribute('data-key')).then(this.props.refresh);
+    } else {
+      Keypairs.disable(e.target.getAttribute('data-key')).then(this.props.refresh);
+    }
 
-  handleActivate = (e) => {
-    Keypairs.enable(e.target.getAttribute('data-key')).then(this.props.refresh);
   }
 
   renderRow(keypr) {
@@ -36,12 +37,16 @@ class KeypairList extends Component {
           <a href={'/signing-keys/'+keypr.ID} className="p-button--brand small" title={T('edit-keypair')}>
                 <i className="fa fa-edit"></i>
           </a>
-
-          {keypr.Active ? <button data-key={keypr.ID} onClick={this.handleDeactivate} className="p-button--neutral small">{T('deactivate')}</button> : <button data-key={keypr.ID} onClick={this.handleActivate} className="p-button--neutral small">{T('activate')}</button>}
         </td>
         <td className="overflow" title={keypr.AuthorityID}>{keypr.AuthorityID}</td>
         <td className="overflow" title={keypr.KeyID}>{keypr.KeyID}</td>
-        <td>{keypr.Active ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
+        <td>
+          <button data-key={keypr.ID} id="key-toggle" className="p-switch" type="button" role="switch" aria-checked={keypr.Active} 
+            aria-labelledby="key-toggle" onClick={this.handleToggle}>
+              <span data-key={keypr.ID} aria-checked={keypr.Active}>On</span>
+              <span data-key={keypr.ID} aria-checked={keypr.Active}>Off</span>
+          </button>
+        </td>
         <td className="overflow" title={keypr.KeyName}>{keypr.KeyName}</td>
       </tr>
     );
@@ -54,7 +59,7 @@ class KeypairList extends Component {
         <table>
           <thead>
             <tr>
-              <th /><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small">{T('active')}</th>
+              <th className="small" /><th>{T('authority-id')}</th><th>{T('key-id')}</th><th className="small" >{T('active')}</th>
               <th>{T('key-name')}</th>
             </tr>
           </thead>

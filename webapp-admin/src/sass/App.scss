@@ -225,3 +225,7 @@ fieldset {
     border: 1px solid #ccc;
     margin-bottom: 0.5rem;
 }
+
+.p-switch :first-child {
+    background-color: $color-brand;
+}
