@@ -3,4 +3,4 @@
 cd $SNAP
 
 bin/factory database --config=$SNAP_DATA/settings.yaml
-bin/factory sync --config=$SNAP_DATA/settings.yaml
+bin/factory sync --config=$SNAP_DATA/settings.yaml --daemon
