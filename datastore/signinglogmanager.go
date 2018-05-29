@@ -69,18 +69,22 @@ const listSigningLogForUserSQL = `
 		WHERE acc.authority_id=s.make and u.username=$2
 	)
 	ORDER BY id DESC LIMIT 10000`
-const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
-const filterValuesMakeSigningLogSQL = "SELECT DISTINCT make FROM signinglog ORDER BY make"
-const filterValuesMakeSigningLogForUserSQL = `
-	SELECT DISTINCT make FROM signinglog s
-	WHERE EXISTS(
+
+const listSigningLogForAccountSQL = "SELECT * FROM signinglog WHERE id < $1 AND make=$2 ORDER BY id DESC LIMIT 10000"
+const listSigningLogForAccountForUserSQL = `
+	SELECT s.* FROM signinglog s
+	WHERE id < $1 and EXISTS(
 		SELECT * FROM account acc
 		INNER JOIN useraccountlink ua on ua.account_id=acc.id
 		INNER JOIN userinfo u on ua.user_id=u.id
-		WHERE acc.authority_id=s.make and u.username=$1
+		WHERE acc.authority_id=s.make and u.username=$2
 	)
-	ORDER BY make`
-const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog ORDER BY model"
+	AND s.make=$3
+	ORDER BY id DESC LIMIT 10000`
+
+const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
+
+const filterValuesModelSigningLogSQL = "SELECT DISTINCT model FROM signinglog WHERE make=$1 ORDER BY model"
 const filterValuesModelSigningLogForUserSQL = `
 	SELECT DISTINCT model FROM signinglog s
 	WHERE EXISTS(
@@ -89,6 +93,7 @@ const filterValuesModelSigningLogForUserSQL = `
 		INNER JOIN userinfo u on ua.user_id=u.id
 		WHERE acc.authority_id=s.make and u.username=$1
 	)
+	AND s.make = $2
 	ORDER BY model`
 const syncSigningLogSQLite = "SELECT * FROM signinglog WHERE synced = 0"
 const syncSigningLogUpdateSQLite = "UPDATE signinglog SET synced=1 WHERE id = $1"
@@ -257,33 +262,57 @@ func (db *DB) listSigningLogFilteredByUser(username string) ([]SigningLog, error
 	return signingLogs, nil
 }
 
-func (db *DB) allSigningLogFilterValues() (SigningLogFilters, error) {
-	return db.signingLogFilterValuesFilteredByUser(anyUserFilter)
+func (db *DB) listAllSigningLogForAccount(authorityID string) ([]SigningLog, error) {
+	return db.listSigningLogForAccountFilteredByUser(anyUserFilter, authorityID)
 }
 
-func (db *DB) signingLogFilterValuesFilteredByUser(username string) (SigningLogFilters, error) {
-	filters := SigningLogFilters{}
+func (db *DB) listSigningLogForAccountFilteredByUser(username, authorityID string) ([]SigningLog, error) {
+	signingLogs := []SigningLog{}
 
 	var (
-		makesSQL  string
-		modelsSQL string
+		rows *sql.Rows
+		err  error
 	)
 
 	if len(username) == 0 {
-		makesSQL = filterValuesMakeSigningLogSQL
+		rows, err = db.Query(listSigningLogForAccountSQL, MaxFromID, authorityID)
+	} else {
+		rows, err = db.Query(listSigningLogForAccountForUserSQL, MaxFromID, username, authorityID)
+	}
+	if err != nil {
+		log.Printf("Error retrieving signing logs: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		signingLog := SigningLog{}
+		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created, &signingLog.Revision, &signingLog.Synced)
+		if err != nil {
+			return nil, err
+		}
+		signingLogs = append(signingLogs, signingLog)
+	}
+
+	return signingLogs, nil
+}
+
+func (db *DB) allSigningLogFilterValues(authorityID string) (SigningLogFilters, error) {
+	return db.signingLogFilterValuesFilteredByUser(anyUserFilter, authorityID)
+}
+
+func (db *DB) signingLogFilterValuesFilteredByUser(username, authorityID string) (SigningLogFilters, error) {
+	filters := SigningLogFilters{}
+
+	var modelsSQL string
+
+	if len(username) == 0 {
 		modelsSQL = filterValuesModelSigningLogSQL
 	} else {
-		makesSQL = filterValuesMakeSigningLogForUserSQL
 		modelsSQL = filterValuesModelSigningLogForUserSQL
 	}
 
-	err := db.filterValuesForField(username, makesSQL, &filters.Makes)
-	if err != nil {
-		log.Printf("Error retrieving filter values: %v\n", err)
-		return filters, err
-	}
-
-	err = db.filterValuesForField(username, modelsSQL, &filters.Models)
+	err := db.filterValuesForField(username, modelsSQL, authorityID, &filters.Models)
 	if err != nil {
 		log.Printf("Error retrieving filter values: %v\n", err)
 		return filters, err
@@ -292,7 +321,7 @@ func (db *DB) signingLogFilterValuesFilteredByUser(username string) (SigningLogF
 	return filters, nil
 }
 
-func (db *DB) filterValuesForField(username string, sqlQuery string, fieldValues *[]string) error {
+func (db *DB) filterValuesForField(username, sqlQuery, authorityID string, fieldValues *[]string) error {
 
 	var (
 		rows *sql.Rows
@@ -301,9 +330,9 @@ func (db *DB) filterValuesForField(username string, sqlQuery string, fieldValues
 	values := []string{}
 
 	if len(username) == 0 {
-		rows, err = db.Query(sqlQuery)
+		rows, err = db.Query(sqlQuery, authorityID)
 	} else {
-		rows, err = db.Query(sqlQuery, username)
+		rows, err = db.Query(sqlQuery, username, authorityID)
 	}
 
 	if err != nil {

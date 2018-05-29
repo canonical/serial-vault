@@ -26,6 +26,9 @@ $button-text-color: #fff;
 
 // Customise theme
 
+.nav_logo>a {
+    padding: .75rem 1rem;
+}
 
 .p-button--brand {
     color: $button-text-color;
@@ -59,6 +62,10 @@ footer {
 
 footer div {
 	padding-left: 10px;
+}
+
+button, button:focus {
+    outline: none !important;
 }
 
 .p-button--brand.small, .p-button--neutral.small {
@@ -181,12 +188,44 @@ div.filter-section:last-of-type {
     }
 }
 
+.p-navigation {
+    font-size: 14px;
+}
+
 .p-navigation--light .p-navigation__toggle--open {
     float: right;
     margin: 1rem;
     position: relative;
 }
 
+.p-tabs__list:after {
+    height: 0;
+}
+
 .show {
     display: block !important;
+}
+
+// Navigation menu
+.account-menu {
+    width: 200px;
+    background-color: #eee;
+}
+.account-menu i.fa {
+    position: absolute;
+    top: 0;
+    left: 180px;
+}
+
+.account-menu a:focus {
+    outline: none;
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
+}
+
+.p-switch :first-child {
+    background-color: $color-brand;
 }

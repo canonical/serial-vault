@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -62,6 +62,10 @@ class Pagination extends Component {
     var pages = parseInt(length / this.state.maxRecords, 10);
     if (length % this.state.maxRecords > 0) {
         pages += 1;
+    }
+
+    if ((this.state.page > pages) && (pages > 0)) {
+        this.setState({page: pages})
     }
 
     return pages;

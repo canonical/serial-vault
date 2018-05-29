@@ -17,7 +17,6 @@
 import React, {Component} from 'react'
 import moment from 'moment'
 import AlertBox from './AlertBox'
-import Models from '../models/models'
 import Assertion from '../models/assertions'
 import {T, isUserStandard} from './Utils'
 
@@ -38,24 +37,8 @@ class SystemUserForm extends Component {
             since: moment.utc(),
             until: moment.utc().add(1, 'year'),
             message: '',
-            models: [],
             assertion: null,
         }
-    }
-
-    componentDidMount() {
-        this.getModels()
-    }
-
-    getModels() {
-        Models.list().then((response) => {
-            var data = JSON.parse(response.body);
-            var message = null;
-            if (!data.success) {
-                message = data.message;
-            }
-            this.setState({models: data.models, message: message});
-        })
     }
 
     submitAssertion(form) {
@@ -222,7 +205,7 @@ class SystemUserForm extends Component {
                         <label htmlFor="name">Model:
                             <select onChange={this.handleChangeModel} value={this.state.model.id}>
                                 <option value={0}>--</option>
-                            {this.state.models.map((m) => {
+                            {this.props.models.map((m) => {
                                 return (
                                     <option key={m.id} value={m.id}>{m['brand-id']} {m.model}</option>
                                 )

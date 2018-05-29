@@ -19,8 +19,7 @@ import React, {Component} from 'react';
 import {T, isLoggedIn} from './Utils'
 
 
-class Navigation extends Component {
-
+class NavigationUser extends Component {
     renderUser(token) {
         if (isLoggedIn(token)) {
             // The name is undefined if user authentication is off
@@ -48,7 +47,6 @@ class Navigation extends Component {
     }
 
     render() {
-
         var token = this.props.token
 
         return (
@@ -60,4 +58,4 @@ class Navigation extends Component {
     }
 }
 
-export default Navigation;
+export default NavigationUser;

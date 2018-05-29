@@ -5,8 +5,8 @@
   "dependencies": {
     "history": "^4.6.3",
     "jwt-decode": "^2.2.0",
-    "moment": "^2.18.1",
-    "npm": "^5.6.0",
+    "moment": "^2.22.1",
+    "npm": "^5.8.0",
     "react": "^15.6.1",
     "react-datepicker": "^0.51.0",
     "react-dom": "^15.6.1",
@@ -23,9 +23,9 @@
   },
   "devDependencies": {
     "enzyme": "^2.9.1",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.9.0",
     "react-addons-test-utils": "^15.6.0",
     "react-test-renderer": "^15.6.1",
-    "vanilla-framework": "^1.4.1"
+    "vanilla-framework": "^1.7.0"
   }
 }

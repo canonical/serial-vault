@@ -24,6 +24,7 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/service/auth"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/gorilla/mux"
 )
 
 // List is the API method to fetch the log records from signing
@@ -37,6 +38,19 @@ func List(w http.ResponseWriter, r *http.Request) {
 	listHandler(w, authUser, false)
 }
 
+// ListForAccount is the API method to fetch the log records from signing for an account
+func ListForAccount(w http.ResponseWriter, r *http.Request) {
+	authUser, err := auth.GetUserFromJWT(w, r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+
+	listForAccountHandler(w, authUser, false, vars["authorityID"])
+}
+
 // ListFilters is the API method to fetch the log filter values
 func ListFilters(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
@@ -45,5 +59,7 @@ func ListFilters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listFiltersHandler(w, authUser, false)
+	vars := mux.Vars(r)
+
+	listFiltersHandler(w, authUser, false, vars["authorityID"])
 }

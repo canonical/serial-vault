@@ -20,6 +20,17 @@ import DialogBox from './DialogBox';
 import {T} from './Utils'
 
 class ModelRow extends Component {
+
+    copyToClipboard = (e) => {
+        e.preventDefault()
+        const el = document.createElement('textarea');
+        el.value = e.target.getAttribute('data-key');
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    }
+
     renderActions() {
         if (this.props.model.id !== this.props.confirmDelete) {
             return (
@@ -38,11 +49,11 @@ class ModelRow extends Component {
     }
 
     render() {
-        var fingerprint = this.props.model['authority-id'] + '/' + this.props.model['key-id'];
-        var fingerprintUser = this.props.model['authority-id-user'] + '/' + this.props.model['key-id-user'];
+        var fingerprint = this.props.model['key-id'];
+        var fingerprintUser = this.props.model['key-id-user'];
         var fingerprintModel;
         if (this.props.model['keypair-id-model'] > 0) {
-            fingerprintModel = this.props.model['authority-id-model'] + '/' + this.props.model['key-id-model'];
+            fingerprintModel = this.props.model['key-id-model'];
         } else {
             fingerprintModel = ""
         }
@@ -51,8 +62,12 @@ class ModelRow extends Component {
                 <td>
                     {this.renderActions()}
                 </td>
-                <td className="overflow" title={this.props.model['brand-id']}>{this.props.model['brand-id']}</td>
-                <td className="overflow" title={this.props.model.model}>{this.props.model.model}</td>
+                <td className="overflow" title={this.props.model.model}>
+                    <a href="" onClick={this.copyToClipboard} data-key={this.props.model['api-key']} className="p-button--neutral small" title={T('copy-api-key')}>
+                        <i className="fa fa-clipboard" data-key={this.props.model['api-key']} /></a>
+                    &nbsp;
+                    {this.props.model.model}
+                </td>
                 <td className="overflow" title={fingerprint} >{fingerprint}</td>
                 <td className="overflow" title={fingerprintUser} >{fingerprintUser}</td>
                 <td>{this.props.model['key-active'] && this.props.model['key-active-user'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>

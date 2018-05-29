@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Canonical Ltd
+ * Copyright (C) 2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -17,73 +17,23 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
-import Models from '../models/models'
 import {T, isUserAdmin, formatError} from './Utils';
 import SubstoreForm from './SubstoreForm';
 import DialogBox from './DialogBox';
 
 
-class AccountDetail extends Component {
+class SubstoreList extends Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            account: {},
-            substores: [],
-            models: [],
             error: null,
             showNew: false,
             showEdit: null,
             showDelete: null,
             substore: {},
         }
-
-        if (this.props.id) {
-            this.getAccount(this.props.id)
-            this.getSubstores(this.props.id)
-        }
-    }
-
-    getAccount(accountId) {
-        Accounts.get(accountId).then((response) => {
-            var data = JSON.parse(response.body);
-
-            if (response.statusCode >= 300) {
-                this.setState({error: formatError(data), hideForm: true, models: []});
-            } else {
-                this.setState({account: data.account, hideForm: false});
-                this.getModels(data.account.AuthorityID)
-            }
-        });
-    }
-
-    getSubstores(accountId) {
-        Accounts.stores(accountId).then((response) => {
-            var data = JSON.parse(response.body);
-
-            if (response.statusCode >= 300) {
-                this.setState({error: formatError(data), hideForm: true});
-            } else {
-                this.setState({substores: data.substores, showNew: false, showEdit: null, showDelete: null, hideForm: false, error: null});
-            }
-        });
-    }
-
-    getModels(authorityId) {
-        Models.list().then((response) => {
-          var data = JSON.parse(response.body);
-
-          if (response.statusCode >= 300) {
-            this.setState({error: formatError(data)});
-          } else {
-            // Only show the models for this account
-            var mdls = data.models.filter((m) => {
-                return m['brand-id'] === authorityId
-            })
-            this.setState({models: mdls});
-          }
-        });
     }
 
     handleShowNew = (e) => {
@@ -97,7 +47,7 @@ class AccountDetail extends Component {
         if (this.state.showEdit === id) {
             this.setState({showEdit: null, substore: {}, showDelete: null, showNew: false})
         } else {
-            var substores = this.state.substores.filter( (s) => {
+            var substores = this.props.substores.filter( (s) => {
                 return s.id === id
             })
 
@@ -111,7 +61,7 @@ class AccountDetail extends Component {
         if (this.state.showDelete === id) {
             this.setState({showDelete: null, showEdit: null, showNew: false})
         } else {
-            var substores = this.state.substores.filter( (s) => {
+            var substores = this.props.substores.filter( (s) => {
                 return s.id === id
             })
             this.setState({substore: substores[0], showDelete: id, showEdit: null, showNew: false})
@@ -132,12 +82,13 @@ class AccountDetail extends Component {
         }
 
         if (!this.state.substore.id) {
-            Accounts.storeNew(this.props.id, this.state.substore).then((response) => {
+            Accounts.storeNew(this.props.selectedAccount.ID, this.state.substore).then((response) => {
                 var data = JSON.parse(response.body);
                 if (response.statusCode >= 300) {
                     this.setState({error: formatError(data)});
                 } else {
-                    this.getSubstores(this.props.id)
+                    this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null, error: null})
+                    this.props.onRefresh(this.props.selectedAccount)
                 }
             })
         } else {
@@ -146,7 +97,8 @@ class AccountDetail extends Component {
                 if (response.statusCode >= 300) {
                     this.setState({error: formatError(data)});
                 } else {
-                    this.getSubstores(this.props.id)
+                    this.props.onRefresh(this.props.selectedAccount)
+                    this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null, error: null})
                 }
             })
         }
@@ -160,7 +112,8 @@ class AccountDetail extends Component {
             if (response.statusCode >= 300) {
                 this.setState({error: formatError(data)});
             } else {
-                this.getSubstores(this.props.id)
+                this.props.onRefresh(this.props.selectedAccount)
+                this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null, error: null})
             }
         })
     }
@@ -168,6 +121,7 @@ class AccountDetail extends Component {
     handleCancelSubstore = (e) => {
         e.preventDefault()
         this.setState({substore: {}, showNew: false, showEdit: null, showDelete: null, error: null})
+        this.props.onRefresh(this.props.selectedAccount)
     }
 
     renderActions(b) {
@@ -179,11 +133,11 @@ class AccountDetail extends Component {
             return (
                 <div>
                     <a href="" data-key={b.id} onClick={this.handleShowEdit} className="p-button--brand small" title={T('edit-model')}>
-                        <i data-key={b.id} className="fa fa-pencil"></i>
+                        <i data-key={b.id} className="fa fa-pencil" />
                     </a>
                     &nbsp;
                     <a href="" data-key={b.id} onClick={this.handleShowDelete} className="p-button--neutral small" title={T('delete-model')}>
-                        <i data-key={b.id} className="fa fa-trash"></i>
+                        <i data-key={b.id} className="fa fa-trash" />
                     </a>
                 </div>
             )
@@ -213,30 +167,10 @@ class AccountDetail extends Component {
             )
         }
 
-        var acc = this.state.account
-
         return (
             <div>
                 <section className="row no-border">
-                    <div className="p-card">
-                        <h2 className="p-card__title">{T('account')}</h2>
-                        <table className="p-card__content">
-                          <tbody>
-                            <tr>
-                                <td className="col-3 label">{T('name')}:</td>
-                                <td className="col-9">{acc.AuthorityID}</td>
-                            </tr>
-                            <tr>
-                                <td className="col-3 label">{T('reseller')}:</td>
-                                <td className="col-9">{acc.ResellerAPI ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
-                            </tr>
-                          </tbody>
-                       </table>
-                    </div>
-                </section>
-
-                <section className="row no-border">
-                    <div className="p-card">
+                    <div>
                         <div className="u-equal-height">
                             <h2 className="p-card__title col-5">{T('substores')}</h2>
                             &nbsp;
@@ -249,22 +183,22 @@ class AccountDetail extends Component {
 
                         <AlertBox message={this.state.error} />
 
-                        <table className="p-card__content">
+                        <table>
                           <thead>
                             <tr>
-                                <th className="small"></th><th>{T('model')}</th><th>{T('serial-number')}</th>
+                                <th></th><th>{T('model')}</th><th>{T('serial-number')}</th>
                                 <th>{T('substore')}</th><th>{T('substore-model')}</th>
                             </tr>
                           </thead>
                           <tbody>
                               {this.state.showNew ?
-                                    <SubstoreForm substore={this.state.substore} models={this.state.models} token={this.props.token}
+                                    <SubstoreForm substore={this.state.substore} models={this.props.models} token={this.props.token}
                                         onSave={this.handleSaveSubstore} onChange={this.handleSubstoreChange} onCancel={this.handleCancelSubstore} />
                                 : ''
                               }
-                              {this.state.substores.map((b) => {
+                              {this.props.substores.map((b) => {
                                 if (b.id === this.state.showEdit) {
-                                    return (<SubstoreForm substore={b} models={this.state.models} token={this.props.token}
+                                    return (<SubstoreForm substore={this.state.substore} models={this.props.models} token={this.props.token}
                                                 onSave={this.handleSaveSubstore} onChange={this.handleSubstoreChange} onCancel={this.handleCancelSubstore} />)
                                 } else {
                                     return this.renderSubstore(b)
@@ -281,4 +215,4 @@ class AccountDetail extends Component {
 
 }
 
-export default AccountDetail
+export default SubstoreList

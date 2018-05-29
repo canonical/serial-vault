@@ -27,12 +27,12 @@ var SigningLog = {
 		return Ajax.get(this.url, data);
 	},
 
-	filters: function() {
-		return Ajax.get(this.url + '/filters');
+	listForAccount: function (authorityID) {
+		return Ajax.get(this.url + '/account/' + authorityID , {});
 	},
 
-	delete:  function(log) {
-		return Ajax.delete(this.url + '/' + log.id, {});
+	filters: function(authorityID) {
+		return Ajax.get(this.url + '/account/' + authorityID + '/filters');
 	},
 
 	download: function(data) {

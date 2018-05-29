@@ -21,7 +21,6 @@ import React, {Component} from 'react';
 import KeypairList from './KeypairList';
 import KeypairStatus from './KeypairStatus';
 import AlertBox from './AlertBox';
-import Keypairs from '../models/keypairs';
 import {T, isUserAdmin} from './Utils'
 
 class Keypair extends Component {
@@ -30,7 +29,6 @@ class Keypair extends Component {
 
     super(props)
     this.state = {
-      keypairs: this.props.keypairs || [],
       confirmDelete: null,
       message: null,
     }
@@ -41,22 +39,11 @@ class Keypair extends Component {
   }
 
   refresh() {
-    this.getKeypairs();
+    this.props.onRefresh(this.props.selectedAccount)
   }
 
   handleRefresh = () => {
     this.refresh()
-  }
-
-  getKeypairs() {
-    Keypairs.list().then((response) => {
-      var data = JSON.parse(response.body);
-      var message = "";
-      if (!data.success) {
-        message = data.message;
-      }
-      this.setState({keypairs: data.keypairs, message: message});
-    });
   }
 
   formatError(data) {
@@ -105,7 +92,7 @@ class Keypair extends Component {
               <KeypairStatus token={this.props.token} />
             </div>
             <div className="col-12">
-              <KeypairList keypairs={this.state.keypairs} refresh={this.handleRefresh} />
+              <KeypairList keypairs={this.props.keypairs} refresh={this.handleRefresh} />
             </div>
           </section>
 

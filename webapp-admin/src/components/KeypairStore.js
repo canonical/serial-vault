@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -23,22 +23,28 @@ import {T, formatError, isUserAdmin} from './Utils'
 class KeypairStore extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            keypairs: [],
-            keypair: {}
+
+        var k = {}
+        if (this.props.keypairs.length > 0) {
+            k = this.keyFromKeypair(this.props.keypairs[0]);
         }
 
-        this.getKeypairs()
+        this.state = {
+            keypair: k
+        }
+    }
+
+    keyFromKeypair (keypair) {
+        return {'authority-id': keypair.AuthorityID, 'key-name': keypair.KeyName}
     }
 
     handleChangeKey = (e) => {
         var id = parseInt(e.target.value, 10);
-
-        var keys = this.state.keypairs.filter((k) => {
+        var keys = this.props.keypairs.filter((k) => {
             return k.ID === id
         })
         if (keys.length > 0) {
-            var k = {'authority-id': keys[0].AuthorityID, 'key-name': keys[0].KeyName}
+            var k = this.keyFromKeypair(keys[0])
             this.setState({keypair: k})
         }
     }
@@ -65,17 +71,6 @@ class KeypairStore extends Component {
         var keypair = this.state.keypair
         keypair.otp = e.target.value
         this.setState({keypair: keypair})
-    }
-
-    getKeypairs() {
-        Keypairs.list().then((response) => {
-          var data = JSON.parse(response.body);
-          var message = "";
-          if (!data.success) {
-            message = data.message;
-          }
-          this.setState({keypairs: data.keypairs, message: message});
-        });
     }
 
     handleSaveClick = (e) => {
@@ -112,8 +107,8 @@ class KeypairStore extends Component {
 
                                 <label htmlFor="keypair">{T('signing-key')}:
                                     <select value={this.state.keypair.ID} id="keypair" onChange={this.handleChangeKey}>
-                                        <option></option>
-                                        {this.state.keypairs.map((kpr) => {
+                                        <option />
+                                        {this.props.keypairs.map((kpr) => {
                                             if (kpr.Active) {
                                                 return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
                                             } else {

@@ -68,8 +68,8 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	formatListResponse(true, "", "", "", logs, w)
 }
 
-// listFiltersHandler is the API method to fetch the log filter values
-func listFiltersHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
+// listForAccountHandler is the API method to fetch the log records from signing for an account
+func listForAccountHandler(w http.ResponseWriter, user datastore.User, apiCall bool, authorityID string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
@@ -78,7 +78,28 @@ func listFiltersHandler(w http.ResponseWriter, user datastore.User, apiCall bool
 		return
 	}
 
-	filters, err := datastore.Environ.DB.AllowedSigningLogFilterValues(user)
+	logs, err := datastore.Environ.DB.ListAllowedSigningLogForAccount(user, authorityID)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
+		return
+	}
+
+	// Return successful JSON response with the list of models
+	w.WriteHeader(http.StatusOK)
+	formatListResponse(true, "", "", "", logs, w)
+}
+
+// listFiltersHandler is the API method to fetch the log filter values
+func listFiltersHandler(w http.ResponseWriter, user datastore.User, apiCall bool, authorityID string) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	filters, err := datastore.Environ.DB.AllowedSigningLogFilterValues(user, authorityID)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
 		return

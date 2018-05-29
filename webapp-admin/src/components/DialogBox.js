@@ -36,8 +36,6 @@ class DialogBox extends Component {
                         <a href="" onClick={this.props.handleCancelClick} className={classNo}>
                             {T('no')}
                         </a>
-                    </div>
-                    <div>
                         <a href="" onClick={this.props.handleYesClick} className={classYes}>
                             {T('yes')}
                         </a>

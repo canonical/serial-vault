@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -18,7 +18,6 @@
 import React, {Component} from 'react';
 import AlertBox from './AlertBox';
 import Models from '../models/models';
-import Keypairs from '../models/keypairs';
 import {T, isUserAdmin} from './Utils';
 
 class ModelEdit extends Component {
@@ -28,16 +27,13 @@ class ModelEdit extends Component {
         super(props)
         this.state = {
             title: null,
-            model: {},
+            model: {'brand-id': this.props.selectedAccount.AuthorityID},
             error: null,
             hideForm: false,
-            keypairs: [],
         }
     }
 
     componentDidMount() {
-        this.getKeypairs();
-
         if (this.props.id) {
             this.setTitle('edit-model');
             this.getModel(this.props.id);
@@ -59,18 +55,6 @@ class ModelEdit extends Component {
             } else {
                 this.setState({model: data.model, hideForm: false});
             }
-        });
-    }
-
-    getKeypairs() {
-        var self = this;
-        Keypairs.list().then(function(response) {
-            var data = JSON.parse(response.body);
-            var message = "";
-            if (!data.success) {
-                message = data.message;
-            }
-            self.setState({keypairs: data.keypairs, message: message});
         });
     }
 
@@ -178,7 +162,7 @@ class ModelEdit extends Component {
                         <form>
                             <fieldset>
                                 <label htmlFor="brand">{T('brand')}:
-                                    <input type="text" id="brand" placeholder={T('brand-description')}
+                                    <input type="text" id="brand" placeholder={T('brand-description')} disabled
                                         value={this.state.model['brand-id']} onChange={this.handleChangeBrand} />
                                 </label>
                                 <label htmlFor="model">{T('model')}:
@@ -191,12 +175,12 @@ class ModelEdit extends Component {
                                 </label>
                                 <label htmlFor="keypair">{T('private-key')}:
                                     <select value={this.state.model['keypair-id']} id="keypair" onChange={this.handleChangePrivateKey}>
-                                        <option></option>
-                                        {this.state.keypairs.map(function(kpr) {
+                                        <option />
+                                        {this.props.keypairs.map((kpr) => {
                                             if (kpr.Active) {
-                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.KeyName} - {kpr.KeyID}</option>;
                                             } else {
-                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.KeyName} - {kpr.KeyID} ({T('inactive')})</option>;
                                             }
                                         })}
                                     </select>
@@ -204,11 +188,11 @@ class ModelEdit extends Component {
                                 <label htmlFor="keypair-user">{T('private-key-user')}:
                                     <select value={this.state.model['keypair-id-user']} id="keypair-user" onChange={this.handleChangePrivateKeyUser}>
                                         <option></option>
-                                        {this.state.keypairs.map(function(kpr) {
+                                        {this.props.keypairs.map((kpr) => {
                                             if (kpr.Active) {
-                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID}</option>;
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.KeyName} - {kpr.KeyID}</option>;
                                             } else {
-                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.AuthorityID}/{kpr.KeyID} ({T('inactive')})</option>;
+                                                return <option key={kpr.ID} value={kpr.ID}>{kpr.KeyName} - {kpr.KeyID} ({T('inactive')})</option>;
                                             }
                                         })}
                                     </select>
