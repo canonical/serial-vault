@@ -88,6 +88,17 @@ class App extends Component {
               selectedAccount = data.accounts[0]
               saveAccount(selectedAccount)
             }
+          } else {
+            // Refresh the current account details
+            if (data.accounts.length > 0) {
+              var accs = data.accounts.filter((a) => {
+                return this.state.selectedAccount.ID === a.ID
+              })
+              if (accs.length > 0) {
+                selectedAccount = accs[0]
+                saveAccount(selectedAccount)
+              }
+            }
           }
 
           this.updateDataForRoute(selectedAccount)
