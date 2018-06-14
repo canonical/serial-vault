@@ -70,7 +70,7 @@ class KeypairAdd extends Component {
     handleSaveClick = (e) => {
         e.preventDefault();
 
-        Keypairs.create(this.props.selectedAccount.ID, this.state.key, this.state.name).then((response) => {
+        Keypairs.create(this.props.selectedAccount.AuthorityID, this.state.key, this.state.name).then((response) => {
             var data = JSON.parse(response.body);
             if ((response.statusCode >= 300) || (!data.success)) {
                 this.setState({error: this.formatError(data)});
@@ -113,7 +113,7 @@ class KeypairAdd extends Component {
                                     <input type="text" id="name" onChange={this.handleChangeKeyName} value={this.state.name} placeholder={T('key-name-description')} />
                                 </label>
                                 <label htmlFor="authority-id">{T('authority-id')}:
-                                    <select value={this.props.selectedAccount.ID} id="authority-id" onChange={this.handleChangeAuthorityId}>
+                                    <select value={this.props.selectedAccount.AuthorityID} id="authority-id" onChange={this.handleChangeAuthorityId}>
                                         {this.getAccounts().map(function(a) {
                                             return <option key={a.AuthorityID} value={a.AuthorityID}>{a.AuthorityID}</option>;
                                         })}

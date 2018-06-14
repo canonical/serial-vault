@@ -105,7 +105,7 @@ class AccountEdit extends Component {
                                     <input type="text" id="account" onChange={this.handleChangeAccount} value={this.state.account.AuthorityID} placeholder={T('account-description')} />
                                 </label>
                                 <label htmlFor="reseller">{T('reseller-features')}
-                                    <input type="checkbox" id="reseller" onChange={this.handleChangeReseller} checked={this.state.account.ResellerAPI} />
+                                    <input className="visible" type="checkbox" id="reseller" onChange={this.handleChangeReseller} checked={this.state.account.ResellerAPI} />
                                 </label>
                             </fieldset>
                         </form>

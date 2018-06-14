@@ -229,3 +229,8 @@ fieldset {
 .p-switch :first-child {
     background-color: $color-brand;
 }
+
+input[type=checkbox].visible {
+    opacity: 1;
+    position: relative;
+}
