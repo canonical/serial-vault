@@ -36,13 +36,14 @@ const userAssertionRevision = "1"
 
 // SystemUserRequest is the JSON version of the request to create a system-user assertion
 type SystemUserRequest struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	ModelID  int    `json:"model"`
-	Since    string `json:"since"`
-	Until    string `json:"until"`
+	Email    string   `json:"email"`
+	Name     string   `json:"name"`
+	Username string   `json:"username"`
+	Password string   `json:"password"`
+	ModelID  int      `json:"model"`
+	Since    string   `json:"since"`
+	Until    string   `json:"until"`
+	SSHKeys  []string `json:"sshKeys"`
 }
 
 // PivotSystemUserRequest is the JSON version of the request to create a system-user assertion
@@ -81,6 +82,11 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 		// Check for parsing errors
 	case err != nil:
 		response.FormatStandardResponse(false, response.ErrorDecodeJSON.Code, "", err.Error(), w)
+		return
+	}
+
+	if user.Password == "" && len(user.SSHKeys) == 0 {
+		response.FormatStandardResponse(false, response.ErrorEmptyData.Code, "", response.ErrorEmptyData.Message, w)
 		return
 	}
 

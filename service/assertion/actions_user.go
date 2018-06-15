@@ -137,12 +137,22 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 		"email":             user.Email,
 		"name":              user.Name,
 		"username":          user.Username,
-		"password":          password,
 		"models":            []interface{}{model.Name},
 		"series":            []interface{}{release.Series},
 		"since":             since.Format(time.RFC3339),
 		"until":             until.Format(time.RFC3339),
 		"sign-key-sha3-384": model.KeyIDUser,
+	}
+
+	if len(user.SSHKeys) > 0 {
+		// Convert the keys to an interface slice
+		keys := make([]interface{}, len(user.SSHKeys))
+		for i, k := range user.SSHKeys {
+			keys[i] = k
+		}
+		headers["ssh-keys"] = keys
+	} else {
+		headers["password"] = password
 	}
 
 	// Create a new serial assertion
