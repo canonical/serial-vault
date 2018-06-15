@@ -86,7 +86,8 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Password == "" && len(user.SSHKeys) == 0 {
-		//return error
+		response.FormatStandardResponse(false, response.ErrorEmptyData.Code, "", response.ErrorEmptyData.Message, w)
+		return
 	}
 
 	systemUserAssertionAction(w, authUser, false, user)
