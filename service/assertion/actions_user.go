@@ -138,6 +138,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 		"name":              user.Name,
 		"username":          user.Username,
 		"password":          password,
+		"ssh-keys":          user.SSHKeys,
 		"models":            []interface{}{model.Name},
 		"series":            []interface{}{release.Series},
 		"since":             since.Format(time.RFC3339),
