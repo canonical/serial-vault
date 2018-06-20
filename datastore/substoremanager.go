@@ -79,9 +79,10 @@ const updateSubstoreSQL = `
 const updateSubstoreForUserSQL = `
 	UPDATE substore s 
 	SET account_id=$2, from_model_id=$3, store=$4, serial_number=$5, model_name=$6 
-	FROM useraccountlink ua ON ua.account_id=s.account_id
+	FROM useraccountlink ua
 	INNER JOIN userinfo u ON ua.user_id=u.id
-	WHERE s.id=$1 AND u.username=$7`
+	WHERE s.id=$1 AND u.username=$7
+	AND ua.account_id=s.account_id`
 
 const deleteSubstoreSQL = "delete from substore where id=$1"
 const deleteSubstoreForUserSQL = `
