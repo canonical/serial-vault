@@ -26,6 +26,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/CanonicalLtd/serial-vault/config"
@@ -159,6 +160,14 @@ func (s *ModelsSuite) TestGetHandler(c *check.C) {
 		{false, "GET", "/v1/models/999999", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{false, "GET", "/v1/models/999999999999999999999999999999", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{true, "GET", "/v1/models/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+
+		// Admin API tests
+		{false, "GET", "/api/models/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{false, "GET", "/api/models/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{false, "GET", "/api/models/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{false, "GET", "/api/models/999999", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "GET", "/api/models/999999999999999999999999999999", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "GET", "/api/models/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
 	}
 
 	for _, t := range tests {
@@ -167,7 +176,12 @@ func (s *ModelsSuite) TestGetHandler(c *check.C) {
 			datastore.Environ.DB = &datastore.ErrorMockDB{}
 		}
 
-		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		var w *httptest.ResponseRecorder
+		if strings.Contains(t.URL, "api") {
+			w = sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		} else {
+			w = sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		}
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -233,6 +247,32 @@ func (s *ModelsSuite) TestUpdateDeleteHandler(c *check.C) {
 		{false, "POST", "/v1/models", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{false, "POST", "/v1/models", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{true, "POST", "/v1/models", []byte(newData), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+
+		// Admin API
+		{false, "PUT", "/api/models/1", []byte(data), 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{false, "PUT", "/api/models/1", []byte(data), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{false, "PUT", "/api/models/1", []byte(dataNotFound), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "PUT", "/api/models/1", []byte(data), 400, "application/json; charset=UTF-8", datastore.Invalid, true, false, 0},
+		{false, "PUT", "/api/models/1", []byte(data), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{false, "PUT", "/api/models/999999999999999999999999999999", []byte(data), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "PUT", "/api/models/5", []byte(dataNotFound), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "PUT", "/api/models/5", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "PUT", "/api/models/5", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "PUT", "/api/models/1", []byte(data), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "PUT", "/api/models/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+
+		{false, "DELETE", "/api/models/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{false, "DELETE", "/api/models/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{false, "DELETE", "/api/models/1", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{false, "DELETE", "/api/models/5", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "DELETE", "/api/models/999999999999999999999999999999", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "DELETE", "/api/models/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+
+		{false, "POST", "/api/models", []byte(newData), 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{false, "POST", "/api/models", []byte(newData), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{false, "POST", "/api/models", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "POST", "/api/models", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "POST", "/api/models", []byte(newData), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 	}
 
 	for _, t := range tests {
@@ -241,7 +281,12 @@ func (s *ModelsSuite) TestUpdateDeleteHandler(c *check.C) {
 			datastore.Environ.DB = &datastore.ErrorMockDB{}
 		}
 
-		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		var w *httptest.ResponseRecorder
+		if strings.Contains(t.URL, "api") {
+			w = sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		} else {
+			w = sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		}
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
@@ -280,6 +325,16 @@ func (s *ModelsSuite) TestAssertionHandler(c *check.C) {
 		{false, "POST", "/v1/models/assertion", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{true, "POST", "/v1/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{true, "POST", "/v1/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", 0, false, false, 0},
+
+		// Admin API
+		{false, "POST", "/api/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{false, "POST", "/api/models/assertion", []byte(data), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{false, "POST", "/api/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{false, "POST", "/api/models/assertion", []byte(""), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "POST", "/api/models/assertion", []byte(dataInvalid), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{false, "POST", "/api/models/assertion", []byte("bad"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "POST", "/api/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{true, "POST", "/api/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", 0, false, false, 0},
 	}
 
 	for _, t := range tests {
@@ -288,7 +343,12 @@ func (s *ModelsSuite) TestAssertionHandler(c *check.C) {
 			datastore.Environ.DB = &datastore.ErrorMockDB{}
 		}
 
-		w := sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		var w *httptest.ResponseRecorder
+		if strings.Contains(t.URL, "api") {
+			w = sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		} else {
+			w = sendAdminRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		}
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
