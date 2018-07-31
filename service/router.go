@@ -156,6 +156,11 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/accounts/stores", Middleware(http.HandlerFunc(substore.APICreate))).Methods("POST")
 	router.Handle("/api/assertions/checkserial", Middleware(http.HandlerFunc(assertion.APIValidateSerial))).Methods("POST")
 	router.Handle("/api/assertions", Middleware(http.HandlerFunc(assertion.APISystemUser))).Methods("POST")
+	router.Handle("/api/models/{id:[0-9]+}", Middleware(http.HandlerFunc(model.APIGet))).Methods("GET")
+	router.Handle("/api/models/{id:[0-9]+}", Middleware(http.HandlerFunc(model.APIUpdate))).Methods("PUT")
+	router.Handle("/api/models/{id:[0-9]+}", Middleware(http.HandlerFunc(model.APIDelete))).Methods("DELETE")
+	router.Handle("/api/models", Middleware(http.HandlerFunc(model.APICreate))).Methods("POST")
+	router.Handle("/api/models/assertion", Middleware(http.HandlerFunc(model.APIAssertionHeaders))).Methods("POST")
 
 	// Sync API routes
 	router.Handle("/api/accounts", Middleware(http.HandlerFunc(account.APIList))).Methods("GET")
