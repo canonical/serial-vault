@@ -42,6 +42,7 @@ type Datastore interface {
 	CheckModelExists(brandID, name string) bool
 
 	CreateModelAssertTable() error
+	AlterModelAssertTable() error
 	CreateModelAssert(m ModelAssertion) (int, error)
 	UpdateModelAssert(m ModelAssertion) error
 	GetModelAssert(modelID int) (ModelAssertion, error)

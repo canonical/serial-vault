@@ -700,6 +700,11 @@ func (mdb *MockDB) CreateModelAssert(m ModelAssertion) (int, error) {
 	return 1, nil
 }
 
+// AlterModelAssertTable mock for the alter model assertion table method
+func (mdb *MockDB) AlterModelAssertTable() error {
+	return nil
+}
+
 // UpdateModelAssert mock for updating model assertion record
 func (mdb *MockDB) UpdateModelAssert(m ModelAssertion) error {
 	return nil
@@ -1232,6 +1237,11 @@ func (mdb *ErrorMockDB) CreateModelAssertTable() error {
 // CreateModelAssert mock for creating model assertion record
 func (mdb *ErrorMockDB) CreateModelAssert(m ModelAssertion) (int, error) {
 	return 0, errors.New("Cannot create the model assertion record")
+}
+
+// AlterModelAssertTable mock for the alter model assertion table method
+func (mdb *ErrorMockDB) AlterModelAssertTable() error {
+	return errors.New("Cannot amend the model assertion table")
 }
 
 // UpdateModelAssert mock for updating model assertion record

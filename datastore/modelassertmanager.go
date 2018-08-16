@@ -37,23 +37,26 @@ const createModelAssertTableSQL = `
 		kernel           varchar(60) not null,
 		store            varchar(60),
 		required_snaps   text default '',
+		base             varchar(20) default '',
+		classic          varchar(10) default '',
+		display_name     varchar(200) default '',
 		created          timestamp default current_timestamp,
 		modified         timestamp default current_timestamp
 	)
 `
 const createModelAssertSQL = `
 INSERT INTO modelassertion 
-(model_id,keypair_id,series,architecture,revision,gadget,kernel,store,required_snaps) 
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) 
+(model_id,keypair_id,series,architecture,revision,gadget,kernel,store,required_snaps,base,classic,display_name) 
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) 
 RETURNING id`
 
 const updateModelAssertSQL = `
 UPDATE modelassertion
-SET model_id=$2, keypair_id=$3, series=$4, architecture=$5, revision=$6, gadget=$7, kernel=$8, store=$9, modified=$10, required_snaps=$11 
+SET model_id=$2, keypair_id=$3, series=$4, architecture=$5, revision=$6, gadget=$7, kernel=$8, store=$9, modified=$10, required_snaps=$11, base=$12, classic=$13, display_name=$14 
 WHERE id=$1`
 
 const getModelAssertSQL = `
-SELECT id,model_id,keypair_id,series,architecture,revision,gadget,kernel,store,required_snaps,created,modified
+SELECT id,model_id,keypair_id,series,architecture,revision,gadget,kernel,store,required_snaps,base,classic,display_name,created,modified
 FROM modelassertion
 WHERE model_id=$1
 `
@@ -61,6 +64,14 @@ WHERE model_id=$1
 const deleteModelAssertSQL = `
 DELETE FROM modelassertion
 WHERE model_id=$1
+`
+
+// Add the UC18 fields to the model assertion
+const alterModelAssertUC18Fields = `
+ALTER TABLE modelassertion 
+ADD COLUMN base varchar(20) default '',
+ADD COLUMN classic varchar(10) default '',
+ADD COLUMN display_name varchar(200) default ''
 `
 
 // ModelAssertion holds the model assertion details in the local database
@@ -75,6 +86,9 @@ type ModelAssertion struct {
 	Kernel        string    `json:"kernel"`
 	Store         string    `json:"store"`
 	RequiredSnaps string    `json:"required_snaps"`
+	Base          string    `json:"base"`
+	Classic       string    `json:"classic"`
+	DisplayName   string    `json:"display_name"`
 	Created       time.Time `json:"created"`
 	Modified      time.Time `json:"modified"`
 }
@@ -85,10 +99,18 @@ func (db *DB) CreateModelAssertTable() error {
 	return err
 }
 
+// AlterModelAssertTable updates an existing database model assertion table with additional fields
+func (db *DB) AlterModelAssertTable() error {
+	// Ignore error as the fields may already exist
+	db.Exec(alterModelAssertUC18Fields)
+
+	return nil
+}
+
 // CreateModelAssert adds a model assertion record to allow generation of a signed assertion
 func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 	var createdID int
-	err := db.QueryRow(createModelAssertSQL, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, m.RequiredSnaps).Scan(&createdID)
+	err := db.QueryRow(createModelAssertSQL, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, m.RequiredSnaps, m.Base, m.Classic, m.DisplayName).Scan(&createdID)
 	if err != nil {
 		log.Printf("Error creating the model assertion: %v\n", err)
 	}
@@ -99,7 +121,7 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	var err error
 
-	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps)
+	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps, m.Base, m.Classic, m.DisplayName)
 
 	if err != nil {
 		log.Printf("Error updating the model assertion: %v\n", err)
@@ -141,7 +163,7 @@ func (db *DB) deleteModelAssert(modelID int) error {
 // GetModelAssert fetches the model assertion
 func (db *DB) GetModelAssert(modelID int) (ModelAssertion, error) {
 	m := ModelAssertion{}
-	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.RequiredSnaps, &m.Created, &m.Modified)
+	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.RequiredSnaps, &m.Base, &m.Classic, &m.DisplayName, &m.Created, &m.Modified)
 	if err != nil {
 		return m, err
 	}
