@@ -108,6 +108,7 @@ func CreateModelAssertionHeaders(m datastore.Model) (map[string]interface{}, dat
 	}
 
 	// Add the optional fields as needed
+	assert.Classic = formatClassic(assert.Classic)
 	if len(assert.Classic) != 0 {
 		headers["classic"] = assert.Classic
 	}
@@ -137,7 +138,7 @@ func CreateModelAssertionHeaders(m datastore.Model) (map[string]interface{}, dat
 	}
 
 	// Check if the optional fields as needed
-	if len(assert.RequiredSnaps) != 0 {
+	if len(assert.RequiredSnaps) == 0 {
 		return headers, keypair, nil
 	}
 
@@ -175,4 +176,12 @@ func formatAssertionResponse(assertions []asserts.Assertion, w http.ResponseWrit
 	}
 
 	return nil
+}
+
+func formatClassic(value string) string {
+	classic := strings.ToLower(value)
+	if classic != "true" && classic != "false" {
+		classic = ""
+	}
+	return classic
 }

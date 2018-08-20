@@ -78,6 +78,8 @@ func (s *AssertionSuite) TestAssertionHandler(c *check.C) {
 		{[]byte{}, 400, response.JSONHeader, "ValidAPIKey"},
 		{validModel(), 200, asserts.MediaType, "ValidAPIKey"},
 		{validModel(), 400, response.JSONHeader, "InvalidAPIKey"},
+		{classicModel(), 200, asserts.MediaType, "ValidAPIKey"},
+		{classicModel(), 400, response.JSONHeader, "InvalidAPIKey"},
 		{invalidModel(), 400, response.JSONHeader, "ValidAPIKey"},
 		{unauthBrand(), 400, response.JSONHeader, "ValidAPIKey"},
 		{unknownBrand(), 400, response.JSONHeader, "ValidAPIKey"},
@@ -139,6 +141,15 @@ func unknownBrand() []byte {
 	a := assertion.ModelAssertionRequest{
 		BrandID: "unknown",
 		Name:    "alder",
+	}
+	d, _ := json.Marshal(a)
+	return d
+}
+
+func classicModel() []byte {
+	a := assertion.ModelAssertionRequest{
+		BrandID: "system",
+		Name:    "ash",
 	}
 	d, _ := json.Marshal(a)
 	return d
