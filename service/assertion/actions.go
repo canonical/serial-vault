@@ -102,15 +102,42 @@ func CreateModelAssertionHeaders(m datastore.Model) (map[string]interface{}, dat
 		"brand-id":          m.BrandID,
 		"series":            fmt.Sprintf("%d", assert.Series),
 		"model":             m.Name,
-		"architecture":      assert.Architecture,
 		"store":             assert.Store,
-		"gadget":            assert.Gadget,
-		"kernel":            assert.Kernel,
 		"sign-key-sha3-384": keypair.KeyID,
 		"timestamp":         time.Now().Format(time.RFC3339),
 	}
 
-	// Check if the optional required-snaps field is needed
+	// Add the optional fields as needed
+	assert.Classic = formatClassic(assert.Classic)
+	if len(assert.Classic) != 0 {
+		headers["classic"] = assert.Classic
+	}
+
+	if len(assert.DisplayName) != 0 {
+		headers["display-name"] = assert.DisplayName
+	}
+
+	// Some headers are required for Ubuntu Core, whilst optional or invalid for Classic
+	if headers["classic"] == "true" {
+		// Classic
+		if len(assert.Architecture) != 0 {
+			headers["architecture"] = assert.Architecture
+		}
+		if len(assert.Gadget) != 0 {
+			headers["gadget"] = assert.Gadget
+		}
+	} else {
+		// Core
+		headers["kernel"] = assert.Kernel
+		headers["architecture"] = assert.Architecture
+		headers["gadget"] = assert.Gadget
+
+		if len(assert.Base) != 0 {
+			headers["base"] = assert.Base
+		}
+	}
+
+	// Check if the optional fields as needed
 	if len(assert.RequiredSnaps) == 0 {
 		return headers, keypair, nil
 	}
@@ -149,4 +176,12 @@ func formatAssertionResponse(assertions []asserts.Assertion, w http.ResponseWrit
 	}
 
 	return nil
+}
+
+func formatClassic(value string) string {
+	classic := strings.ToLower(value)
+	if classic != "true" && classic != "false" {
+		classic = ""
+	}
+	return classic
 }

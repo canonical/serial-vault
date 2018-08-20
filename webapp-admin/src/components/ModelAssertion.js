@@ -84,6 +84,42 @@ class ModelAssertion extends Component {
         this.setState({assertion: assertion});
     }
 
+    handleChangeBase = (e) => {
+        var assertion = this.state.assertion;
+        assertion['base'] = e.target.value;
+        this.setState({assertion: assertion});
+    }
+
+    handleChangeClassic = (e) => {
+        var assertion = this.state.assertion;
+        assertion['classic'] = e.target.value;
+        this.setState({assertion: assertion});
+    }
+
+    handleBlurClassic = (e) => {
+        var assertion = this.state.assertion;
+        switch (e.target.value.toLowerCase()) {
+        case '':
+            assertion['classic'] = ''
+            break
+        case 'false':
+            assertion['classic'] = 'false'
+            break
+        case 'no':
+            assertion['classic'] = 'false'
+            break
+        default:
+            assertion['classic'] = 'true'
+        }
+        this.setState({assertion: assertion});
+    }
+
+    handleChangeDisplayName = (e) => {
+        var assertion = this.state.assertion;
+        assertion['display_name'] = e.target.value;
+        this.setState({assertion: assertion});
+    }
+
     handleChangeGadget = (e) => {
         var assertion = this.state.assertion;
         assertion['gadget'] = e.target.value;
@@ -151,6 +187,18 @@ class ModelAssertion extends Component {
                         <label htmlFor="series">{T('series')}:
                             <input type="number" id="series" placeholder={T('series-description')} min="16"
                                 value={ma['series']} onChange={this.handleChangeSeries} />
+                        </label>
+                        <label htmlFor="base">{T('base')}:
+                            <input type="text" id="base" placeholder={T('base-description')}
+                                value={ma['base']} onChange={this.handleChangeBase} />
+                        </label>
+                        <label htmlFor="classic">{T('classic')}:
+                            <input type="text" id="classic" placeholder={T('classic-description')}
+                                value={ma['classic']} onChange={this.handleChangeClassic} onBlur={this.handleBlurClassic} />
+                        </label>
+                        <label htmlFor="display_name">{T('display_name')}:
+                            <input type="text" id="display_name" placeholder={T('display_name-description')}
+                                value={ma['display_name']} onChange={this.handleChangeDisplayName} />
                         </label>
                         <label htmlFor="architecture">{T('architecture')}:
                             <input type="text" id="architecture" placeholder={T('architecture-description')}
