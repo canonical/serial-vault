@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -78,6 +78,20 @@ func (db *DB) UpdateAllowedModel(model Model, authorization User) (string, error
 		return "error-model-apikey", errors.New("Error in generating a valid API key")
 	}
 	model.APIKey = apiKey
+
+	// Get the existing model using the ID
+	m, err := db.getModel(model.ID)
+	if err != nil {
+		return "error-model-not-found", errors.New("Cannot find the model")
+	}
+
+	// If the model name is different, check that the new name does not exist
+	if model.BrandID != m.BrandID || model.Name != m.Name {
+		// Check that the new model does not exist
+		if exists := db.CheckModelExists(model.BrandID, model.Name); exists {
+			return "error-model-exists", errors.New("A device with the same Brand and Model already exists")
+		}
+	}
 
 	switch authorization.Role {
 	case Invalid: // Authentication is disabled

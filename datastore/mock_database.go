@@ -216,6 +216,10 @@ func (mdb *MockDB) UpdateAllowedModel(model Model, authorization User) (string, 
 	models, _ := mdb.ListAllowedModels(authorization)
 	found := false
 
+	if model.ID == 1 && model.Name == "ash" {
+		return "error-model-exists", errors.New("A device with the same Brand and Model already exists")
+	}
+
 	for _, mdl := range models {
 		if mdl.ID == model.ID {
 			found = true

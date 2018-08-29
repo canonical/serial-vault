@@ -1,7 +1,7 @@
 // -*- Mode: Go; indent-tabs-mode: t -*-
 
 /*
- * Copyright (C) 2016-2017 Canonical Ltd
+ * Copyright (C) 2016-2018 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -217,6 +217,14 @@ func (s *ModelsSuite) TestUpdateDeleteHandler(c *check.C) {
 		"serial":"A1234-L",
 		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
 	}`
+	dataExists := `
+	{
+		"id": 1,
+		"brand-id": "system",
+		"model":"ash",
+		"serial":"A1234-L",
+		"device-key":"ssh-rsa NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf"
+	}`
 
 	// Define a model linked with the signing-key as JSON
 	model := datastore.Model{BrandID: "System", Name: "the-model", KeypairID: 1}
@@ -225,6 +233,7 @@ func (s *ModelsSuite) TestUpdateDeleteHandler(c *check.C) {
 	tests := []SuiteTest{
 		{false, "PUT", "/v1/models/1", []byte(data), 200, "application/json; charset=UTF-8", 0, false, true, 0},
 		{false, "PUT", "/v1/models/1", []byte(data), 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{false, "PUT", "/v1/models/1", []byte(dataExists), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{false, "PUT", "/v1/models/1", []byte(dataNotFound), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
 		{false, "PUT", "/v1/models/1", []byte(data), 400, "application/json; charset=UTF-8", datastore.Invalid, true, false, 0},
 		{false, "PUT", "/v1/models/1", []byte(data), 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
