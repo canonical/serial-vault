@@ -257,7 +257,7 @@ func keypairSystem() Keypair {
 
 // CreateAllowedModel mocks creating a new model.
 func (mdb *MockDB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
-	model = Model{ID: 7, BrandID: "system", Name: "the-model", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO"}
+	model = Model{ID: 7, BrandID: model.BrandID, Name: model.Name, KeypairID: model.KeypairID, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO"}
 
 	return model, "", nil
 }
@@ -767,8 +767,10 @@ func (mdb *MockDB) CreateSubstoreTable() error {
 }
 
 // CreateAllowedSubstore mock to create a substore record
-func (mdb *MockDB) CreateAllowedSubstore(store Substore, authorization User) error {
-	return nil
+func (mdb *MockDB) CreateAllowedSubstore(store Substore, authorization User) (Substore, error) {
+	substore := Substore{ID: 1, AccountID: store.AccountID, FromModelID: store.FromModelID, Store: store.Store, SerialNumber: store.SerialNumber, ModelName: store.ModelName}
+
+	return substore, nil
 }
 
 // ListSubstores mock to list substore records
@@ -1293,8 +1295,8 @@ func (mdb *ErrorMockDB) CreateSubstoreTable() error {
 }
 
 // CreateAllowedSubstore mock to create a substore record
-func (mdb *ErrorMockDB) CreateAllowedSubstore(store Substore, authorization User) error {
-	return errors.New("Cannot create the sub-store model")
+func (mdb *ErrorMockDB) CreateAllowedSubstore(store Substore, authorization User) (Substore, error) {
+	return store, errors.New("Cannot create the sub-store model")
 }
 
 // ListSubstores mock to list substore records

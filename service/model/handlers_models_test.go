@@ -105,16 +105,9 @@ func parseListResponse(w *httptest.ResponseRecorder) (model.ListResponse, error)
 	return result, err
 }
 
-func parseGetResponse(w *httptest.ResponseRecorder) (model.GetResponse, error) {
+func parseInstanceResponse(w *httptest.ResponseRecorder) (model.InstanceResponse, error) {
 	// Check the JSON response
-	result := model.GetResponse{}
-	err := json.NewDecoder(w.Body).Decode(&result)
-	return result, err
-}
-
-func (s *ModelsSuite) parseModelResponse(w *httptest.ResponseRecorder) (model.GetResponse, error) {
-	// Check the JSON response
-	result := model.GetResponse{}
+	result := model.InstanceResponse{}
 	err := json.NewDecoder(w.Body).Decode(&result)
 	return result, err
 }
@@ -185,7 +178,7 @@ func (s *ModelsSuite) TestGetHandler(c *check.C) {
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
-		result, err := parseGetResponse(w)
+		result, err := parseInstanceResponse(w)
 		c.Assert(err, check.IsNil)
 		c.Assert(result.Success, check.Equals, t.Success)
 		if t.Success {
@@ -308,6 +301,24 @@ func (s *ModelsSuite) TestUpdateDeleteHandler(c *check.C) {
 			datastore.Environ.DB = &datastore.MockDB{}
 		}
 	}
+}
+
+func (s *ModelsSuite) TestCreateHandlerReturnModel(c *check.C) {
+	model := datastore.Model{BrandID: "System", Name: "the-model", KeypairID: 1}
+	newData, _ := json.Marshal(model)
+
+	datastore.Environ.Config.EnableUserAuth = false
+	w := sendAdminRequest("POST", "/v1/models", bytes.NewReader(newData), 0, c)
+	c.Assert(w.Code, check.Equals, 200)
+	c.Assert(w.Header().Get("Content-Type"), check.Equals, "application/json; charset=UTF-8")
+
+	result, err := parseInstanceResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, true)
+	// return model from DB, ID is set
+	c.Assert(result.Model.ID > 0, check.Equals, true)
+	c.Assert(result.Model.BrandID, check.Equals, model.BrandID)
+	c.Assert(result.Model.Name, check.Equals, model.Name)
 }
 
 func (s *ModelsSuite) TestAssertionHandler(c *check.C) {

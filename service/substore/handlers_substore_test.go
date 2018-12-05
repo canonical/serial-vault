@@ -91,6 +91,13 @@ func (s *SubstoreSuite) SetUpTest(c *check.C) {
 	service.MiddlewareWithCSRF = service.Middleware
 }
 
+func parseInstanceResponse(w *httptest.ResponseRecorder) (substore.InstanceResponse, error) {
+	// Check the JSON response
+	result := substore.InstanceResponse{}
+	err := json.NewDecoder(w.Body).Decode(&result)
+	return result, err
+}
+
 func parseListResponse(w *httptest.ResponseRecorder) (substore.ListResponse, error) {
 	// Check the JSON response
 	result := substore.ListResponse{}
@@ -161,6 +168,24 @@ func (s *SubstoreSuite) TestSubstoresCreateUpdateDeleteHandler(c *check.C) {
 
 		datastore.Environ.Config.EnableUserAuth = false
 	}
+}
+
+func (s *SubstoreSuite) TestSubstoresCreateHandlerReturnSubstore(c *check.C) {
+	substoreNew := datastore.Substore{AccountID: 1, FromModelID: 1, Store: "mybrand", SerialNumber: "a11112222", ModelName: "alder-mybrand"}
+	ssn, _ := json.Marshal(substoreNew)
+
+	w := sendAdminRequest("POST", "/v1/accounts/stores", bytes.NewReader(ssn), 0, c)
+
+	result, err := parseInstanceResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, true)
+
+	c.Assert(w.Code, check.Equals, 200)
+	c.Assert(w.Header().Get("Content-Type"), check.Equals, "application/json; charset=UTF-8")
+	// Substore is returned in the response, ID was set
+	c.Assert(result.Substore.ID > 0, check.Equals, true)
+	c.Assert(result.Substore.FromModelID, check.Equals, substoreNew.FromModelID)
+	c.Assert(result.Substore.SerialNumber, check.Equals, substoreNew.SerialNumber)
 }
 
 func (s *SubstoreSuite) TestSubstoresErrorHandler(c *check.C) {

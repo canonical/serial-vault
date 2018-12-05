@@ -29,6 +29,15 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
+// InstanceResponse is the response from the API Post method
+type InstanceResponse struct {
+	Success      bool               `json:"success"`
+	ErrorCode    string             `json:"error_code"`
+	ErrorSubcode string             `json:"error_subcode"`
+	ErrorMessage string             `json:"message"`
+	Substore     datastore.Substore `json:"substore"`
+}
+
 // ListResponse is the JSON response from the API sub-stores method
 type ListResponse struct {
 	Success      bool                 `json:"success"`
@@ -95,7 +104,7 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 		return
 	}
 
-	err = datastore.Environ.DB.CreateAllowedSubstore(store, user)
+	allowedSubstore, err := datastore.Environ.DB.CreateAllowedSubstore(store, user)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-stores-json", "", err.Error(), w)
 		return
@@ -103,7 +112,7 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 
 	// Return successful JSON response
 	w.WriteHeader(http.StatusOK)
-	response.FormatStandardResponse(true, "", "", "", w)
+	formatInstanceResponse(allowedSubstore, w)
 }
 
 func formatListResponse(success bool, errorCode, errorSubcode, message string, stores []datastore.Substore, w http.ResponseWriter) error {
@@ -112,6 +121,17 @@ func formatListResponse(success bool, errorCode, errorSubcode, message string, s
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error forming the sub-stores response.")
+		return err
+	}
+	return nil
+}
+
+func formatInstanceResponse(store datastore.Substore, w http.ResponseWriter) error {
+	response := InstanceResponse{Success: true, Substore: store}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Println("Error forming the sub-store response.")
 		return err
 	}
 	return nil

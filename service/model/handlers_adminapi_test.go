@@ -22,6 +22,7 @@ package model_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -62,6 +63,23 @@ func (s *ModelsSuite) TestAPIListHandler(c *check.C) {
 			datastore.Environ.DB = &datastore.MockDB{}
 		}
 	}
+}
+
+func (s *ModelsSuite) TestAPICreateHandlerReturnModel(c *check.C) {
+	model := datastore.Model{BrandID: "System", Name: "the-model", KeypairID: 1}
+	newData, _ := json.Marshal(model)
+
+	w := sendAdminAPIRequest("POST", "/api/models", bytes.NewReader(newData), datastore.Admin, c)
+	c.Assert(w.Code, check.Equals, 200)
+	c.Assert(w.Header().Get("Content-Type"), check.Equals, "application/json; charset=UTF-8")
+
+	result, err := parseInstanceResponse(w)
+	c.Assert(err, check.IsNil)
+	c.Assert(result.Success, check.Equals, true)
+	// return model from DB, ID is set
+	c.Assert(result.Model.ID > 0, check.Equals, true)
+	c.Assert(result.Model.BrandID, check.Equals, model.BrandID)
+	c.Assert(result.Model.Name, check.Equals, model.Name)
 }
 
 func sendAdminAPIRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {

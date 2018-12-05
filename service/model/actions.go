@@ -38,8 +38,8 @@ type ListResponse struct {
 	Models       []datastore.Model `json:"models"`
 }
 
-// GetResponse is the JSON response from the API Get Model method
-type GetResponse struct {
+// InstanceResponse is the JSON response from the API Get/Post Model method
+type InstanceResponse struct {
 	Success      bool            `json:"success"`
 	ErrorCode    string          `json:"error_code"`
 	ErrorSubcode string          `json:"error_subcode"`
@@ -86,7 +86,7 @@ func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, modelI
 
 	// Return successful JSON response with the list of models
 	w.WriteHeader(http.StatusOK)
-	formatGetResponse(model, w)
+	formatInstanceResponse(model, w)
 }
 
 func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, modelID int, mdl datastore.Model) {
@@ -145,7 +145,7 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, mdl
 		return
 	}
 
-	_, errorSubcode, err := datastore.Environ.DB.CreateAllowedModel(mdl, user)
+	allowedModel, errorSubcode, err := datastore.Environ.DB.CreateAllowedModel(mdl, user)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-model-json", errorSubcode, "", w)
 		return
@@ -153,7 +153,7 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, mdl
 
 	// Return successful JSON response
 	w.WriteHeader(http.StatusOK)
-	response.FormatStandardResponse(true, "", "", "", w)
+	formatInstanceResponse(allowedModel, w)
 }
 
 func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, assert datastore.ModelAssertion) {
@@ -193,8 +193,8 @@ func formatListResponse(models []datastore.Model, w http.ResponseWriter) error {
 	return nil
 }
 
-func formatGetResponse(model datastore.Model, w http.ResponseWriter) error {
-	response := GetResponse{Success: true, Model: model}
+func formatInstanceResponse(model datastore.Model, w http.ResponseWriter) error {
+	response := InstanceResponse{Success: true, Model: model}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {

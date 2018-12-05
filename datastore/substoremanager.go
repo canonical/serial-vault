@@ -115,20 +115,28 @@ func (db *DB) CreateSubstoreTable() error {
 }
 
 // createSubstore creates a sub-store in the database
-func (db *DB) createSubstore(store Substore) error {
+func (db *DB) createSubstore(store Substore) (Substore, error) {
 	_, err := db.Exec(createSubstoreSQL, store.AccountID, store.FromModelID, store.Store, store.SerialNumber, store.ModelName)
 	if err, ok := err.(*pq.Error); ok {
 		// This is a PostgreSQL error...
 		if err.Code.Name() == "unique_violation" {
 			// Output a more readable message
-			return errors.New("A sub-store mapping already exists for this model, serial-number and sub-store")
+			return store, errors.New("A sub-store mapping already exists for this model, serial-number and sub-store")
 		}
 	}
 	if err != nil {
 		log.Printf("Error creating the database sub-store: %v\n", err)
-		return err
+		return store, err
 	}
-	return nil
+
+	// Return the created substore
+	substore, err := db.GetSubstore(store.FromModelID, store.SerialNumber)
+	if err != nil {
+		log.Printf("Error creating the database sub-store: %v\n", err)
+		return store, err
+	}
+
+	return substore, nil
 }
 
 // GetSubstore fetches a sub-store in the database
