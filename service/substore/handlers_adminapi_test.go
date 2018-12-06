@@ -117,11 +117,64 @@ func (s *SubstoreSuite) TestAPICreateHandlerReturnSubstore(c *check.C) {
 	c.Assert(result.Substore.SerialNumber, check.Equals, substoreNew.SerialNumber)
 }
 
+func (s *SubstoreSuite) TestAPIGetHandler(c *check.C) {
+	tests := []SubstoreTest{
+		{"GET", "/api/accounts/stores/1/12345", nil, 400, "application/json; charset=UTF-8", 0, false, false, 0},
+		{"GET", "/api/accounts/stores/1/12345", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, 0},
+		{"GET", "/api/accounts/stores/1/12345", nil, 200, "application/json; charset=UTF-8", datastore.Superuser, true, true, 0},
+		{"GET", "/api/accounts/stores/1/12345", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/api/accounts/stores/1/12345", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+	}
+
+	expectedStore, _ := datastore.Environ.DB.GetSubstore(1, "12345")
+	for _, t := range tests {
+		if t.EnableAuth {
+			datastore.Environ.Config.EnableUserAuth = true
+		}
+
+		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := parseInstanceResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+		if t.Success {
+			c.Assert(result.Substore, check.Equals, expectedStore)
+		}
+
+		datastore.Environ.Config.EnableUserAuth = false
+	}
+}
+
+func (s *SubstoreSuite) TestErrorAPIGetHandler(c *check.C) {
+	tests := []SubstoreTest{
+		{"GET", "/api/accounts/stores/1/12345", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, 0},
+		{"GET", "/api/accounts/stores/1/12345", nil, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, 0},
+		{"GET", "/api/accounts/stores/1/12345", nil, 400, "application/json; charset=UTF-8", 0, true, false, 0},
+	}
+
+	datastore.Environ.DB = &datastore.ErrorMockDB{}
+	for _, t := range tests {
+		w := sendAdminAPIRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.Permissions, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		result, err := parseInstanceResponse(w)
+		c.Assert(err, check.IsNil)
+		c.Assert(result.Success, check.Equals, t.Success)
+		c.Assert(result.Substore, check.Equals, datastore.Substore{})
+	}
+}
+
 func sendAdminAPIRequest(method, url string, data io.Reader, permissions int, c *check.C) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(method, url, data)
 
 	switch permissions {
+	case datastore.Superuser:
+		r.Header.Set("user", "root")
+		r.Header.Set("api-key", "ValidAPIKey")
 	case datastore.Admin:
 		r.Header.Set("user", "sv")
 		r.Header.Set("api-key", "ValidAPIKey")

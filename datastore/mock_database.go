@@ -810,6 +810,11 @@ func (mdb *MockDB) GetSubstoreModel(brand, model, serialNumber string) (Substore
 	return mdb.GetSubstore(1, serialNumber)
 }
 
+// GetAllowedSubstore mock to get a substore record
+func (mdb *MockDB) GetAllowedSubstore(fromModelID int, serialNumber string, authorization User) (Substore, error) {
+	return mdb.GetSubstore(fromModelID, serialNumber)
+}
+
 // CreateTestLog mock to create a test log
 func (mdb *MockDB) CreateTestLog(testLog TestLog) error {
 	return nil
@@ -1329,6 +1334,11 @@ func (mdb *ErrorMockDB) GetSubstore(fromModelID int, serialNumber string) (Subst
 // GetSubstoreModel mock to get a substore record
 func (mdb *ErrorMockDB) GetSubstoreModel(brand, model, serialNumber string) (Substore, error) {
 	return Substore{}, errors.New("Cannot get the sub-store model")
+}
+
+// GetAllowedSubstore mock to get a substore record
+func (mdb *ErrorMockDB) GetAllowedSubstore(fromModelID int, serialNumber string, authorization User) (Substore, error) {
+	return mdb.GetSubstore(fromModelID, serialNumber)
 }
 
 // CreateTestLog mock to create a test log
