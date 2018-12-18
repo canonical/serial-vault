@@ -41,6 +41,20 @@ func (db *DB) ListSubstores(accountID int, authorization User) ([]Substore, erro
 	}
 }
 
+// GetAllowedSubstore return the sub-store if the user is authorized to see it
+func (db *DB) GetAllowedSubstore(modelID int, serial string, authorization User) (Substore, error) {
+	switch authorization.Role {
+	case Invalid: // Authentication disabled
+		fallthrough
+	case Superuser:
+		return db.GetSubstore(modelID, serial)
+	case Admin:
+		return db.GetSubstoreFilteredByUser(modelID, serial, authorization.Username)
+	default:
+		return Substore{}, nil
+	}
+}
+
 // UpdateAllowedSubstore updates the sub-store if authorization is allowed to do it
 func (db *DB) UpdateAllowedSubstore(store Substore, authorization User) error {
 

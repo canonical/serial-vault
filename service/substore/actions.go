@@ -156,3 +156,24 @@ func deleteHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 	w.WriteHeader(http.StatusOK)
 	response.FormatStandardResponse(true, "", "", "", w)
 }
+
+// getHandler is the API method to get a substore given FromModelID and SerialNumber
+func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, modelID int, serial string) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		return
+	}
+
+	store, err := datastore.Environ.DB.GetAllowedSubstore(modelID, serial, user)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-stores-json", "", err.Error(), w)
+		return
+	}
+
+	// Return successful JSON response with the list of models
+	w.WriteHeader(http.StatusOK)
+	formatInstanceResponse(store, w)
+}

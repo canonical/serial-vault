@@ -139,3 +139,26 @@ func APIDelete(w http.ResponseWriter, r *http.Request) {
 	// Call the API with the user
 	deleteHandler(w, user, true, storeID)
 }
+
+// APIGet is the API method to get a particular instance of a substore
+func APIGet(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Validate the user and API key
+	user, err := request.CheckUserAPI(r)
+	if err != nil {
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	serial := vars["serial"]
+	modelID, err := strconv.Atoi(vars["modelID"])
+	if err != nil {
+		response.FormatStandardResponse(false, "error-invalid-model", "", err.Error(), w)
+		return
+	}
+
+	// Call the API with the user
+	getHandler(w, user, true, modelID, serial)
+}

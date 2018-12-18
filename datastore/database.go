@@ -118,6 +118,7 @@ type Datastore interface {
 	ListSubstores(accountID int, authorization User) ([]Substore, error)
 	UpdateAllowedSubstore(store Substore, authorization User) error
 	DeleteAllowedSubstore(storeID int, authorization User) (string, error)
+	GetAllowedSubstore(fromModelID int, serialNumber string, authorization User) (Substore, error)
 	GetSubstore(fromModelID int, serialNumber string) (Substore, error)
 	GetSubstoreModel(brand, model, serialNumber string) (Substore, error)
 
