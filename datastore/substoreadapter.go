@@ -62,17 +62,17 @@ func (db *DB) UpdateAllowedSubstore(store Substore, authorization User) error {
 }
 
 // CreateAllowedSubstore creates a new model in case authorization is allowed to do it
-func (db *DB) CreateAllowedSubstore(store Substore, authorization User) error {
+func (db *DB) CreateAllowedSubstore(store Substore, authorization User) (Substore, error) {
 	// Validate the substore record
 	_, err := validateSubstore(store, "")
 	if err != nil {
-		return err
+		return store, err
 	}
 
 	// Validate that the user has access to the account
 	acc, err := db.GetAccountByID(store.AccountID, authorization)
 	if err != nil || acc.ID == 0 {
-		return errors.New("You do not have permissions to this account")
+		return store, errors.New("You do not have permissions to this account")
 	}
 
 	switch authorization.Role {
@@ -83,7 +83,7 @@ func (db *DB) CreateAllowedSubstore(store Substore, authorization User) error {
 	case Admin:
 		return db.createSubstore(store)
 	default:
-		return nil
+		return Substore{}, nil
 	}
 }
 
