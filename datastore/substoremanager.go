@@ -23,6 +23,7 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/lib/pq"
@@ -128,19 +129,20 @@ func (db *DB) createSubstore(store Substore) (Substore, error) {
 		// This is a PostgreSQL error...
 		if err.Code.Name() == "unique_violation" {
 			// Output a more readable message
-			return store, errors.New("A sub-store mapping already exists for this model, serial-number and sub-store")
+			return store, fmt.Errorf("A sub-store mapping already exists for this from model, serial-number and "+
+				"sub-store (%d, %s, %s)\n", store.FromModelID, store.SerialNumber, store.Store)
 		}
 	}
 	if err != nil {
-		log.Printf("Error creating the database sub-store: %v\n", err)
-		return store, err
+		return store, fmt.Errorf("Error creating the database sub-store (from model, serial-number and sub-store "+
+			"(%d, %s, %s): %v\n", store.FromModelID, store.SerialNumber, store.Store, err)
 	}
 
 	// Return the created substore
 	substore, err := db.GetSubstore(store.FromModelID, store.SerialNumber)
 	if err != nil {
-		log.Printf("Error creating the database sub-store: %v\n", err)
-		return store, err
+		return store, fmt.Errorf("Error creating the database sub-store (from model, serial-number and sub-store "+
+			"(%d, %s, %s): %v\n", store.FromModelID, store.SerialNumber, store.Store, err)
 	}
 
 	return substore, nil
@@ -155,14 +157,12 @@ func (db *DB) GetSubstore(fromModelID int, serialNumber string) (Substore, error
 	row = db.QueryRow(getSubstoreSQL, fromModelID, serialNumber)
 	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
-		log.Printf("Error retrieving database substore: %v\n", err)
-		return store, err
+		return store, fmt.Errorf("Error retrieving database substore for %s, from model %d: %v\n", serialNumber, fromModelID, err)
 	}
 
 	store.FromModel, err = db.getModel(store.FromModelID)
 	if err != nil {
-		log.Printf("Error retrieving database model: %v\n", err)
-		return store, err
+		return store, fmt.Errorf("Error retrieving database model %d: %v\n", store.FromModelID, err)
 	}
 
 	return store, nil
@@ -177,14 +177,12 @@ func (db *DB) GetSubstoreFilteredByUser(fromModelID int, serialNumber, username 
 	row = db.QueryRow(getUserSubstoreSQL, fromModelID, serialNumber, username)
 	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
-		log.Printf("Error retrieving database substore: %v\n", err)
-		return store, err
+		return store, fmt.Errorf("Error retrieving database substore for %s, from model %d: %v\n", serialNumber, fromModelID, err)
 	}
 
 	store.FromModel, err = db.getModel(store.FromModelID)
 	if err != nil {
-		log.Printf("Error retrieving database model: %v\n", err)
-		return store, err
+		return store, fmt.Errorf("Error retrieving database model %d: %v\n", store.FromModelID, err)
 	}
 
 	return store, nil
@@ -197,14 +195,16 @@ func (db *DB) GetSubstoreModel(brand, model, serialNumber string) (Substore, err
 	row := db.QueryRow(getSubstoreModelSQL, brand, model, serialNumber)
 	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
-		log.Printf("Error retrieving database model by ID: %v\n", err)
-		return store, err
+		m := fmt.Sprintf("Error retrieving database substore (model name %s, serial %s): %v\n", model, serialNumber, err)
+		log.Print(m)
+		return store, errors.New(m)
 	}
 
 	store.FromModel, err = db.getModel(store.FromModelID)
 	if err != nil {
-		log.Printf("Error retrieving database model: %v\n", err)
-		return store, err
+		m := fmt.Sprintf("Error retrieving database model %d: %v\n", store.FromModelID, err)
+		log.Print(m)
+		return store, fmt.Errorf(m)
 	}
 
 	return store, nil
@@ -220,8 +220,7 @@ func (db *DB) HealthCheck() error {
 func (db *DB) listSubstores(accountID int) ([]Substore, error) {
 	rows, err := db.Query(listSubstoreSQL, accountID)
 	if err != nil {
-		log.Printf("Error retrieving sub-stores: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("Error retrieving sub-stores: %v\n", err)
 	}
 	defer rows.Close()
 
@@ -232,8 +231,7 @@ func (db *DB) listSubstores(accountID int) ([]Substore, error) {
 func (db *DB) listSubstoresFilteredByUser(accountID int, username string) ([]Substore, error) {
 	rows, err := db.Query(listUserSubstoreSQL, accountID, username)
 	if err != nil {
-		log.Printf("Error retrieving sub-stores of a user: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("Error retrieving sub-stores of a user: %v\n", err)
 	}
 	defer rows.Close()
 
@@ -253,8 +251,7 @@ func (db *DB) deleteSubstoreFilteredByUser(storeID int, username string) (string
 		_, err = db.Exec(deleteSubstoreForUserSQL, storeID, username)
 	}
 	if err != nil {
-		log.Printf("Error deleting the database sub-store model: %v\n", err)
-		return "", err
+		return "", fmt.Errorf("Error deleting the database sub-store model %d: %v\n", storeID, err)
 	}
 
 	return "", nil
@@ -267,13 +264,12 @@ func (db *DB) rowsToSubstores(rows *sql.Rows) ([]Substore, error) {
 		store := Substore{}
 		err := rows.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error scanning for substore: %v\n", err)
 		}
 
 		store.FromModel, err = db.getModel(store.FromModelID)
 		if err != nil {
-			log.Printf("Error retrieving database model: %v\n", err)
-			return stores, err
+			return nil, fmt.Errorf("Error retrieving database model %d: %v\n", store.FromModelID, err)
 		}
 
 		stores = append(stores, store)
@@ -298,12 +294,13 @@ func (db *DB) updateSubstoreFilteredByUser(store Substore, username string) erro
 		// This is a PostgreSQL error...
 		if err.Code.Name() == "unique_violation" {
 			// Output a more readable message
-			return errors.New("A sub-store mapping already exists for this model, serial-number and sub-store")
+			return fmt.Errorf("Error updating the database sub-store: a sub-store mapping already exists for "+
+				"this model, serial-number and sub-store (%d, %s, %s)\n", store.FromModelID, store.SerialNumber, store.Store)
 		}
 	}
 	if err != nil {
-		log.Printf("Error updating the database sub-store: %v\n", err)
-		return err
+		return fmt.Errorf("Error updating the database sub-store with model, serial-number and sub-store (%d, %s, %s): %v\n",
+			store.FromModelID, store.SerialNumber, store.Store, err)
 	}
 
 	return nil

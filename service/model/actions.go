@@ -59,6 +59,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 
 	dbModels, err := datastore.Environ.DB.ListAllowedModels(user)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "error-fetch-models", "", err.Error(), w)
 		return
 	}
@@ -80,6 +81,7 @@ func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, modelI
 
 	model, err := datastore.Environ.DB.GetAllowedModel(modelID, user)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "error-fetch-model", "", err.Error(), w)
 		return
 	}
@@ -99,14 +101,14 @@ func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, mod
 	}
 
 	if modelID != mdl.ID {
-		response.FormatStandardResponse(false, "error-stores-json", "", "The model IDs do not match", w)
+		response.FormatStandardResponse(false, "error-model-json", "", "The model IDs do not match", w)
 		return
 	}
 
 	errorSubcode, err := datastore.Environ.DB.UpdateAllowedModel(mdl, user)
 	if err != nil {
-		log.Println("Error updating the store:", err)
-		response.FormatStandardResponse(false, "error-updating-model", errorSubcode, "Error updating the model", w)
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-updating-model", errorSubcode, err.Error(), w)
 		return
 	}
 
@@ -127,6 +129,7 @@ func deleteHandler(w http.ResponseWriter, user datastore.User, apiCall bool, mod
 	mdl := datastore.Model{ID: modelID}
 	errorSubcode, err := datastore.Environ.DB.DeleteAllowedModel(mdl, user)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "error-deleting-model", errorSubcode, err.Error(), w)
 		return
 	}
@@ -147,7 +150,8 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, mdl
 
 	allowedModel, errorSubcode, err := datastore.Environ.DB.CreateAllowedModel(mdl, user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-model-json", errorSubcode, "", w)
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-model-json", errorSubcode, err.Error(), w)
 		return
 	}
 
@@ -168,12 +172,14 @@ func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, 
 	// Check that the user has permissions to access the model
 	_, err = datastore.Environ.DB.GetAllowedModel(assert.ModelID, user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-get-model", "", "Cannot find model with the selected ID", w)
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-get-model", "", err.Error(), w)
 		return
 	}
 
 	err = datastore.Environ.DB.UpsertModelAssert(assert)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "create-assertion", "", err.Error(), w)
 		return
 	}
@@ -187,7 +193,7 @@ func formatListResponse(models []datastore.Model, w http.ResponseWriter) error {
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the models response.")
+		log.Printf("Error forming the models response (%v).\n %v", response, err)
 		return err
 	}
 	return nil
@@ -198,7 +204,7 @@ func formatInstanceResponse(model datastore.Model, w http.ResponseWriter) error 
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the model response.")
+		log.Printf("Error forming the model response (%v).\n %v", response, err)
 		return err
 	}
 	return nil

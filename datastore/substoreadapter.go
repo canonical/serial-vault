@@ -116,25 +116,26 @@ func (db *DB) DeleteAllowedSubstore(storeID int, authorization User) (string, er
 }
 
 func validateSubstore(store Substore, validateStoreLabel string) (string, error) {
+	errTemplate := "invalid substore %s: %v"
 
 	err := validateModelID("From Model", store.FromModelID)
 	if err != nil {
-		return validateStoreLabel, err
+		return validateStoreLabel, fmt.Errorf(errTemplate, store.ModelName, err)
 	}
 
 	err = validateNotEmpty("Sub-store name", store.Store)
 	if err != nil {
-		return validateStoreLabel, err
+		return validateStoreLabel, fmt.Errorf(errTemplate, store.ModelName, err)
 	}
 
 	err = validateNotEmpty("Serial-number", store.SerialNumber)
 	if err != nil {
-		return validateStoreLabel, err
+		return validateStoreLabel, fmt.Errorf(errTemplate, store.ModelName, err)
 	}
 
 	err = validateModelName(store.ModelName)
 	if err != nil {
-		return validateStoreLabel, err
+		return validateStoreLabel, fmt.Errorf(errTemplate, store.ModelName, err)
 	}
 
 	return "", nil

@@ -21,6 +21,7 @@ package substore
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -53,14 +54,15 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool, accou
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}
 
-	//logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
+	// logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
 	stores, err := datastore.Environ.DB.ListSubstores(accountID, user)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-stores-json", "", "", w)
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-stores-json", "", err.Error(), w)
 		return
 	}
 
@@ -74,19 +76,19 @@ func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}
 
 	if storeID != store.ID {
-		response.FormatStandardResponse(false, "error-stores-json", "", "The store IDs do not match", w)
+		response.FormatStandardResponse(false, "error-stores-json", "", fmt.Sprintf("The store IDs do not match: expected %d, actual store ID %d", storeID, store.ID), w)
 		return
 	}
 
 	err = datastore.Environ.DB.UpdateAllowedSubstore(store, user)
 	if err != nil {
-		log.Println("Error updating the store:", err)
-		response.FormatStandardResponse(false, "error-stores-substore", "", "Error updating the store", w)
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-stores-substore", "", err.Error(), w)
 		return
 	}
 
@@ -100,12 +102,13 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
 	if err != nil {
-		response.FormatStandardResponse(false, "error-auth", "", "", w)
+		response.FormatStandardResponse(false, "error-auth", "", err.Error(), w)
 		return
 	}
 
 	allowedSubstore, err := datastore.Environ.DB.CreateAllowedSubstore(store, user)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "error-stores-json", "", err.Error(), w)
 		return
 	}
@@ -120,7 +123,7 @@ func formatListResponse(success bool, errorCode, errorSubcode, message string, s
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the sub-stores response.")
+		log.Printf("Error forming the sub-stores response (%v).\n %v", response, err)
 		return err
 	}
 	return nil
@@ -131,7 +134,7 @@ func formatInstanceResponse(store datastore.Substore, w http.ResponseWriter) err
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the sub-store response.")
+		log.Printf("Error forming the sub-store response (%v).\n %v", response, err)
 		return err
 	}
 	return nil
@@ -148,6 +151,7 @@ func deleteHandler(w http.ResponseWriter, user datastore.User, apiCall bool, sto
 
 	errorSubcode, err := datastore.Environ.DB.DeleteAllowedSubstore(storeID, user)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "error-deleting-store", errorSubcode, err.Error(), w)
 		return
 	}
@@ -169,6 +173,7 @@ func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, modelI
 
 	store, err := datastore.Environ.DB.GetAllowedSubstore(modelID, serial, user)
 	if err != nil {
+		log.Println(err)
 		response.FormatStandardResponse(false, "error-stores-json", "", err.Error(), w)
 		return
 	}
