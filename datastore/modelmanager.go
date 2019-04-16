@@ -232,7 +232,7 @@ func (db *DB) addAPIKeyField() error {
 		apiKey, err := generateAPIKey()
 		if err != nil {
 			log.Printf("Could not generate random string for the API key")
-			return errors.New("Error generating random string for the API key")
+			return errors.New("error generating random string for the API key")
 		}
 
 		// Update the API key on the model
@@ -270,7 +270,7 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 		rows, err = db.Query(listModelsForUserSQL, username)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving models: %v\n", err)
+		return nil, fmt.Errorf("error retrieving models: %v", err)
 	}
 	defer rows.Close()
 
@@ -279,7 +279,7 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive,
 			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving models: %v\n", err)
+			return nil, fmt.Errorf("error retrieving models: %v", err)
 		}
 
 		// Get the linked model assertion headers
@@ -332,7 +332,7 @@ func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error
 	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
 		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	if err != nil {
-		return model, fmt.Errorf("Error retrieving database model %d: %v\n", modelID, err)
+		return model, fmt.Errorf("error retrieving database model %d: %v", modelID, err)
 	}
 
 	// Get the linked model assertion headers
@@ -355,7 +355,7 @@ func (db *DB) updateModelFilteredByUser(model Model, username string) (string, e
 		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, username)
 	}
 	if err != nil {
-		return "", fmt.Errorf("Error updating the database model for %s: %v\n", model.Name, err)
+		return "", fmt.Errorf("error updating the database model for %s: %v", model.Name, err)
 	}
 
 	return "", nil
@@ -371,13 +371,13 @@ func (db *DB) createModelFilteredByUser(model Model, username string) (Model, st
 
 	err := db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
 	if err != nil {
-		return model, "", fmt.Errorf("Error creating the model for %s: %v\n", model.Name, err)
+		return model, "", fmt.Errorf("error creating the model for %s: %v", model.Name, err)
 	}
 
 	// Return the created model
 	mdl, err := db.getModelFilteredByUser(createdModelID, username)
 	if err != nil {
-		return model, "", fmt.Errorf("Error retrieving the created model for %s: %v\n", model.Name, err)
+		return model, "", fmt.Errorf("error retrieving the created model for %s: %v", model.Name, err)
 	}
 	return mdl, "", nil
 }

@@ -65,31 +65,31 @@ func (db *DB) GetAllowedModel(modelID int, authorization User) (Model, error) {
 func (db *DB) UpdateAllowedModel(model Model, authorization User) (string, error) {
 	errorSubcode, err := validateModel(model, "error-validate-model")
 	if err != nil {
-		return errorSubcode, fmt.Errorf("Error updating the model: %v\n", err)
+		return errorSubcode, fmt.Errorf("error updating the model: %v", err)
 	}
 
 	if !db.checkBrandsMatch(model.BrandID, model.KeypairID, model.KeypairIDUser) {
-		return "error-auth", errors.New("Error updating the model: the model and the keys must have the same brand")
+		return "error-auth", errors.New("error updating the model: the model and the keys must have the same brand")
 	}
 
 	// Check the API key and default it if it is invalid
 	apiKey, err := buildValidOrDefaultAPIKey(model.APIKey)
 	if err != nil {
-		return "error-model-apikey", errors.New("Error updating the model: error in generating a valid API key")
+		return "error-model-apikey", errors.New("error updating the model: error in generating a valid API key")
 	}
 	model.APIKey = apiKey
 
 	// Get the existing model using the ID
 	m, err := db.getModel(model.ID)
 	if err != nil {
-		return "error-model-not-found", fmt.Errorf("Error updating the model: %v\n", err)
+		return "error-model-not-found", fmt.Errorf("error updating the model: %v", err)
 	}
 
 	// If the model name is different, check that the new name does not exist
 	if model.BrandID != m.BrandID || model.Name != m.Name {
 		// Check that the new model does not exist
 		if exists := db.CheckModelExists(model.BrandID, model.Name); exists {
-			return "error-model-exists", fmt.Errorf("Error updating the model: a device with the same Brand (%s) and Model (%s) already exists", model.BrandID, model.Name)
+			return "error-model-exists", fmt.Errorf("error updating the model: a device with the same Brand (%s) and Model (%s) already exists", model.BrandID, model.Name)
 		}
 	}
 
@@ -123,27 +123,27 @@ func (db *DB) DeleteAllowedModel(model Model, authorization User) (string, error
 func (db *DB) CreateAllowedModel(model Model, authorization User) (Model, string, error) {
 	errorSubcode, err := validateModel(model, "error-validate-new-model")
 	if err != nil {
-		return model, errorSubcode, fmt.Errorf("Error creating the model: %v\n", err)
+		return model, errorSubcode, fmt.Errorf("error creating the model: %v", err)
 	}
 
 	if !db.CheckUserInAccount(authorization.Username, model.BrandID) {
-		return model, "error-auth", errors.New("The user does not have permissions to create a model for this account")
+		return model, "error-auth", errors.New("the user does not have permissions to create a model for this account")
 	}
 
 	if !db.checkBrandsMatch(model.BrandID, model.KeypairID, model.KeypairIDUser) {
-		return model, "error-auth", errors.New("Error creating the model: the model and the keys must have the same brand")
+		return model, "error-auth", errors.New("error creating the model: the model and the keys must have the same brand")
 	}
 
 	// Check the API key and default it if it is invalid
 	apiKey, err := buildValidOrDefaultAPIKey(model.APIKey)
 	if err != nil {
-		return model, "error-model-apikey", errors.New("Error creating the model: error in generating a valid API key")
+		return model, "error-model-apikey", errors.New("error creating the model: error in generating a valid API key")
 	}
 	model.APIKey = apiKey
 
 	// Check that the model does not exist
 	if found := db.CheckModelExists(model.BrandID, model.Name); found {
-		return model, "error-model-exists", fmt.Errorf("Error creating the model: a device with the same Brand (%s) and Model (%s) already exists", model.BrandID, model.Name)
+		return model, "error-model-exists", fmt.Errorf("error creating the model: a device with the same Brand (%s) and Model (%s) already exists", model.BrandID, model.Name)
 	}
 
 	switch authorization.Role {
@@ -194,14 +194,14 @@ func validateModelName(name string) error {
 
 func validateKeypairID(keypairID int) error {
 	if keypairID <= 0 {
-		return errors.New("The Signing Key must be selected")
+		return errors.New("the Signing Key must be selected")
 	}
 	return nil
 }
 
 func validateKeypairIDUser(keypairIDUser int) error {
 	if keypairIDUser <= 0 {
-		return errors.New("The System-User Key must be selected")
+		return errors.New("the System-User Key must be selected")
 	}
 	return nil
 }
@@ -226,7 +226,7 @@ func generateAPIKey() (string, error) {
 	apiKey, err := random.GenerateRandomString(40)
 	if err != nil {
 		log.Printf("Could not generate random string for the API key")
-		return "", errors.New("Error generating random string for the API key")
+		return "", errors.New("error generating random string for the API key")
 	}
 
 	return reg.ReplaceAllString(apiKey, ""), nil

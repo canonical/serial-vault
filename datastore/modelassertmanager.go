@@ -111,7 +111,7 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 	var createdID int
 	err := db.QueryRow(createModelAssertSQL, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, m.RequiredSnaps, m.Base, m.Classic, m.DisplayName).Scan(&createdID)
 	if err != nil {
-		return 0, fmt.Errorf("Error creating the model assertion: %v\n", err)
+		return 0, fmt.Errorf("error creating the model assertion: %v", err)
 	}
 
 	return createdID, nil
@@ -124,7 +124,7 @@ func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps, m.Base, m.Classic, m.DisplayName)
 
 	if err != nil {
-		return fmt.Errorf("Error updating the model assertion for %d: %v\n", m.ID, err)
+		return fmt.Errorf("error updating the model assertion for %d: %v", m.ID, err)
 	}
 
 	return nil
@@ -135,7 +135,7 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 	var err error
 
 	if err = validateModelAssertion(m); err != nil {
-		return fmt.Errorf("Error upserting the model assertion for model %d: %v\n", m.ModelID, err)
+		return fmt.Errorf("error upserting the model assertion for model %d: %v", m.ModelID, err)
 	}
 
 	if m.ID > 0 {
@@ -144,7 +144,7 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 		_, err = db.CreateModelAssert(m)
 	}
 
-	return fmt.Errorf("Error upserting the model assertion for model %d: %v\n", m.ModelID, err)
+	return fmt.Errorf("error upserting the model assertion for model %d: %v", m.ModelID, err)
 
 }
 
@@ -154,7 +154,7 @@ func (db *DB) deleteModelAssert(modelID int) error {
 
 	_, err = db.Exec(deleteModelAssertSQL, modelID)
 	if err != nil {
-		return fmt.Errorf("Error deleting the model assertion: %v\n", err)
+		return fmt.Errorf("error deleting the model assertion: %v", err)
 	}
 	return nil
 }
@@ -164,7 +164,7 @@ func (db *DB) GetModelAssert(modelID int) (ModelAssertion, error) {
 	m := ModelAssertion{}
 	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.RequiredSnaps, &m.Base, &m.Classic, &m.DisplayName, &m.Created, &m.Modified)
 	if err != nil {
-		return m, fmt.Errorf("Error fetching the model assertion for %d: %v\n", modelID, err)
+		return m, fmt.Errorf("error fetching the model assertion for %d: %v", modelID, err)
 	}
 
 	return m, nil
