@@ -22,10 +22,7 @@ package datastore
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
-	"log"
-
 	"github.com/lib/pq"
 )
 
@@ -195,16 +192,12 @@ func (db *DB) GetSubstoreModel(brand, model, serialNumber string) (Substore, err
 	row := db.QueryRow(getSubstoreModelSQL, brand, model, serialNumber)
 	err := row.Scan(&store.ID, &store.AccountID, &store.FromModelID, &store.Store, &store.SerialNumber, &store.ModelName)
 	if err != nil {
-		m := fmt.Sprintf("error retrieving database substore (model name %s, serial %s): %v", model, serialNumber, err)
-		log.Print(m)
-		return store, errors.New(m)
+		return store, fmt.Errorf("error retrieving database substore (model name %s, serial %s): %v", model, serialNumber, err)
 	}
 
 	store.FromModel, err = db.getModel(store.FromModelID)
 	if err != nil {
-		m := fmt.Sprintf("error retrieving database model %d: %v", store.FromModelID, err)
-		log.Print(m)
-		return store, fmt.Errorf(m)
+		return store, fmt.Errorf("error retrieving database model %d: %v", store.FromModelID, err)
 	}
 
 	return store, nil

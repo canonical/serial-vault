@@ -23,6 +23,7 @@ package assertion
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"time"
@@ -50,6 +51,7 @@ func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, a
 	// Get the model:
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
+		log.Println(err)
 		svlog.Message("USER", response.ErrorInvalidModelID.Code, response.ErrorInvalidModelID.Message)
 		response.FormatStandardResponse(false, response.ErrorInvalidModelID.Code, "", response.ErrorInvalidModelID.Message, w)
 		return

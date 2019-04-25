@@ -25,15 +25,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/CanonicalLtd/serial-vault/service/log"
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 // RequestIDResponse is the JSON response from the API Version method
@@ -49,19 +50,19 @@ func RequestID(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	// Check that we have an authorised API key header
 	_, err := request.CheckModelAPI(r)
 	if err != nil {
-		log.Message("REQUESTID", response.ErrorInvalidAPIKey.Code, response.ErrorInvalidAPIKey.Message)
+		svlog.Message("REQUESTID", response.ErrorInvalidAPIKey.Code, response.ErrorInvalidAPIKey.Message)
 		return response.ErrorInvalidAPIKey
 	}
 
 	err = datastore.Environ.DB.DeleteExpiredDeviceNonces()
 	if err != nil {
-		log.Message("REQUESTID", "delete-expired-nonces", err.Error())
+		svlog.Message("REQUESTID", "delete-expired-nonces", err.Error())
 		return response.ErrorGenerateNonce
 	}
 
 	nonce, err := datastore.Environ.DB.CreateDeviceNonce()
 	if err != nil {
-		log.Message("REQUESTID", "generate-request-id", err.Error())
+		svlog.Message("REQUESTID", "generate-request-id", err.Error())
 		return response.ErrorGenerateNonce
 	}
 
@@ -75,7 +76,7 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	// Check that we have an authorised API key header
 	apiKey, err := request.CheckModelAPI(r)
 	if err != nil {
-		log.Message("SIGN", response.ErrorInvalidAPIKey.Code, response.ErrorInvalidAPIKey.Message)
+		svlog.Message("SIGN", response.ErrorInvalidAPIKey.Code, response.ErrorInvalidAPIKey.Message)
 		return response.ErrorInvalidAPIKey
 	}
 
@@ -85,18 +86,18 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	dec := asserts.NewDecoder(r.Body)
 	assertion, err := dec.Decode()
 	if err == io.EOF {
-		log.Message("SIGN", "invalid-assertion", response.ErrorEmptyData.Message)
+		svlog.Message("SIGN", "invalid-assertion", response.ErrorEmptyData.Message)
 		return response.ErrorEmptyData
 	}
 	if err != nil {
-		log.Message("SIGN", "invalid-assertion", err.Error())
+		svlog.Message("SIGN", "invalid-assertion", err.Error())
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Decode the optional model
 	modelAssert, err := dec.Decode()
 	if err != nil && err != io.EOF {
-		log.Message("SIGN", "invalid-assertion", err.Error())
+		svlog.Message("SIGN", "invalid-assertion", err.Error())
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
@@ -106,25 +107,25 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 		if err == nil {
 			err = fmt.Errorf("unexpected assertion in the request stream")
 		}
-		log.Message("SIGN", response.ErrorInvalidAssertion.Code, err.Error())
+		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, err.Error())
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Check that we have a serial-request assertion (the details will have been validated by Decode call)
 	if assertion.Type() != asserts.SerialRequestType {
-		log.Message("SIGN", response.ErrorInvalidType.Code, "The assertion type must be 'serial-request'")
+		svlog.Message("SIGN", response.ErrorInvalidType.Code, "The assertion type must be 'serial-request'")
 		return response.ErrorInvalidType
 	}
 
 	// Double check the model assertion if present
 	if modelAssert != nil {
 		if modelAssert.Type() != asserts.ModelType {
-			log.Message("SIGN", response.ErrorInvalidSecondType.Code, response.ErrorInvalidSecondType.Message)
+			svlog.Message("SIGN", response.ErrorInvalidSecondType.Code, response.ErrorInvalidSecondType.Message)
 			return response.ErrorInvalidSecondType
 		}
 		if modelAssert.HeaderString("brand-id") != assertion.HeaderString("brand-id") || modelAssert.HeaderString("model") != assertion.HeaderString("model") {
 			const msg = "Model and serial-request assertion do not match"
-			log.Message("SIGN", "mismatched-model", msg)
+			svlog.Message("SIGN", "mismatched-model", msg)
 			return response.ErrorResponse{Success: false, Code: "mismatched-model", Message: msg, StatusCode: http.StatusBadRequest}
 		}
 
@@ -135,7 +136,7 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	// Verify that the nonce is valid and has not expired
 	err = datastore.Environ.DB.ValidateDeviceNonce(assertion.HeaderString("request-id"))
 	if err != nil {
-		log.Message("SIGN", response.ErrorInvalidNonce.Code, response.ErrorInvalidNonce.Message)
+		svlog.Message("SIGN", response.ErrorInvalidNonce.Code, response.ErrorInvalidNonce.Message)
 		return response.ErrorInvalidNonce
 	}
 
@@ -147,7 +148,7 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 
 	// Check that the model has an active keypair
 	if !model.KeyActive {
-		log.Message("SIGN", response.ErrorInactiveModel.Code, response.ErrorInactiveModel.Message)
+		svlog.Message("SIGN", response.ErrorInactiveModel.Code, response.ErrorInactiveModel.Message)
 		return response.ErrorInactiveModel
 	}
 
@@ -157,21 +158,21 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	// Convert the serial-request headers into a serial assertion
 	serialAssertion, err := serialRequestToSerial(assertion, &signingLog)
 	if err != nil {
-		log.Message("SIGN", response.ErrorCreateAssertion.Code, err.Error())
+		svlog.Message("SIGN", response.ErrorCreateAssertion.Code, err.Error())
 		return response.ErrorCreateAssertion
 	}
 
 	// Sign the assertion with the snapd assertions module
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SerialType, serialAssertion.Headers(), serialAssertion.Body(), model.AuthorityID, model.KeyID, model.SealedKey)
 	if err != nil {
-		log.Message("SIGN", "signing-assertion", err.Error())
+		svlog.Message("SIGN", "signing-assertion", err.Error())
 		return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Store the serial number and device-key fingerprint in the database
 	err = datastore.Environ.DB.CreateSigningLog(signingLog)
 	if err != nil {
-		log.Message("SIGN", "logging-assertion", err.Error())
+		svlog.Message("SIGN", "logging-assertion", err.Error())
 		return response.ErrorResponse{Success: false, Code: "logging-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
@@ -186,7 +187,7 @@ func findModel(assertion asserts.Assertion, apiKey string) (datastore.Model, res
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), apiKey)
 	if err != nil {
-		log.Message("SIGN", response.ErrorInvalidModel.Code, response.ErrorInvalidModel.Message)
+		svlog.Message("SIGN", response.ErrorInvalidModel.Code, response.ErrorInvalidModel.Message)
 	} else {
 		// Found the model, so return it
 		return model, response.ErrorResponse{Success: true}
@@ -196,7 +197,8 @@ func findModel(assertion asserts.Assertion, apiKey string) (datastore.Model, res
 	// Check for a sub-store model for the pivot
 	substore, err := datastore.Environ.DB.GetSubstoreModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.HeaderString("serial"))
 	if err != nil {
-		log.Message("CHECK", response.ErrorInvalidModelSubstore.Code, response.ErrorInvalidModelSubstore.Message)
+		log.Println(err)
+		svlog.Message("CHECK", response.ErrorInvalidModelSubstore.Code, response.ErrorInvalidModelSubstore.Message)
 		return model, response.ErrorInvalidModelSubstore
 	}
 
@@ -236,7 +238,7 @@ func serialRequestToSerial(assertion asserts.Assertion, signingLog *datastore.Si
 
 	// Check that we have a serial
 	if headers["serial"] == nil {
-		log.Message("SIGN", "create-assertion", response.ErrorEmptySerial.Message)
+		svlog.Message("SIGN", "create-assertion", response.ErrorEmptySerial.Message)
 		return nil, errors.New(response.ErrorEmptySerial.Message)
 	}
 
@@ -244,11 +246,11 @@ func serialRequestToSerial(assertion asserts.Assertion, signingLog *datastore.Si
 	signingLog.SerialNumber = headers["serial"].(string)
 	duplicateExists, maxRevision, err := datastore.Environ.DB.CheckForDuplicate(signingLog)
 	if err != nil {
-		log.Message("SIGN", "duplicate-assertion", err.Error())
+		svlog.Message("SIGN", "duplicate-assertion", err.Error())
 		return nil, errors.New(response.ErrorDuplicateAssertion.Message)
 	}
 	if duplicateExists {
-		log.Message("SIGN", "duplicate-assertion", "The serial number and/or device-key have already been used to sign a device")
+		svlog.Message("SIGN", "duplicate-assertion", "The serial number and/or device-key have already been used to sign a device")
 	}
 
 	// Set the revision number, incrementing the previously used one
@@ -272,7 +274,7 @@ func formatSignResponse(assertion asserts.Assertion, w http.ResponseWriter) erro
 	err := encoder.Encode(assertion)
 	if err != nil {
 		// Not much we can do if we're here - apart from panic!
-		log.Message("SIGN", "error-encode-assertion", "Error encoding the assertion.")
+		svlog.Message("SIGN", "error-encode-assertion", "Error encoding the assertion.")
 		return err
 	}
 
@@ -284,7 +286,7 @@ func formatRequestIDResponse(nonce datastore.DeviceNonce, w http.ResponseWriter)
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Message("REQUESTID", "error-form-requestid", err.Error())
+		svlog.Message("REQUESTID", "error-form-requestid", err.Error())
 		return err
 	}
 	return nil
