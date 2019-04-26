@@ -20,8 +20,7 @@
 package datastore
 
 import (
-	"errors"
-	"log"
+	"fmt"
 	"time"
 )
 
@@ -112,9 +111,10 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 	var createdID int
 	err := db.QueryRow(createModelAssertSQL, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, m.RequiredSnaps, m.Base, m.Classic, m.DisplayName).Scan(&createdID)
 	if err != nil {
-		log.Printf("Error creating the model assertion: %v\n", err)
+		return 0, fmt.Errorf("error creating the model assertion: %v", err)
 	}
-	return createdID, err
+
+	return createdID, nil
 }
 
 // UpdateModelAssert updates the model assertion details
@@ -124,11 +124,10 @@ func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps, m.Base, m.Classic, m.DisplayName)
 
 	if err != nil {
-		log.Printf("Error updating the model assertion: %v\n", err)
+		return fmt.Errorf("error updating the model assertion for %d: %v", m.ID, err)
 	}
 
-	return err
-
+	return nil
 }
 
 // UpsertModelAssert creates or updates the model assertion headers
@@ -136,7 +135,7 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 	var err error
 
 	if err = validateModelAssertion(m); err != nil {
-		return err
+		return fmt.Errorf("error upserting the model assertion for model %d: %v", m.ModelID, err)
 	}
 
 	if m.ID > 0 {
@@ -145,7 +144,7 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 		_, err = db.CreateModelAssert(m)
 	}
 
-	return err
+	return fmt.Errorf("error upserting the model assertion for model %d: %v", m.ModelID, err)
 
 }
 
@@ -155,9 +154,9 @@ func (db *DB) deleteModelAssert(modelID int) error {
 
 	_, err = db.Exec(deleteModelAssertSQL, modelID)
 	if err != nil {
-		log.Printf("Error deleting the model assertion: %v\n", err)
+		return fmt.Errorf("error deleting the model assertion: %v", err)
 	}
-	return err
+	return nil
 }
 
 // GetModelAssert fetches the model assertion
@@ -165,31 +164,36 @@ func (db *DB) GetModelAssert(modelID int) (ModelAssertion, error) {
 	m := ModelAssertion{}
 	err := db.QueryRow(getModelAssertSQL, modelID).Scan(&m.ID, &m.ModelID, &m.KeypairID, &m.Series, &m.Architecture, &m.Revision, &m.Gadget, &m.Kernel, &m.Store, &m.RequiredSnaps, &m.Base, &m.Classic, &m.DisplayName, &m.Created, &m.Modified)
 	if err != nil {
-		return m, err
+		return m, fmt.Errorf("error fetching the model assertion for %d: %v", modelID, err)
 	}
 
 	return m, nil
 }
 
 func validateModelAssertion(m ModelAssertion) error {
+	errTemplate := "invalid model assertion: %v "
 	if m.ModelID <= 0 {
-		return errors.New("Model must be provided")
+		return fmt.Errorf(errTemplate, "Model must be provided")
 	}
 	if m.KeypairID <= 0 {
-		return errors.New("Signing Key must be provided")
+		return fmt.Errorf(errTemplate, "Signing Key must be provided")
 	}
 	if m.Series < 16 {
-		return errors.New("Series must be at least 16")
+		return fmt.Errorf(errTemplate, "Series must be at least 16")
 	}
 
 	if err := validateNotEmpty("Architecture", m.Architecture); err != nil {
-		return err
+		return fmt.Errorf(errTemplate, err)
 	}
 	if err := validateNotEmpty("Gadget", m.Gadget); err != nil {
-		return err
+		return fmt.Errorf(errTemplate, err)
 	}
 	if err := validateNotEmpty("Kernel", m.Kernel); err != nil {
-		return err
+		return fmt.Errorf(errTemplate, err)
 	}
-	return validateNotEmpty("Store", m.Store)
+	if err := validateNotEmpty("Store", m.Store); err != nil {
+		return fmt.Errorf(errTemplate, err)
+	}
+
+	return nil
 }

@@ -48,7 +48,7 @@ func FormatStandardResponse(success bool, errorCode, errorSubcode, message strin
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Println("Error forming the boolean response.")
+		log.Printf("Error forming the boolean response (%v)\n. %v", response, err)
 		return err
 	}
 	return nil

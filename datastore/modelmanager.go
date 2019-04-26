@@ -22,6 +22,7 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -231,7 +232,7 @@ func (db *DB) addAPIKeyField() error {
 		apiKey, err := generateAPIKey()
 		if err != nil {
 			log.Printf("Could not generate random string for the API key")
-			return errors.New("Error generating random string for the API key")
+			return errors.New("error generating random string for the API key")
 		}
 
 		// Update the API key on the model
@@ -269,8 +270,7 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 		rows, err = db.Query(listModelsForUserSQL, username)
 	}
 	if err != nil {
-		log.Printf("Error retrieving database models: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("error retrieving models: %v", err)
 	}
 	defer rows.Close()
 
@@ -279,7 +279,7 @@ func (db *DB) listModelsFilteredByUser(username string) ([]Model, error) {
 		err := rows.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive,
 			&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.AssertionUser)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error retrieving models: %v", err)
 		}
 
 		// Get the linked model assertion headers
@@ -332,8 +332,7 @@ func (db *DB) getModelFilteredByUser(modelID int, username string) (Model, error
 	err := row.Scan(&model.ID, &model.BrandID, &model.Name, &model.KeypairID, &model.APIKey, &model.AuthorityID, &model.KeyID, &model.KeyActive, &model.SealedKey,
 		&model.KeypairIDUser, &model.AuthorityIDUser, &model.KeyIDUser, &model.KeyActiveUser, &model.SealedKeyUser, &model.AssertionUser)
 	if err != nil {
-		log.Printf("Error retrieving database model by ID: %v\n", err)
-		return model, err
+		return model, fmt.Errorf("error retrieving database model %d: %v", modelID, err)
 	}
 
 	// Get the linked model assertion headers
@@ -356,8 +355,7 @@ func (db *DB) updateModelFilteredByUser(model Model, username string) (string, e
 		_, err = db.Exec(updateModelForUserSQL, model.ID, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey, username)
 	}
 	if err != nil {
-		log.Printf("Error updating the database model: %v\n", err)
-		return "", err
+		return "", fmt.Errorf("error updating the database model for %s: %v", model.Name, err)
 	}
 
 	return "", nil
@@ -373,15 +371,13 @@ func (db *DB) createModelFilteredByUser(model Model, username string) (Model, st
 
 	err := db.QueryRow(createModelSQL, model.BrandID, model.Name, model.KeypairID, model.KeypairIDUser, model.APIKey).Scan(&createdModelID)
 	if err != nil {
-		log.Printf("Error creating the database model: %v\n", err)
-		return model, "", err
+		return model, "", fmt.Errorf("error creating the model for %s: %v", model.Name, err)
 	}
 
 	// Return the created model
 	mdl, err := db.getModelFilteredByUser(createdModelID, username)
 	if err != nil {
-		log.Printf("Error creating the database model: %v\n", err)
-		return model, "", err
+		return model, "", fmt.Errorf("error retrieving the created model for %s: %v", model.Name, err)
 	}
 	return mdl, "", nil
 }
@@ -395,7 +391,6 @@ func (db *DB) SyncModel(m Model) error {
 
 	_, err = db.Exec(syncUpsertModelSQL, m.ID, m.BrandID, m.Name, m.KeypairID, m.KeypairIDUser, m.APIKey)
 	if err != nil {
-		log.Printf("Error updating the database model: %v\n", err)
 		return err
 	}
 
@@ -410,8 +405,10 @@ func (db *DB) deleteModelFilteredByUser(model Model, username string) (string, e
 	var err error
 	err = db.transaction(func(tx *sql.Tx) error {
 
-		// Delete the model assertion - ignore error as it may not exist
-		_ = db.deleteModelAssert(model.ID)
+		// Delete the model assertion - log but ignore error as the assertion may not exist
+		if err := db.deleteModelAssert(model.ID); err != nil {
+			log.Println(err)
+		}
 
 		// Delete the model
 		if len(username) == 0 {
@@ -420,7 +417,7 @@ func (db *DB) deleteModelFilteredByUser(model Model, username string) (string, e
 			_, err = db.Exec(deleteModelForUserSQL, model.ID, username)
 		}
 		if err != nil {
-			log.Printf("Error deleting the database model: %v\n", err)
+			log.Printf("Error deleting the model %d: %v\n", model.ID, err)
 		}
 		return err
 	})

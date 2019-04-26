@@ -212,6 +212,7 @@ func findModelPivot(brand, modelName, serial, apiKey string) (datastore.Substore
 	// Check for a sub-store model for the pivot
 	substore, err := datastore.Environ.DB.GetSubstore(model.ID, serial)
 	if err != nil {
+		log.Println(err)
 		svlog.Message("PIVOT", "invalid-substore", "Cannot find sub-store mapping for the model")
 		return substore, response.ErrorInvalidSubstore
 	}
