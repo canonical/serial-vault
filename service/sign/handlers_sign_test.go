@@ -329,6 +329,33 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
+const wrongSerial = `type: serial
+authority-id: system
+revision: 1
+brand-id: system
+model: ash
+serial: A123456L
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+timestamp: 2019-05-09T09:18:56+02:00
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+
+AcLBUgQAAQoABgUCXNPUYAAAijMQABuugnuwvYzwtTXwKx6cyIpfcyn8SeQwmPuLkod4YzjZFopf
+kk74iGshOKeMO1yMw2vHAK9t4bPLxuZDhG23GRehbO/8kddDbFmfuyj9OpWhP7SzJ/rhjgQMundN
+aTh97pYoU5SGaovc3skCEvzLh8eUZB02NJELTuAaWWioTaI01kp78RXZv6QcGuT8cS8eD9Psdiga
+hZfqClX6lDB2M7OrPTk3LgC/YIG4yRv8mz/B4fRaExxF+eg7m8KFIWCHRtL0poCWXqdUxkq5mt6B
+fZR+YHKV9BEBD2Zi0xjy+UlZz2epavNRx8ksFvqnjo07t+TKp8J14DTiOlpGrJeU6XUdGscQDjMO
+kExXzxAd12R1kKbtaAySFSu4mvFC6TnjJFU2lKtSO2yHKcptuSPhkQlQQH2gVHUnlgDx5hMDXV1w
+ppwx/YRo+Oqc+5lwiSYafze2Q+X76K7UEPkqDP0Ck99sGk6XEhk9UIwH/aTQKvq94HFsDmplMhSY
+wvEmhq8AwfwJ7Yrfl56q4QoQqRKLwTTU7dhG8FWwzeFsjQiQ/Mw63cBX39kxEiTD4LXBT40brGl+
+B75/84prNnyI32T8ye/8IByM47KPiOBTwTk+iKYhJwR0sEmrEdB74p0jJiOAJGbvJzvuKlI+ntUt
+v3IuKTcYKOSrpMBsArOm/D7mYxA8
+`
 
 func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 	// Mock the database and the keystore
@@ -345,7 +372,7 @@ func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 	c.Assert(w.Header().Get("Content-Type"), check.Equals, response.JSONHeader)
 }
 
-func generateSerialRequestAssertionRemodeling(model, serial, body string) ([]byte, error) {
+func generateSerialRequestAssertionRemodeling(model, originalModel, serial, body string) ([]byte, error) {
 	privateKey, _ := generatePrivateKey()
 	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
 
@@ -356,8 +383,8 @@ func generateSerialRequestAssertionRemodeling(model, serial, body string) ([]byt
 		"model":      model,
 
 		"original-brand-id": "system",
-		"original-model":    "alder",
-		"original-serial":   "A123456L",
+		"original-model":    originalModel,
+		"original-serial":   serial,
 	}
 
 	if serial != "" {
@@ -383,7 +410,7 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	c.Assert(w.Body, check.NotNil)
 	serialAssertions := w.Body.String()
 
-	assertions, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "abc1234", "")
+	assertions, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "abc1234", "")
 	c.Assert(err, check.IsNil)
 
 	assertionsOK := append(assertions, []byte("\n"+newModelAssertion)...)
@@ -392,13 +419,23 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	assertionsOnlyModel := append(assertions, []byte("\n"+newModelAssertion)...)
 	assertionsOnlySerial := append(assertions, []byte("\n"+serialAssertions)...)
 
-	assertionsWrong, err := generateSerialRequestAssertionRemodeling("alder-mybrand-x", "abc1234", "")
+	assertionsWrong, err := generateSerialRequestAssertionRemodeling("alder-mybrand-x", "alder", "abc1234", "")
+	c.Assert(err, check.IsNil)
 	assertionsWrong = append(assertionsWrong, []byte("\n"+newModelAssertion)...)
 	assertionsWrong = append(assertionsWrong, []byte("\n"+serialAssertions)...)
-	c.Assert(err, check.IsNil)
 
 	wrongModel := append(assertions, []byte("\n"+modelAssertion)...)
 	wrongModel = append(wrongModel, []byte("\n"+serialAssertions)...)
+
+	assertionsBad := append(assertionsOK, []byte("\nXXX")...)
+
+	assertionsWrongSerial := append(assertions, []byte("\n"+newModelAssertion)...)
+	assertionsWrongSerial = append(assertionsWrongSerial, []byte("\n"+wrongSerial)...)
+
+	assertionsWrongSerialNumber, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "XXX", "")
+	c.Assert(err, check.IsNil)
+	assertionsWrongSerialNumber = append(assertionsWrongSerialNumber, []byte("\n"+newModelAssertion)...)
+	assertionsWrongSerialNumber = append(assertionsWrongSerialNumber, []byte("\n"+serialAssertions)...)
 
 	tests := []SuiteTest{
 		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
@@ -408,6 +445,9 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {

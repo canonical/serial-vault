@@ -212,7 +212,6 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 
 		// Check if find model maches requested model
 		if modelAssert.HeaderString("model") != substore.ModelName {
-			fmt.Printf("%s vs %s\n", originalModelAssert.Name, substore.ModelName)
 			const msg = "Requested model is invalid"
 			svlog.Message("SIGN", "invalid-assertion", msg)
 			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
