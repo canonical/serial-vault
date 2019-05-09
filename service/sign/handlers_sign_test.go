@@ -187,33 +187,6 @@ func generateSerialRequestAssertion(model, serial, body string) ([]byte, error) 
 	return asserts.Encode(sreq), nil
 }
 
-func generateSerialRequestAssertionRemodeling(model, serial, body string) ([]byte, error) {
-	privateKey, _ := generatePrivateKey()
-	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
-
-	headers := map[string]interface{}{
-		"brand-id":   "mybrand",
-		"device-key": string(encodedPubKey),
-		"request-id": "REQID",
-		"model":      model,
-
-		"original-brand-id": "system",
-		"original-model":    "alder",
-		"original-serial":   "A123456L",
-	}
-
-	if serial != "" {
-		headers["serial"] = serial
-	}
-
-	sreq, err := asserts.SignWithoutAuthority(asserts.SerialRequestType, headers, []byte(body), privateKey)
-	if err != nil {
-		return nil, err
-	}
-
-	return asserts.Encode(sreq), nil
-}
-
 func serialRequestPlusModelAssertion(c *check.C) ([]byte, error) {
 	// Generate a test serial-request assertion
 	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
@@ -372,27 +345,76 @@ func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 	c.Assert(w.Header().Get("Content-Type"), check.Equals, response.JSONHeader)
 }
 
+func generateSerialRequestAssertionRemodeling(model, serial, body string) ([]byte, error) {
+	privateKey, _ := generatePrivateKey()
+	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
+
+	headers := map[string]interface{}{
+		"brand-id":   "mybrand",
+		"device-key": string(encodedPubKey),
+		"request-id": "REQID",
+		"model":      model,
+
+		"original-brand-id": "system",
+		"original-model":    "alder",
+		"original-serial":   "A123456L",
+	}
+
+	if serial != "" {
+		headers["serial"] = serial
+	}
+
+	sreq, err := asserts.SignWithoutAuthority(asserts.SerialRequestType, headers, []byte(body), privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	assertions := asserts.Encode(sreq)
+	return assertions, nil
+}
+
 func (s *SignSuite) TestRemodeling(c *check.C) {
 	// For the remodelling we need to send serial-request assertion + new model assertion + old serail assertion
 	// 0. Get the serial assertion for the original model
-	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	serialReq, err := generateSerialRequestAssertion("alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
-	w := sendRequest("POST", "/v1/serial", bytes.NewReader(assertions), "ValidAPIKey", c)
+	w := sendRequest("POST", "/v1/serial", bytes.NewReader(serialReq), "ValidAPIKey", c)
 	c.Assert(w.Code, check.Equals, 200)
 	c.Assert(w.Body, check.NotNil)
-	currentSerial := w.Body.String()
+	serialAssertions := w.Body.String()
 
-	// 1. Generate test new serial-request for remodeling:
-	assertions, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "abc1234", "")
+	assertions, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "abc1234", "")
 	c.Assert(err, check.IsNil)
 
-	// 2. Add new model assertion to the assertion stream
-	assertions = append(assertions, []byte("\n"+newModelAssertion)...)
+	assertionsOK := append(assertions, []byte("\n"+newModelAssertion)...)
+	assertionsOK = append(assertionsOK, []byte("\n"+serialAssertions)...)
 
-	// 3. Add old serail assertion to the assertion stream
-	assertions = append(assertions, []byte("\n"+currentSerial)...)
+	assertionsOnlyModel := append(assertions, []byte("\n"+newModelAssertion)...)
+	assertionsOnlySerial := append(assertions, []byte("\n"+serialAssertions)...)
 
-	w = sendRequest("POST", "/v1/serial", bytes.NewReader(assertions), "ValidAPIKey", c)
-	c.Assert(w.Code, check.Equals, 200)
-	c.Assert(w.Body, check.NotNil)
+	assertionsWrong, err := generateSerialRequestAssertionRemodeling("alder-mybrand-x", "abc1234", "")
+	assertionsWrong = append(assertionsWrong, []byte("\n"+newModelAssertion)...)
+	assertionsWrong = append(assertionsWrong, []byte("\n"+serialAssertions)...)
+	c.Assert(err, check.IsNil)
+
+
+	tests := []SuiteTest{
+		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertions, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},
+	}
+
+	for _, t := range tests {
+		if t.MockError {
+			datastore.Environ.DB = &datastore.ErrorMockDB{}
+		}
+
+		w := sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
+		c.Assert(w.Code, check.Equals, t.Code)
+		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
+
+		datastore.Environ.DB = &datastore.MockDB{}
+	}
 }
