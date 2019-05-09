@@ -275,6 +275,23 @@ timestamp: 2018-05-07T14:38:51Z
 AXNpZw==
 `
 
+// const newModelAssertionWrong = `type: model
+// authority-id: mybrand
+// series: 16
+// brand-id: mybrand
+// model: alder-mybrand-2
+// display-name: Mybrand
+// architecture: amd64
+// gadget: mybrand-gadget
+// kernel: mybrand-linux
+// store: mybrand-store
+// body-length: 0
+// sign-key-sha3-384: Jv8_JiHiIzJVcO9M55pPdqSDWUvuhfDIBJUS-3VW7F_idjix7Ffn5qMxB21ZQuij
+// timestamp: 2018-05-07T14:38:51Z
+
+// AXNpZw==
+// `
+
 const badSerialRequest = `type: serial-request
 brand-id: System
 device-key:
@@ -437,6 +454,11 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	assertionsWrongSerialNumber = append(assertionsWrongSerialNumber, []byte("\n"+newModelAssertion)...)
 	assertionsWrongSerialNumber = append(assertionsWrongSerialNumber, []byte("\n"+serialAssertions)...)
 
+	assertionsWrongModel, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "abc1234X", "")
+	c.Assert(err, check.IsNil)
+	assertionsWrongModel = append(assertionsWrongModel, []byte("\n"+newModelAssertion)...)
+	assertionsWrongModel = append(assertionsWrongModel, []byte("\n"+serialAssertions)...)
+
 	tests := []SuiteTest{
 		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},
@@ -448,6 +470,7 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongModel, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
