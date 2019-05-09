@@ -397,13 +397,17 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	assertionsWrong = append(assertionsWrong, []byte("\n"+serialAssertions)...)
 	c.Assert(err, check.IsNil)
 
+	wrongModel := append(assertions, []byte("\n"+modelAssertion)...)
+	wrongModel = append(wrongModel, []byte("\n"+serialAssertions)...)
 
 	tests := []SuiteTest{
 		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},
 		{false, "POST", "/v1/serial", assertions, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
