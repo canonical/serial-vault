@@ -23,6 +23,7 @@ package sign_test
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -187,6 +188,33 @@ func generateSerialRequestAssertion(model, serial, body string) ([]byte, error) 
 	return asserts.Encode(sreq), nil
 }
 
+func generateSerialRequestAssertionRemodeling(model, serial, body string) ([]byte, error) {
+	privateKey, _ := generatePrivateKey()
+	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
+
+	headers := map[string]interface{}{
+		"brand-id":   "mybrand",
+		"device-key": string(encodedPubKey),
+		"request-id": "REQID",
+		"model":      model,
+
+		"original-brand-id": "system",
+		"original-model":    "alder",
+		"original-serial":   "A123456L",
+	}
+
+	if serial != "" {
+		headers["serial"] = serial
+	}
+
+	sreq, err := asserts.SignWithoutAuthority(asserts.SerialRequestType, headers, []byte(body), privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return asserts.Encode(sreq), nil
+}
+
 func serialRequestPlusModelAssertion(c *check.C) ([]byte, error) {
 	// Generate a test serial-request assertion
 	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
@@ -255,6 +283,22 @@ store: brand-store
 body-length: 0
 sign-key-sha3-384: Jv8_JiHiIzJVcO9M55pPdqSDWUvuhfDIBJUS-3VW7F_idjix7Ffn5qMxB21ZQuij
 timestamp: 2016-01-02T15:04:05Z
+
+AXNpZw==
+`
+const newModelAssertion = `type: model
+authority-id: mybrand
+series: 16
+brand-id: mybrand
+model: alder-mybrand
+display-name: Mybrand
+architecture: amd64
+gadget: mybrand-gadget
+kernel: mybrand-linux
+store: mybrand-store
+body-length: 0
+sign-key-sha3-384: Jv8_JiHiIzJVcO9M55pPdqSDWUvuhfDIBJUS-3VW7F_idjix7Ffn5qMxB21ZQuij
+timestamp: 2018-05-07T14:38:51Z
 
 AXNpZw==
 `
@@ -327,4 +371,29 @@ func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 	w := sendRequest("POST", "/v1/serial", bytes.NewReader(assertions), "ValidAPIKey", c)
 	c.Assert(w.Code, check.Equals, 400)
 	c.Assert(w.Header().Get("Content-Type"), check.Equals, response.JSONHeader)
+}
+
+func (s *SignSuite) TestRemodeling(c *check.C) {
+	// For the remodelling we need to send serial-request assertion + new model assertion + old serail assertion
+	// 0. Get the serial assertion for the original model
+	assertions, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	c.Assert(err, check.IsNil)
+	w := sendRequest("POST", "/v1/serial", bytes.NewReader(assertions), "ValidAPIKey", c)
+	c.Assert(w.Code, check.Equals, 200)
+	c.Assert(w.Body, check.NotNil)
+	currentSerial := w.Body.String()
+
+	// 1. Generate test new serial-request for remodeling:
+	assertions, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "abc1234", "")
+	c.Assert(err, check.IsNil)
+
+	// 2. Add new model assertion to the assertion stream
+	assertions = append(assertions, []byte("\n"+newModelAssertion)...)
+
+	// 3. Add old serail assertion to the assertion stream
+	assertions = append(assertions, []byte("\n"+currentSerial)...)
+
+	w = sendRequest("POST", "/v1/serial", bytes.NewReader(assertions), "ValidAPIKey", c)
+	c.Assert(w.Code, check.Equals, 200)
+	c.Assert(w.Body, check.NotNil)
 }

@@ -157,6 +157,9 @@ func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	if modelName == "ash" {
 		model = Model{ID: 2, BrandID: "system", Name: "ash", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	}
+	if modelName == "alder-mybrand" {
+		model = Model{ID: 1, BrandID: "mybrand", Name: "alder-mybrand", KeypairID: 1, AuthorityID: "mybrand", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	}
 	if modelName == "generic-classic" {
 		model = Model{ID: 1, BrandID: "generic", Name: "generic-classic", KeypairID: 1, AuthorityID: "generic", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	}
