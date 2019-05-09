@@ -23,7 +23,6 @@ package sign_test
 import (
 	"bytes"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
