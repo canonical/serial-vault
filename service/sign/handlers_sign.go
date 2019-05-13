@@ -217,7 +217,7 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 		}
 
-		// Check original-* fields maching old serial
+		// Check original-* fields matchine old serial
 		if serialAssert.HeaderString("model") != originalModel {
 			const msg = "Original model is invalid"
 			svlog.Message("SIGN", "invalid-assertion", msg)
