@@ -98,6 +98,8 @@ func (s *SignSuite) TestSerial(c *check.C) {
 	assertSigningLogError, err := generateSerialRequestAssertion("alder", "AsigninglogError", "")
 	c.Assert(err, check.IsNil)
 
+	assertionsWithSerial := append(assertSPlusM, []byte("\n"+serial)...)
+
 	tests := []SuiteTest{
 		{false, "POST", "/v1/serial", assert, 200, asserts.MediaType, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertSerialInBody, 200, asserts.MediaType, "ValidAPIKey"},
@@ -117,6 +119,7 @@ func (s *SignSuite) TestSerial(c *check.C) {
 		{false, "POST", "/v1/serial", assertInactive, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", []byte(badSerialRequest), 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", []byte(assertionWrongType), 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWithSerial, 400, response.JSONHeader, "ValidAPIKey"},
 		{true, "POST", "/v1/serial", assert, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
@@ -275,23 +278,6 @@ timestamp: 2018-05-07T14:38:51Z
 AXNpZw==
 `
 
-// const newModelAssertionWrong = `type: model
-// authority-id: mybrand
-// series: 16
-// brand-id: mybrand
-// model: alder-mybrand-2
-// display-name: Mybrand
-// architecture: amd64
-// gadget: mybrand-gadget
-// kernel: mybrand-linux
-// store: mybrand-store
-// body-length: 0
-// sign-key-sha3-384: Jv8_JiHiIzJVcO9M55pPdqSDWUvuhfDIBJUS-3VW7F_idjix7Ffn5qMxB21ZQuij
-// timestamp: 2018-05-07T14:38:51Z
-
-// AXNpZw==
-// `
-
 const badSerialRequest = `type: serial-request
 brand-id: System
 device-key:
@@ -346,6 +332,35 @@ device-key: openpgp mQINBFaiIK4BEADHpUmhX1koBIprWkUDQbqFCKZBPvKbwRkU3v5LNmFZJYsj
 
 openpgp PvKbwRkU3v5LNmFZJYsjAV3TqhFBUp61AHpr5pvTMw3fJ8j3h
 `
+
+const serial = `type: serial
+authority-id: system
+revision: 4
+brand-id: system
+model: alder
+serial: Aduplicate
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+timestamp: 2019-05-10T12:07:36+02:00
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+
+AcLBUgQAAQoABgUCXNVNaAAAT0gQADiWK/pBSjDonvjiHNDiUYEMDfiu+WAuLo/k2SaWkoY0EgDy
+Jk48BiIqsVcPQGOUIlFste+q7iqXhMO9PnzbdRUeEx5CtNioIzfoDmtuKUN4fweJ/J8v947oKmHg
+DCdgf9dBDWU9mZGFa/FZqB5H+NefSV0dZo70hjsFbF60+zJN0RoQ9jk8zOA3LjF43u2qRak/yeie
+4RxHDSGiKgvVouMoO8yla5897r9938Rv/zdN45LaXxhuEZ0HbFhnRYCmUw3ctgq0zkjkWCICFsLZ
+bYT8tc+ZbcvyQoIND8r9QnV3DDw15fl037QBEhWH428bll3Pj2L0oP6ujGRVjKGcQND5KU3pga5l
+96XFUPtWES8CJo7ekGHrmYihy6ThBmIrvaCCj5Pui2abUrBXb1aIhXHJzRRH+xN//68uaoYAjCTD
+oa9BVIGHOGpIPO9ZpFE35SXiV8ktYfe3hbjPxDKYKqwMmwGwdQngcQ9NnOLvybv+uEfsF2eXFi1E
+TlfGVlrz1fvafv98+mm5+GASPV3XOsL/HAhw0DxadCFOQOk+ALBypFDJLlocyb3PSyyr3RdvbnBH
+NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
+SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
+`
+
 const wrongSerial = `type: serial
 authority-id: system
 revision: 1
@@ -372,6 +387,122 @@ ppwx/YRo+Oqc+5lwiSYafze2Q+X76K7UEPkqDP0Ck99sGk6XEhk9UIwH/aTQKvq94HFsDmplMhSY
 wvEmhq8AwfwJ7Yrfl56q4QoQqRKLwTTU7dhG8FWwzeFsjQiQ/Mw63cBX39kxEiTD4LXBT40brGl+
 B75/84prNnyI32T8ye/8IByM47KPiOBTwTk+iKYhJwR0sEmrEdB74p0jJiOAJGbvJzvuKlI+ntUt
 v3IuKTcYKOSrpMBsArOm/D7mYxA8
+`
+
+const wrongDeviceKeySerial = `type: serial
+authority-id: system
+revision: 1
+brand-id: system
+model: alder
+serial: A123456L
+device-key:
+    AcbBTQRWhcGAARAAx6VJoV9ZKASKa1pFA0G6hQimQT7ym8EZFN7+SzZhWSWLIwFd06oRQVKetQB6
+    a+ab0zMN3yfI94aB9aH/q6vA7T7Yo1KaBFy4aaztUvDmMzEGaVwJvDSBUBFr4yUCJEtLXAw5fMkS
+    DGvNUFRacLifAfGU5mLHJl7WXY2e7T+VjJPoSU3nAZjvGd2YQnQ1fNfQ0X+zuQVDGrtmJJF3x0CM
+    8LL0XF4UCTBYyLZK2YvSKrrk2qmIUVr3PXoY+fH9Bs5AZAAZ91GIrt0qc0uradXxI6kq8zy8bVl8
+    GTazEmkBE9Y7snAqWJWGXt9K4tO7h+4Xgprvf27dddp68XS2KHT3r86qC/1i9mTGMbHWJ5NKd/No
+    Jnawjc1qo2tnVVyw+GKwMhukpvmtuejhtk395dNczGZ2sw2yPHORUHUyq/sPLoAWyWLQFHL3MxQq
+    qyxgxWNnRYhcs6wmWEf2nNFlllld6YzS7It+cA+I04j5h85DGO6+knn1J7X4WuORDx3nn3bEQKik
+    v4uu1xFJYk6N14B/ofMoUCzbPtgkNpmV0NmgFeogx+I5yRuF0EF5U+LfMuAE+ROoYHHwiBHeSttr
+    YewdunntDyeRUc3CTwsvfq2zARObr5He5z4ldSASuzxbzEEXVd6UERPN+zeJGyctKIYEqvpSNNuu
+    4Fs8Ctp6yar9KucAEQEAAQ==
+device-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+timestamp: 2019-05-13T05:57:41+02:00
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+
+AcLBUgQAAQoABgUCXNjrNQAAYhoQAKFS/5a3B6wItn8IM7cSvu9Q++Bd6Tbc/64zghstJZj9QNrX
+F370dRaP/UAbbGftjbZk3vm/K5UYZv65vODd9TDe/dz8RUODmnX7isT9VWCe4y5Vxr/asNF0u8k1
+GrYzWs3PereAzmIw2Icm/5vcdBXIEYKaSsYOkPmWJzCTXi6ZEg0CQg6lf9wPuTHcU8XaEStZdAbm
+7dQNHwlb+Y/jv/+9P5sPhDkxxcVKnp65ONoCisTiEhEOh55RjnUivaNj6rehChv+Pu8sng5VJksw
+rS3nOxyxxrpgL9LFZhKcul+UKC4PFlsWGD/mOb5LsbRX9p0UGtXa/l98YQaGsSI91fOw2OA16vYQ
+JXsID7Zxp/anTbwucnNwbWJA354ilP7zk2uTlTeKbG4dTkL+go4VNnar1/Ahgb3dEQ3CH+maLXnG
+EIZO/VOpBoz78WZ0z/vL8fytdyz1Pq0kBVpeUnFixZCxxbvnlxb/vA+oUuRx6+ruEs61L3rTW9jJ
+fCCQXNYUhKzUrSkNwMnfW7uhSilD6GGx8p8yWWmVjKm6PEaSXblT4dnVIJPNtC1fVASXWgtI0xnh
+x3ltKuC0NdZQFRNUYNsuE3z3P99AZwMyPQJoFU6Le8Of8TF7AuvvKHzigKhFL4Obvp54JhJU9nlN
+S26V/IDEdgkhpeF82yHnyst++Yre
+`
+
+const wrongBrandSerial = `type: serial
+authority-id: systemX
+revision: 4
+brand-id: systemX
+model: alder
+serial: A123456L
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+timestamp: 2019-05-10T12:07:36+02:00
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+
+AcLBUgQAAQoABgUCXNVNaAAAT0gQADiWK/pBSjDonvjiHNDiUYEMDfiu+WAuLo/k2SaWkoY0EgDy
+Jk48BiIqsVcPQGOUIlFste+q7iqXhMO9PnzbdRUeEx5CtNioIzfoDmtuKUN4fweJ/J8v947oKmHg
+DCdgf9dBDWU9mZGFa/FZqB5H+NefSV0dZo70hjsFbF60+zJN0RoQ9jk8zOA3LjF43u2qRak/yeie
+4RxHDSGiKgvVouMoO8yla5897r9938Rv/zdN45LaXxhuEZ0HbFhnRYCmUw3ctgq0zkjkWCICFsLZ
+bYT8tc+ZbcvyQoIND8r9QnV3DDw15fl037QBEhWH428bll3Pj2L0oP6ujGRVjKGcQND5KU3pga5l
+96XFUPtWES8CJo7ekGHrmYihy6ThBmIrvaCCj5Pui2abUrBXb1aIhXHJzRRH+xN//68uaoYAjCTD
+oa9BVIGHOGpIPO9ZpFE35SXiV8ktYfe3hbjPxDKYKqwMmwGwdQngcQ9NnOLvybv+uEfsF2eXFi1E
+TlfGVlrz1fvafv98+mm5+GASPV3XOsL/HAhw0DxadCFOQOk+ALBypFDJLlocyb3PSyyr3RdvbnBH
+NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
+SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
+`
+
+const wrongSignatureSerial = `type: serial
+authority-id: system
+revision: 4
+brand-id: system
+model: alder
+serial: A123456L
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+timestamp: 2019-05-10T12:07:36+02:00
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+
+AcLBUgQAAQoABgUCxNVNaAAAT0gQADiWK/pBSjDonvjiHNDiUYEMDfiu+WAuLo/k2SaWkoY0EgDy
+Jk48BiIqsVcPQGOUIlFste+q7iqXhMO9PnzbdRUeEx5CtNioIzfoDmtuKUN4fweJ/J8v947oKmHg
+DCdgf9dBDWU9mZGFa/FZqB5H+NefSV0dZo70hjsFbF60+zJN0RoQ9jk8zOA3LjF43u2qRak/yeie
+4RxHDSGiKgvVouMoO8yla5897r9938Rv/zdN45LaXxhuEZ0HbFhnRYCmUw3ctgq0zkjkWCICFsLZ
+bYT8tc+ZbcvyQoIND8r9QnV3DDw15fl037QBEhWH428bll3Pj2L0oP6ujGRVjKGcQND5KU3pga5l
+96XFUPtWES8CJo7ekGHrmYihy6ThBmIrvaCCj5Pui2abUrBXb1aIhXHJzRRH+xN//68uaoYAjCTD
+oa9BVIGHOGpIPO9ZpFE35SXiV8ktYfe3hbjPxDKYKqwMmwGwdQngcQ9NnOLvybv+uEfsF2eXFi1E
+TlfGVlrz1fvafv98+mm5+GASPV3XOsL/HAhw0DxadCFOQOk+ALBypFDJLlocyb3PSyyr3RdvbnBH
+NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
+SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
+`
+const wrongSignKeySerial = `type: serial
+authority-id: systemX
+revision: 4
+brand-id: systemX
+model: alder
+serial: A123456L
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+timestamp: 2019-05-10T12:07:36+02:00
+sign-key-sha3-384: XytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
+
+AcLBUgQAAQoABgUCXNVNaAAAT0gQADiWK/pBSjDonvjiHNDiUYEMDfiu+WAuLo/k2SaWkoY0EgDy
+Jk48BiIqsVcPQGOUIlFste+q7iqXhMO9PnzbdRUeEx5CtNioIzfoDmtuKUN4fweJ/J8v947oKmHg
+DCdgf9dBDWU9mZGFa/FZqB5H+NefSV0dZo70hjsFbF60+zJN0RoQ9jk8zOA3LjF43u2qRak/yeie
+4RxHDSGiKgvVouMoO8yla5897r9938Rv/zdN45LaXxhuEZ0HbFhnRYCmUw3ctgq0zkjkWCICFsLZ
+bYT8tc+ZbcvyQoIND8r9QnV3DDw15fl037QBEhWH428bll3Pj2L0oP6ujGRVjKGcQND5KU3pga5l
+96XFUPtWES8CJo7ekGHrmYihy6ThBmIrvaCCj5Pui2abUrBXb1aIhXHJzRRH+xN//68uaoYAjCTD
+oa9BVIGHOGpIPO9ZpFE35SXiV8ktYfe3hbjPxDKYKqwMmwGwdQngcQ9NnOLvybv+uEfsF2eXFi1E
+TlfGVlrz1fvafv98+mm5+GASPV3XOsL/HAhw0DxadCFOQOk+ALBypFDJLlocyb3PSyyr3RdvbnBH
+NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
+SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
 `
 
 func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
@@ -419,7 +550,7 @@ func generateSerialRequestAssertionRemodeling(model, originalModel, serial, body
 
 func (s *SignSuite) TestRemodeling(c *check.C) {
 	// For the remodelling we need to send serial-request assertion + new model assertion + old serail assertion
-	// 0. Get the serial assertion for the original model
+	// First, get the serial assertion for the original model
 	serialReq, err := generateSerialRequestAssertion("alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
 	w := sendRequest("POST", "/v1/serial", bytes.NewReader(serialReq), "ValidAPIKey", c)
@@ -427,50 +558,73 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	c.Assert(w.Body, check.NotNil)
 	serialAssertions := w.Body.String()
 
-	assertions, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "abc1234", "")
+	serialReq, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
 
-	assertionsOK := append(assertions, []byte("\n"+newModelAssertion)...)
+	assertionsOK := append(serialReq, []byte("\n"+newModelAssertion)...)
 	assertionsOK = append(assertionsOK, []byte("\n"+serialAssertions)...)
 
-	assertionsOnlyModel := append(assertions, []byte("\n"+newModelAssertion)...)
-	assertionsOnlySerial := append(assertions, []byte("\n"+serialAssertions)...)
+	assertionsOnlyModel := append(serialReq, []byte("\n"+newModelAssertion)...)
+	assertionsOnlySerial := append(serialReq, []byte("\n"+serialAssertions)...)
 
-	assertionsWrong, err := generateSerialRequestAssertionRemodeling("alder-mybrand-x", "alder", "abc1234", "")
+	assertionsWrong, err := generateSerialRequestAssertionRemodeling("alder-mybrand-x", "alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
 	assertionsWrong = append(assertionsWrong, []byte("\n"+newModelAssertion)...)
 	assertionsWrong = append(assertionsWrong, []byte("\n"+serialAssertions)...)
 
-	wrongModel := append(assertions, []byte("\n"+modelAssertion)...)
+	wrongModel := append(serialReq, []byte("\n"+modelAssertion)...)
 	wrongModel = append(wrongModel, []byte("\n"+serialAssertions)...)
 
 	assertionsBad := append(assertionsOK, []byte("\nXXX")...)
 
-	assertionsWrongSerial := append(assertions, []byte("\n"+newModelAssertion)...)
+	assertionsWrongSerial := append(serialReq, []byte("\n"+newModelAssertion)...)
 	assertionsWrongSerial = append(assertionsWrongSerial, []byte("\n"+wrongSerial)...)
 
-	assertionsWrongSerialNumber, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "XXX", "")
+	assertionsBedSerialNumber, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "XXX", "")
 	c.Assert(err, check.IsNil)
-	assertionsWrongSerialNumber = append(assertionsWrongSerialNumber, []byte("\n"+newModelAssertion)...)
-	assertionsWrongSerialNumber = append(assertionsWrongSerialNumber, []byte("\n"+serialAssertions)...)
+	assertionsBedSerialNumber = append(assertionsBedSerialNumber, []byte("\n"+newModelAssertion)...)
+	assertionsBedSerialNumber = append(assertionsBedSerialNumber, []byte("\n"+serialAssertions)...)
 
 	assertionsWrongModel, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "abc1234X", "")
 	c.Assert(err, check.IsNil)
 	assertionsWrongModel = append(assertionsWrongModel, []byte("\n"+newModelAssertion)...)
 	assertionsWrongModel = append(assertionsWrongModel, []byte("\n"+serialAssertions)...)
 
+	assertionsWrongDeviceKey := append(serialReq, []byte("\n"+newModelAssertion)...)
+	assertionsWrongDeviceKey = append(assertionsWrongDeviceKey, []byte("\n"+wrongDeviceKeySerial)...)
+
+	assertionWrongSerialNumber, err := generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "abc1234", "")
+	c.Assert(err, check.IsNil)
+
+	assertionWrongSerialNumber = append(assertionWrongSerialNumber, []byte("\n"+newModelAssertion)...)
+	assertionWrongSerialNumber = append(assertionWrongSerialNumber, []byte("\n"+serialAssertions)...)
+
+	assertionsWrongBrand := append(serialReq, []byte("\n"+newModelAssertion)...)
+	assertionsWrongBrand = append(assertionsWrongBrand, []byte("\n"+wrongBrandSerial)...)
+
+	assertionsWrongSignature := append(serialReq, []byte("\n"+newModelAssertion)...)
+	assertionsWrongSignature = append(assertionsWrongSignature, []byte("\n"+wrongSignatureSerial)...)
+
+	assertionsWrongSignKey := append(serialReq, []byte("\n"+newModelAssertion)...)
+	assertionsWrongSignKey = append(assertionsWrongSignKey, []byte("\n"+wrongSignKeySerial)...)
+
 	tests := []SuiteTest{
 		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},
-		{false, "POST", "/v1/serial", assertions, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", serialReq, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsBedSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWrongModel, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongDeviceKey, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongBrand, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSignature, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSignKey, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
