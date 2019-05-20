@@ -241,20 +241,17 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 		}
 
 		// Sign the sended old serial assertion and compare the signature with sended signature
-		signedOldSerial, err := datastore.Environ.KeypairDB.SignAssertion(
-			asserts.SerialType, serialAssert.Headers(), serialAssert.Body(), serialAssert.HeaderString("brand-id"), serialAssert.HeaderString("sign-key-sha3-384"), substore.FromModel.SealedKey)
+		keyID := serialAssert.HeaderString("sign-key-sha3-384")
+		publicKey, err := datastore.Environ.KeypairDB.PublicKey(keyID)
 		if err != nil {
 			svlog.Message("SIGN", "signing-assertion", err.Error())
 			return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 		}
-		_, oldSignature := signedOldSerial.Signature()
-		_, sendedSignature := serialAssert.Signature()
-		if string(oldSignature) != string(sendedSignature) {
-			const msg = "Original serial signature is invalid"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+		err = asserts.SignatureCheck(serialAssert, publicKey)
+		if err != nil {
+			svlog.Message("SIGN", "signing-assertion", err.Error())
+			return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 		}
-
 	} else {
 		// Check the serial assertion
 		if _, ok := assertions["serial"]; ok {
