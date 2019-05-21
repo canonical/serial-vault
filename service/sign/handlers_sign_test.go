@@ -23,6 +23,7 @@ package sign_test
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -40,7 +41,9 @@ import (
 
 func TestSignSuite(t *testing.T) { check.TestingT(t) }
 
-type SignSuite struct{}
+type SignSuite struct {
+	keypairMgr asserts.KeypairManager
+}
 
 type SuiteTest struct {
 	MockError bool
@@ -74,6 +77,7 @@ func sendRequest(method, url string, data io.Reader, apiKey string, c *check.C) 
 func (s *SignSuite) TestSerial(c *check.C) {
 	// Generate a test serial-request assertion
 	assert, err := generateSerialRequestAssertion("alder", "A123456L", "")
+	fmt.Printf("\n\n%s\n\n", assert)
 	c.Assert(err, check.IsNil)
 	assertInactive, err := generateSerialRequestAssertion("inactive", "A123456L", "")
 	c.Assert(err, check.IsNil)
@@ -120,6 +124,7 @@ func (s *SignSuite) TestSerial(c *check.C) {
 		{false, "POST", "/v1/serial", []byte(badSerialRequest), 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", []byte(assertionWrongType), 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsWithSerial, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", []byte(wrongSignatureSerialReq), 400, response.JSONHeader, "ValidAPIKey"},
 		{true, "POST", "/v1/serial", assert, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
@@ -170,7 +175,6 @@ func generatePrivateKey() (asserts.PrivateKey, error) {
 func generateSerialRequestAssertion(model, serial, body string) ([]byte, error) {
 	privateKey, _ := generatePrivateKey()
 	encodedPubKey, _ := asserts.EncodePublicKey(privateKey.PublicKey())
-
 	headers := map[string]interface{}{
 		"brand-id":   "system",
 		"device-key": string(encodedPubKey),
@@ -450,9 +454,29 @@ NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
 SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
 `
 
-const wrongSignatureSerial = `type: serial
+const wrongSignatureSerialReq = `type: serial-request
+brand-id: system
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+model: alder
+request-id: REQID
+serial: A123456L
+sign-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+
+ACLAUgQAAQoABgUCXOPNuwAA9GUIAE9pYXStlAMhsFu21eq0jhpTzoXLBQ99o9r2XL06IcYc5z6+
+yKIO8fynEVjRpfoa4LXPX/XVqADNFaMp+AYuwhQLyUzSg7eHZ/GOwI5oCVyHpMVNVesepMVnVoFi
+esewraFvituhKNCGMey+XB6K4Nf9eHTy7SKOvYHwdHSaAmwTu45TUe8ziVa6odkuNqVB41/MWJ4m
+gAM0VjpgwupwUK6oPpzxUtapJoo4aKiWtfsVcHjc1c4RNyE+GAgNjDfUf0EKGa1IGl02k2ViR26l
+jyc5jpGvwkqzKmk2V1kLr5f+zsDlZyWXdjJHTHZL62qfTCGzMwNJRvQ4trTsZJyxE3k=
+`
+
+const wrongSignSerial = `type: serial
 authority-id: system
-revision: 4
+revision: 1
 brand-id: system
 model: alder
 serial: A123456L
@@ -463,46 +487,19 @@ device-key:
     jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
     QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
 device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
-timestamp: 2019-05-10T12:07:36+02:00
+timestamp: 2019-05-21T14:25:47+02:00
 sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
 
-AcLBUgQAAQoABgUCxNVNaAAAT0gQADiWK/pBSjDonvjiHNDiUYEMDfiu+WAuLo/k2SaWkoY0EgDy
-Jk48BiIqsVcPQGOUIlFste+q7iqXhMO9PnzbdRUeEx5CtNioIzfoDmtuKUN4fweJ/J8v947oKmHg
-DCdgf9dBDWU9mZGFa/FZqB5H+NefSV0dZo70hjsFbF60+zJN0RoQ9jk8zOA3LjF43u2qRak/yeie
-4RxHDSGiKgvVouMoO8yla5897r9938Rv/zdN45LaXxhuEZ0HbFhnRYCmUw3ctgq0zkjkWCICFsLZ
-bYT8tc+ZbcvyQoIND8r9QnV3DDw15fl037QBEhWH428bll3Pj2L0oP6ujGRVjKGcQND5KU3pga5l
-96XFUPtWES8CJo7ekGHrmYihy6ThBmIrvaCCj5Pui2abUrBXb1aIhXHJzRRH+xN//68uaoYAjCTD
-oa9BVIGHOGpIPO9ZpFE35SXiV8ktYfe3hbjPxDKYKqwMmwGwdQngcQ9NnOLvybv+uEfsF2eXFi1E
-TlfGVlrz1fvafv98+mm5+GASPV3XOsL/HAhw0DxadCFOQOk+ALBypFDJLlocyb3PSyyr3RdvbnBH
-NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
-SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
-`
-const wrongSignKeySerial = `type: serial
-authority-id: systemX
-revision: 4
-brand-id: systemX
-model: alder
-serial: A123456L
-device-key:
-    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
-    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
-    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
-    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
-    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
-device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
-timestamp: 2019-05-10T12:07:36+02:00
-sign-key-sha3-384: XytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO
-
-AcLBUgQAAQoABgUCXNVNaAAAT0gQADiWK/pBSjDonvjiHNDiUYEMDfiu+WAuLo/k2SaWkoY0EgDy
-Jk48BiIqsVcPQGOUIlFste+q7iqXhMO9PnzbdRUeEx5CtNioIzfoDmtuKUN4fweJ/J8v947oKmHg
-DCdgf9dBDWU9mZGFa/FZqB5H+NefSV0dZo70hjsFbF60+zJN0RoQ9jk8zOA3LjF43u2qRak/yeie
-4RxHDSGiKgvVouMoO8yla5897r9938Rv/zdN45LaXxhuEZ0HbFhnRYCmUw3ctgq0zkjkWCICFsLZ
-bYT8tc+ZbcvyQoIND8r9QnV3DDw15fl037QBEhWH428bll3Pj2L0oP6ujGRVjKGcQND5KU3pga5l
-96XFUPtWES8CJo7ekGHrmYihy6ThBmIrvaCCj5Pui2abUrBXb1aIhXHJzRRH+xN//68uaoYAjCTD
-oa9BVIGHOGpIPO9ZpFE35SXiV8ktYfe3hbjPxDKYKqwMmwGwdQngcQ9NnOLvybv+uEfsF2eXFi1E
-TlfGVlrz1fvafv98+mm5+GASPV3XOsL/HAhw0DxadCFOQOk+ALBypFDJLlocyb3PSyyr3RdvbnBH
-NJJaotr3y52Cniv1XfM8sX2QWS/xfBNomEuySmjriKKapoFksigxPJm5TNjGQBNsfMDej+b5qdf6
-SUH5uDA3J2ll8Oau8J2GSmB4Xt3C
+acLBUgQAAQoABgUCXOPuSwAAh1MQAE3y2iWCVuj+Eg9t3VFiX5TDwmirjbzukGhm0T10b6mRIiN1
+i+jClRwPo7+j5M1595dUen3nfqt/iz4Uf2n4b0OcGPAQxu64vrayVz59Zja3nO1FUdWXVlN276U9
+6gArefbz7QtkqlICI4RQglqE13MCB9gNZWs1T0/dKyhdzEwtic9VVVL0ol1b5Sc+H2zOzv9cqRBv
+TtR5VorbhGeMU2kKJjHK2hynVrOVMfkQ9PPuT1l1l8J9bCUFEDenhB389VVHyFFmh8Rkr0AVYNbf
+LuH+XwOhv6bQ2DX6+vqBVj9OMZVd6iz9OeJ0pHN6aI1i5LfTSDuFKtTjDfUPOIC9hiS3SgxIoBvG
+du6UaI4WIzIbaqMMQNjrPGR9pPJeCGXJBVvpBdKTRIaosFcKyMLrfi4iWbiIF9C1nitAC74wyQu5
+QT/LjYDslGH7k9t0inW2hhBp6Y2tMD2DwC7IWidumZt2/YIo6RS+jZaeAhTRFbiLSp0JScIXv2cz
+ElqoeUAz268SxYvsmtDcuyGoW8gfmG2hWlq2FitDyRq66O+aOZPSg7eEu7ZUy6BMv4Wyi897ddLX
+HYr/WkB1fEJDBZ9VfBfG0efZBP05X95G1nVAQ0WYwiusp/tMHSQkUBX3bGxPGIXUhs5+OdwtsbEd
+FyfuoDecWoGB8Fj4S/iVupegchyg
 `
 
 func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
@@ -557,7 +554,7 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	c.Assert(w.Code, check.Equals, 200)
 	c.Assert(w.Body, check.NotNil)
 	serialAssertions := w.Body.String()
-
+	fmt.Printf("\n\n%s\n\n", serialAssertions)
 	serialReq, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
 
@@ -602,29 +599,26 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	assertionsWrongBrand := append(serialReq, []byte("\n"+newModelAssertion)...)
 	assertionsWrongBrand = append(assertionsWrongBrand, []byte("\n"+wrongBrandSerial)...)
 
-	assertionsWrongSignature := append(serialReq, []byte("\n"+newModelAssertion)...)
-	assertionsWrongSignature = append(assertionsWrongSignature, []byte("\n"+wrongSignatureSerial)...)
-
-	assertionsWrongSignKey := append(serialReq, []byte("\n"+newModelAssertion)...)
-	assertionsWrongSignKey = append(assertionsWrongSignKey, []byte("\n"+wrongSignKeySerial)...)
+	assertionsWrongSignature := append([]byte(serialReq), []byte("\n"+newModelAssertion)...)
+	assertionsWrongSignature = append(assertionsWrongSignature, []byte("\n"+wrongSignSerial)...)
 
 	tests := []SuiteTest{
-		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},
-		{false, "POST", "/v1/serial", serialReq, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsBedSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongModel, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongDeviceKey, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongBrand, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongSignature, 400, response.JSONHeader, "ValidAPIKey"},
-		{false, "POST", "/v1/serial", assertionsWrongSignKey, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},                 //  0
+		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},          //  1
+		{false, "POST", "/v1/serial", serialReq, 400, response.JSONHeader, "ValidAPIKey"},                  //  2
+		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},        //  3
+		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},       //  4
+		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},            //  5
+		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},                 //  6
+		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},              //  7
+		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},      //  8
+		{false, "POST", "/v1/serial", assertionsBedSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},  //  9
+		{false, "POST", "/v1/serial", assertionsWrongModel, 400, response.JSONHeader, "ValidAPIKey"},       // 10
+		{false, "POST", "/v1/serial", assertionsWrongDeviceKey, 400, response.JSONHeader, "ValidAPIKey"},   // 11
+		{false, "POST", "/v1/serial", assertionWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"}, // 12
+		{false, "POST", "/v1/serial", assertionsWrongBrand, 400, response.JSONHeader, "ValidAPIKey"},       // 13
+		{false, "POST", "/v1/serial", assertionsWrongSignature, 400, response.JSONHeader, "ValidAPIKey"},   // 14
+		// {false, "POST", "/v1/serial", assertionsWrongSignKey, 400, response.JSONHeader, "ValidAPIKey"}, // 15
 	}
 
 	for _, t := range tests {

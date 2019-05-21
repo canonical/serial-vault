@@ -77,7 +77,7 @@ func parseAssertionStream(r *http.Request) (map[string]asserts.Assertion, respon
 
 	// Use snapd assertion module to decode the assertions in the request stream
 	dec := asserts.NewDecoder(r.Body)
-	assertion, err := dec.Decode()
+	serialRequestAssertion, err := dec.Decode()
 	if err == io.EOF {
 		svlog.Message("SIGN", "invalid-assertion", response.ErrorEmptyData.Message)
 		return nil, response.ErrorEmptyData
@@ -87,11 +87,11 @@ func parseAssertionStream(r *http.Request) (map[string]asserts.Assertion, respon
 		return nil, response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 	// Check that we have a serial-request assertion (the details will have been validated by Decode call)
-	if assertion.Type() != asserts.SerialRequestType {
+	if serialRequestAssertion.Type() != asserts.SerialRequestType {
 		svlog.Message("SIGN", response.ErrorInvalidType.Code, "The assertion type must be 'serial-request'")
 		return nil, response.ErrorInvalidType
 	}
-	assertions["serial-request"] = assertion
+	assertions["serial-request"] = serialRequestAssertion
 
 	// Decode the optional model
 	modelAssert, err := dec.Decode()
@@ -108,17 +108,17 @@ func parseAssertionStream(r *http.Request) (map[string]asserts.Assertion, respon
 	}
 
 	// Decode the optional serial for remodeling
-	serialAssert, err := dec.Decode()
+	serialAssertion, err := dec.Decode()
 	if err != nil && err != io.EOF {
 		svlog.Message("SIGN", "invalid-assertion", err.Error())
 		return nil, response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
-	if serialAssert != nil {
-		if serialAssert.Type() != asserts.SerialType {
+	if serialAssertion != nil {
+		if serialAssertion.Type() != asserts.SerialType {
 			svlog.Message("SIGN", response.ErrorInvalidSecondType.Code, response.ErrorInvalidSecondType.Message)
 			return nil, response.ErrorInvalidSecondType
 		}
-		assertions["serial"] = serialAssert
+		assertions["serial"] = serialAssertion
 	}
 
 	// Stream must be ended now
@@ -134,7 +134,7 @@ func parseAssertionStream(r *http.Request) (map[string]asserts.Assertion, respon
 	return assertions, response.ErrorResponse{Success: true}
 }
 
-func isRemodelingSerialRequest(assertion asserts.Assertion) bool {
+func isRemodelingSerialRequest(assertion *asserts.SerialRequest) bool {
 	// check original-model, original-brand-id, original-serial
 	if assertion.HeaderString("original-model") == "" {
 		return false
@@ -162,7 +162,20 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	if !errResponse.Success {
 		return errResponse
 	}
-	serialReq := assertions["serial-request"]
+
+	serialReq, ok := assertions["serial-request"].(*asserts.SerialRequest)
+	if !ok {
+		msg := fmt.Sprintf("expected serial-request, got type %q", serialReq.Type().Name)
+		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	err = asserts.SignatureCheck(serialReq, serialReq.DeviceKey())
+	if err != nil {
+		msg := fmt.Sprintf("could not validate serial-request self-signature (%s)", err)
+		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
 
 	// Double check the model assertion if present
 	modelAssert, ok := assertions["model"]
@@ -178,79 +191,10 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	}
 
 	if isRemodelingSerialRequest(serialReq) {
-		originalBrandID := serialReq.HeaderString("original-brand-id")
-		originalModel := serialReq.HeaderString("original-model")
-		originalSerial := serialReq.HeaderString("original-serial")
-
-		if modelAssert == nil {
-			const msg = "Model assertion can't be empty for a remodeling request"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-
-		// Double check the serial assertion
-		serialAssert, ok := assertions["serial"]
-		if !ok {
-			const msg = "The current serial assertion can't be empty for a remodeling request"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-
-		// Validate the original model by checking that it exists on the database
-		originalModelAssert, errResponse := findModel(originalBrandID, originalModel, originalSerial, apiKey)
+		serialAssert := assertions["serial"]
+		errResponse := checkRemodelingRequest(serialReq, modelAssert, serialAssert, apiKey)
 		if !errResponse.Success {
-			svlog.Message("SIGN", "invalid-assertion", "original model is not valid")
 			return errResponse
-		}
-
-		// Validate the new model: it must be defind in the sub-store of the orignal model
-		substore, err := datastore.Environ.DB.GetSubstore(originalModelAssert.ID, originalSerial)
-		if err != nil {
-			svlog.Message("PIVOT", "invalid-substore", "Cannot find sub-store mapping for the model")
-			return response.ErrorInvalidSubstore
-		}
-
-		// Check if find model maches requested model
-		if serialReq.HeaderString("model") != substore.ModelName {
-			const msg = "Requested model is invalid"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-
-		// Check original-* fields matchine old serial
-		if serialAssert.HeaderString("model") != originalModel {
-			const msg = "Original model is invalid"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-		if serialAssert.HeaderString("serial") != originalSerial {
-			const msg = "Original serial number is invalid"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-		if serialAssert.HeaderString("brand-id") != originalBrandID {
-			const msg = "Original brand-id is invalid"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-		// Check that the device key is the same between serial-request and old serial
-		if serialAssert.HeaderString("device-key") != serialReq.HeaderString("device-key") {
-			const msg = "Device-key is invalid"
-			svlog.Message("SIGN", "invalid-assertion", msg)
-			return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
-		}
-
-		// Sign the sended old serial assertion and compare the signature with sended signature
-		keyID := serialAssert.HeaderString("sign-key-sha3-384")
-		publicKey, err := datastore.Environ.KeypairDB.PublicKey(keyID)
-		if err != nil {
-			svlog.Message("SIGN", "signing-assertion", err.Error())
-			return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
-		}
-		err = asserts.SignatureCheck(serialAssert, publicKey)
-		if err != nil {
-			svlog.Message("SIGN", "signing-assertion", err.Error())
-			return response.ErrorResponse{Success: false, Code: "signing-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 		}
 	} else {
 		// Check the serial assertion
@@ -306,6 +250,86 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 
 	// Return successful JSON response with the signed text
 	formatSignResponse(signedAssertion, w)
+	return response.ErrorResponse{Success: true}
+}
+
+func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, serialAssert asserts.Assertion, apiKey string) response.ErrorResponse {
+	originalBrandID := serialReq.HeaderString("original-brand-id")
+	originalModel := serialReq.HeaderString("original-model")
+	originalSerial := serialReq.HeaderString("original-serial")
+
+	if modelAssert == nil {
+		const msg = "Model assertion can't be empty for a remodeling request"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	// Double check the serial assertion
+	if serialAssert == nil {
+		const msg = "The current serial assertion can't be empty for a remodeling request"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	// Validate the original model by checking that it exists on the database
+	originalModelAssert, errResponse := findModel(originalBrandID, originalModel, originalSerial, apiKey)
+	if !errResponse.Success {
+		svlog.Message("SIGN", "invalid-assertion", "original model is not valid")
+		return errResponse
+	}
+
+	// Validate the new model: it must be defind in the sub-store of the orignal model
+	substore, err := datastore.Environ.DB.GetSubstore(originalModelAssert.ID, originalSerial)
+	if err != nil {
+		svlog.Message("PIVOT", "invalid-substore", "Cannot find sub-store mapping for the model")
+		return response.ErrorInvalidSubstore
+	}
+
+	// Check if find model maches requested model
+	if serialReq.HeaderString("model") != substore.ModelName {
+		const msg = "Requested model is invalid"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	// Check original-* fields matchine old serial
+	if serialAssert.HeaderString("model") != originalModel {
+		const msg = "Original model is invalid"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+	if serialAssert.HeaderString("serial") != originalSerial {
+		const msg = "Original serial number is invalid"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+	if serialAssert.HeaderString("brand-id") != originalBrandID {
+		const msg = "Original brand-id is invalid"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	// Check that the device key is the same between serial-request and old serial
+	if serialAssert.HeaderString("device-key") != serialReq.HeaderString("device-key") {
+		const msg = "Device-key is invalid"
+		svlog.Message("SIGN", "invalid-assertion", msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	oldModelPublicKey, err := datastore.Environ.KeypairDB.PublicKey(substore.FromModel.KeyID)
+	if err != nil {
+		msg := fmt.Sprintf("could not find public key for the model (%s)", err)
+		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	err = asserts.SignatureCheck(serialAssert, oldModelPublicKey)
+	if err != nil {
+		msg := fmt.Sprintf("could not validate serial-request self-signature (%s)", err)
+		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
 	return response.ErrorResponse{Success: true}
 }
 
