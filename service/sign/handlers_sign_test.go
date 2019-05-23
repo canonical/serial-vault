@@ -23,6 +23,7 @@ package sign_test
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -500,6 +501,33 @@ HYr/WkB1fEJDBZ9VfBfG0efZBP05X95G1nVAQ0WYwiusp/tMHSQkUBX3bGxPGIXUhs5+OdwtsbEd
 FyfuoDecWoGB8Fj4S/iVupegchyg
 `
 
+const wrongSignKey = `type: serial
+authority-id: system
+revision: 1
+brand-id: system
+model: alder
+serial: A123456L
+device-key:
+    AcbATQRWhcGAAQgAzuDA7nxtfh77/XeX0UoIa8x0ILAtd4vEKRHXUmuf5LEUv0s7yQqtXjPQl5Rj
+    Red4ssWFPFmanvgXjZMVmRfiTBW7VK86eG8E35TyIySWeT4dYqPzcEHLA4vPvEp0vS7IV0rr+tS5
+    6NttX/oQmh/BSvBQruwIxpIJK0JhjSIzl6fO9RLFJe0eJCvpWPSSBiFeJAVeCfAIyrr4acANtyf5
+    jkmwru1M+EpPj1VFN9yzPdspinnJW07w3RX5uqew6t325cTozKsrpV3OsK0QKQ7rttQpcKarY8rT
+    QpfkVoSBFbgV6SlbragpaWWd0YTE4+YtXZ2OD0l8ipTyRDeE9lNotwARAQAB
+device-key-sha3-384: majNNh3Nbgg0CozIjfLrvvEWG830dZmm76gJHnyyrW4g7udYbfVgt0WO15ayuN5l
+timestamp: 2019-05-23T17:40:35+02:00
+sign-key-sha3-384: UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMX
+
+AcLBUgQAAQoABgUCXOa+8wAA2jsQAILmpL+ssEIuOusv4aD8FdQffTcUPhEXF+msR+b0flIn6L73
+KqAiKYbtJVF0GI5qKB7oxJjJh62jmU3Vh9A570OZn3BLytogQk/EVoS5KnVVtdU1bzuMSdPcdfgj
+qODPU4rchLSLe7VviRGTwfjNXkHn5HjEltCW2TQgNQm5KendddCb5oh6TPTDHRLLynx1he9uqMri
+B02BMJSeqg9o07W6ctKZanS/iT7/apQ9uFakELnSFfFX1GLiMiwAYyrBa/crMe2LHTseJtZrQs+l
+Ne5yo31W/5toEln+XZSukGxVO5MrSwKMgF9Y3BkWv6AQ6nqu0CxUBOZAlVuH+PKXtytos7n67ojF
+MxufevNPq5Rpku4rrT+Etxh+b21hCBkqGeap8w7/OAE8+jPAtsaMzWFa3r5dgwLJ01CmRS1asUeE
+N74lGpSGgoZ+F5pQ8d1zBSbHsApCUCifMgk1PFqCNiFmBBwjw/GsjkNCDs3rVx2NjFSV9tktWREI
+FiVth2u6BqsWp+HNti/PdZprEU4+TbTxOSNARhJcn5DFZ5S4+6QRdMDKFVn22JmsZNPauoFCQylp
+SvDgHhOkD52ud7larb8PsXNNY9BL+1apfARJkVEQM52zxzkIDFWfg0kSQluU+0p0qRDZzMtYzJqj
+cvxVzSrgJm1PB96l9R3WCYmc5lAn`
+
 func (s *SignSuite) TestSignHandlerErrorKeyStore(c *check.C) {
 	// Mock the database and the keystore
 	settings := config.Settings{KeyStoreType: "filesystem", KeyStorePath: "../../keystore", JwtSecret: "SomeTestSecretValue"}
@@ -554,7 +582,7 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	serialAssertions := w.Body.String()
 	serialReq, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
-
+	fmt.Printf("%s\n\n", serialAssertions)
 	assertionsOK := append(serialReq, []byte("\n"+newModelAssertion)...)
 	assertionsOK = append(assertionsOK, []byte("\n"+serialAssertions)...)
 
@@ -599,23 +627,26 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	assertionsWrongSignature := append([]byte(serialReq), []byte("\n"+newModelAssertion)...)
 	assertionsWrongSignature = append(assertionsWrongSignature, []byte("\n"+wrongSignSerial)...)
 
+	assertionsWrongSignKey := append([]byte(serialReq), []byte("\n"+newModelAssertion)...)
+	assertionsWrongSignKey = append(assertionsWrongSignKey, []byte("\n"+wrongSignKey)...)
+
 	tests := []SuiteTest{
-		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},                 //  0
-		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},          //  1
-		{false, "POST", "/v1/serial", serialReq, 400, response.JSONHeader, "ValidAPIKey"},                  //  2
-		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},        //  3
-		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},       //  4
-		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},            //  5
-		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},                 //  6
-		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},              //  7
-		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},      //  8
-		{false, "POST", "/v1/serial", assertionsBedSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},  //  9
-		{false, "POST", "/v1/serial", assertionsWrongModel, 400, response.JSONHeader, "ValidAPIKey"},       // 10
-		{false, "POST", "/v1/serial", assertionsWrongDeviceKey, 400, response.JSONHeader, "ValidAPIKey"},   // 11
-		{false, "POST", "/v1/serial", assertionWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"}, // 12
-		{false, "POST", "/v1/serial", assertionsWrongBrand, 400, response.JSONHeader, "ValidAPIKey"},       // 13
-		{false, "POST", "/v1/serial", assertionsWrongSignature, 400, response.JSONHeader, "ValidAPIKey"},   // 14
-		// {false, "POST", "/v1/serial", assertionsWrongSignKey, 400, response.JSONHeader, "ValidAPIKey"}, // 15
+		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},	
+		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},
+		{false, "POST", "/v1/serial", serialReq, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsOnlySerial, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrong, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", wrongModel, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsBad, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSerial, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsBedSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongModel, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongDeviceKey, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionWrongSerialNumber, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongBrand, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSignature, 400, response.JSONHeader, "ValidAPIKey"},
+		{false, "POST", "/v1/serial", assertionsWrongSignKey, 400, response.JSONHeader, "ValidAPIKey"},
 	}
 
 	for _, t := range tests {
