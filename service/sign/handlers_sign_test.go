@@ -23,7 +23,6 @@ package sign_test
 import (
 	"bytes"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -582,7 +581,7 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	serialAssertions := w.Body.String()
 	serialReq, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
-	fmt.Printf("%s\n\n", serialAssertions)
+
 	assertionsOK := append(serialReq, []byte("\n"+newModelAssertion)...)
 	assertionsOK = append(assertionsOK, []byte("\n"+serialAssertions)...)
 
@@ -631,7 +630,7 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	assertionsWrongSignKey = append(assertionsWrongSignKey, []byte("\n"+wrongSignKey)...)
 
 	tests := []SuiteTest{
-		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},	
+		{false, "POST", "/v1/serial", assertionsOK, 200, asserts.MediaType, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOK, 400, response.JSONHeader, "NoModelForApiKey"},
 		{false, "POST", "/v1/serial", serialReq, 400, response.JSONHeader, "ValidAPIKey"},
 		{false, "POST", "/v1/serial", assertionsOnlyModel, 400, response.JSONHeader, "ValidAPIKey"},
