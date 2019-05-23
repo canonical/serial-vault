@@ -316,7 +316,14 @@ func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, seria
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 	}
 
-	oldModelPublicKey, err := datastore.Environ.KeypairDB.PublicKey(substore.FromModel.KeyID)
+	keyID := substore.FromModel.KeyID
+	if keyID != serialAssert.HeaderString("sign-key-sha3-384") {
+		msg := fmt.Sprintf("public key id for the model is invalid")
+		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)
+		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
+	}
+
+	oldModelPublicKey, err := datastore.Environ.KeypairDB.PublicKey(keyID)
 	if err != nil {
 		msg := fmt.Sprintf("could not find public key for the model (%s)", err)
 		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)

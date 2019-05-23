@@ -23,7 +23,6 @@ package sign_test
 import (
 	"bytes"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -77,7 +76,6 @@ func sendRequest(method, url string, data io.Reader, apiKey string, c *check.C) 
 func (s *SignSuite) TestSerial(c *check.C) {
 	// Generate a test serial-request assertion
 	assert, err := generateSerialRequestAssertion("alder", "A123456L", "")
-	fmt.Printf("\n\n%s\n\n", assert)
 	c.Assert(err, check.IsNil)
 	assertInactive, err := generateSerialRequestAssertion("inactive", "A123456L", "")
 	c.Assert(err, check.IsNil)
@@ -554,7 +552,6 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 	c.Assert(w.Code, check.Equals, 200)
 	c.Assert(w.Body, check.NotNil)
 	serialAssertions := w.Body.String()
-	fmt.Printf("\n\n%s\n\n", serialAssertions)
 	serialReq, err = generateSerialRequestAssertionRemodeling("alder-mybrand", "alder", "A123456L", "")
 	c.Assert(err, check.IsNil)
 
