@@ -48,7 +48,20 @@ func FormatStandardResponse(success bool, errorCode, errorSubcode, message strin
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Printf("Error forming the boolean response (%v)\n. %v", response, err)
+		log.Printf("Error forming the standard response (%v)\n. %v", response, err)
+		return err
+	}
+	return nil
+}
+
+// FormatErrorResponse returns a JSON response from an API method, indicating failure.
+func FormatErrorResponse(response ErrorResponse, w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(response.StatusCode)
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error forming the error response (%v)\n. %v", response, err)
 		return err
 	}
 	return nil

@@ -346,7 +346,8 @@ func findModel(brandID, modelName, serialNumer, apiKey string) (datastore.Model,
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(brandID, modelName, apiKey)
 	if err != nil {
-		svlog.Message("SIGN", response.ErrorInvalidModel.Code, response.ErrorInvalidModel.Message)
+		msg := fmt.Sprintf("Cannot find model %s with the matching brand %s and apiKey %s", modelName, brandID, apiKey)
+		svlog.Message("SIGN", "invalid-model", msg)
 	} else {
 		// Found the model, so return it
 		return model, response.ErrorResponse{Success: true}
@@ -357,12 +358,11 @@ func findModel(brandID, modelName, serialNumer, apiKey string) (datastore.Model,
 	substore, err := datastore.Environ.DB.GetSubstoreModel(brandID, modelName, serialNumer)
 	if err != nil {
 		log.Println(err)
-		svlog.Message("CHECK", response.ErrorInvalidModelSubstore.Code, response.ErrorInvalidModelSubstore.Message)
-		return model, response.ErrorInvalidModelSubstore
+		return model, response.ErrorInvalidModelSubstore("CHECK", brandID, modelName, apiKey, serialNumer)
 	}
 
 	if substore.FromModel.APIKey != apiKey {
-		return substore.FromModel, response.ErrorInvalidModelSubstore
+		return substore.FromModel, response.ErrorInvalidModelSubstore("CHECK", brandID, modelName, apiKey, serialNumer)
 	}
 
 	return substore.FromModel, response.ErrorResponse{Success: true}
