@@ -46,6 +46,7 @@ func (s *AssertionSuite) TestSystemUserAssertionHandler(c *check.C) {
 		{generateSystemUserRequestInactiveModel(), 400, false},
 		{generateSystemUserRequestInvalidAssertion(), 400, false},
 		{generateSystemUserRequestInvalidSince(), 200, true},
+		{generateSystemUserRequestEmptyCredentials(), 400, false},
 	}
 
 	for _, test := range tests {
@@ -99,6 +100,21 @@ func generateSystemUserRequestInvalidSince() string {
 
 func generateSystemUserRequestInvalidAssertion() string {
 	request := assertion.SystemUserRequest{Email: "test", Name: "John Doe", Username: "jdoe", Password: "super", ModelID: 1, Since: "2017-03-24T12:34:00Z"}
+	req, _ := json.Marshal(request)
+
+	return string(req)
+}
+
+func generateSystemUserRequestEmptyCredentials() string {
+	request := assertion.SystemUserRequest{
+		Email:    "test@example.com",
+		Name:     "John Doe",
+		Username: "jdoe",
+		Password: "",
+		ModelID:  1,
+		Since:    "2017-03-24T12:34:00Z",
+		SSHKeys:  []string{},
+	}
 	req, _ := json.Marshal(request)
 
 	return string(req)

@@ -154,6 +154,9 @@ func (mdb *MockDB) SyncAccount(account Account) error {
 // FindModel mocks the database response for finding a model
 func (mdb *MockDB) FindModel(brandID, modelName, apiKey string) (Model, error) {
 	model := Model{ID: 1, BrandID: "system", Name: "alder", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	if modelName == "lost" {
+		model = Model{ID: 999, BrandID: "system", Name: "lost", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
+	}
 	if modelName == "ash" {
 		model = Model{ID: 2, BrandID: "system", Name: "ash", KeypairID: 1, AuthorityID: "system", KeyID: "UytTqTvREVhx0tSfYC6KkFHmLWllIIZbQ3NsEG7OARrWuaXSRJyey0vjIQkTEvMO", KeyActive: true, SealedKey: ""}
 	}
@@ -725,6 +728,9 @@ func (mdb *MockDB) UpdateModelAssert(m ModelAssertion) error {
 
 // GetModelAssert mock for updating model assertion record
 func (mdb *MockDB) GetModelAssert(modelID int) (ModelAssertion, error) {
+	if modelID == 999 {
+		return ModelAssertion{}, errors.New("Cannot find the model assertion record")
+	}
 	if modelID == 2 {
 		return ModelAssertion{
 			ID:            1,
