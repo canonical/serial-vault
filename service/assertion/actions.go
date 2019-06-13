@@ -46,8 +46,7 @@ func modelAssertionHandler(w http.ResponseWriter, apiKey string, request ModelAs
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(request.BrandID, request.Name, apiKey)
 	if err != nil {
-		log.Message("MODEL", response.ErrorInvalidModel.Code, response.ErrorInvalidModel.Message)
-		return response.ErrorInvalidModel
+		return response.ErrorInvalidModel("MODEL", request.Name, request.BrandID, apiKey)
 	}
 
 	assertions := []asserts.Assertion{}

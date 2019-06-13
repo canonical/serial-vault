@@ -20,7 +20,12 @@
 
 package response
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+
+	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+)
 
 // ErrorResponse is a generic JSON error response structure from an API method
 type ErrorResponse struct {
@@ -44,9 +49,6 @@ var (
 	ErrorInvalidType               = ErrorResponse{false, "invalid-type", "", "The assertion type must be 'serial'", http.StatusBadRequest}
 	ErrorInvalidSecondType         = ErrorResponse{false, "invalid-second-type", "", "The 2nd assertion type must be 'model'", http.StatusBadRequest}
 	ErrorInvalidNonce              = ErrorResponse{false, "invalid-nonce", "", "Nonce is invalid or expired", http.StatusBadRequest}
-	ErrorInvalidModel              = ErrorResponse{false, "invalid-model", "", "Cannot find model with the matching brand and model", http.StatusBadRequest}
-	ErrorInvalidModelID            = ErrorResponse{false, "invalid-model", "", "Cannot find model with the selected ID", http.StatusBadRequest}
-	ErrorInvalidModelSubstore      = ErrorResponse{false, "invalid-model", "", "Cannot find a matching model or sub-store model", http.StatusBadRequest}
 	ErrorInvalidSubstore           = ErrorResponse{false, "invalid-substore", "", "Cannot find sub-store mapping for the model", http.StatusBadRequest}
 	ErrorInactiveModel             = ErrorResponse{false, "invalid-model", "", "The model is linked with an inactive signing-key", http.StatusBadRequest}
 	ErrorInvalidAccount            = ErrorResponse{false, "invalid-account", "", "The account cannot be found", http.StatusBadRequest}
@@ -66,3 +68,26 @@ var (
 	ErrorSignAssertion             = ErrorResponse{false, "signing-assertion", "", "Error signing the assertion", http.StatusBadRequest}
 	ErrorGenerateNonce             = ErrorResponse{false, "generate-nonce", "", "Error generating a nonce. Please try again later", http.StatusBadRequest}
 )
+
+// ErrorInvalidModel returns error message about wrong model
+func ErrorInvalidModel(from, modelName, brand, apiKey string) ErrorResponse {
+	msg := fmt.Sprintf("Cannot find model %s with the matching brand %s and apiKey %s", modelName, brand, apiKey)
+	svlog.Message(from, "invalid-model", msg)
+	return ErrorResponse{false, "invalid-model", "", msg, http.StatusBadRequest}
+}
+
+// ErrorInvalidModelID returns InvalidModelID error message
+func ErrorInvalidModelID(from string, ModelID int) ErrorResponse {
+	msg := fmt.Sprintf("Cannot find model with the selected ID %d", ModelID)
+	svlog.Message(from, "invalid-model", msg)
+
+	return ErrorResponse{false, "invalid-model", "", msg, http.StatusBadRequest}
+}
+
+// ErrorInvalidModelSubstore returns invalid model substore error
+func ErrorInvalidModelSubstore(from, brandID, modelName, apiKey, serialNumer string) ErrorResponse {
+	msg := fmt.Sprintf("Cannot find a matching model or sub-store model %s with the matching brand %s apiKey %s and serialNumer %s",
+		modelName, brandID, apiKey, serialNumer)
+	svlog.Message(from, "invalid-model", msg)
+	return ErrorResponse{false, "invalid-model", "", msg, http.StatusBadRequest}
+}

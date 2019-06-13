@@ -205,8 +205,7 @@ func findModelPivot(brand, modelName, serial, apiKey string) (datastore.Substore
 	// Validate the model by checking that it exists on the database
 	model, err := datastore.Environ.DB.FindModel(brand, modelName, apiKey)
 	if err != nil {
-		svlog.Message("PIVOT", "invalid-model", "Cannot find model with the matching brand and model")
-		return datastore.Substore{}, response.ErrorInvalidModel
+		return datastore.Substore{}, response.ErrorInvalidModel("PIVOT", modelName, brand, apiKey)
 	}
 
 	// Check for a sub-store model for the pivot
