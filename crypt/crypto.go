@@ -28,8 +28,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
-	"log"
 	"strings"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/snapcore/snapd/asserts"
 	"golang.org/x/crypto/openpgp/armor"

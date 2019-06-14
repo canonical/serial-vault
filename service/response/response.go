@@ -21,9 +21,10 @@ package response
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 // JSONHeader is the JSON HTTP header

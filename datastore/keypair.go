@@ -19,8 +19,9 @@ package datastore
 
 import (
 	"encoding/base64"
-	"log"
 	"os/exec"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/snapcore/snapd/asserts"
 )

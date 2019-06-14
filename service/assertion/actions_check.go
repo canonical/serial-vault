@@ -21,14 +21,14 @@
 package assertion
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/snapcore/snapd/asserts"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
-	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
@@ -64,7 +64,7 @@ func validateAssertionAction(w http.ResponseWriter, authUser datastore.User, api
 	// Check for a sub-store model for the pivot
 	if _, err = datastore.Environ.DB.GetSubstoreModel(assertion.HeaderString("brand-id"), assertion.HeaderString("model"), assertion.HeaderString("serial")); err != nil {
 		log.Println(err)
-		svlog.Message("CHECK", "invalid-substore", "Cannot find sub-store model")
+		log.Message("CHECK", "invalid-substore", "Cannot find sub-store model")
 		response.FormatStandardResponse(false, response.ErrorInvalidSubstore.Code, "", response.ErrorInvalidSubstore.Message, w)
 		return
 	}

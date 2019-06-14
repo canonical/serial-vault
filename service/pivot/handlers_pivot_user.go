@@ -27,7 +27,7 @@ import (
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/service/assertion"
-	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
@@ -38,7 +38,7 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) response.ErrorR
 	// Check that we have an authorised API key header
 	_, err := request.CheckModelAPI(r)
 	if err != nil {
-		svlog.Message("PIVOTUSER", "invalid-api-key", "Invalid API key used")
+		log.Message("PIVOTUSER", "invalid-api-key", "Invalid API key used")
 		return response.ErrorInvalidAPIKey
 	}
 
@@ -72,7 +72,7 @@ func SystemUserAssertion(w http.ResponseWriter, r *http.Request) response.ErrorR
 	w.Header().Set("Content-Type", asserts.MediaType)
 	w.WriteHeader(http.StatusOK)
 	if _, err := fmt.Fprint(w, resp.Assertion); err != nil {
-		svlog.Message("PIVOTUSER", "system-user-assertion", err.Error())
+		log.Message("PIVOTUSER", "system-user-assertion", err.Error())
 	}
 
 	return response.ErrorResponse{Success: true}

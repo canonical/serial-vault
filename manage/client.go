@@ -26,9 +26,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/service/response"

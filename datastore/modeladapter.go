@@ -22,9 +22,10 @@ package datastore
 import (
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/random"
 )

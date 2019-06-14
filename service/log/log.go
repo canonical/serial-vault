@@ -29,17 +29,20 @@ import (
 // Message logs a message in a fixed format so it can be analyzed by log handlers
 // e.g. "METHOD CODE descriptive reason"
 func Message(method, code, reason string) {
-	log.Printf("%s %s %s\n", method, code, reason)
+	log.Printf("M: %s %s %s\n", method, code, reason)
 }
 
 var l = logging.MustGetLogger("serialvault")
 
 // InitLogger initializes logger for backend with the specified level
+// format = '%(asctime)s.%(msecs)03dZ %(levelname)s %(name)s "%(message)s"'
+// datefmt = "%Y-%m-%d %H:%M:%S"
+// 2016-07-14 01:02:03.456Z INFO app "hello"
 func InitLogger(level logging.Level) {
 	backend := logging.NewLogBackend(os.Stderr, "", 0)
 
 	format := logging.MustStringFormatter(
-		`%{color}%{time:2006/01/02 15:04:05.000} %{module} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`,
+		`%{color}%{time:2006-01-02 15:04:05Z} %{level} %{module}%{color:reset} %{message:q}`,
 	)
 	backendFormatter := logging.NewBackendFormatter(backend, format)
 
@@ -47,6 +50,16 @@ func InitLogger(level logging.Level) {
 	backendLeveled.SetLevel(level, "")
 
 	logging.SetBackend(backendLeveled)
+}
+
+// Fatalf calls logger in fatal level with format
+func Fatalf(format string, args ...interface{}) {
+	l.Fatalf(format, args)
+}
+
+// Fatal calls logger in fatal level
+func Fatal(args ...interface{}) {
+	l.Fatal(args)
 }
 
 // Errorf calls logger in eror level with format
@@ -87,4 +100,14 @@ func Debugf(format string, args ...interface{}) {
 // Debug calls logger in debug level
 func Debug(args ...interface{}) {
 	l.Debug(args)
+}
+
+// Printf calls logger in info level with format
+func Printf(format string, args ...interface{}) {
+	l.Infof(format, args)
+}
+
+// Println calls logger in info level
+func Println(args ...interface{}) {
+	l.Info(args)
 }

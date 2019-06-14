@@ -30,13 +30,17 @@ import (
 	logging "github.com/op/go-logging"
 )
 
+func init() {
+	svlog.InitLogger(logging.INFO)
+}
+
 func main() {
 	datastore.Environ = &datastore.Env{}
 	// Parse the command line arguments
 	config.ParseArgs()
 	err := config.ReadConfig(&datastore.Environ.Config, config.SettingsFile)
 	if err != nil {
-		log.Fatalf("Error parsing the config file: %v", err)
+		svlog.Fatalf("Error parsing the config file: %v", err)
 	}
 
 	// Open the connection to the local database
@@ -45,7 +49,7 @@ func main() {
 	// Opening the keypair manager to create the signing database
 	err = datastore.OpenKeyStore(datastore.Environ.Config)
 	if err != nil {
-		log.Fatalf("Error initializing the signing-key database: %v", err)
+		svlog.Fatalf("Error initializing the signing-key database: %v", err)
 	}
 
 	var handler http.Handler
@@ -62,7 +66,6 @@ func main() {
 		address = ":8080"
 	}
 
-	svlog.InitLogger(logging.INFO)
 	svlog.Infof("Starting service on port %s", address)
 	log.Fatal(http.ListenAndServe(address, handler))
 }

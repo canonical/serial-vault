@@ -21,7 +21,8 @@ package datastore
 
 import (
 	"database/sql"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 const createKeypairStatusTableSQL = `

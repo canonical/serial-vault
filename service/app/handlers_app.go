@@ -20,10 +20,11 @@
 package app
 
 import (
-	"log"
 	"net/http"
 	"strings"
 	"text/template"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )

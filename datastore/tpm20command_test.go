@@ -21,8 +21,9 @@ package datastore
 
 import (
 	"io/ioutil"
-	"log"
 	"testing"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 type mockTPM20Command struct{}
