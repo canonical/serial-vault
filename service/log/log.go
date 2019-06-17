@@ -20,7 +20,7 @@
 package log
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	logging "github.com/op/go-logging"
@@ -29,7 +29,8 @@ import (
 // Message logs a message in a fixed format so it can be analyzed by log handlers
 // e.g. "METHOD CODE descriptive reason"
 func Message(method, code, reason string) {
-	log.Printf("M: %s %s %s\n", method, code, reason)
+	msg := fmt.Sprintf("%s method=%s, code=%s", reason, method, code)
+	Error(msg)
 }
 
 var l = logging.MustGetLogger("serialvault")
@@ -48,7 +49,6 @@ func InitLogger(level logging.Level) {
 
 	backendLeveled := logging.AddModuleLevel(backendFormatter)
 	backendLeveled.SetLevel(level, "")
-
 	logging.SetBackend(backendLeveled)
 }
 
