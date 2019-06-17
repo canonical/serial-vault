@@ -29,7 +29,7 @@ import (
 // Message logs a message in a fixed format so it can be analyzed by log handlers
 // e.g. "METHOD CODE descriptive reason"
 func Message(method, code, reason string) {
-	msg := fmt.Sprintf("%s method=%s, code=%s", reason, method, code)
+	msg := fmt.Sprintf("%s: method=%s, code=%s", reason, method, code)
 	Error(msg)
 }
 
@@ -54,60 +54,60 @@ func InitLogger(level logging.Level) {
 
 // Fatalf calls logger in fatal level with format
 func Fatalf(format string, args ...interface{}) {
-	l.Fatalf(format, args)
+	l.Fatalf(format, args...)
 }
 
 // Fatal calls logger in fatal level
 func Fatal(args ...interface{}) {
-	l.Fatal(args)
+	l.Fatal(args...)
 }
 
 // Errorf calls logger in eror level with format
 func Errorf(format string, args ...interface{}) {
-	l.Errorf(format, args)
+	l.Errorf(format, args...)
 }
 
 // Error calls logger in error level
 func Error(args ...interface{}) {
-	l.Error(args)
+	l.Error(args...)
 }
 
 // Warningf calls logger in warning level with format
 func Warningf(format string, args ...interface{}) {
-	l.Warningf(format, args)
+	l.Warningf(format, args...)
 }
 
 // Warning calls logger in warning level
 func Warning(args ...interface{}) {
-	l.Warning(args)
+	l.Warning(args...)
 }
 
 // Infof calls logger in info level with format
 func Infof(format string, args ...interface{}) {
-	l.Infof(format, args)
+	l.Infof(format, args...)
 }
 
 // Info calls logger in info level
 func Info(args ...interface{}) {
-	l.Info(args)
+	l.Info(args...)
 }
 
 // Debugf calls logger in debug level with format
 func Debugf(format string, args ...interface{}) {
-	l.Debugf(format, args)
+	l.Debugf(format, args...)
 }
 
 // Debug calls logger in debug level
 func Debug(args ...interface{}) {
-	l.Debug(args)
+	l.Debug(args...)
 }
 
 // Printf calls logger in info level with format
 func Printf(format string, args ...interface{}) {
-	l.Infof(format, args)
+	Errorf(format, args...)
 }
 
 // Println calls logger in info level
 func Println(args ...interface{}) {
-	l.Info(args)
+	Error(args...)
 }

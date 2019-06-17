@@ -21,24 +21,20 @@ package service
 
 import (
 	"encoding/json"
-	"log"
+
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/gorilla/csrf"
 )
 
 // Logger Handle logging for the web service
 func Logger(start time.Time, r *http.Request) {
-	log.Printf(
-		"%s\t%s\t%s",
-		r.Method,
-		r.URL.Path,
-		time.Since(start),
-	)
+	log.Infof("%s %s %s", r.Method, r.URL.Path, time.Since(start))
 }
 
 // ErrorHandler is a standard error handler middleware that generates the error response
