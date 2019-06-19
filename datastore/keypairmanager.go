@@ -53,10 +53,9 @@ const listKeypairsForUserSQL = `
 const getKeypairSQL = "SELECT id, authority_id, key_id, active, sealed_key, assertion, key_name FROM keypair WHERE id=$1"
 const getKeypairByPublicIDSQL = "SELECT id, authority_id, key_id, active, sealed_key, assertion, key_name FROM keypair WHERE authority_id=$1 AND key_id=$2"
 const getKeypairByNameSQL = `
-	SELECT k.id, k.authority_id, k.key_id, k.active, k.sealed_key, k.assertion
-	FROM keypair k
-	INNER JOIN keypairstatus ks ON ks.keypair_id=k.id
-	WHERE k.authority_id=$1 AND ks.key_name=$2`
+	SELECT id, authority_id, key_id, active, sealed_key, assertion, key_name
+	FROM keypair
+	WHERE authority_id=$1 AND key_name=$2`
 const toggleKeypairSQL = "UPDATE keypair SET active=$2 WHERE id=$1"
 const toggleKeypairForUserSQL = `
 	UPDATE keypair k
