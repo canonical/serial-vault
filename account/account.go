@@ -21,9 +21,9 @@ package account
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/overlord/auth"
 	"github.com/snapcore/snapd/store"
@@ -45,7 +45,7 @@ func CacheAccountAssertions(env *datastore.Env) {
 	// Get the active signing-keys from the database. This operation is not filtered by authorization
 	keypairs, err := env.DB.ListAllowedKeypairs(datastore.User{})
 	if err != nil {
-		log.Fatalf("Error retrieving the keypairs: %v\n", err)
+		log.Fatalf("Error retrieving the keypairs: %v", err)
 	}
 
 	// Get the account/account-key assertions from the snap store and cache them locally
@@ -103,7 +103,7 @@ func CacheAccounts(env *datastore.Env) {
 	// Get the accounts from the database. This operation is not filtered by authorization
 	accounts, err := env.DB.ListAllowedAccounts(datastore.User{})
 	if err != nil {
-		log.Fatalf("Error retrieving the keypairs: %v\n", err)
+		log.Fatalf("Error retrieving the keypairs: %v", err)
 	}
 
 	// Get the account assertions from the snap store and cache them locally

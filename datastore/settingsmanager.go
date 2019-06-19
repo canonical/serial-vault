@@ -21,7 +21,8 @@ package datastore
 
 import (
 	"errors"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 // Understood settings codes

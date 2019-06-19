@@ -25,9 +25,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	svlog "github.com/CanonicalLtd/serial-vault/service/log"

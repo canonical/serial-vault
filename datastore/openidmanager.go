@@ -21,8 +21,9 @@ package datastore
 
 import (
 	"errors"
-	"log"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 // OpenidNonceMaxAge is the maximum age of stored nonces. Any nonces older

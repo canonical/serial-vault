@@ -23,16 +23,16 @@ package assertion
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/random"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
-	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
 	"github.com/snapcore/snapd/release"
@@ -52,7 +52,7 @@ func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, a
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
 		log.Println(err)
-		svlog.Message("USER", response.ErrorInvalidModelID.Code, response.ErrorInvalidModelID.Message)
+		log.Message("USER", response.ErrorInvalidModelID.Code, response.ErrorInvalidModelID.Message)
 		response.FormatStandardResponse(false, response.ErrorInvalidModelID.Code, "", response.ErrorInvalidModelID.Message, w)
 		return
 	}
@@ -63,7 +63,7 @@ func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, a
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		svlog.Message("USER", response.ErrorCreateSystemUserAssertion.Code, err.Error())
+		log.Message("USER", response.ErrorCreateSystemUserAssertion.Code, err.Error())
 		response.FormatStandardResponse(false, response.ErrorCreateSystemUserAssertion.Code, "", err.Error(), w)
 	}
 
@@ -73,14 +73,14 @@ func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, a
 func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) SystemUserResponse {
 	// Check that the model has an active system-user keypair
 	if !model.KeyActiveUser {
-		svlog.Message("USER", response.ErrorInactiveModel.Code, response.ErrorInactiveModel.Message)
+		log.Message("USER", response.ErrorInactiveModel.Code, response.ErrorInactiveModel.Message)
 		return SystemUserResponse{ErrorCode: response.ErrorInactiveModel.Code, ErrorMessage: response.ErrorInactiveModel.Message}
 	}
 
 	// Fetch the account assertion from the database
 	account, err := datastore.Environ.DB.GetAccount(model.AuthorityIDUser)
 	if err != nil {
-		svlog.Message("USER", response.ErrorAccountAssertion.Code, err.Error())
+		log.Message("USER", response.ErrorAccountAssertion.Code, err.Error())
 		return SystemUserResponse{ErrorCode: response.ErrorAccountAssertion.Code, ErrorMessage: response.ErrorAccountAssertion.Message}
 	}
 
@@ -90,7 +90,7 @@ func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) 
 	// Sign the system-user assertion using the system-user key
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
-		svlog.Message("USER", response.ErrorSignAssertion.Code, err.Error())
+		log.Message("USER", response.ErrorSignAssertion.Code, err.Error())
 		return SystemUserResponse{ErrorCode: response.ErrorSignAssertion.Code, ErrorMessage: err.Error()}
 	}
 
@@ -108,7 +108,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 	reg, _ := regexp.Compile("[^A-Za-z0-9]+")
 	randomText, err := random.GenerateRandomString(32)
 	if err != nil {
-		svlog.Message("USER", response.ErrorSignAssertion.Code, err.Error())
+		log.Message("USER", response.ErrorSignAssertion.Code, err.Error())
 		return map[string]interface{}{}
 	}
 	baseSalt := reg.ReplaceAllString(randomText, "")

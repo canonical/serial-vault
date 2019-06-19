@@ -21,10 +21,11 @@ package usso
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/juju/usso"

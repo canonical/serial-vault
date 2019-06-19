@@ -21,8 +21,9 @@ package store
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/service/auth"
 	"github.com/CanonicalLtd/serial-vault/service/response"

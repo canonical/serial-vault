@@ -22,8 +22,9 @@ package datastore
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 const createSigningLogTableSQL = `

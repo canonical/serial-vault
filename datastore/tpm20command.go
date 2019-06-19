@@ -20,8 +20,9 @@
 package datastore
 
 import (
-	"log"
 	"os/exec"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 // TPM20Command is an interface for wrapping the TPM2.0 shell commands

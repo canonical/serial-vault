@@ -22,7 +22,8 @@ package manage
 
 import (
 	"fmt"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )

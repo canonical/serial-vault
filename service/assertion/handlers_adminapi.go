@@ -25,7 +25,7 @@ import (
 	"io"
 	"net/http"
 
-	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 	"github.com/snapcore/snapd/asserts"
@@ -83,17 +83,17 @@ func parseSerialAssertion(r *http.Request) (asserts.Assertion, response.ErrorRes
 	dec := asserts.NewDecoder(r.Body)
 	assertion, err := dec.Decode()
 	if err == io.EOF {
-		svlog.Message("CHECK", response.ErrorInvalidAssertion.Code, response.ErrorEmptyData.Message)
+		log.Message("CHECK", response.ErrorInvalidAssertion.Code, response.ErrorEmptyData.Message)
 		return nil, response.ErrorEmptyData
 	}
 	if err != nil {
-		svlog.Message("CHECK", response.ErrorInvalidAssertion.Code, err.Error())
+		log.Message("CHECK", response.ErrorInvalidAssertion.Code, err.Error())
 		return nil, response.ErrorResponse{Success: false, Code: "decode-assertion", Message: err.Error(), StatusCode: http.StatusBadRequest}
 	}
 
 	// Check that we have a serial assertion (the details will have been validated by Decode call)
 	if assertion.Type() != asserts.SerialType {
-		svlog.Message("CHECK", response.ErrorInvalidType.Code, response.ErrorInvalidType.Message)
+		log.Message("CHECK", response.ErrorInvalidType.Code, response.ErrorInvalidType.Message)
 		return nil, response.ErrorInvalidType
 	}
 	return assertion, response.ErrorResponse{Success: true}

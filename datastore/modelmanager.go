@@ -23,7 +23,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 const createModelTableSQL = `

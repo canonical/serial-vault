@@ -21,9 +21,10 @@ package usso
 
 import (
 	"errors"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"net/http"
 

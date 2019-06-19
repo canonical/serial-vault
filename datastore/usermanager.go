@@ -22,7 +22,8 @@ package datastore
 import (
 	"database/sql"
 	"errors"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 const createUserTableSQL = `

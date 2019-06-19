@@ -22,7 +22,8 @@ package config
 import (
 	"flag"
 	"io/ioutil"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"gopkg.in/yaml.v2"
 )

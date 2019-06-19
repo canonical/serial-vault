@@ -24,9 +24,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"gopkg.in/macaroon.v1"
 

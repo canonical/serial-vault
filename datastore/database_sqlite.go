@@ -22,7 +22,8 @@ package datastore
 
 import (
 	"database/sql"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	_ "github.com/mattn/go-sqlite3" // sqlite driver
 )

@@ -22,8 +22,9 @@ package datastore
 import (
 	"encoding/base64"
 	"io/ioutil"
-	"log"
 	"os"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 
 	"github.com/CanonicalLtd/serial-vault/crypt"
 )

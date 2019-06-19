@@ -21,7 +21,8 @@ package datastore
 
 import (
 	"io/ioutil"
-	"log"
+
+	"github.com/CanonicalLtd/serial-vault/service/log"
 )
 
 // TPM2InitializeKeystore initializes the TPM 2.0 module by taking ownership of the module

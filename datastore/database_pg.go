@@ -22,8 +22,8 @@ package datastore
 
 import (
 	"database/sql"
-	"log"
 
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	_ "github.com/lib/pq" // postgresql driver
 )
 
@@ -32,13 +32,13 @@ func openPostgreSQLDatabase(driver, dataSource string) {
 	// Open the database connection
 	db, err := sql.Open(driver, dataSource)
 	if err != nil {
-		log.Fatalf("Error opening the database: %v\n", err)
+		log.Fatalf("Error opening the database: %v", err)
 	}
 
 	// Check that we have a valid database connection
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Error accessing the database: %v\n", err)
+		log.Fatalf("Error accessing the database: %v", err)
 	}
 
 	Environ.DB = &DB{db}
