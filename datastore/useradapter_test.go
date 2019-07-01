@@ -117,11 +117,8 @@ func TestUserEmailWithoutAt(t *testing.T) {
 func TestUserEmailWithoutDot(t *testing.T) {
 	email := "my@mailcom"
 	err := validateUserEmail(email)
-	if err == nil {
-		t.Error("Expected email not to be valid, but it is")
-	}
-	if !strings.Contains(err.Error(), "Email contains invalid characters") {
-		t.Error("Error happening is not the one searched for")
+	if err != nil {
+		t.Error("Expected email to be valid, but it is not")
 	}
 }
 
@@ -144,6 +141,7 @@ func TestValidEmails(t *testing.T) {
 		"example-indeed@strange-example.com",
 		"example@s.example",
 		"foo=bar@a-b-c.super",
+		"admin@localhost",
 	}
 	for _, email := range data {
 		err := validateUserEmail(email)
