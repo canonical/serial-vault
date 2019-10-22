@@ -44,13 +44,21 @@ func TestUsernameEmpty(t *testing.T) {
 }
 
 func TestUsernameInvalidChar(t *testing.T) {
-	username := "myusername_"
+	username := "myuser name"
 	err := validateUsername(username)
 	if err == nil {
 		t.Error("Expected username not to be valid, but it is")
 	}
 	if !strings.Contains(err.Error(), "Username contains invalid characters") {
 		t.Error("Error happening is not the one searched for")
+	}
+}
+
+func TestUsernameValidChar(t *testing.T) {
+	username := "myuser.name"
+	err := validateUsername(username)
+	if err != nil {
+		t.Errorf("Expected username to be valid: %v", err)
 	}
 }
 

@@ -79,7 +79,7 @@ func (vs *validatorSuite) TestValidateSyntaxFieldValueUpperCase(c *check.C) {
 
 func (vs *validatorSuite) TestValidateSyntaxFieldValueDontMatchPattern(c *check.C) {
 	fieldName := "fieldName"
-	fieldValue := "fieldval_with_invalid_chars"
+	fieldValue := "fieldval with_invalid_chars"
 	pattern := defaultNicknamePattern
 	err := validateSyntax(fieldName, fieldValue, regexp.MustCompile(pattern))
 	c.Assert(err, check.NotNil)

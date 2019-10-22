@@ -26,7 +26,7 @@ import (
 	"strings"
 )
 
-const defaultNicknamePattern = "^[a-z0-9](?:-?[a-z0-9])*$"
+const defaultNicknamePattern = `^\S+$`
 
 func validateNotEmpty(fieldName, fieldValue string) error {
 	if len(strings.TrimSpace(fieldValue)) == 0 {
