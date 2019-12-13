@@ -144,8 +144,7 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 		_, err = db.CreateModelAssert(m)
 	}
 
-	return fmt.Errorf("error upserting the model assertion for model %d: %v", m.ModelID, err)
-
+	return err
 }
 
 // deleteModelAssert deletes the model assertion details
