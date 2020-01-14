@@ -28,5 +28,9 @@ sed -i  \
   -e "s/KEYSTORE_SECRET/$KEYSTORE_SECRET/g" \
   settings.yaml
 
+echo "Apply database migrations"
+go run cmd/serial-vault-admin/main.go database
+
+echo "Starting server"
 go run cmd/serial-vault/main.go -mode=admin &
 go run cmd/serial-vault/main.go -mode=signing

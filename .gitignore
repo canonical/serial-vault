@@ -21,3 +21,4 @@ snap/.snapcraft
 vendor/*/
 __pycache__/
 files/
+settings.yaml

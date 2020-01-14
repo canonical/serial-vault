@@ -37,7 +37,7 @@ If you have a Go development environment set up, Go get it:
 
 ### Configure it:
 - Install PostgreSQL and create a database.
-- Set up the config file, using ```settings.yaml``` as a guide.
+- Set up the config file, using ```settings.yaml.example``` as a guide.
 - Create the database tables:
   ```bash
   $ cd serial-vault
