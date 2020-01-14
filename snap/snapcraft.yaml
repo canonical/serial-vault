@@ -1,5 +1,5 @@
 name: factory-serial-vault
-version: 0.6
+version: 0.7
 summary: Serial Vault for a Factory
 description: Restricted serial vault for deployment in a factory with limited Internet connection
 confinement: strict
@@ -55,7 +55,7 @@ apps:
 
 parts:
   go:
-      source-tag: go1.9.4
+      source-tag: go1.13
       source-depth: 1
   service:
       plugin: go
@@ -68,7 +68,6 @@ parts:
         PKG=github.com/CanonicalLtd/serial-vault
         mkdir -p $GOBIN
         cd $GOPATH/src/$PKG
-        # ./get-deps.sh
         go install ./...
       install: |
         GOPATH=$(cd ../go && pwd)

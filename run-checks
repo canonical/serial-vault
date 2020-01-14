@@ -74,8 +74,6 @@ append_coverage() {
 
 
 if [ "$STATIC" = 1 ]; then
-    # ./get-deps.sh
-
     # Run static tests.
     echo Checking docs
     ./mdlint.py ./*.md docs/*.md docs/reference/*.md docs/reference/rest-api/*.md
@@ -163,8 +161,6 @@ if [ "$STATIC" = 1 ]; then
 fi
 
 if [ ! -z "$UNIT" ]; then
-    # ./get-deps.sh
-
     # Prepare the coverage output profile.
     rm -rf .coverage
     mkdir .coverage
