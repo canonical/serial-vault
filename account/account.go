@@ -32,7 +32,8 @@ import (
 // FetchAssertionFromStore retrieves an assertion from the store
 var FetchAssertionFromStore = func(modelType *asserts.AssertionType, headers []string) (asserts.Assertion, error) {
 	var user *auth.UserState
-	var authContext auth.AuthContext
+	// var authContext auth.AuthContext
+	var authContext store.DeviceAndAuthContext
 	sto := store.New(nil, authContext)
 
 	return sto.Assertion(modelType, headers, user)

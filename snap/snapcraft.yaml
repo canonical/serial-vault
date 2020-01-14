@@ -68,7 +68,7 @@ parts:
         PKG=github.com/CanonicalLtd/serial-vault
         mkdir -p $GOBIN
         cd $GOPATH/src/$PKG
-        ./get-deps.sh
+        # ./get-deps.sh
         go install ./...
       install: |
         GOPATH=$(cd ../go && pwd)

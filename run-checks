@@ -74,7 +74,7 @@ append_coverage() {
 
 
 if [ "$STATIC" = 1 ]; then
-    ./get-deps.sh
+    # ./get-deps.sh
 
     # Run static tests.
     echo Checking docs
@@ -163,7 +163,7 @@ if [ "$STATIC" = 1 ]; then
 fi
 
 if [ ! -z "$UNIT" ]; then
-    ./get-deps.sh
+    # ./get-deps.sh
 
     # Prepare the coverage output profile.
     rm -rf .coverage

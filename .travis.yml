@@ -19,7 +19,7 @@ before_install:
     - go get github.com/client9/misspell/cmd/misspell
     - go get -u github.com/gordonklaus/ineffassign
     - go get -u github.com/alexkohler/nakedret
-    - sh ./get-deps.sh
+    # - sh ./get-deps.sh
 
 install:
     - echo $GOPATH
