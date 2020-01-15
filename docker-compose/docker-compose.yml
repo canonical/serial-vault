@@ -10,6 +10,8 @@ services:
       - db
     env_file:
       - ./env
+    environment:
+      - CSRF_SECURE=$CSRF_SECURE
     ports:
       - "8080:8080"
       - "8081:8081"
