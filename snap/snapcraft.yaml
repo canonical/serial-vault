@@ -1,9 +1,10 @@
 name: factory-serial-vault
-version: 0.7
+version: "0.7"
 summary: Serial Vault for a Factory
 description: Restricted serial vault for deployment in a factory with limited Internet connection
 confinement: strict
 grade: stable
+base: core18
 
 apps:
   # Apache daemon
@@ -54,25 +55,19 @@ apps:
     command: bin/set-config
 
 parts:
-  go:
-      source-tag: go1.13
-      source-depth: 1
   service:
       plugin: go
-      after: [go]
+      build-snaps:
+        - go/1.13/stable
       source: .
       go-importpath: github.com/CanonicalLtd/serial-vault
-      build: |
+      override-build: |
         export GOPATH=$(cd ../go && pwd)
         GOBIN=$GOPATH/bin
         PKG=github.com/CanonicalLtd/serial-vault
         mkdir -p $GOBIN
         cd $GOPATH/src/$PKG
         go install ./...
-      install: |
-        GOPATH=$(cd ../go && pwd)
-        GOBIN=$GOPATH/bin
-        PKG=github.com/CanonicalLtd/serial-vault
         mkdir -p $SNAPCRAFT_PART_INSTALL/bin
         cp $GOBIN/serial-vault $SNAPCRAFT_PART_INSTALL/bin
         cp $GOBIN/factory $SNAPCRAFT_PART_INSTALL/bin
