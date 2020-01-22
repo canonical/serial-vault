@@ -16,7 +16,7 @@
 
 set -e
 
-TESTS_EXTRAS_URL="https://git.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/tests-extras"
+TESTS_EXTRAS_URL="https://code.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/stack-snaps-tools"
 TESTS_EXTRAS_PATH=".tests-extras"
 
 show_help() {

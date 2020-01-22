@@ -3,7 +3,7 @@ dist: xenial
 language: go
 go_import_path: github.com/CanonicalLtd/serial-vault
 go:
-  - 1.9
+  - 1.13
 env:
   matrix:
     - TEST_SUITE="--static"
@@ -15,11 +15,10 @@ before_install:
     - go get gopkg.in/retry.v1
     - go get gopkg.in/tomb.v2
     - go get gopkg.in/check.v1
-    - go get github.com/golang/lint/golint
+    - go get golang.org/x/lint/golint
     - go get github.com/client9/misspell/cmd/misspell
     - go get -u github.com/gordonklaus/ineffassign
     - go get -u github.com/alexkohler/nakedret
-    - sh ./get-deps.sh
 
 install:
     - echo $GOPATH
