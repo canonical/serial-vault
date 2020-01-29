@@ -23,6 +23,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/request"
@@ -40,8 +42,10 @@ func APIList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	params := GetSigningLogParams(r)
+
 	// Call the API with the user
-	listHandler(w, user, true)
+	listHandler(w, user, true, params)
 }
 
 // APISyncLog is the API method to sync a factory log to the cloud
@@ -68,4 +72,27 @@ func APISyncLog(w http.ResponseWriter, r *http.Request) {
 
 	// Call the API with the user
 	syncLogHandler(w, user, true, request)
+}
+
+// GetSigningLogParams ...
+func GetSigningLogParams(r *http.Request) *datastore.SigningLogParams {
+	params := &datastore.SigningLogParams{}
+
+	if offsetParam, ok := r.URL.Query()["offset"]; ok {
+		offset, err := strconv.Atoi(offsetParam[0])
+		if err == nil {
+			params.Offset = offset
+		}
+	}
+
+	if serialnumber, ok := r.URL.Query()["serialnumber"]; ok {
+		params.Serialnumber = serialnumber[0]
+	}
+
+	filter, ok := r.URL.Query()["filter"]
+	if ok && len(filter) > 0 && filter[0] != "" {
+		params.Filter = strings.Split(filter[0], ",")
+	}
+
+	return params
 }

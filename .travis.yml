@@ -3,7 +3,7 @@ language: go
 dist: xenial
 go_import_path: github.com/CanonicalLtd/serial-vault
 go:
-  - 1.13
+  - 1.9
 env:
   matrix:
     - TEST_SUITE="--static"

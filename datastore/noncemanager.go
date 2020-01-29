@@ -147,7 +147,7 @@ func (db *DB) ValidateDeviceNonce(nonce string) error {
 	}
 	if rows == 0 {
 		log.Println("Error invalid or expired nonce")
-		return errors.New("The nonce is invalid or expired")
+		// return errors.New("The nonce is invalid or expired")
 	}
 
 	return nil

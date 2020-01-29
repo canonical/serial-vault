@@ -25,10 +25,12 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
+	"github.com/CanonicalLtd/serial-vault/service/signinglog"
 	check "gopkg.in/check.v1"
 )
 
@@ -83,4 +85,46 @@ func sendAdminAPIRequest(method, url string, data io.Reader, permissions int, c 
 	service.AdminRouter().ServeHTTP(w, r)
 
 	return w
+}
+
+func (s *SigningLogSuite) TestGetSigningLogParams(c *check.C) {
+	tests := []struct {
+		name string
+		url  string
+		want *datastore.SigningLogParams
+	}{
+		{
+			name: "case 1",
+			url:  `/ping?offset=12&serialnumber=R12300&filter=foo,bar`,
+			want: &datastore.SigningLogParams{
+				Offset:       12,
+				Serialnumber: "R12300",
+				Filter:       []string{"foo", "bar"},
+			},
+		},
+		{
+			name: "case 2",
+			url:  `/ping?offset=xxx`,
+			want: &datastore.SigningLogParams{
+				Offset: 0,
+			},
+		},
+		{
+			name: "case 3",
+			url:  `/ping`,
+			want: &datastore.SigningLogParams{},
+		},
+		{
+			name: "case 4",
+			url:  `/ping?filter&serialnumber&filter`,
+			want: &datastore.SigningLogParams{},
+		},
+	}
+	for _, tt := range tests {
+		r, _ := http.NewRequest("GET", tt.url, nil)
+
+		if got := signinglog.GetSigningLogParams(r); !reflect.DeepEqual(got, tt.want) {
+			c.Errorf("getSigningLogParams() = %#v, want %#v", got, tt.want)
+		}
+	}
 }

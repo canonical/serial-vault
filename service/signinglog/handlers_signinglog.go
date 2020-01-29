@@ -35,7 +35,9 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listHandler(w, authUser, false)
+	params := GetSigningLogParams(r)
+
+	listHandler(w, authUser, false, params)
 }
 
 // ListForAccount is the API method to fetch the log records from signing for an account
@@ -47,8 +49,9 @@ func ListForAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
+	params := GetSigningLogParams(r)
 
-	listForAccountHandler(w, authUser, false, vars["authorityID"])
+	listForAccountHandler(w, authUser, false, vars["authorityID"], params)
 }
 
 // ListFilters is the API method to fetch the log filter values

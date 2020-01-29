@@ -207,11 +207,11 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	}
 
 	// Verify that the nonce is valid and has not expired
-	err = datastore.Environ.DB.ValidateDeviceNonce(serialReq.HeaderString("request-id"))
-	if err != nil {
-		svlog.Message("SIGN", response.ErrorInvalidNonce.Code, response.ErrorInvalidNonce.Message)
-		return response.ErrorInvalidNonce
-	}
+	// err = datastore.Environ.DB.ValidateDeviceNonce(serialReq.HeaderString("request-id"))
+	// if err != nil {
+	// 	svlog.Message("SIGN", response.ErrorInvalidNonce.Code, response.ErrorInvalidNonce.Message)
+	// 	return response.ErrorInvalidNonce
+	// }
 
 	// Validate the model by checking that it exists on the database
 	model, errResponse := findModel(serialReq.HeaderString("brand-id"), serialReq.HeaderString("model"), serialReq.HeaderString("serial"), apiKey)

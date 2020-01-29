@@ -20,32 +20,32 @@
 package datastore
 
 // ListAllowedSigningLog return signing logs the user is authorized to see
-func (db *DB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
+func (db *DB) ListAllowedSigningLog(authorization User, params *SigningLogParams) ([]SigningLog, error) {
 	switch authorization.Role {
 	case Invalid: // Authentication disabled
 		fallthrough
 	case Superuser:
-		return db.listAllSigningLog()
+		return db.listAllSigningLog(params)
 	case SyncUser:
 		fallthrough
 	case Admin:
-		return db.listSigningLogFilteredByUser(authorization.Username)
+		return db.listSigningLogFilteredByUser(authorization.Username, params)
 	default:
 		return []SigningLog{}, nil
 	}
 }
 
 // ListAllowedSigningLogForAccount return signing logs the user is authorized to see
-func (db *DB) ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error) {
+func (db *DB) ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error) {
 	switch authorization.Role {
 	case Invalid: // Authentication disabled
 		fallthrough
 	case Superuser:
-		return db.listAllSigningLogForAccount(authorityID)
+		return db.listAllSigningLogForAccount(authorityID, params)
 	case SyncUser:
 		fallthrough
 	case Admin:
-		return db.listSigningLogForAccountFilteredByUser(authorization.Username, authorityID)
+		return db.listSigningLogForAccountFilteredByUser(authorization.Username, authorityID, params)
 	default:
 		return []SigningLog{}, nil
 	}
