@@ -30,12 +30,20 @@ class SigningLog extends Component {
 
     super(props)
     this.state = {
+        logs: [],
+        filterModels: [],
+        filterString: '',
         message: null,
         expanded: {models: true},
         query: '',
         startRow: 0,
         endRow: PAGINATION_SIZE,
+        totalLogs: 0,
+        authorityID: null,
     };
+    this.state.authorityID = this.props.selectedAccount.AuthorityID
+    this.getSigningLogs(this.state.authorityID, 0, '', '')
+    this.getSigningLogFilters(this.state.authorityID)
   }
 
   handleExpansionClick = (value) => {
@@ -45,33 +53,48 @@ class SigningLog extends Component {
   }
 
   handleItemClick = (index, key) => {
-    this.setState({startRow: 0, endRow: PAGINATION_SIZE});
-    this.props.onItemClick(index, key)
+    var items;
+    if (key === 'models') {
+      items = this.state.filterModels;
+      items[index].selected = !items[index].selected;
+      var filter = items.filter(i => i.selected === true).map(i => i.name).join(',')
+      this.getSigningLogs(this.state.authorityID, 0, filter, this.state.query)
+      this.setState({filterModels: items, filterString: filter});
+    }
   }
 
-  handleRecordsForPage = (startRow, endRow) => {
-    this.setState({startRow: startRow, endRow: endRow});
+  getSigningLogs = (authorityID, offset, filter, serialnumber) => {
+    SigningLogModel.listForAccount(authorityID, offset, filter, serialnumber).then((response) => {
+      var data = JSON.parse(response.body);
+      var message = null;
+      if (!data.success) {
+        message = data.message;
+      }
+      this.setState({logs: data.logs, message: message, totalLogs: data.total});
+    });
+  }
+
+  getSigningLogFilters = (authorityID) => {
+    SigningLogModel.filters(authorityID).then((response) => {
+      var data = JSON.parse(response.body);
+      var message = "";
+      if (!data.success) {
+        message = data.message;
+      }
+      var filterModels = data.filters.models.map(function(item) {
+        return {name: item, selected: false};
+      });
+      this.setState({filterModels: filterModels, message: message});
+    });
   }
 
   handleSearchChange = (e) => {
+    this.getSigningLogs(this.state.authorityID, 0, this.state.filterString, e.target.value)
     this.setState({query: e.target.value});
   }
 
   handleDownload = () => {
-    SigningLogModel.download(this.displayRows());
-  }
-
-  filterRow(l, models) {
-
-    // See if it passes the text search test
-    if (this.state.query.length > 0) {
-      if (l.serialnumber.toLowerCase().indexOf(this.state.query.toLowerCase()) < 0) return false
-    }
-
-    // See if it passes the models test
-    if ((models.length > 0) && (models.indexOf(l.model) < 0)) return false
-
-    return true;
+    SigningLogModel.download(this.state.authorityID, this.state.filterString, this.state.query);
   }
 
   selectedFilters(name) {
@@ -85,18 +108,8 @@ class SigningLog extends Component {
     return items;
   }
 
-  displayRows() {
-    var models = this.selectedFilters(this.props.filterModels);
-
-    return this.props.logs.filter((l) => {
-      // Check if the row is filtered
-      return this.filterRow(l, models);
-    })
-  }
-
   renderTable(items) {
-
-    if (this.props.logs.length > 0) {
+    if (this.state.logs.length > 0) {
       return (
         <div>
           <table>
@@ -127,7 +140,6 @@ class SigningLog extends Component {
   }
 
   render() {
-
     if (!isUserAdmin(this.props.token)) {
       return (
         <div className="row">
@@ -135,8 +147,6 @@ class SigningLog extends Component {
         </div>
       )
     }
-
-    var displayRows = this.displayRows();
 
     return (
         <div className="row">
@@ -156,7 +166,7 @@ class SigningLog extends Component {
                   <div className="filter-section">
                       <h4>Filter By</h4>
                       <SigningLogFilter
-                          name={T('models')} items={this.props.filterModels}
+                          name={T('models')} items={this.state.filterModels}
                           keyName={'models'}
                           handleItemClick={this.handleItemClick}
                           expanded={this.state.expanded.models}
@@ -166,12 +176,17 @@ class SigningLog extends Component {
                 </div>
               </div>
               <div className="col-9">
-                <Pagination rows={this.props.logs.length} displayRows={displayRows}
+                <Pagination totalLogs={this.state.totalLogs}
+                            authorityID={this.state.authorityID}
+                            query={this.state.query}
                             searchText={T('find-serialnumber')}
-                            pageChange={this.handleRecordsForPage}
+                            pageChange={this.getSigningLogs}
+                            filterString={this.state.filterString}
                             onDownload={this.handleDownload}
                             onSearchChange={this.handleSearchChange} />
-                {this.renderTable(displayRows.slice(this.state.startRow, this.state.endRow))}
+
+                {this.renderTable(this.state.logs)}
+
               </div>
             </div>
 

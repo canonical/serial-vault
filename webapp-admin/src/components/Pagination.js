@@ -51,14 +51,12 @@ class Pagination extends Component {
   signalPageChange(page) {
     // Signal the rows that the owner should display
     var startRow = ((page - 1) * this.state.maxRecords);
-
-    this.props.pageChange(startRow, startRow + this.state.maxRecords);
+    this.props.pageChange(this.props.authorityID, startRow, this.props.filterString, this.props.query);
   }
 
   calculatePages() {
     // Use the filtered row count when we a query has been entered
-    var length = this.props.displayRows.length;
-
+    var length = this.props.totalLogs
     var pages = parseInt(length / this.state.maxRecords, 10);
     if (length % this.state.maxRecords > 0) {
         pages += 1;
