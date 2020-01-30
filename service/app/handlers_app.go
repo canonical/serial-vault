@@ -30,7 +30,7 @@ import (
 )
 
 // IndexTemplate is the path to the HTML template
-var IndexTemplate = "/static/app.html"
+var IndexTemplate = "/static/index.html"
 
 // Page is the page details for the web application
 type Page struct {
