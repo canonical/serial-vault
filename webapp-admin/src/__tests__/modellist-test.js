@@ -17,10 +17,12 @@
 'use strict'
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import ModelList from '../components/ModelList';
+
+configure({ adapter: new Adapter() });
 
 jest.dontMock('../components/ModelList');
 jest.dontMock('../components/KeypairList');
@@ -39,14 +41,14 @@ describe('model list', function() {
   it('displays the models page with no models', function() {
 
     // Mock the data retrieval from the API
-    var getModels = jest.genMockFunction();
-    var getKeypairs = jest.genMockFunction();
+    var getModels = jest.fn();
+    var getKeypairs = jest.fn();
     ModelList.prototype.getModels = getModels;
     ModelList.prototype.getKeypairs = getKeypairs;
 
     // Render the component
     var modelsPage = ReactTestUtils.renderIntoDocument(
-        <ModelList token={token} />
+      <ModelList token={token} models={[]} />
     );
 
     expect(ReactTestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
@@ -103,14 +105,14 @@ describe('model list', function() {
   ];
 
   // Mock the data retrieval from the API
-  var getModels = jest.genMockFunction();
-  var getKeypairs = jest.genMockFunction();
+  var getModels = jest.fn();
+  var getKeypairs = jest.fn();
   ModelList.prototype.getModels = getModels;
   ModelList.prototype.getKeypairs = getKeypairs;
 
   // Render the component
   var modelsPage = ReactTestUtils.renderIntoDocument(
-      <ModelList models={models} keypairs={keypairs} token={token} />
+      <ModelList models={models} keypairs={keypairs} token={token} showAssert={1} />
   );
 
   expect(ReactTestUtils.isCompositeComponent(modelsPage)).toBeTruthy();

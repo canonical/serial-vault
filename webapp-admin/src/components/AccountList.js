@@ -25,7 +25,6 @@ class AccountList extends Component {
         super(props);
 
         this.state = {
-            //keypairs: props.keypairs || [],
             models: props.models || [],
             message: '',
         }
@@ -94,7 +93,7 @@ class AccountList extends Component {
     renderAccounts() {
         if (this.getAccounts().length > 0) {
             return (
-                <table>
+                <table id="accounts">
                 <thead>
                     <tr>
                         {isUserAdmin(this.props.token) ? <th className="small"></th> : ''}
@@ -134,7 +133,7 @@ class AccountList extends Component {
     renderAccountKeys() {
         if (this.props.keypairs.length > 0) {
             return (
-                <table>
+                <table id="keypairs">
                 <thead>
                     <tr>
                         <th>{T('key-id')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>

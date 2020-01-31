@@ -32,14 +32,14 @@ const token = { role: 200, name: 'Steven Vault' }
 const tokenDisabled = { role: 200 }
 
 describe('navigation', function() {
-  it('displays the navigation menu with models active', function() {
+  it('1. displays the navigation menu with models active', function() {
 
-    var handleYesClick = jest.genMockFunction();
-    var handleNoClick = jest.genMockFunction();
+    var handleYesClick = jest.fn();
+    var handleNoClick = jest.fn();
 
     // Render the component
     var page = ReactTestUtils.renderIntoDocument(
-        <Navigation active={'models'} token={token} />
+        <Navigation active={'models'} token={token} accounts={[]} />
     );
 
     expect(ReactTestUtils.isCompositeComponent(page)).toBeTruthy();
@@ -51,12 +51,12 @@ describe('navigation', function() {
 
   it('displays the navigation menu with models active', function() {
 
-    var handleYesClick = jest.genMockFunction();
-    var handleNoClick = jest.genMockFunction();
+    var handleYesClick = jest.fn();
+    var handleNoClick = jest.fn();
 
     // Render the component
     var page = ReactTestUtils.renderIntoDocument(
-        <Navigation active={'models'} token={token} />
+        <Navigation active={'models'} token={token} accounts={[]} />
     );
 
     expect(ReactTestUtils.isCompositeComponent(page)).toBeTruthy();
@@ -73,7 +73,7 @@ describe('navigation', function() {
 
       // Render the component
       var page = ReactTestUtils.renderIntoDocument(
-          <NavigationUser token={token} />
+          <NavigationUser token={token} accounts={[]} />
       );
 
       expect(ReactTestUtils.isCompositeComponent(page)).toBeTruthy();
@@ -89,7 +89,7 @@ describe('navigation', function() {
 
       // Render the component
       var page = ReactTestUtils.renderIntoDocument(
-          <NavigationUser token={tokenDisabled} />
+          <NavigationUser token={tokenDisabled} accounts={[]} />
       );
 
       expect(ReactTestUtils.isCompositeComponent(page)).toBeTruthy();

@@ -9,9 +9,8 @@
     "npm": "^6.13.6",
     "react": "^16.12.0",
     "react-datepicker": "^2.11.0",
-    "react-dom": "^16.12.0",
     "react-intl": "^3.11.0",
-    "react-scripts": "3.3.0",
+    "react-scripts": "^3.3.1",
     "then-request": "^6.0.2"
   },
   "scripts": {
@@ -22,21 +21,10 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "enzyme": "^3.0.0",
+    "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "node-sass": "^4.12.0",
+    "react-dom": "^16.12.0",
     "vanilla-framework": "^1.7.1"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
