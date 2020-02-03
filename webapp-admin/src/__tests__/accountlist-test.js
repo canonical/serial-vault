@@ -75,13 +75,12 @@ describe('accounts list', function() {
         );
 
         expect(component.find('section')).toHaveLength(2)
-
-        // console.log(">>> tables:", component.find('table').debug())
-
         expect(component.find('table')).toHaveLength(2)
 
         // Two assertions displayed
-        expect(component.find('pre')).toHaveLength(2)
+        expect(component.find('p')).toHaveLength(2)
+        expect(component.find('p').get(0).props.title).toEqual("123456abcdef");
+        expect(component.find('p').get(1).props.title).toEqual("123456abcdef");
     })
 
     it('displays the account and key with a `not used` message', function() {
@@ -92,13 +91,14 @@ describe('accounts list', function() {
         );
 
         expect(component.find('section')).toHaveLength(2)
-        expect(component.find('table')).toHaveLength(2)
+        expect(component.find('table')).toHaveLength(1)
         // Only account assertion displayed, no key assertion and the key is not used for signing
-        expect(component.find('pre')).toHaveLength(1)
-        expect(component.contains(<p>Not used for signing system-user assertions</p>)).toEqual(true)
+        expect(component.find('p')).toHaveLength(2)
+        expect(component.find('p').get(0).props.children).toEqual('No assertions found')
+        expect(component.find('p').get(1).props.children).toEqual('Not used for signing system-user assertions')
     })
 
-    it('5. displays the account and key with a warning message', function() {
+    it('displays the account and key with a warning message', function() {
 
         // Render the component
         const component = shallow(
@@ -106,14 +106,14 @@ describe('accounts list', function() {
         );
 
         expect(component.find('section')).toHaveLength(2)
-        expect(component.find('table')).toHaveLength(2)
+        expect(component.find('table')).toHaveLength(1)
         // Only account assertion displayed, no key assertion and one warning (+ two buttons)
-        expect(component.find('pre')).toHaveLength(1)
-        expect(component.find('i')).toHaveLength(3)
+        expect(component.find('p')).toHaveLength(3)
+        expect(component.find('i')).toHaveLength(6)
     })
 
-    it('6. displays the key with a warning messages', function() {
-
+    it('displays the key with a warning messages', function() {
+        
         // Render the component
         const component = shallow(
             <AccountList selectedAccount={{}} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
@@ -122,11 +122,11 @@ describe('accounts list', function() {
         expect(component.find('section')).toHaveLength(2)
         expect(component.find('table')).toHaveLength(1)
         // No account assertion displayed, no key assertion and two warnings (+ two buttons)
-        expect(component.find('pre')).toHaveLength(0)
-        expect(component.find('i')).toHaveLength(4)
+        expect(component.find('p')).toHaveLength(3)
+        expect(component.find('i')).toHaveLength(6)
     })
 
-    it('7. displays error with no permissions', function() {
+    it('displays error with no permissions', function() {
 
         // Render the component
         const component = shallow(
@@ -137,7 +137,7 @@ describe('accounts list', function() {
         expect(component.find('AlertBox')).toHaveLength(1)
     })
 
-    it('8. displays error with insufficient permissions', function() {
+    it('displays error with insufficient permissions', function() {
 
         // Render the component
         const component = shallow(
