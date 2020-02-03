@@ -1,3 +1,12 @@
 ignore:
   - "mock_*.go"
   - "./**/mock_*.go"
+comment: false
+coverage:
+    status:
+        patch:
+            default:
+                target: '100'
+        project:
+            default:
+                target: '100'
