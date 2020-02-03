@@ -31,7 +31,7 @@ import (
 
 func TestIndexHandler(t *testing.T) {
 
-	app.IndexTemplate = "../../static/index.html"
+	app.IndexTemplate = "../../static/app.html"
 
 	config := config.Settings{Title: "Site Title", Logo: "/url"}
 	datastore.Environ = &datastore.Env{Config: config}
