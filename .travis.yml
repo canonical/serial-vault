@@ -31,7 +31,12 @@ matrix:
     - language: node_js
       node_js:
         - lts/*
+      env:
+        - NODE_ENV=test
       before_install:
         - cd webapp-admin; npm install
+      install:
+        - npm install -g codecov
       script:
         - npm run test
+        - curl -s https://codecov.io/bash | bash /dev/stdin -f junit.xml
