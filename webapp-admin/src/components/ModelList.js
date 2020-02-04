@@ -110,13 +110,13 @@ class ModelList extends Component {
               <th>{T('private-key-model-short')}</th>
             </tr>
           </thead>
-            {this.props.models.map((mdl) => {
+            {this.props.models.map((mdl, i) => {
               return (
                 <tbody>
                   <ModelRow key={mdl.id} model={mdl} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
                       deleteModel={this.handleDeleteModel} cancelDelete={this.handleDeleteModelCancel} showAssert={this.handleShowAssert} />
 
-                  {this.state.showAssert === mdl.id ? <ModelAssertion model={mdl} token={this.props.token} cancel={this.handleShowAssert} /> : ''}
+                  {this.state.showAssert === mdl.id ? <ModelAssertion model={mdl} token={this.props.token} cancel={this.handleShowAssert} /> : null}
                 </tbody>
               );
             })}

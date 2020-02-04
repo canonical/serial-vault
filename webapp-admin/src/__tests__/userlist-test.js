@@ -19,13 +19,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import UserList from '../components/UserList';
 
 jest.dontMock('../components/UserList');
 jest.dontMock('../components/UserRow');
 jest.dontMock('../components/Navigation');
 jest.dontMock('../components/Utils');
+
+configure({ adapter: new Adapter() });
 
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
@@ -38,7 +41,7 @@ describe('user list', function() {
   it('displays the users page with no users', function() {
 
     // Mock the data retrieval from the API
-    var getUsers = jest.genMockFunction();
+    var getUsers = jest.fn();
     UserList.prototype.getUsers = getUsers;
 
     // Render the component

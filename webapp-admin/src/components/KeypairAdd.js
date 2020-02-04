@@ -27,7 +27,7 @@ class KeypairAdd extends Component {
         super(props);
 
         this.state = {
-            name: null,
+            name: "",
             key: null,
             error: this.props.error,
         };

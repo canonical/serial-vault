@@ -33,10 +33,10 @@ class DialogBox extends Component {
                 <div className="p-card warning">
                     <p>{this.props.message}</p>
                     <div>
-                        <a href="" onClick={this.props.handleCancelClick} className={classNo}>
+                        <a href="#" onClick={this.props.handleCancelClick} className={classNo}>
                             {T('no')}
                         </a>
-                        <a href="" onClick={this.props.handleYesClick} className={classYes}>
+                        <a href="#" onClick={this.props.handleYesClick} className={classYes}>
                             {T('yes')}
                         </a>
                     </div>

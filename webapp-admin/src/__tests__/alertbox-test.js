@@ -28,8 +28,8 @@ jest.dontMock('../components/AlertBox');
 describe('alert box', function() {
  it('displays the alert box with a message', function() {
 
-    var handleYesClick = jest.genMockFunction();
-    var handleNoClick = jest.genMockFunction();
+    var handleYesClick = jest.fn();
+    var handleNoClick = jest.fn();
 
     // Render the component
     var page = ReactTestUtils.renderIntoDocument(

@@ -18,7 +18,8 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import ReactTestUtils from 'react-dom/test-utils';
 import { createRenderer } from 'react-test-renderer/shallow';
 import KeypairAdd from '../components/KeypairAdd';
@@ -27,6 +28,8 @@ jest.dontMock('../components/KeypairAdd');
 jest.dontMock('../components/Navigation');
 jest.dontMock('../components/AlertBox');
 jest.dontMock('../components/Utils');
+
+configure({ adapter: new Adapter() });
 
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
@@ -37,11 +40,11 @@ const token = { role: 200 }
 const tokenUser = { role: 100 }
 
 describe('keypair add', function() {
-    it('displays the new keypair page', function() {
+    it('1. displays the new keypair page', function() {
 
         // Render the component
         var keysPage = ReactTestUtils.renderIntoDocument(
-             <KeypairAdd token={token} />
+            <KeypairAdd token={token} selectedAccount={{AuthorityID: "bob", ID: 1}} />
         );
 
         expect(ReactTestUtils.isCompositeComponent(keysPage)).toBeTruthy();
@@ -51,17 +54,17 @@ describe('keypair add', function() {
         var h2 = ReactTestUtils.findRenderedDOMComponentWithTag(keysPage, 'h2');
     });
 
-    it('stores updates to the form', function() {
+    it('2. stores updates to the form', function() {
 
         // Mock the onChange handler
-        var handleChangeKey = jest.genMockFunction();
-        var handleChangeAuthorityId = jest.genMockFunction();
+        var handleChangeKey = jest.fn();
+        var handleChangeAuthorityId = jest.fn();
         KeypairAdd.prototype.handleChangeKey = handleChangeKey;
         KeypairAdd.prototype.handleChangeAuthorityId = handleChangeAuthorityId;
 
         // Render the component
         var keysPage = ReactTestUtils.renderIntoDocument(
-             <KeypairAdd token={token} />
+            <KeypairAdd token={token} selectedAccount={{}} />
         );
 
         expect(ReactTestUtils.isCompositeComponent(keysPage)).toBeTruthy();
@@ -78,13 +81,13 @@ describe('keypair add', function() {
         ReactTestUtils.Simulate.change(textAuthority);
     });
 
-    it('displays the alert box on error', function() {
+    it('3. displays the alert box on error', function() {
 
         var shallowRenderer = createRenderer();
 
         // Render the component
         shallowRenderer.render(
-            <KeypairAdd error={'Critical: run out of sushi'} token={token} />
+            <KeypairAdd error={'Critical: run out of sushi'} token={token} selectedAccount={{}} />
         );
         var keysPage = shallowRenderer.getRenderOutput();
 
@@ -108,7 +111,7 @@ describe('keypair add', function() {
 
         // Render the component
         const component = shallow(
-            <KeypairAdd token={tokenUser} />
+            <KeypairAdd token={tokenUser} selectedAccount={{}} />
         );
 
         expect(component.find('div')).toHaveLength(1)
