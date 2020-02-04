@@ -92,6 +92,7 @@ class Navigation extends Component {
     }
 
     render() {
+
         var token = this.props.token
         var links;
 
