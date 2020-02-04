@@ -23,21 +23,12 @@ import Pagination from '../components/Pagination'
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
 
-
-function generateRows() {
-    var rows = []
-    for (var i=0; i<150; i++) {
-        rows.push({id: i, name: 'Row ' + i})
-    }
-    return rows;
-}
-
 describe('pagination', function() {
     it('displays the pagination component with no rows', function() {
 
         // Render the component
         var component = ReactTestUtils.renderIntoDocument(
-            <Pagination page={1} displayRows={[]} />
+            <Pagination />
         );
 
         expect(ReactTestUtils.isCompositeComponent(component)).toBeTruthy();
@@ -52,7 +43,7 @@ describe('pagination', function() {
 
         // Render the component
         var component = ReactTestUtils.renderIntoDocument(
-            <Pagination page={1} displayRows={generateRows()} />
+            <Pagination totalLogs={150} authorityID={{}} />
         );
 
         expect(ReactTestUtils.isCompositeComponent(component)).toBeTruthy();

@@ -37,6 +37,7 @@ configure({ adapter: new Adapter() });
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
 
+const account = {ID: 1, AuthorityID: "canonical", Assertion: "123456abcdef"}
 const token = { role: 200 }
 const tokenUser = { role: 100 }
 
@@ -66,9 +67,6 @@ describe('signing-log list', function() {
 
     it('displays the signing logs page with some logs', function() {
 
-        // Shallow render the component
-        var shallowRenderer = createRenderer();
-
         // Set up a fixture for the model data
         var logs = [
             {id: 1, 'make': 'Brand1', model: 'Name1', 'serial': 'A11', fingerprint: 'a11'},
@@ -76,40 +74,38 @@ describe('signing-log list', function() {
             {id: 3, 'make': 'Brand3', model: 'Name3', 'serial': 'A33', fingerprint: 'c22'}
         ];
 
-        // Mock the data retrieval from the API
-        var getLogs = jest.fn();
-        var getFilters = jest.fn();
-        SigningLog.prototype.getLogs = getLogs;
-        SigningLog.prototype.getFilters = getFilters;
-
         // Render the component
         var component = shallow(
-            <SigningLog logs={logs} token={token} filterModels={[]} />
+            <SigningLog token={token} selectedAccount={account} />
         );
+        component.setState({ logs: logs });
 
         expect(component.find('section')).toHaveLength(1)
         expect(component.find('SigningLogRow')).toHaveLength(logs.length)
+        expect(component.find('Pagination')).toHaveLength(1)
     });
 
     it('displays error with no permissions', function() {
 
         // Render the component
         const component = shallow(
-            <SigningLog />
+            <SigningLog token={{}} selectedAccount={{}} />
         );
 
         expect(component.find('div')).toHaveLength(1)
         expect(component.find('AlertBox')).toHaveLength(1)
+        expect(component.find('AlertBox').get(0).props.message).toBe('You do not have permissions to access this page')   
     })
 
     it('displays error with insufficient permissions', function() {
 
         // Render the component
         const component = shallow(
-            <SigningLog token={tokenUser} />
+            <SigningLog token={tokenUser} selectedAccount={{}} />
         );
 
         expect(component.find('div')).toHaveLength(1)
         expect(component.find('AlertBox')).toHaveLength(1)
+        expect(component.find('AlertBox').get(0).props.message).toBe('You do not have permissions to access this page')
     })
 });
