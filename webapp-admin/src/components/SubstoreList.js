@@ -132,13 +132,13 @@ class SubstoreList extends Component {
         } else {
             return (
                 <div>
-                    <button data-key={b.id} onClick={this.handleShowEdit} className="p-button--brand small" title={T('edit-model')}>
+                    <a href="" data-key={b.id} onClick={this.handleShowEdit} className="p-button--brand small" title={T('edit-model')}>
                         <i data-key={b.id} className="fa fa-pencil" />
-                    </button>
+                    </a>
                     &nbsp;
-                    <button data-key={b.id} onClick={this.handleShowDelete} className="p-button--neutral small" title={T('delete-model')}>
+                    <a href="" data-key={b.id} onClick={this.handleShowDelete} className="p-button--neutral small" title={T('delete-model')}>
                         <i data-key={b.id} className="fa fa-trash" />
-                    </button>
+                    </a>
                 </div>
             )
         }
@@ -175,9 +175,9 @@ class SubstoreList extends Component {
                             <h2 className="p-card__title col-5">{T('substores')}</h2>
                             &nbsp;
                             <div className="col-1">
-                                <button href="#" onClick={this.handleShowNew} className="p-button--brand" title={T('new-substore-device')}>
+                                <a href="" onClick={this.handleShowNew} className="p-button--brand" title={T('new-substore-device')}>
                                     <i className="fa fa-plus"></i>
-                                </button>
+                                </a>
                             </div>
                         </div>
 

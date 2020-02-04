@@ -76,9 +76,9 @@ class Pagination extends Component {
     if (pages > 1) {
         return (
             <div className="u-float--right">
-                <button className="p-button--neutral" href="#" onClick={this.pageDown}>&laquo;</button>
+                <button className="p-button--neutral" href="" onClick={this.pageDown}>&laquo;</button>
                 <span>&nbsp;{this.state.page} of {pages}&nbsp;</span>
-                <button className="p-button--neutral" href="#" onClick={this.pageUp}>&raquo;</button>
+                <button className="p-button--neutral" href="" onClick={this.pageUp}>&raquo;</button>
             </div>
         );
     } else {

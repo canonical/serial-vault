@@ -26,7 +26,7 @@ class UserRow extends Component {
 				<div>
 					<a href={'/users/'.concat(this.props.user.ID, '/edit')} className="p-button--brand" title={T('edit-user')}><i className="fa fa-pencil"></i></a>
 					&nbsp;
-					<a href="#" onClick={this.props.delete} data-key={this.props.user.ID} className="p-button--neutral" title={T('delete-user')}>
+					<a href="" onClick={this.props.delete} data-key={this.props.user.ID} className="p-button--neutral" title={T('delete-user')}>
 						<i className="fa fa-trash" data-key={this.props.user.ID}></i></a>
 				</div>
 			);
