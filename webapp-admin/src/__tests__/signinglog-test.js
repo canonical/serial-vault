@@ -18,10 +18,11 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Adapter from 'enzyme-adapter-react-16';
 import ReactTestUtils from 'react-dom/test-utils';
 import { createRenderer } from 'react-test-renderer/shallow';
 import SigningLog from '../components/SigningLog';
-import {shallow, mount, render} from 'enzyme';
+import {shallow, configure} from 'enzyme';
 
 jest.dontMock('../components/SigningLog');
 jest.dontMock('../components/Navigation');
@@ -30,6 +31,8 @@ jest.dontMock('../components/SigningLogFilter');
 jest.dontMock('../components/SigningLogRow');
 jest.dontMock('../components/Pagination');
 jest.dontMock('../components/Utils');
+
+configure({ adapter: new Adapter() });
 
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
@@ -41,8 +44,8 @@ describe('signing-log list', function() {
     it('displays the signing logs page with no logs', function() {
 
         // Mock the data retrieval from the API
-        var getLogs = jest.genMockFunction();
-        var getFilters = jest.genMockFunction();
+        var getLogs = jest.fn();
+        var getFilters = jest.fn();
         SigningLog.prototype.getLogs = getLogs;
         SigningLog.prototype.getFilters = getFilters;
 
@@ -50,7 +53,7 @@ describe('signing-log list', function() {
         var shallowRenderer = createRenderer();
 
         shallowRenderer.render(
-            <SigningLog token={token} />
+            <SigningLog token={token} selectedAccount={{}} logs={[]} filterModels={[]} />
         );
 
         var logsPage = shallowRenderer.getRenderOutput();
@@ -74,14 +77,14 @@ describe('signing-log list', function() {
         ];
 
         // Mock the data retrieval from the API
-        var getLogs = jest.genMockFunction();
-        var getFilters = jest.genMockFunction();
+        var getLogs = jest.fn();
+        var getFilters = jest.fn();
         SigningLog.prototype.getLogs = getLogs;
         SigningLog.prototype.getFilters = getFilters;
 
         // Render the component
         var component = shallow(
-            <SigningLog logs={logs} token={token} />
+            <SigningLog logs={logs} token={token} filterModels={[]} />
         );
 
         expect(component.find('section')).toHaveLength(1)

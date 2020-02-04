@@ -16,9 +16,11 @@
  */
 
 import React from 'react'
-import {shallow, mount, render} from 'enzyme';
-import ReactTestUtils from 'react-dom/test-utils';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import AccountList from '../components/AccountList'
+
+configure({ adapter: new Adapter() });
 
 jest.dontMock('../components/AccountList');
 
@@ -26,7 +28,8 @@ jest.dontMock('../components/AccountList');
 window.AppState = {getLocale: function() {return 'en'}};
 
 // Test fixtures
-const ACCOUNTS = [{ID: 1, AuthorityID: "canonical", Assertion: "123456abcdef"}]
+const account = {ID: 1, AuthorityID: "canonical", Assertion: "123456abcdef"}
+const ACCOUNTS = [account]
 const KEYPAIRS = [{ID: 1, AuthorityID: "canonical", KeyID: "123", Assertion: "123456abcdef"}]
 const KEYPAIRS_INCOMPLETE = [{ID: 1, AuthorityID: "canonical", KeyID: "123", Assertion: null}]
 const MODELS = [{id: 1, "authority-id-user": "canonical", "key-id-user": "123"}]
@@ -41,7 +44,7 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList token={token} />
+            <AccountList token={token} selectedAccount={{}} keypairs={{}} />
         );
 
         expect(component.find('section')).toHaveLength(2)
@@ -53,69 +56,73 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={null} keypairs={KEYPAIRS} models={MODELS} token={token} />
+            <AccountList selectedAccount={{}} keypairs={KEYPAIRS} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
         expect(component.find('table')).toHaveLength(1)
         // No assertions displayed, one warning (+ two buttons)
         expect(component.find('pre')).toHaveLength(0)
-        expect(component.find('i')).toHaveLength(3)
+        expect(component.find('i')).toHaveLength(5)
     })
 
     it('displays the accounts and keys with assertions', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS} token={token} />
+            <AccountList selectedAccount={account} keypairs={KEYPAIRS} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
         expect(component.find('table')).toHaveLength(2)
+
         // Two assertions displayed
-        expect(component.find('pre')).toHaveLength(2)
+        expect(component.find('p')).toHaveLength(2)
+        expect(component.find('p').get(0).props.title).toEqual("123456abcdef");
+        expect(component.find('p').get(1).props.title).toEqual("123456abcdef");
     })
 
     it('displays the account and key with a `not used` message', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS_NOTUSED} token={token} />
+            <AccountList selectedAccount={ACCOUNTS} keypairs={KEYPAIRS} models={MODELS_NOTUSED} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
-        expect(component.find('table')).toHaveLength(2)
+        expect(component.find('table')).toHaveLength(1)
         // Only account assertion displayed, no key assertion and the key is not used for signing
-        expect(component.find('pre')).toHaveLength(1)
-        expect(component.contains(<p>Not used for signing system-user assertions</p>)).toEqual(true)
+        expect(component.find('p')).toHaveLength(2)
+        expect(component.find('p').get(0).props.children).toEqual('No assertions found')
+        expect(component.find('p').get(1).props.children).toEqual('Not used for signing system-user assertions')
     })
 
     it('displays the account and key with a warning message', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList accounts={ACCOUNTS} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
+            <AccountList selectedAccount={ACCOUNTS} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
-        expect(component.find('table')).toHaveLength(2)
+        expect(component.find('table')).toHaveLength(1)
         // Only account assertion displayed, no key assertion and one warning (+ two buttons)
-        expect(component.find('pre')).toHaveLength(1)
-        expect(component.find('i')).toHaveLength(3)
+        expect(component.find('p')).toHaveLength(3)
+        expect(component.find('i')).toHaveLength(6)
     })
 
     it('displays the key with a warning messages', function() {
 
         // Render the component
         const component = shallow(
-            <AccountList keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
+            <AccountList selectedAccount={{}} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
         );
 
         expect(component.find('section')).toHaveLength(2)
         expect(component.find('table')).toHaveLength(1)
         // No account assertion displayed, no key assertion and two warnings (+ two buttons)
-        expect(component.find('pre')).toHaveLength(0)
-        expect(component.find('i')).toHaveLength(4)
+        expect(component.find('p')).toHaveLength(3)
+        expect(component.find('i')).toHaveLength(6)
     })
 
     it('displays error with no permissions', function() {

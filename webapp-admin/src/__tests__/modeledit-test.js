@@ -17,10 +17,12 @@
 'use strict'
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import ModelEdit from '../components/ModelEdit';
+
+configure({ adapter: new Adapter() });
 
 jest.dontMock('../components/ModelEdit');
 jest.dontMock('../components/Navigation');
@@ -36,14 +38,14 @@ describe('model edit', function() {
     it('displays the model edit page for create', function() {
 
         // Mock the data retrieval from the API
-        var getModel = jest.genMockFunction();
-        var getKeypairs = jest.genMockFunction();
+        var getModel = jest.fn();
+        var getKeypairs = jest.fn();
         ModelEdit.prototype.getModel = getModel;
         ModelEdit.prototype.getKeypairs = getKeypairs;
 
         // Render the component
         var modelPage = ReactTestUtils.renderIntoDocument(
-            <ModelEdit params={{}} token={token} />
+            <ModelEdit selectedAccount={{}} keypairs={[]} token={token} />
         );
 
         expect(ReactTestUtils.isCompositeComponent(modelPage)).toBeTruthy();
@@ -64,16 +66,16 @@ describe('model edit', function() {
     it('displays the model edit page for an existing model', function() {
 
         // Mock the data retrieval from the API
-        var getModel = jest.genMockFunction();
-        var getKeypairs = jest.genMockFunction();
-        var handleSaveClick = jest.genMockFunction();
+        var getModel = jest.fn();
+        var getKeypairs = jest.fn();
+        var handleSaveClick = jest.fn();
         ModelEdit.prototype.getModel = getModel;
         ModelEdit.prototype.getKeypairs = getKeypairs;
         ModelEdit.prototype.handleSaveClick = handleSaveClick;
 
         // Render the component
         var modelPage = ReactTestUtils.renderIntoDocument(
-            <ModelEdit params={{id: 1}} token={token} />
+            <ModelEdit selectedAccount={{}} keypairs={[]} params={{id: 1}} token={token} />
         );
 
         expect(ReactTestUtils.isCompositeComponent(modelPage)).toBeTruthy();
@@ -83,7 +85,7 @@ describe('model edit', function() {
 
         // Render the component
         const component = shallow(
-            <ModelEdit />
+            <ModelEdit selectedAccount={{}} />
         );
 
         expect(component.find('div')).toHaveLength(1)
@@ -94,7 +96,7 @@ describe('model edit', function() {
 
         // Render the component
         const component = shallow(
-            <ModelEdit token={tokenUser} />
+            <ModelEdit token={tokenUser} selectedAccount={{}} />
         );
 
         expect(component.find('div')).toHaveLength(1)

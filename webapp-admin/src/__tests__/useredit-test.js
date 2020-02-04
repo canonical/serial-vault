@@ -17,14 +17,16 @@
 'use strict'
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import UserEdit from '../components/UserEdit';
 
 jest.dontMock('../components/UserEdit');
 jest.dontMock('../components/Navigation');
 jest.dontMock('../components/Utils');
+
+configure({ adapter: new Adapter() });
 
 const token = { role: 300 }
 const tokenUser = { role: 100 }
@@ -36,9 +38,9 @@ describe('user edit', function() {
     it('displays the user edit page for create', function() {
 
         // Mock the data retrieval from the API
-        var getUser = jest.genMockFunction();
-        var getNonUserAccounts = jest.genMockFunction();
-        var getAllAccounts = jest.genMockFunction();
+        var getUser = jest.fn();
+        var getNonUserAccounts = jest.fn();
+        var getAllAccounts = jest.fn();
         UserEdit.prototype.getUser = getUser;
         UserEdit.prototype.getNonUserAccounts = getNonUserAccounts;
         UserEdit.prototype.getAllAccounts = getAllAccounts;
@@ -57,10 +59,15 @@ describe('user edit', function() {
 
         // Check that the form is rendered without data
         var inputs = ReactTestUtils.scryRenderedDOMComponentsWithTag(userPage, 'input');
-        expect(inputs.length).toBe(3);
+        expect(inputs.length).toBe(4);
         expect(inputs[0].value).toBe('');
+        expect(inputs[0].id).toBe('username');
         expect(inputs[1].value).toBe('');
+        expect(inputs[1].id).toBe('name');
         expect(inputs[2].value).toBe('');
+        expect(inputs[2].id).toBe('email');
+        expect(inputs[3].value).toBe('');
+        expect(inputs[3].id).toBe('api-key');
 
         var selects = ReactTestUtils.scryRenderedDOMComponentsWithTag(userPage, 'select');
         expect(selects.length).toBe(1);
@@ -70,11 +77,10 @@ describe('user edit', function() {
     it('displays the edit page for an existing user', function() {
 
         // Mock the data retrieval from the API
-        // Mock the data retrieval from the API
-        var getUser = jest.genMockFunction();
-        var getNonUserAccounts = jest.genMockFunction();
-        var getAllAccounts = jest.genMockFunction();
-        var handleSaveClick = jest.genMockFunction();
+        var getUser = jest.fn();
+        var getNonUserAccounts = jest.fn();
+        var getAllAccounts = jest.fn();
+        var handleSaveClick = jest.fn();
         UserEdit.prototype.getUser = getUser;
         UserEdit.prototype.getNonUserAccounts = getNonUserAccounts;
         UserEdit.prototype.getAllAccounts = getAllAccounts;

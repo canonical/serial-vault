@@ -33,7 +33,7 @@ describe('footer', function() {
 	var shallowRenderer = createRenderer();
 
 	// Mock the data retrieval from the API
-	var getVersion = jest.genMockFunction();
+	var getVersion = jest.fn();
 	Footer.prototype.getVersion = getVersion;
 	window.AppState = {getLocale: function() {return 'en'}};
 

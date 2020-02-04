@@ -17,10 +17,12 @@
 'use strict'
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import ModelList from '../components/ModelList';
+
+configure({ adapter: new Adapter() });
 
 jest.dontMock('../components/ModelList');
 jest.dontMock('../components/KeypairList');
@@ -38,103 +40,75 @@ const tokenUser = { role: 100 }
 describe('model list', function() {
   it('displays the models page with no models', function() {
 
-    // Mock the data retrieval from the API
-    var getModels = jest.genMockFunction();
-    var getKeypairs = jest.genMockFunction();
-    ModelList.prototype.getModels = getModels;
-    ModelList.prototype.getKeypairs = getKeypairs;
-
     // Render the component
     var modelsPage = ReactTestUtils.renderIntoDocument(
-        <ModelList token={token} />
+      <ModelList token={token} models={[]} />
     );
 
     expect(ReactTestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
 
     // Check all the expected elements are rendered
     var sections = ReactTestUtils.scryRenderedDOMComponentsWithTag(modelsPage, 'section');
-    expect(sections.length).toBe(2)
+    expect(sections.length).toBe(1)
     var h2s = ReactTestUtils.scryRenderedDOMComponentsWithTag(modelsPage, 'h2');
-    expect(h2s.length).toBe(2);
+    expect(h2s.length).toBe(1);
 
-    // Check the getModels was called
-    // expect(getModels.mock.calls.length).toBe(1);
-
-    // Check the 'no models' and 'no keypairs' message is rendered
+    // Check the 'no models' message is rendered
     expect(sections[0].children.length).toBe(4);
     expect(sections[0].children[3].textContent).toBe('No models found.');
-    expect(sections[1].children[1].textContent).toBe('No signing keys found');
   });
 
  it('displays the models page with some models', function() {
 
-  // Set up a fixture for the model data
-  var models = [
-    {id: 1, 'brand-id': 'Brand1', model: 'Name1'},
-    {id: 2, 'brand-id': 'Brand2', model: 'Name2'},
-    {id: 3, 'brand-id': 'Brand3', model: 'Name3'}
-  ];
+    // Set up a fixture for the model data
+    var models = [
+      {id: 1, 'brand-id': 'Brand1', model: 'Name1'},
+      {id: 2, 'brand-id': 'Brand2', model: 'Name2'},
+      {id: 3, 'brand-id': 'Brand3', model: 'Name3'}
+    ];
 
-  // Render the component
-  var modelsPage = shallow(
-      <ModelList models={models} token={token} />
-  );
+    // Render the component
+    var modelsPage = shallow(
+        <ModelList models={models} token={token} />
+    );
 
-  expect(modelsPage.find('section')).toHaveLength(2)
-  expect(modelsPage.find('ModelRow')).toHaveLength(3)
-  expect(modelsPage.find('KeypairList')).toHaveLength(1)
-
+    expect(modelsPage.find('section')).toHaveLength(1)
+    expect(modelsPage.find('ModelRow')).toHaveLength(3)
  });
 
  it('displays the models page with some keypairs', function() {
 
-  // Set up a fixture for the model data
-  var models = [
-    {id: 1, 'brand-id': 'Brand1', model: 'Name1', 'authority-id': 'Brand1', 'key-id': 'Name1'},
-    {id: 2, 'brand-id': 'Brand2', model: 'Name2', 'authority-id': 'Brand1', 'key-id': 'Name1'},
-    {id: 3, 'brand-id': 'Brand3', model: 'Name3', 'authority-id': 'Brand1', 'key-id': 'Name1'}
-  ];
+    // Set up a fixture for the model data
+    var models = [
+      {id: 1, 'brand-id': 'Brand1', model: 'Name1', 'authority-id': 'Brand1', 'key-id': 'Name1'},
+      {id: 2, 'brand-id': 'Brand2', model: 'Name2', 'authority-id': 'Brand1', 'key-id': 'Name1'},
+      {id: 3, 'brand-id': 'Brand3', model: 'Name3', 'authority-id': 'Brand1', 'key-id': 'Name1'}
+    ];
 
-  // Set up a fixture for the keypair data
-  var keypairs = [
-    {ID: 11, AuthorityID: 'Brand1', KeyID: 'Name1', Active: 1},
-    {ID: 22, AuthorityID: 'Brand2', KeyID: 'Name2', Active: 2},
-    {ID: 33, AuthorityID: 'Brand3', KeyID: 'Name3', Active: 3}
-  ];
+    // Mock the data retrieval from the API
+    var getModels = jest.fn();
+    var getKeypairs = jest.fn();
+    ModelList.prototype.getModels = getModels;
+    ModelList.prototype.getKeypairs = getKeypairs;
 
-  // Mock the data retrieval from the API
-  var getModels = jest.genMockFunction();
-  var getKeypairs = jest.genMockFunction();
-  ModelList.prototype.getModels = getModels;
-  ModelList.prototype.getKeypairs = getKeypairs;
+    // Render the component
+    var modelsPage = shallow(
+        <ModelList models={models} token={token} showAssert={1} />
+    );
 
-  // Render the component
-  var modelsPage = ReactTestUtils.renderIntoDocument(
-      <ModelList models={models} keypairs={keypairs} token={token} />
-  );
+    expect(ReactTestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
 
-  expect(ReactTestUtils.isCompositeComponent(modelsPage)).toBeTruthy();
+    // Check all the expected elements are rendered
+    var sections = modelsPage.find('section');
+    expect(sections.length).toBe(1)
+    var h2s = modelsPage.find('h2');
+    expect(h2s.length).toBe(1);
 
-  // Check all the expected elements are rendered
-  var sections = ReactTestUtils.scryRenderedDOMComponentsWithTag(modelsPage, 'section');
-  expect(sections.length).toBe(2)
-  var h2s = ReactTestUtils.scryRenderedDOMComponentsWithTag(modelsPage, 'h2');
-  expect(h2s.length).toBe(2);
-
-  // Check the models table
-  var sectionModelRows = sections[0].children[3].children[0].children[1].children;
-  expect(sectionModelRows.length).toBe(3);
-  expect(sectionModelRows[1].children.length).toBe(6);
-  expect(sectionModelRows[1].children[2].textContent).toBe(models[1].model);
-  expect(sectionModelRows[1].children[3].textContent).toBe(models[1]['authority-id'].concat('/', models[1]['key-id']));
-
-  // Check the keypairs table
-  var sectionKeypairRows = sections[1].children[1].children[0].children[1].children;
-  expect(sectionKeypairRows.length).toBe(3);
-  expect(sectionKeypairRows[0].children.length).toBe(4);
-  expect(sectionKeypairRows[0].children[1].textContent).toBe(keypairs[0].AuthorityID);
-  expect(sectionKeypairRows[0].children[2].textContent).toBe(keypairs[0].KeyID);
-
+    var sectionModelRows = modelsPage.find('ModelRow')
+    expect(sectionModelRows.length).toBe(3);
+    expect(sectionModelRows.get(0).props.model).toEqual(models[0])
+    expect(sectionModelRows.get(1).props.model).toEqual(models[1])
+    expect(sectionModelRows.get(2).props.model).toEqual(models[2])
  });
 
   it('displays error with no permissions', function() {

@@ -16,9 +16,12 @@
  */
 
 import React from 'react';
-import {shallow, mount, render} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import {shallow, configure} from 'enzyme';
 import ReactTestUtils from 'react-dom/test-utils';
 import AccountKeyForm from '../components/AccountKeyForm'
+
+configure({ adapter: new Adapter() });
 
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
