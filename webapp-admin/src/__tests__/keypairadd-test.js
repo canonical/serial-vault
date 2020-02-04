@@ -40,7 +40,7 @@ const token = { role: 200 }
 const tokenUser = { role: 100 }
 
 describe('keypair add', function() {
-    it('1. displays the new keypair page', function() {
+    it('displays the new keypair page', function() {
 
         // Render the component
         var keysPage = ReactTestUtils.renderIntoDocument(
@@ -81,7 +81,7 @@ describe('keypair add', function() {
         ReactTestUtils.Simulate.change(textAuthority);
     });
 
-    it('3. displays the alert box on error', function() {
+    it('displays the alert box on error', function() {
 
         var shallowRenderer = createRenderer();
 

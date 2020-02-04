@@ -45,7 +45,6 @@ describe('model edit', function() {
 
         // Render the component
         var modelPage = ReactTestUtils.renderIntoDocument(
-            // <ModelEdit token={this.props.token} id={id} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} />
             <ModelEdit selectedAccount={{}} keypairs={[]} token={token} />
         );
 
@@ -64,7 +63,7 @@ describe('model edit', function() {
 
     });
 
-    it('2. displays the model edit page for an existing model', function() {
+    it('displays the model edit page for an existing model', function() {
 
         // Mock the data retrieval from the API
         var getModel = jest.fn();

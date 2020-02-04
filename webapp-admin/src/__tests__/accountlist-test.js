@@ -44,7 +44,6 @@ describe('accounts list', function() {
 
         // Render the component
         const component = shallow(
-            // <AccountList token={this.props.token} selectedAccount={this.state.selectedAccount} keypairs={this.state.keypairs} />
             <AccountList token={token} selectedAccount={{}} keypairs={{}} />
         );
 

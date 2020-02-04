@@ -106,7 +106,7 @@ describe('user edit', function() {
     })
 
     it('displays error with insufficient permissions', function() {
-        
+
         // Render the component
         const component = shallow(
             <UserEdit token={tokenUser} />
