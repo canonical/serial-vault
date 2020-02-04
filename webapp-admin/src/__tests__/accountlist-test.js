@@ -112,7 +112,7 @@ describe('accounts list', function() {
     })
 
     it('displays the key with a warning messages', function() {
-        
+
         // Render the component
         const component = shallow(
             <AccountList selectedAccount={{}} keypairs={KEYPAIRS_INCOMPLETE} models={MODELS} token={token} />
