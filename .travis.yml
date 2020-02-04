@@ -1,35 +1,34 @@
 sudo: required
+language: go
+dist: xenial
+go_import_path: github.com/CanonicalLtd/serial-vault
+go:
+  - 1.13
+env:
+  matrix:
+    - TEST_SUITE="--static"
+    - TEST_SUITE="--unit"
 
-matrix:
+before_install:
+  - go get github.com/cheggaaa/pb
+  - go get gopkg.in/macaroon.v1
+  - go get gopkg.in/retry.v1
+  - go get gopkg.in/tomb.v2
+  - go get gopkg.in/check.v1
+  - go get -u golang.org/x/lint/golint
+  - go get github.com/client9/misspell/cmd/misspell
+  - go get -u github.com/gordonklaus/ineffassign
+  - go get -u github.com/alexkohler/nakedret
+  - sh ./get-deps.sh
+
+install:
+  - echo $GOPATH
+  - echo "Remaining install is done by the test script."
+  - true
+script: sh -v ./run-checks $TEST_SUITE
+
+jobs:
   include:
-    - language: go
-      dist: xenial
-      go_import_path: github.com/CanonicalLtd/serial-vault
-      go:
-        - 1.13
-      env:
-        matrix:
-          - TEST_SUITE="--static"
-          - TEST_SUITE="--unit"
-
-      before_install:
-        - go get github.com/cheggaaa/pb
-        - go get gopkg.in/macaroon.v1
-        - go get gopkg.in/retry.v1
-        - go get gopkg.in/tomb.v2
-        - go get gopkg.in/check.v1
-        - go get -u golang.org/x/lint/golint
-        - go get github.com/client9/misspell/cmd/misspell
-        - go get -u github.com/gordonklaus/ineffassign
-        - go get -u github.com/alexkohler/nakedret
-        - sh ./get-deps.sh
-
-      install:
-        - echo $GOPATH
-        - echo "Remaining install is done by the test script."
-        - true
-      script: sh -v ./run-checks $TEST_SUITE
-    
     - language: node_js
       node_js:
         - lts/*
