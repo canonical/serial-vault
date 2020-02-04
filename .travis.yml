@@ -1,14 +1,16 @@
+sudo: required
+
 matrix:
   include:
     - language: go
-      sudo: required
       dist: xenial
       go_import_path: github.com/CanonicalLtd/serial-vault
       go:
         - 1.13
       env:
-        - TEST_SUITE="--static"
-        - TEST_SUITE="--unit"
+        matrix:
+          - TEST_SUITE="--static"
+          - TEST_SUITE="--unit"
 
       before_install:
         - go get github.com/cheggaaa/pb
@@ -38,5 +40,6 @@ matrix:
       install:
         - npm install -g codecov
       script:
-        - npm run test
-        - curl -s https://codecov.io/bash | bash /dev/stdin -f junit.xml
+        - npm run test:ci
+      after_success:  
+        curl -s https://codecov.io/bash | bash /dev/stdin -f junit.xml
