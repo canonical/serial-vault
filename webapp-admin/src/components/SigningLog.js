@@ -75,7 +75,7 @@ class SigningLog extends Component {
   }
 
   getSigningLogFilters = () => {
-    SigningLogModel.filters((this.state.authorityID).then((response) => {
+    SigningLogModel.filters(this.state.authorityID).then((response) => {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
