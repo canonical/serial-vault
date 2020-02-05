@@ -102,6 +102,7 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/keypairs/register", MiddlewareWithCSRF(http.HandlerFunc(store.KeyRegister))).Methods("POST")
 
 	// API routes: signing log
+	// TODO: GET /v1/signinglog is not really used in the frontend and could be removed
 	router.Handle("/v1/signinglog", MiddlewareWithCSRF(http.HandlerFunc(signinglog.List))).Methods("GET")
 	router.Handle("/v1/signinglog/account/{authorityID}", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListForAccount))).Methods("GET")
 	router.Handle("/v1/signinglog/account/{authorityID}/filters", MiddlewareWithCSRF(http.HandlerFunc(signinglog.ListFilters))).Methods("GET")

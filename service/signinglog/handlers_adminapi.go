@@ -72,7 +72,7 @@ func APISyncLog(w http.ResponseWriter, r *http.Request) {
 	syncLogHandler(w, user, true, request)
 }
 
-// GetSigningLogParams ...
+// GetSigningLogParams pars and set default for the search parameters from the request
 func GetSigningLogParams(r *http.Request) *datastore.SigningLogParams {
 	params := &datastore.SigningLogParams{}
 
