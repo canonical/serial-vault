@@ -59,6 +59,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool, accou
 		return
 	}
 
+	// logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
 	stores, err := datastore.Environ.DB.ListSubstores(accountID, user)
 	if err != nil {
 		log.Println(err)

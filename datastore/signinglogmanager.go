@@ -49,7 +49,7 @@ const alterSigningLogAddSyncedSQL = "ALTER TABLE signinglog ADD COLUMN synced in
 // MaxFromID is the maximum ID value
 const MaxFromID = 2147483647
 
-// ListSigningLogDefaultLimit ...
+// ListSigningLogDefaultLimit is the default limit for the search queries in SigningLog
 const ListSigningLogDefaultLimit = 50
 
 // Indexes
@@ -65,7 +65,6 @@ const maxIDSigningLogSQLite = "SELECT COUNT(*)+1 from signinglog"
 const createSigningLogSQLite = "INSERT INTO signinglog (id, make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5, $6)"
 const createSigningLogSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision) VALUES ($1, $2, $3, $4, $5)"
 const createSigningLogSyncSQL = "INSERT INTO signinglog (make, model, serial_number, fingerprint,revision,created) VALUES ($1, $2, $3, $4, $5, $6)"
-
 const listSigningLogSQL = "SELECT * FROM signinglog WHERE id < $1 ORDER BY id DESC LIMIT 10000"
 const listSigningLogForUserSQL = `
 	SELECT s.* FROM signinglog s
@@ -76,18 +75,6 @@ const listSigningLogForUserSQL = `
 		WHERE acc.authority_id=s.make and u.username=$2
 	)
 	ORDER BY id DESC LIMIT 10000`
-
-const listSigningLogForAccountForUserSQL = `
-	SELECT s.*, count(*) OVER() AS total_count 
-	FROM signinglog s
-	WHERE id < $1 and EXISTS(
-		SELECT * FROM account acc
-		INNER JOIN useraccountlink ua on ua.account_id=acc.id
-		INNER JOIN userinfo u on ua.user_id=u.id
-		WHERE acc.authority_id=s.make and u.username=$2
-	)
-	AND s.make=$3
-	ORDER BY id DESC OFFSET $4 LIMIT 50`
 
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
 
@@ -235,12 +222,10 @@ func (db *DB) CreateSigningLogSync(signLog SigningLog) error {
 	return nil
 }
 
-// TODO: this function is not used
 func (db *DB) listAllSigningLog() ([]SigningLog, error) {
 	return db.listSigningLogFilteredByUser(anyUserFilter)
 }
 
-// TODO: this function is not used
 func (db *DB) listSigningLogFilteredByUser(username string) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
@@ -318,6 +303,7 @@ func (db *DB) listSigningLogForAccountFilteredByUser(username, authorityID strin
 		log.Printf("Error retrieving signing logs: %v\n", err)
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		signingLog := SigningLog{}

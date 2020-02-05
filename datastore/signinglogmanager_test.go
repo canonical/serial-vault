@@ -20,7 +20,6 @@
 package datastore
 
 import (
-	"fmt"
 	"testing"
 
 	check "gopkg.in/check.v1"
@@ -108,12 +107,8 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 		got := signingLogSQLBuilder(tt.username, tt.authorityID, tt.params)
 		sql, args, err := got.ToSql()
 
-		fmt.Printf(">>> %#v\n", args)
-		fmt.Printf(">>> %s\n", sql)
-
 		c.Assert(err, check.IsNil)
 		c.Assert(sql, check.Equals, tt.wantSQL)
 		c.Assert(args, check.DeepEquals, tt.wantParams)
 	}
-	// c.Fail()
 }

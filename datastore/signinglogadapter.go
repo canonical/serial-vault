@@ -20,7 +20,6 @@
 package datastore
 
 // ListAllowedSigningLog return signing logs the user is authorized to see
-// TODO: this function is not used
 func (db *DB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	switch authorization.Role {
 	case Invalid: // Authentication disabled
