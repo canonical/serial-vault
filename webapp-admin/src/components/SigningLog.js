@@ -41,7 +41,7 @@ class SigningLog extends Component {
         totalLogs: 0,
         authorityID: this.props.selectedAccount.AuthorityID,
     };
-    this.getSigningLogs(this.state.authorityID, 0, '', '')
+    this.getSigningLogs(0, '', '')
     this.getSigningLogFilters(this.state.authorityID)
   }
 
@@ -57,7 +57,7 @@ class SigningLog extends Component {
       items = this.state.filterModels;
       items[index].selected = !items[index].selected;
       var filter = items.filter(i => i.selected === true).map(i => i.name).join(',')
-      this.getSigningLogs(this.state.authorityID, 0, filter, this.state.query)
+      this.getSigningLogs(0, filter, this.state.query)
       this.setState({filterModels: items, filterString: filter});
     }
   }
@@ -88,7 +88,7 @@ class SigningLog extends Component {
   }
 
   handleSearchChange = (e) => {
-    this.getSigningLogs(this.state.authorityID, 0, this.state.filterString, e.target.value)
+    this.getSigningLogs(0, this.state.filterString, e.target.value)
     this.setState({query: e.target.value});
   }
 
