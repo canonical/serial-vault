@@ -63,8 +63,8 @@ class SigningLog extends Component {
     }
   }
 
-  getSigningLogs = (authorityID, offset, filter, serialnumber) => {
-    SigningLogModel.listForAccount(authorityID, offset, filter, serialnumber).then((response) => {
+  getSigningLogs = (offset, filter, serialnumber) => {
+    SigningLogModel.listForAccount(this.state.authorityID, offset, filter, serialnumber).then((response) => {
       var data = JSON.parse(response.body);
       var message = null;
       if (!data.success) {
@@ -74,8 +74,8 @@ class SigningLog extends Component {
     });
   }
 
-  getSigningLogFilters = (authorityID) => {
-    SigningLogModel.filters(authorityID).then((response) => {
+  getSigningLogFilters = () => {
+    SigningLogModel.filters((this.state.authorityID).then((response) => {
       var data = JSON.parse(response.body);
       var message = "";
       if (!data.success) {
