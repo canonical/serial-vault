@@ -247,9 +247,7 @@ func (db *DB) listSigningLogFilteredByUser(username string) ([]SigningLog, error
 
 	for rows.Next() {
 		signingLog := SigningLog{}
-		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model,
-			&signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created,
-			&signingLog.Revision, &signingLog.Synced, &signingLog.Total)
+		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created, &signingLog.Revision, &signingLog.Synced)
 		if err != nil {
 			return nil, err
 		}
@@ -288,6 +286,7 @@ func signingLogSQLBuilder(username, authorityID string, params *SigningLogParams
 		sql = sql.Where(sq.Eq{"model": params.Filter})
 	}
 	if params.Serialnumber != "" {
+		// WHERE serial_number LIKE 123%
 		sql = sql.Where(sq.Like{"serial_number": fmt.Sprintf("%s%%", params.Serialnumber)})
 	}
 
@@ -391,9 +390,7 @@ func (db *DB) SyncSigningLog() ([]SigningLog, error) {
 
 	for rows.Next() {
 		signingLog := SigningLog{}
-		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model,
-			&signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created,
-			&signingLog.Revision, &signingLog.Synced, &signingLog.Total)
+		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created, &signingLog.Revision, &signingLog.Synced)
 		if err != nil {
 			return nil, err
 		}

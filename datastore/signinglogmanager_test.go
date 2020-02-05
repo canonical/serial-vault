@@ -101,6 +101,14 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 			wantSQL:     `SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND EXISTS ( SELECT * FROM account acc INNER JOIN useraccountlink ua on ua.account_id=acc.id INNER JOIN userinfo u on ua.user_id=u.id WHERE acc.authority_id=s.make AND u.username=$3 ) ORDER BY id DESC LIMIT 50 OFFSET 0`,
 			wantParams:  []interface{}{2147483647, "admin", "bob"},
 		},
+		{
+			authorityID: "admin",
+			params: &SigningLogParams{
+				Serialnumber: "Robert'); DROP TABLE signinglog;--",
+			},
+			wantSQL:    `SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND serial_number LIKE $3 ORDER BY id DESC LIMIT 50 OFFSET 0`,
+			wantParams: []interface{}{2147483647, "admin", "Robert'); DROP TABLE signinglog;--%"},
+		},
 	}
 
 	for _, tt := range tests {
