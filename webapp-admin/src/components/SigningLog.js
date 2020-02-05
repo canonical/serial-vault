@@ -39,9 +39,8 @@ class SigningLog extends Component {
         startRow: 0,
         endRow: PAGINATION_SIZE,
         totalLogs: 0,
-        authorityID: null,
+        authorityID: this.props.selectedAccount.AuthorityID,
     };
-    this.state.authorityID = this.props.selectedAccount.AuthorityID
     this.getSigningLogs(this.state.authorityID, 0, '', '')
     this.getSigningLogFilters(this.state.authorityID)
   }
