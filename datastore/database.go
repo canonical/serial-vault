@@ -73,7 +73,7 @@ type Datastore interface {
 	CreateSigningLogTable() error
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
-	ListAllowedSigningLog(authorization User, params *SigningLogParams) ([]SigningLog, error)
+	ListAllowedSigningLog(authorization User) ([]SigningLog, error)
 	ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error)
 	AllowedSigningLogFilterValues(authorization User, authorityID string) (SigningLogFilters, error)
 

@@ -28,6 +28,7 @@ import (
 )
 
 // List is the API method to fetch the log records from signing
+// TODO: this function is not used
 func List(w http.ResponseWriter, r *http.Request) {
 	authUser, err := auth.GetUserFromJWT(w, r)
 	if err != nil {

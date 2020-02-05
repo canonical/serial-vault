@@ -406,7 +406,7 @@ func (mdb *MockDB) CreateSigningLogSync(signLog SigningLog) error {
 }
 
 // ListAllowedSigningLog database mock
-func (mdb *MockDB) ListAllowedSigningLog(authorization User, params *SigningLogParams) ([]SigningLog, error) {
+func (mdb *MockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var fromID = 11
 	signingLog := []SigningLog{}
 
@@ -422,7 +422,7 @@ func (mdb *MockDB) ListAllowedSigningLog(authorization User, params *SigningLogP
 
 // ListAllowedSigningLogForAccount database mock
 func (mdb *MockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error) {
-	return mdb.ListAllowedSigningLog(authorization, params)
+	return mdb.ListAllowedSigningLog(authorization)
 }
 
 // SyncSigningLog database mock
@@ -1112,14 +1112,14 @@ func (mdb *ErrorMockDB) CreateTestLogTable() error {
 }
 
 // ListAllowedSigningLog error mock for the database
-func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User, params *SigningLogParams) ([]SigningLog, error) {
+func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, error) {
 	var signingLog []SigningLog
 	return signingLog, errors.New("Error retrieving the signing logs")
 }
 
 // ListAllowedSigningLogForAccount database mock
 func (mdb *ErrorMockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error) {
-	return mdb.ListAllowedSigningLog(authorization, params)
+	return mdb.ListAllowedSigningLog(authorization)
 }
 
 // SyncSigningLog error mock for the database

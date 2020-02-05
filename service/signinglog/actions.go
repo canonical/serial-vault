@@ -50,6 +50,7 @@ type FiltersResponse struct {
 }
 
 // listHandler is the API method to fetch the log records from signing
+// TODO: this function is not used
 func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool, params *datastore.SigningLogParams) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -59,7 +60,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool, param
 		return
 	}
 
-	logs, err := datastore.Environ.DB.ListAllowedSigningLog(user, params)
+	logs, err := datastore.Environ.DB.ListAllowedSigningLog(user)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
 		return
