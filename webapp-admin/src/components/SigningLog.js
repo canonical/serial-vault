@@ -177,7 +177,6 @@ class SigningLog extends Component {
               </div>
               <div className="col-9">
                 <Pagination totalLogs={this.state.totalLogs}
-                            authorityID={this.state.authorityID}
                             query={this.state.query}
                             searchText={T('find-serialnumber')}
                             pageChange={this.getSigningLogs}
