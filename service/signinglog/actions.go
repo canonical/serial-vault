@@ -51,7 +51,7 @@ type FiltersResponse struct {
 
 // listHandler is the API method to fetch the log records from signing
 // TODO: this function is not used
-func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool, params *datastore.SigningLogParams) {
+func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)

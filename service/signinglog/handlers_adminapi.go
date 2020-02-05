@@ -42,10 +42,8 @@ func APIList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := GetSigningLogParams(r)
-
 	// Call the API with the user
-	listHandler(w, user, true, params)
+	listHandler(w, user, true)
 }
 
 // APISyncLog is the API method to sync a factory log to the cloud

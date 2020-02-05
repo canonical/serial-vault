@@ -36,9 +36,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := GetSigningLogParams(r)
-
-	listHandler(w, authUser, false, params)
+	listHandler(w, authUser, false)
 }
 
 // ListForAccount is the API method to fetch the log records from signing for an account
