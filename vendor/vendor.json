@@ -55,18 +55,6 @@
 			"revisionTime": "2016-04-18T12:10:39Z"
 		},
 		{
-			"checksumSHA1": "ep2BurYaI2ZGnsXDIZe53Wzk/BI=",
-			"path": "github.com/lann/builder",
-			"revision": "47ae307949d02aa1f1069fdafc00ca08e1dbabac",
-			"revisionTime": "2018-08-02T20:07:27Z"
-		},
-		{
-			"checksumSHA1": "nR871nUQ6KxGoDR+TdgQhGUqcHI=",
-			"path": "github.com/lann/ps",
-			"revision": "62de8c46ede02a7675c4c79c84883eb164cb71e3",
-			"revisionTime": "2015-08-10T15:23:59Z"
-		},
-		{
 			"checksumSHA1": "F7vsuKOVSMnFSi90odRxfhBEBeA=",
 			"path": "github.com/lib/pq",
 			"revision": "d34b9ff171c21ad295489235aec8b6626023cd04",
