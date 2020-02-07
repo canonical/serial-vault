@@ -103,7 +103,7 @@ type SigningLog struct {
 	Created      time.Time `json:"created"`
 	Revision     int       `json:"revision"`
 	Synced       int       `json:"synced"`
-	Total        int       `json:"total_count"`
+	Total        int
 }
 
 // SigningLogFilters holds the values of the filters for the searchable columns
