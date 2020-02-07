@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "wDTW/iF4fRJmzJKUSssf3qYs+r4=",
+			"path": "github.com/Masterminds/squirrel",
+			"revision": "59c11a6b2dd511b675939075e5d34d461a4f9f6d",
+			"revisionTime": "2020-01-13T17:49:31Z"
+		},
+		{
 			"checksumSHA1": "4772zXrOaPVeDeSgdiV7Vp4KEjk=",
 			"path": "github.com/dgrijalva/jwt-go",
 			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
