@@ -28,6 +28,13 @@ import (
 
 const anyUserFilter = ""
 
+// SigningLogParams holds extra parameters for the SigningLog search
+type SigningLogParams struct {
+	Offset       int
+	Filter       []string
+	Serialnumber string
+}
+
 // Datastore interface for the database logic
 type Datastore interface {
 	ListAllowedModels(authorization User) ([]Model, error)
@@ -67,7 +74,7 @@ type Datastore interface {
 	CheckForDuplicate(signLog *SigningLog) (bool, int, error)
 	CreateSigningLog(signLog SigningLog) error
 	ListAllowedSigningLog(authorization User) ([]SigningLog, error)
-	ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error)
+	ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error)
 	AllowedSigningLogFilterValues(authorization User, authorityID string) (SigningLogFilters, error)
 
 	CreateDeviceNonceTable() error

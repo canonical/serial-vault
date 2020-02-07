@@ -421,7 +421,7 @@ func (mdb *MockDB) ListAllowedSigningLog(authorization User) ([]SigningLog, erro
 }
 
 // ListAllowedSigningLogForAccount database mock
-func (mdb *MockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error) {
+func (mdb *MockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error) {
 	return mdb.ListAllowedSigningLog(authorization)
 }
 
@@ -1118,7 +1118,7 @@ func (mdb *ErrorMockDB) ListAllowedSigningLog(authorization User) ([]SigningLog,
 }
 
 // ListAllowedSigningLogForAccount database mock
-func (mdb *ErrorMockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string) ([]SigningLog, error) {
+func (mdb *ErrorMockDB) ListAllowedSigningLogForAccount(authorization User, authorityID string, params *SigningLogParams) ([]SigningLog, error) {
 	return mdb.ListAllowedSigningLog(authorization)
 }
 

@@ -22,9 +22,11 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/service/log"
+	sq "github.com/Masterminds/squirrel"
 )
 
 const createSigningLogTableSQL = `
@@ -46,6 +48,9 @@ const alterSigningLogAddSyncedSQL = "ALTER TABLE signinglog ADD COLUMN synced in
 
 // MaxFromID is the maximum ID value
 const MaxFromID = 2147483647
+
+// ListSigningLogDefaultLimit is the default limit for the search queries in SigningLog
+const ListSigningLogDefaultLimit = 50
 
 // Indexes
 const createSigningLogSerialNumberIndexSQL = "CREATE INDEX IF NOT EXISTS serialnumber_idx ON signinglog (make,model,serial_number)"
@@ -69,18 +74,6 @@ const listSigningLogForUserSQL = `
 		INNER JOIN userinfo u on ua.user_id=u.id
 		WHERE acc.authority_id=s.make and u.username=$2
 	)
-	ORDER BY id DESC LIMIT 10000`
-
-const listSigningLogForAccountSQL = "SELECT * FROM signinglog WHERE id < $1 AND make=$2 ORDER BY id DESC LIMIT 10000"
-const listSigningLogForAccountForUserSQL = `
-	SELECT s.* FROM signinglog s
-	WHERE id < $1 and EXISTS(
-		SELECT * FROM account acc
-		INNER JOIN useraccountlink ua on ua.account_id=acc.id
-		INNER JOIN userinfo u on ua.user_id=u.id
-		WHERE acc.authority_id=s.make and u.username=$2
-	)
-	AND s.make=$3
 	ORDER BY id DESC LIMIT 10000`
 
 const deleteSigningLogSQL = "DELETE FROM signinglog WHERE id=$1"
@@ -110,6 +103,7 @@ type SigningLog struct {
 	Created      time.Time `json:"created"`
 	Revision     int       `json:"revision"`
 	Synced       int       `json:"synced"`
+	Total        int
 }
 
 // SigningLogFilters holds the values of the filters for the searchable columns
@@ -263,23 +257,47 @@ func (db *DB) listSigningLogFilteredByUser(username string) ([]SigningLog, error
 	return signingLogs, nil
 }
 
-func (db *DB) listAllSigningLogForAccount(authorityID string) ([]SigningLog, error) {
-	return db.listSigningLogForAccountFilteredByUser(anyUserFilter, authorityID)
+func (db *DB) listAllSigningLogForAccount(authorityID string, params *SigningLogParams) ([]SigningLog, error) {
+	return db.listSigningLogForAccountFilteredByUser(anyUserFilter, authorityID, params)
 }
 
-func (db *DB) listSigningLogForAccountFilteredByUser(username, authorityID string) ([]SigningLog, error) {
+func signingLogSQLBuilder(username, authorityID string, params *SigningLogParams) sq.SelectBuilder {
+	sql := sq.
+		Select("*", "count(*) OVER() AS total_count").
+		From("signinglog s").          // FROM signinglog s
+		Where(sq.Lt{"id": MaxFromID}). // WHERE id < $1
+		Where("make=?", authorityID).  // AND make=$2
+		OrderBy("id DESC").
+		Limit(ListSigningLogDefaultLimit).
+		Offset(uint64(params.Offset)).
+		PlaceholderFormat(sq.Dollar)
+
+	if username != "" {
+		nestedBuilder := sq.Select("*").Prefix("EXISTS (").
+			From("account acc").
+			JoinClause("INNER JOIN useraccountlink ua on ua.account_id=acc.id").
+			JoinClause("INNER JOIN userinfo u on ua.user_id=u.id").
+			Where("acc.authority_id=s.make AND u.username=?", username).
+			Suffix(")").PlaceholderFormat(sq.Dollar)
+
+		sql = sql.Where(nestedBuilder)
+	}
+	if len(params.Filter) > 0 {
+		sql = sql.Where(sq.Eq{"model": params.Filter})
+	}
+	if params.Serialnumber != "" {
+		// WHERE serial_number LIKE 123%
+		sql = sql.Where(sq.Like{"serial_number": fmt.Sprintf("%s%%", params.Serialnumber)})
+	}
+
+	return sql
+}
+
+func (db *DB) listSigningLogForAccountFilteredByUser(username, authorityID string, params *SigningLogParams) ([]SigningLog, error) {
 	signingLogs := []SigningLog{}
 
-	var (
-		rows *sql.Rows
-		err  error
-	)
-
-	if len(username) == 0 {
-		rows, err = db.Query(listSigningLogForAccountSQL, MaxFromID, authorityID)
-	} else {
-		rows, err = db.Query(listSigningLogForAccountForUserSQL, MaxFromID, username, authorityID)
-	}
+	listSQL := signingLogSQLBuilder(username, authorityID, params)
+	rows, err := listSQL.RunWith(db).Query()
 	if err != nil {
 		log.Printf("Error retrieving signing logs: %v\n", err)
 		return nil, err
@@ -288,8 +306,11 @@ func (db *DB) listSigningLogForAccountFilteredByUser(username, authorityID strin
 
 	for rows.Next() {
 		signingLog := SigningLog{}
-		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model, &signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created, &signingLog.Revision, &signingLog.Synced)
+		err := rows.Scan(&signingLog.ID, &signingLog.Make, &signingLog.Model,
+			&signingLog.SerialNumber, &signingLog.Fingerprint, &signingLog.Created,
+			&signingLog.Revision, &signingLog.Synced, &signingLog.Total)
 		if err != nil {
+			log.Printf("Error retrieving signing logs: %v\n", err)
 			return nil, err
 		}
 		signingLogs = append(signingLogs, signingLog)

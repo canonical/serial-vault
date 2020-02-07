@@ -37,6 +37,7 @@ type ListResponse struct {
 	ErrorSubcode string                 `json:"error_subcode"`
 	ErrorMessage string                 `json:"message"`
 	SigningLog   []datastore.SigningLog `json:"logs"`
+	Total        int                    `json:"total_count"`
 }
 
 // FiltersResponse is the JSON response from the API Signing Log Filters method
@@ -70,7 +71,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 }
 
 // listForAccountHandler is the API method to fetch the log records from signing for an account
-func listForAccountHandler(w http.ResponseWriter, user datastore.User, apiCall bool, authorityID string) {
+func listForAccountHandler(w http.ResponseWriter, user datastore.User, apiCall bool, authorityID string, params *datastore.SigningLogParams) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
@@ -79,7 +80,7 @@ func listForAccountHandler(w http.ResponseWriter, user datastore.User, apiCall b
 		return
 	}
 
-	logs, err := datastore.Environ.DB.ListAllowedSigningLogForAccount(user, authorityID)
+	logs, err := datastore.Environ.DB.ListAllowedSigningLogForAccount(user, authorityID, params)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-fetch-signinglog", "", err.Error(), w)
 		return
@@ -113,6 +114,10 @@ func listFiltersHandler(w http.ResponseWriter, user datastore.User, apiCall bool
 
 func formatListResponse(success bool, errorCode, errorSubcode, message string, logs []datastore.SigningLog, w http.ResponseWriter) error {
 	response := ListResponse{Success: success, ErrorCode: errorCode, ErrorSubcode: errorSubcode, ErrorMessage: message, SigningLog: logs}
+
+	if len(logs) > 0 {
+		response.Total = logs[0].Total
+	}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {

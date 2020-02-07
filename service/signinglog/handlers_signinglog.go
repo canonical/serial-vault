@@ -47,8 +47,9 @@ func ListForAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
+	params := GetSigningLogParams(r)
 
-	listForAccountHandler(w, authUser, false, vars["authorityID"])
+	listForAccountHandler(w, authUser, false, vars["authorityID"], params)
 }
 
 // ListFilters is the API method to fetch the log filter values
