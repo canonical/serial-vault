@@ -65,7 +65,6 @@ class Pagination extends Component {
     if ((this.state.page > pages) && (pages > 0)) {
         this.setState({page: pages})
     }
-
     return pages;
   }
 
