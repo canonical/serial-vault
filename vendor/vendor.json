@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "wDTW/iF4fRJmzJKUSssf3qYs+r4=",
-			"path": "github.com/Masterminds/squirrel",
-			"revision": "59c11a6b2dd511b675939075e5d34d461a4f9f6d",
-			"revisionTime": "2020-01-13T17:49:31Z"
-		},
-		{
 			"checksumSHA1": "4772zXrOaPVeDeSgdiV7Vp4KEjk=",
 			"path": "github.com/dgrijalva/jwt-go",
 			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
@@ -65,6 +59,12 @@
 			"path": "github.com/lann/builder",
 			"revision": "47ae307949d02aa1f1069fdafc00ca08e1dbabac",
 			"revisionTime": "2018-08-02T20:07:27Z"
+		},
+		{
+			"checksumSHA1": "nR871nUQ6KxGoDR+TdgQhGUqcHI=",
+			"path": "github.com/lann/ps",
+			"revision": "62de8c46ede02a7675c4c79c84883eb164cb71e3",
+			"revisionTime": "2015-08-10T15:23:59Z"
 		},
 		{
 			"checksumSHA1": "F7vsuKOVSMnFSi90odRxfhBEBeA=",
