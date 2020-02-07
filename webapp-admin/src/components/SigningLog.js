@@ -69,7 +69,7 @@ class SigningLog extends Component {
       if (!data.success) {
         message = data.message;
       }
-      this.setState({logs: data.logs, message: message, totalLogs: data.total});
+      this.setState({logs: data.logs, message: message, totalLogs: data.total_count});
     });
   }
 
