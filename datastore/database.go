@@ -30,7 +30,8 @@ const anyUserFilter = ""
 
 // SigningLogParams holds extra parameters for the SigningLog search
 type SigningLogParams struct {
-	Offset       int
+	Limit        uint64 // 0 means no LIMIT here
+	Offset       uint64
 	Filter       []string
 	Serialnumber string
 }

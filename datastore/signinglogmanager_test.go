@@ -43,16 +43,15 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 		{
 			authorityID: "admin",
 			params:      &SigningLogParams{},
-			// original sql: "SELECT * FROM signinglog WHERE id < $1 AND make=$2 ORDER BY id DESC LIMIT 10000"
-			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 ORDER BY id DESC LIMIT 50 OFFSET 0",
-			wantParams: []interface{}{2147483647, "admin"},
+			wantSQL:     "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 ORDER BY id DESC OFFSET 0",
+			wantParams:  []interface{}{2147483647, "admin"},
 		},
 		{
 			authorityID: "admin",
 			params: &SigningLogParams{
 				Offset: 150,
 			},
-			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 ORDER BY id DESC LIMIT 50 OFFSET 150",
+			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 ORDER BY id DESC OFFSET 150",
 			wantParams: []interface{}{2147483647, "admin"},
 		},
 		{
@@ -61,16 +60,17 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 				Offset: 250,
 				Filter: []string{"foo", "bar"},
 			},
-			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND model IN ($3,$4) ORDER BY id DESC LIMIT 50 OFFSET 250",
+			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND model IN ($3,$4) ORDER BY id DESC OFFSET 250",
 			wantParams: []interface{}{2147483647, "admin", "foo", "bar"},
 		},
 		{
 			authorityID: "admin",
 			params: &SigningLogParams{
+				Limit:        123,
 				Offset:       350,
 				Serialnumber: "R1234567",
 			},
-			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND serial_number LIKE $3 ORDER BY id DESC LIMIT 50 OFFSET 350",
+			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND serial_number LIKE $3 ORDER BY id DESC LIMIT 123 OFFSET 350",
 			wantParams: []interface{}{2147483647, "admin", "R1234567%"},
 		},
 		{
@@ -80,7 +80,7 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 				Filter:       []string{"aaa"},
 				Serialnumber: "000XXX12354",
 			},
-			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND model IN ($3) AND serial_number LIKE $4 ORDER BY id DESC LIMIT 50 OFFSET 350",
+			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND model IN ($3) AND serial_number LIKE $4 ORDER BY id DESC OFFSET 350",
 			wantParams: []interface{}{2147483647, "admin", "aaa", "000XXX12354%"},
 		},
 		{
@@ -90,7 +90,7 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 				Filter:       []string{"aaa"},
 				Serialnumber: "000XXX12354",
 			},
-			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND model IN ($3) AND serial_number LIKE $4 ORDER BY id DESC LIMIT 50 OFFSET 350",
+			wantSQL:    "SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND model IN ($3) AND serial_number LIKE $4 ORDER BY id DESC OFFSET 350",
 			wantParams: []interface{}{2147483647, "admin", "aaa", "000XXX12354%"},
 		},
 
@@ -98,7 +98,7 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 			authorityID: "admin",
 			username:    "bob",
 			params:      &SigningLogParams{},
-			wantSQL:     `SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND EXISTS ( SELECT * FROM account acc INNER JOIN useraccountlink ua on ua.account_id=acc.id INNER JOIN userinfo u on ua.user_id=u.id WHERE acc.authority_id=s.make AND u.username=$3 ) ORDER BY id DESC LIMIT 50 OFFSET 0`,
+			wantSQL:     `SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND EXISTS ( SELECT * FROM account acc INNER JOIN useraccountlink ua on ua.account_id=acc.id INNER JOIN userinfo u on ua.user_id=u.id WHERE acc.authority_id=s.make AND u.username=$3 ) ORDER BY id DESC OFFSET 0`,
 			wantParams:  []interface{}{2147483647, "admin", "bob"},
 		},
 		{
@@ -106,7 +106,7 @@ func (vs *sqlSuite) TestSigningLogSQLBuilder(c *check.C) {
 			params: &SigningLogParams{
 				Serialnumber: "Robert'); DROP TABLE signinglog;--",
 			},
-			wantSQL:    `SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND serial_number LIKE $3 ORDER BY id DESC LIMIT 50 OFFSET 0`,
+			wantSQL:    `SELECT *, count(*) OVER() AS total_count FROM signinglog s WHERE id < $1 AND make=$2 AND serial_number LIKE $3 ORDER BY id DESC OFFSET 0`,
 			wantParams: []interface{}{2147483647, "admin", "Robert'); DROP TABLE signinglog;--%"},
 		},
 	}

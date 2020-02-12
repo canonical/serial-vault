@@ -268,9 +268,12 @@ func signingLogSQLBuilder(username, authorityID string, params *SigningLogParams
 		Where(sq.Lt{"id": MaxFromID}). // WHERE id < $1
 		Where("make=?", authorityID).  // AND make=$2
 		OrderBy("id DESC").
-		Limit(ListSigningLogDefaultLimit).
-		Offset(uint64(params.Offset)).
+		Offset(params.Offset).
 		PlaceholderFormat(sq.Dollar)
+
+	if params.Limit > 0 {
+		sql = sql.Limit(params.Limit)
+	}
 
 	if username != "" {
 		nestedBuilder := sq.Select("*").Prefix("EXISTS (").

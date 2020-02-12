@@ -72,15 +72,22 @@ func APISyncLog(w http.ResponseWriter, r *http.Request) {
 	syncLogHandler(w, user, true, request)
 }
 
-// GetSigningLogParams pars and set default for the search parameters from the request
+// GetSigningLogParams parse and set defaults for the search parameters from the request
 func GetSigningLogParams(r *http.Request) *datastore.SigningLogParams {
-	params := &datastore.SigningLogParams{}
+	params := &datastore.SigningLogParams{
+		Limit: datastore.ListSigningLogDefaultLimit,
+	}
 
 	if offsetParam, ok := r.URL.Query()["offset"]; ok {
-		offset, err := strconv.Atoi(offsetParam[0])
+		offset, err := strconv.ParseUint(offsetParam[0], 10, 64)
 		if err == nil {
 			params.Offset = offset
 		}
+	}
+
+	if fetchAll, ok := r.URL.Query()["all"]; ok && fetchAll[0] == "true" {
+		params.Limit = 0 // Means no limit.
+		params.Offset = 0
 	}
 
 	if serialnumber, ok := r.URL.Query()["serialnumber"]; ok {
