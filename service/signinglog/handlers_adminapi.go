@@ -77,27 +77,22 @@ func GetSigningLogParams(r *http.Request) *datastore.SigningLogParams {
 	params := &datastore.SigningLogParams{
 		Limit: datastore.ListSigningLogDefaultLimit,
 	}
+	query := r.URL.Query()
 
-	if offsetParam, ok := r.URL.Query()["offset"]; ok {
-		offset, err := strconv.ParseUint(offsetParam[0], 10, 64)
-		if err == nil {
-			params.Offset = offset
-		}
+	if offset, err := strconv.ParseUint(query.Get("offset"), 10, 64); err == nil {
+		params.Offset = offset
 	}
 
-	if fetchAll, ok := r.URL.Query()["all"]; ok && fetchAll[0] == "true" {
+	if fetchAll := query.Get("all"); fetchAll == "true" {
 		params.Limit = 0 // Means no limit.
 		params.Offset = 0
 	}
 
-	if serialnumber, ok := r.URL.Query()["serialnumber"]; ok {
-		params.Serialnumber = serialnumber[0]
+	if filter := query.Get("filter"); filter != "" {
+		params.Filter = strings.Split(filter, ",")
 	}
 
-	filter, ok := r.URL.Query()["filter"]
-	if ok && len(filter) > 0 && filter[0] != "" {
-		params.Filter = strings.Split(filter[0], ",")
-	}
+	params.Serialnumber = query.Get("serialnumber")
 
 	return params
 }
