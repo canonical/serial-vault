@@ -49,7 +49,7 @@ var SigningLog = {
 			// Convert the filtered data to a CSV array format
 			var lines = ['data:text/csv;charset=utf-8,ID,Make,Model,Serial Number,Revision,Fingerprint,Date'];
 
-			data.forEach(function(d, index){
+			data.logs.forEach(function(d, index){
 				var line = [d.id,d.make,d.model,d.serialnumber,d.revision,d.fingerprint,d.created].join(",");
 				lines.push(line);
 			});
