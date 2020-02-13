@@ -100,6 +100,7 @@ func (s *SigningLogSuite) TestGetSigningLogParams(c *check.C) {
 				Offset:       12,
 				Serialnumber: "R12300",
 				Filter:       []string{"foo", "bar"},
+				Limit:        datastore.ListSigningLogDefaultLimit,
 			},
 		},
 		{
@@ -107,17 +108,29 @@ func (s *SigningLogSuite) TestGetSigningLogParams(c *check.C) {
 			url:  `/ping?offset=xxx`,
 			want: &datastore.SigningLogParams{
 				Offset: 0,
+				Limit:  datastore.ListSigningLogDefaultLimit,
 			},
 		},
 		{
 			name: "case 3",
 			url:  `/ping`,
-			want: &datastore.SigningLogParams{},
+			want: &datastore.SigningLogParams{
+				Limit: datastore.ListSigningLogDefaultLimit,
+			},
 		},
 		{
 			name: "case 4",
-			url:  `/ping?filter&serialnumber&filter`,
-			want: &datastore.SigningLogParams{},
+			url:  `/ping?filter&serialnumber&filter&all=xxx`,
+			want: &datastore.SigningLogParams{
+				Limit: datastore.ListSigningLogDefaultLimit,
+			},
+		},
+		{
+			name: "case 5",
+			url:  `/ping?all=true`,
+			want: &datastore.SigningLogParams{
+				Limit: 0,
+			},
 		},
 	}
 	for _, tt := range tests {
