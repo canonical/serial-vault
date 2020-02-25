@@ -1,10 +1,8 @@
- 
-name: Node.js CI
-
+name: Automated javascript build CI
 on:
   push:
+    paths: 'webapp-admin/**'
     branches: master
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,10 +12,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - name: Check frontend changes
-      run: |
-        git diff-tree --name-only HEAD | grep webapp-admin
-        $? || exit 1
     - name: Build frontend
       run: |
         cd webapp-admin
