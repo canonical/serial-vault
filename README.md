@@ -29,7 +29,7 @@ in order to changes take effect. That could require a browser restart.
 NEVER set this configuration in production environments.
 
 ## Install from Source
-If you have a Go development environment set up, Go get it:
+If you have a Go development environment set up, Go get it, we recommend at least golang v1.13
 
   ```bash
   $ go get github.com/CanonicalLtd/serial-vault
@@ -45,13 +45,36 @@ If you have a Go development environment set up, Go get it:
   $ go run cmd/serial-vault-admin/main.go database --config=/path/to/settings.yaml
   ```
 
+Sample Serial Vault Configuration:
+```
+title: "Serial Vault"
+logo: "/static/images/logo-ubuntu-white.svg"
+
+# Path to the assets (${docRoot}/static)
+docRoot: "."
+
+# Backend database details
+driver: "postgres"
+datasource: "postgres://vault:vault@localhost:5432/vault?sslmode=disable"
+
+keystore: "database"
+keystoreSecret: "KEYSTORE_SECRET"
+
+# Valid API keys
+apiKeys:
+  - API_KEY
+
+# 32 bytes long key to protect server from cross site request forgery attacks
+csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
+```
+
 ### Run it:
   ```bash
   $ cd serial-vault
   $ go run cmd/serial-vault/main.go -config=/path/to/settings.yaml -mode=signing
   ```
 
-The application has an admin service that can be run by using mode=admin.
+The application has an admin/UI service that can be run by using mode=admin.
 
 ## Deploy it with Juju
 Juju greatly simplifies the deployment of the Serial Vault. A charm bundle is available
@@ -108,13 +131,20 @@ npm install
 
 ### Working with React
 
-#### Build the project bundle
+The frontend code could be found in `webapp-admin` directory.
+
+#### Build the project bundle for the local development
 ```bash
 # Select the version to use
+cd webapp-admin/
 nvm ls
 nvm use lts/*
 npm run build
 ```
+
+#### Build the project bundle for the production
+Production build for the frontend part (javascript and css) is semi-automated and done with [github actions](https://github.com/features/actions). You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. After the successful build the automation bot will create a PR with the generated build artifact in the `static/` directory of this project. This PR should be approved manually by the developer.
+
 
 #### Run the tests
 ```bash
