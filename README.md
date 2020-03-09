@@ -99,7 +99,7 @@ everything apart from the Apache front-end units. There is an example of using J
 The general workflow is forking the Serial Vault GitHub repository, make changes in a branch and then send a pull request:
 
 - Pull the original package:
-  `go get github.com/CanonicalLtd/serial-vault`
+  `go get github.com/CanonicalLtd/serial-vault/...`
 - [Fork](https://github.com/CanonicalLtd/serial-vault/fork) the Serial Vault repository on Github
 - Change to the top level of the repository
   `cd $GOPATH/src/github.com/CanonicalLtd/serial-vault`
