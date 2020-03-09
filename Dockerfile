@@ -1,4 +1,4 @@
-FROM golang:1.9.4
+FROM golang:1.13
 
 RUN apt-get update && apt-get install -y postgresql-client
 ADD . /go/src/github.com/CanonicalLtd/serial-vault

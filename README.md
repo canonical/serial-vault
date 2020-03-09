@@ -143,8 +143,7 @@ npm run build
 ```
 
 #### Build the project bundle for the production
-Production build for the frontend part (javascript and css) is semi-automated and done with [github actions](https://github.com/features/actions). You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. After the successful build the automation bot will create a PR with the generated build artifact in the `static/` directory of this project. This PR should be approved manually by the developer.
-
+Production build for the frontend part (javascript and css) is semi-automated and done with [github actions](https://github.com/features/actions). You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` directory of this project. This PR should be approved manually by the developer.
 
 #### Run the tests
 ```bash
@@ -253,3 +252,4 @@ The method returns details of the serial assertion of the pivoted model, to conv
 
 [travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
 [travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault
+[actions]: https://github.com/CanonicalLtd/serial-vault/actions
