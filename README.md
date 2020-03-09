@@ -16,8 +16,8 @@ Some deployment recommendations are [provided](docs/installation.md)
 
 The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
- - Signing Service: http://localhost:8080/v1/version
- - Admin Service: http://localhost:8081/
+ - Signing/API Service: http://localhost:8080/v1/version
+ - Admin/UI Service: http://localhost:8081/
 
 The Admin service's CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
 over an insecure channel, it is needed to workaround it by setting the environment variable:
@@ -32,7 +32,7 @@ NEVER set this configuration in production environments.
 If you have a Go development environment set up, Go get it, we recommend at least golang v1.13
 
   ```bash
-  $ go get github.com/CanonicalLtd/serial-vault
+  $ go get github.com/CanonicalLtd/serial-vault/...
   ```
 
 ### Configure it:
@@ -70,7 +70,7 @@ csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
 
 ### Run it:
   ```bash
-  $ cd serial-vault
+  $ cd $GOPATH/src/github.com/CanonicalLtd/serial-vault
   $ go run cmd/serial-vault/main.go -config=/path/to/settings.yaml -mode=signing
   ```
 
@@ -110,7 +110,11 @@ The general workflow is forking the Serial Vault GitHub repository, make changes
 - Commit your changes to your forked repo
   `git commit -am "New Feature"`
   `git push fork`
-- Create new PR on Github.
+- Follow the link from the cli to create new PR on Github.
+
+#### Adding new golang dependency
+
+TODO
 
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
