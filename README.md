@@ -98,19 +98,19 @@ everything apart from the Apache front-end units. There is an example of using J
 
 The general workflow is forking the Serial Vault GitHub repository, make changes in a branch and then send a pull request:
 
-* Pull the original package:
-`go get github.com/CanonicalLtd/serial-vault`
-* [Fork](https://github.com/CanonicalLtd/serial-vault/fork) the Serial Vault repository on Github
-* Change to the top level of the repository
-`cd $GOPATH/src/github.com/CanonicalLtd/serial-vault`
-* Add your fork
-`git remote add fork https://github.com/username/serial-vault`
-* Create a feature branch
-`git checkout -b new-feature`
-* Commit your changes to your forked repo
-`git commit -am "New Feature"`
-`git push fork`
-* Create new PR on Github.
+- Pull the original package:
+  `go get github.com/CanonicalLtd/serial-vault`
+- [Fork](https://github.com/CanonicalLtd/serial-vault/fork) the Serial Vault repository on Github
+- Change to the top level of the repository
+  `cd $GOPATH/src/github.com/CanonicalLtd/serial-vault`
+- Add your fork
+  `git remote add fork https://github.com/username/serial-vault`
+- Create a feature branch
+  `git checkout -b new-feature`
+- Commit your changes to your forked repo
+  `git commit -am "New Feature"`
+  `git push fork`
+- Create new PR on Github.
 
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
