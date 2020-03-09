@@ -29,7 +29,7 @@ in order to changes take effect. That could require a browser restart.
 NEVER set this configuration in production environments.
 
 ## Install from Source
-If you have a Go development environment set up, Go get it, we recommend at least golang v1.13 or higher.
+If you have a Go development environment set up, Go get it, we recommend at least Go v1.13 or higher.
 
   ```bash
   $ go get github.com/CanonicalLtd/serial-vault/...
@@ -100,7 +100,7 @@ The general workflow is forking the Serial Vault GitHub repository, make changes
 
 - Pull the original package:
   `go get github.com/CanonicalLtd/serial-vault/...`
-- [Fork](https://github.com/CanonicalLtd/serial-vault/fork) the Serial Vault repository on Github
+- [Fork](https://github.com/CanonicalLtd/serial-vault/fork) the Serial Vault repository on GitHub
 - Change to the top level of the repository
   `cd $GOPATH/src/github.com/CanonicalLtd/serial-vault`
 - Add your fork
@@ -111,7 +111,7 @@ The general workflow is forking the Serial Vault GitHub repository, make changes
   `git commit -am "New Feature"`
   and
   `git push fork`
-- Follow the link from the cli to create new PR on Github.
+- Follow the link from the cli to create new PR on GitHub.
 
 #### Adding new golang dependency
 
@@ -155,7 +155,7 @@ npm install
 
 ### Working with React
 
-The frontend code could be found in `webapp-admin` directory.
+The frontend code can be found in `webapp-admin` directory.
 
 #### Building static assets locally
 
@@ -169,7 +169,10 @@ npm run build
 
 #### Production static assets build process
 
-Production build for the frontend part (javascript and css) is semi-automated and done with [github actions](https://github.com/features/actions). You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` directory of this project. These PRs can be merged manually.
+Production build for the frontend part (javascript and css) is semi-automated and done with [GitHub Actions](https://github.com/features/actions). 
+You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. 
+You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. 
+After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` directory of this project. These PRs can be merged manually.
 
 #### Run the tests
 ```bash
