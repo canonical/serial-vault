@@ -29,7 +29,7 @@ in order to changes take effect. That could require a browser restart.
 NEVER set this configuration in production environments.
 
 ## Install from Source
-If you have a Go development environment set up, Go get it, we recommend at least golang v1.13
+If you have a Go development environment set up, Go get it, we recommend at least golang v1.13 or higher.
 
   ```bash
   $ go get github.com/CanonicalLtd/serial-vault/...
@@ -96,7 +96,7 @@ everything apart from the Apache front-end units. There is an example of using J
 
 ### Contributing
 
-The general workflow is forking the Serial Vault GitHub repository, make changes in a branch and then send a pull request:
+The general workflow is forking the Serial Vault GitHub repository, make changes in a branch and then create a pull request:
 
 - Pull the original package:
   `go get github.com/CanonicalLtd/serial-vault/...`
@@ -109,12 +109,13 @@ The general workflow is forking the Serial Vault GitHub repository, make changes
   `git checkout -b new-feature`
 - Commit your changes to your forked repo
   `git commit -am "New Feature"`
+  and
   `git push fork`
 - Follow the link from the cli to create new PR on Github.
 
 #### Adding new golang dependency
 
-TODO
+We are using `govendor` tool to manage dependency in Serial Vault. It will be installed after the first run of `get-deps.sh`. If you need to add a new dependency to this project, please run  `govendor fetch github.com/new/package` and commit the changes in `vendor/vendor.json` file.
 
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
@@ -156,7 +157,8 @@ npm install
 
 The frontend code could be found in `webapp-admin` directory.
 
-#### Build the project bundle for the local development
+#### Building static assets locally
+
 ```bash
 # Select the version to use
 cd webapp-admin/
@@ -165,8 +167,9 @@ nvm use lts/*
 npm run build
 ```
 
-#### Build the project bundle for the production
-Production build for the frontend part (javascript and css) is semi-automated and done with [github actions](https://github.com/features/actions). You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` directory of this project. This PR should be approved manually by the developer.
+#### Production static assets build process
+
+Production build for the frontend part (javascript and css) is semi-automated and done with [github actions](https://github.com/features/actions). You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` directory of this project. These PRs can be merged manually.
 
 #### Run the tests
 ```bash
