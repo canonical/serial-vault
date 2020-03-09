@@ -109,6 +109,7 @@ The general workflow is forking the Serial Vault GitHub repository, make changes
 `git checkout -b new-feature`
 * Commit your changes to your forked repo
 `git commit -am "New Feature"`
+`git push fork`
 * Create new PR on Github.
 
 ### Install Go
