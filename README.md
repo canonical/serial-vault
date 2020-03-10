@@ -96,26 +96,14 @@ everything apart from the Apache front-end units. There is an example of using J
 
 ### Contributing
 
-The general workflow is forking the Serial Vault GitHub repository, make changes in a branch and then create a pull request:
-
-- Pull the original package:
-  `go get github.com/CanonicalLtd/serial-vault/...`
-- [Fork](https://github.com/CanonicalLtd/serial-vault/fork) the Serial Vault repository on GitHub
-- Change to the top level of the repository
-  `cd $GOPATH/src/github.com/CanonicalLtd/serial-vault`
-- Add your fork
-  `git remote add fork https://github.com/username/serial-vault`
-- Create a feature branch
-  `git checkout -b new-feature`
-- Commit your changes to your forked repo
-  `git commit -am "New Feature"`
-  and
-  `git push fork`
-- Follow the link from the cli to create new PR on GitHub.
+The general workflow is [forking](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the Serial Vault GitHub repository, 
+make changes in a branch and then create a [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork).
 
 #### Adding new golang dependency
 
-We are using `govendor` tool to manage dependency in Serial Vault. It will be installed after the first run of `get-deps.sh`. If you need to add a new dependency to this project, please run  `govendor fetch github.com/new/package` and commit the changes in `vendor/vendor.json` file.
+We are using `govendor` tool to manage dependency in Serial Vault. It will be installed after the first run of `get-deps.sh`. 
+If you need to add a new dependency to this project, please run  `govendor fetch github.com/new/package` and commit the changes 
+in `vendor/vendor.json` file.
 
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
@@ -170,9 +158,10 @@ npm run build
 #### Production static assets build process
 
 Production build for the frontend part (javascript and css) is semi-automated and done with [GitHub Actions](https://github.com/features/actions). 
-You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved and pushed to `master`. 
-You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project. 
-After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` directory of this project. These PRs can be merged manually.
+You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved 
+and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project.
+After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` 
+directory of this project. These PRs can be merged manually.
 
 #### Run the tests
 ```bash
