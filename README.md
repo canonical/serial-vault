@@ -159,7 +159,9 @@ npm run build
 
 Production build for the frontend part (javascript and css) is semi-automated and done with [GitHub Actions](https://github.com/features/actions). 
 You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved 
-and pushed to `master`. You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project.
+and pushed to `master`. 
+
+You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project.
 After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` 
 directory of this project. These PRs can be merged manually.
 
