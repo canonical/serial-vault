@@ -77,7 +77,7 @@ describe('navigation', function() {
     // Check all the expected elements are rendered
     var ul = ReactTestUtils.findRenderedDOMComponentWithTag(page, 'ul');
     // 4 links and account menu
-    expect(ul.children.length).toBe(5);
+    expect(ul.children.length).toBe(4);
   });
 
   it('displays the navigation menu with models active', function() {
@@ -91,13 +91,10 @@ describe('navigation', function() {
 
     // Check all the expected elements are rendered
     var ul = ReactTestUtils.findRenderedDOMComponentWithTag(page, 'ul');
-    expect(ul.children.length).toBe(5);
-    expect(ul.children[1].firstChild.textContent).toBe('Accounts');
-    expect(ul.children[1].firstChild.className).toBe('');
-    expect(ul.children[1].firstChild.className).toBe('');
-    expect(ul.children[2].firstChild.textContent).toBe('Signing Keys');
-    expect(ul.children[3].firstChild.textContent).toBe('Models');
-    expect(ul.children[4].firstChild.textContent).toBe('Signing Log');
+    expect(ul.children.length).toBe(4);
+    expect(ul.children[1].firstChild.textContent).toBe('Signing Keys');
+    expect(ul.children[2].firstChild.textContent).toBe('Models');
+    expect(ul.children[3].firstChild.textContent).toBe('Signing Log');
   });
 
   it('displays the OpenID link when user auth is enabled', function() {

@@ -17,7 +17,7 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Keypairs from '../models/keypairs'
-import {T, parseResponse, formatError, isUserAdmin} from './Utils';
+import {T, parseResponse, formatError, isUserSuperuser} from './Utils';
 
 class AccountKeyForm extends Component {
 
@@ -77,8 +77,7 @@ class AccountKeyForm extends Component {
     }
 
     render() {
-
-        if (!isUserAdmin(this.props.token)) {
+        if (!isUserSuperuser(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />

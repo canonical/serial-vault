@@ -26,15 +26,16 @@ configure({ adapter: new Adapter() });
 // Mock the AppState method for locale
 window.AppState = {getLocale: function() {return 'en'}};
 
-const token = { role: 200 }
-const tokenUser = { role: 100 }
+const tokenSuperAdmin = { role: 300 }
+const tokenAdmin      = { role: 200 }
+const tokenUser       = { role: 100 }
 
 describe('account key form', function() {
     it('displays the new account key form', function() {
 
         // Render the component
         const component = shallow(
-            <AccountKeyForm token={token} />
+            <AccountKeyForm token={tokenSuperAdmin} />
         );
 
         expect(component.find('section')).toHaveLength(1)
@@ -52,11 +53,21 @@ describe('account key form', function() {
         expect(component.find('AlertBox')).toHaveLength(1)
     })
 
-    it('displays error with insufficient permissions', function() {
+    it('displays error with insufficient permissions for user', function() {
 
         // Render the component
         const component = shallow(
             <AccountKeyForm token={tokenUser} />
+        );
+
+        expect(component.find('div')).toHaveLength(1)
+        expect(component.find('AlertBox')).toHaveLength(1)
+    })
+
+    it('displays error with insufficient permissions for admin', function() {
+        // Render the component
+        const component = shallow(
+            <AccountKeyForm token={tokenAdmin} />
         );
 
         expect(component.find('div')).toHaveLength(1)
