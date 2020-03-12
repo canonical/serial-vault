@@ -16,8 +16,8 @@ Some deployment recommendations are [provided](docs/installation.md)
 
 The service mode (signing or admin) is defined in the settings.yaml file. The
 selected service should be accessible on port :8080 or :8081:
- - Signing Service: http://localhost:8080/v1/version
- - Admin Service: http://localhost:8081/
+ - Signing/API Service: http://localhost:8080/v1/version
+ - Admin/UI Service: http://localhost:8081/
 
 The Admin service's CSRF protection sends a cookie over a secure channel. If the cookie is to be sent
 over an insecure channel, it is needed to workaround it by setting the environment variable:
@@ -29,10 +29,10 @@ in order to changes take effect. That could require a browser restart.
 NEVER set this configuration in production environments.
 
 ## Install from Source
-If you have a Go development environment set up, Go get it:
+If you have a Go development environment set up, Go get it, we recommend at least Go v1.13 or higher.
 
   ```bash
-  $ go get github.com/CanonicalLtd/serial-vault
+  $ go get github.com/CanonicalLtd/serial-vault/...
   ```
 
 ### Configure it:
@@ -45,13 +45,36 @@ If you have a Go development environment set up, Go get it:
   $ go run cmd/serial-vault-admin/main.go database --config=/path/to/settings.yaml
   ```
 
+Sample Serial Vault Configuration:
+```
+title: "Serial Vault"
+logo: "/static/images/logo-ubuntu-white.svg"
+
+# Path to the assets (${docRoot}/static)
+docRoot: "."
+
+# Backend database details
+driver: "postgres"
+datasource: "postgres://vault:vault@localhost:5432/vault?sslmode=disable"
+
+keystore: "database"
+keystoreSecret: "KEYSTORE_SECRET"
+
+# Valid API keys
+apiKeys:
+  - API_KEY
+
+# 32 bytes long key to protect server from cross site request forgery attacks
+csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
+```
+
 ### Run it:
   ```bash
-  $ cd serial-vault
+  $ cd $GOPATH/src/github.com/CanonicalLtd/serial-vault
   $ go run cmd/serial-vault/main.go -config=/path/to/settings.yaml -mode=signing
   ```
 
-The application has an admin service that can be run by using mode=admin.
+The application has an admin/UI service that can be run by using mode=admin.
 
 ## Deploy it with Juju
 Juju greatly simplifies the deployment of the Serial Vault. A charm bundle is available
@@ -60,6 +83,7 @@ everything apart from the Apache front-end units. There is an example of using J
 [Deployment Guidelines](docs/installation.md).
 
 ## Try with docker
+
   ```bash
   $ git clone https://github.com/CanonicalLtd/serial-vault
   $ cd serial-vault/docker-compose
@@ -69,6 +93,17 @@ everything apart from the Apache front-end units. There is an example of using J
   ```
 
 ## Development Environment
+
+### Contributing
+
+The general workflow is [forking](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the Serial Vault GitHub repository, 
+make changes in a branch and then create a [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork).
+
+#### Adding new golang dependency
+
+We are using `govendor` tool to manage dependency in Serial Vault. It will be installed after the first run of `get-deps.sh`. 
+If you need to add a new dependency to this project, please run  `govendor fetch github.com/new/package` and commit the changes 
+in `vendor/vendor.json` file.
 
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
@@ -108,13 +143,27 @@ npm install
 
 ### Working with React
 
-#### Build the project bundle
+The frontend code can be found in `webapp-admin` directory.
+
+#### Building static assets locally
+
 ```bash
 # Select the version to use
+cd webapp-admin/
 nvm ls
 nvm use lts/*
 npm run build
 ```
+
+#### Production static assets build process
+
+Production build for the frontend part (javascript and css) is semi-automated and done with [GitHub Actions](https://github.com/features/actions). 
+You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved 
+and pushed to `master`. 
+
+You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project.
+After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` 
+directory of this project. These PRs can be merged manually.
 
 #### Run the tests
 ```bash
@@ -223,3 +272,4 @@ The method returns details of the serial assertion of the pivoted model, to conv
 
 [travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
 [travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault
+[actions]: https://github.com/CanonicalLtd/serial-vault/actions
