@@ -37,7 +37,6 @@ class AccountEdit extends Component {
     getAccount(accountId) {
         Accounts.get(accountId).then((response) => {
             var data = JSON.parse(response.body);
-            
             if (response.statusCode >= 300) {
                 this.setState({error: this.formatError(data), hideForm: true});
             } else {
