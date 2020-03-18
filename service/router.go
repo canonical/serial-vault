@@ -30,6 +30,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/assertion"
 	"github.com/CanonicalLtd/serial-vault/service/core"
 	"github.com/CanonicalLtd/serial-vault/service/keypair"
+	"github.com/CanonicalLtd/serial-vault/service/metric"
 	"github.com/CanonicalLtd/serial-vault/service/model"
 	"github.com/CanonicalLtd/serial-vault/service/pivot"
 	"github.com/CanonicalLtd/serial-vault/service/sign"
@@ -63,6 +64,9 @@ func SigningRouter() *mux.Router {
 		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Index))).Methods("GET")
 		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Submit))).Methods("POST")
 	}
+
+	// exposing metrics in prometheus format
+	router.Handle("/_status/metrics", metric.NewServer(metric.SigningMode)).Methods("GET")
 
 	return router
 }
@@ -172,6 +176,9 @@ func AdminRouter() *mux.Router {
 	router.Handle("/api/testlog", Middleware(http.HandlerFunc(testlog.APIListLog))).Methods("GET")
 	router.Handle("/api/testlog", Middleware(http.HandlerFunc(testlog.APISyncLog))).Methods("POST")
 	router.Handle("/api/testlog/{id:[0-9]+}", Middleware(http.HandlerFunc(testlog.APISyncUpdateLog))).Methods("PUT")
+
+	// exposing metrics in prometheus format
+	router.Handle("/_status/metrics", metric.NewServer(metric.AdminMode)).Methods("GET")
 
 	return router
 }
