@@ -75,7 +75,7 @@ func listHandler(w http.ResponseWriter, user datastore.User, apiCall bool) {
 func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acct datastore.Account) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	err := auth.CheckUserPermissions(user, datastore.Superuser, apiCall)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
@@ -96,7 +96,7 @@ func createHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acc
 func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, accountID int) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	err := auth.CheckUserPermissions(user, datastore.Superuser, apiCall)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
@@ -116,7 +116,7 @@ func getHandler(w http.ResponseWriter, user datastore.User, apiCall bool, accoun
 func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acct datastore.Account) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	err := auth.CheckUserPermissions(user, datastore.Superuser, apiCall)
 	if err != nil {
 		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
@@ -137,8 +137,9 @@ func updateHandler(w http.ResponseWriter, user datastore.User, apiCall bool, acc
 func uploadHandler(w http.ResponseWriter, user datastore.User, apiCall bool, assertionRequest AssertionRequest) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	err := auth.CheckUserPermissions(user, datastore.Admin, apiCall)
+	err := auth.CheckUserPermissions(user, datastore.Superuser, apiCall)
 	if err != nil {
+		log.Println("Error checking user permissions:", err)
 		response.FormatStandardResponse(false, "error-auth", "", "", w)
 		return
 	}

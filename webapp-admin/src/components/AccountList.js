@@ -17,7 +17,7 @@
 import React, {Component} from 'react'
 import Models from '../models/models'
 import AlertBox from './AlertBox'
-import {T, isUserAdmin} from './Utils'
+import {T, isUserSuperuser} from './Utils'
 
 class AccountList extends Component {
 
@@ -92,12 +92,20 @@ class AccountList extends Component {
     }
 
     renderAccounts() {
+        if (!isUserSuperuser(this.props.token)) {
+            return (
+                <div className="row">
+                <AlertBox message={T('error-no-permissions')} />
+                </div>
+            )
+        }
+
         if (this.getAccounts().length > 0) {
             return (
                 <table>
                 <thead>
                     <tr>
-                        {isUserAdmin(this.props.token) ? <th className="small"></th> : ''}
+                        {isUserSuperuser(this.props.token) ? <th className="small"></th> : ''}
                         <th>{T('account')}</th><th>{T('assertion-status')}</th><th className="small">{T('reseller')}</th>
                     </tr>
                 </thead>
@@ -105,7 +113,7 @@ class AccountList extends Component {
                     {this.getAccounts().map((acc) => {
                     return (
                         <tr key={acc.ID}>
-                            {isUserAdmin(this.props.token) ? 
+                            {isUserSuperuser(this.props.token) ? 
                                 <td>
                                     <div>
                                     <a href={'/accounts/account/' + acc.ID} className="p-button--brand small" title={T('edit-account')}><i className="fa fa-pencil"></i></a>
@@ -165,7 +173,7 @@ class AccountList extends Component {
     }
 
     render() {
-        if (!isUserAdmin(this.props.token)) {
+        if (!isUserSuperuser(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />

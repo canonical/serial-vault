@@ -156,21 +156,24 @@ func (s *AccountSuite) TestCreateGetUpdateAccountHandlers(c *check.C) {
 
 	tests := []AccountTest{
 		{"POST", "/v1/accounts", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
-		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
-		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 1},
-		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 1},
+		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", datastore.Admin, false, false, false, false, 0},
+		{"POST", "/v1/accounts", acc, 200, "application/json; charset=UTF-8", datastore.Superuser, true, true, false, false, 1},
+		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, true, false, 1},
 		{"POST", "/v1/accounts", acc, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
 
 		{"GET", "/v1/accounts/99999", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
-		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
-		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 0},
-		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", datastore.Admin, false, false, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 200, "application/json; charset=UTF-8", datastore.Superuser, true, true, false, false, 0},
+		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, true, false, 0},
 		{"GET", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
 
 		{"PUT", "/v1/accounts/1", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
-		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
-		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 0},
-		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", datastore.Admin, false, false, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 200, "application/json; charset=UTF-8", datastore.Superuser, true, true, false, false, 0},
+		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, true, false, 0},
 		{"PUT", "/v1/accounts/1", acc, 400, "application/json; charset=UTF-8", 0, true, false, false, false, 0},
 	}
 
@@ -228,16 +231,19 @@ func (s *AccountSuite) TestAccountsUploadHandler(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	tests := []AccountTest{
-		{"POST", "/v1/accounts/upload", request, 200, "application/json; charset=UTF-8", 0, false, true, false, false, 0},
-		{"POST", "/v1/accounts/upload", request, 200, "application/json; charset=UTF-8", datastore.Admin, true, true, false, false, 0},
+		{"POST", "/v1/accounts/upload", nil, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", 0, false, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", request, 200, "application/json; charset=UTF-8", datastore.Superuser, true, true, false, false, 0},
 		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
-		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, true, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, true, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, true, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
 		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Standard, true, false, false, false, 0},
-		{"POST", "/v1/accounts/upload", []byte("InvalidData"), 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
-		{"POST", "/v1/accounts/upload", invalidRequest1, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
-		{"POST", "/v1/accounts/upload", invalidRequest2, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
-		{"POST", "/v1/accounts/upload", invalidRequest3, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, false, 0},
-		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Admin, true, false, false, true, 0},
+		{"POST", "/v1/accounts/upload", []byte("InvalidData"), 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", invalidRequest1, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", invalidRequest2, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", invalidRequest3, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, false, false, 0},
+		{"POST", "/v1/accounts/upload", request, 400, "application/json; charset=UTF-8", datastore.Superuser, true, false, false, true, 0},
 	}
 
 	for _, t := range tests {

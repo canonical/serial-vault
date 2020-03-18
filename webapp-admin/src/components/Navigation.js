@@ -20,7 +20,7 @@ import {T, isLoggedIn} from './Utils'
 import {Role} from './Constants'
 
 const linksSuperuser = ['accounts', 'signing-keys', 'models', 'signinglog', "users"];
-const linksAdmin = ['accounts', 'signing-keys', 'models', 'signinglog'];
+const linksAdmin = ['signing-keys', 'models', 'signinglog'];
 const linksStandard = ['systemuser'];
 
 

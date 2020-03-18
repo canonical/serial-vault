@@ -17,7 +17,7 @@
 import React, {Component} from 'react'
 import  AlertBox from './AlertBox'
 import Accounts from '../models/accounts'
-import {T, parseResponse, formatError, isUserAdmin} from './Utils';
+import {T, parseResponse, formatError, isUserSuperuser} from './Utils';
 
 class AccountEdit extends Component {
 
@@ -37,7 +37,6 @@ class AccountEdit extends Component {
     getAccount(accountId) {
         Accounts.get(accountId).then((response) => {
             var data = JSON.parse(response.body);
-
             if (response.statusCode >= 300) {
                 this.setState({error: this.formatError(data), hideForm: true});
             } else {
@@ -83,7 +82,7 @@ class AccountEdit extends Component {
     }
 
     render() {
-        if (!isUserAdmin(this.props.token)) {
+        if (!isUserSuperuser(this.props.token)) {
             return (
                 <div className="row">
                 <AlertBox message={T('error-no-permissions')} />

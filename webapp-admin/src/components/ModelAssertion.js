@@ -152,7 +152,6 @@ class ModelAssertion extends Component {
 
         Models.assertion(this.state.assertion).then((response) => {
             var data = JSON.parse(response.body);
-            console.log(data)
             if (response.statusCode >= 300) {
                 this.setState({error: formatError(data)});
             } else {
