@@ -13,7 +13,7 @@ type ServiceMode int
 const (
 	// SigningMode represents that the service is running in Signing/API Mode
 	SigningMode ServiceMode = iota
-	// SigningMode represents that the service is running in Admin/UI Mode
+	// AdminMode represents that the service is running in Admin/UI Mode
 	AdminMode
 )
 
