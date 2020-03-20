@@ -6,10 +6,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// ServiceMode represents if the service is running in SigningMode or AdminMode
+// this information will be added to the metric
 type ServiceMode int
 
 const (
+	// SigningMode represents that the service is running in Signing/API Mode
 	SigningMode ServiceMode = iota
+	// SigningMode represents that the service is running in Admin/UI Mode
 	AdminMode
 )
 
@@ -27,6 +31,7 @@ func NewServer(mode ServiceMode) *Server {
 	}
 }
 
+// ServeHTTP returns a metrics server.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.metrics.ServeHTTP(w, r)
 }
