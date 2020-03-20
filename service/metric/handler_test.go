@@ -20,5 +20,5 @@ func (s *MetricSuite) TestMetricHandler(c *check.C) {
 	r := httptest.NewRequest("GET", "/", nil)
 	metric.NewServer(metric.SigningMode).ServeHTTP(w, r)
 	c.Assert(w.Code, check.Equals, 200)
-	c.Assert(w.Header().Get("Content-Type"), check.Equals, "text/plain")
+	c.Assert(w.Header().Get("Content-Type"), check.Matches, "text/plain;.*")
 }
