@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/Masterminds/squirrel v1.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-chi/chi v4.0.3+incompatible // indirect
 	github.com/godbus/dbus v4.1.0+incompatible // indirect
 	github.com/gorilla/csrf v1.0.3-0.20161122164500-69581736821c
 	github.com/gorilla/mux v1.6.1
@@ -27,6 +28,7 @@ require (
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/net v0.0.0-20190613194153-d28f0bde5980
 	golang.org/x/sys v0.0.0-20200122134326-e047566fdf82
+	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15
 	gopkg.in/errgo.v1 v1.0.0-20161222125816-442357a80af5
 	gopkg.in/macaroon.v1 v1.0.0-20170816141150-ab101776739e
