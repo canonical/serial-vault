@@ -41,7 +41,7 @@ If you have a Go development environment set up, Go get it, we recommend at leas
 - Create the database tables:
   ```bash
   $ cd serial-vault
-  $ ./get-deps.sh
+  $ go get ./...
   $ go run cmd/serial-vault-admin/main.go database --config=/path/to/settings.yaml
   ```
 
@@ -101,9 +101,15 @@ make changes in a branch and then create a [pull request](https://help.github.co
 
 #### Adding new golang dependency
 
-We are using `govendor` tool to manage dependency in Serial Vault. It will be installed after the first run of `get-deps.sh`. 
-If you need to add a new dependency to this project, please run  `govendor fetch github.com/new/package` and commit the changes 
-in `vendor/vendor.json` file.
+`Serial Vault` uses `go mod` to manage its dependencies.
+
+- Run `go get foo/bar` in the source folder to add the dependency to go.mod file.
+- Run `go build ./...` to check that everything works.
+
+To remove a dependency
+
+- Edit your code and remove the import reference.
+- Run `go mod tidy` in the source folder to remove dependency from go.mod file.
 
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
