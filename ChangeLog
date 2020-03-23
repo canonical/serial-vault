@@ -1,3 +1,19 @@
+2020-03-23 serial-vault 2.5-0
+
+  * Moving from govendor which is deprecated now to go mod for the dependency management.
+
+  * Snapd version is updated to 2.44, all older versions were not compatible with Go mod.
+
+  * All other external dependencies will keep the same pinned version.
+    Note on versions: after the automated migration, all the pinned versions are moved from 
+    `vendor/vendor.json` to `go.mod` file. If the external module does not use semantic versioning (SemVer) 
+    in a format `v1.2.3` Go modules tooling will use `revision` and `revisionTime` from the pinned commit. 
+    So the same git commit is pinned in`vendor/vendor.json` and in `go.mod` after the migration.
+  
+  * Updated documentation about how to use Go modules
+
+  * Updated travis configuration to use Go modules
+
 2017-09-05 serial-vault 2.0-0
 
   [ unknown ]
