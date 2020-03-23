@@ -1,16 +1,18 @@
 package metric
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 )
 
-func CollectAPIStats(api string, inner http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func CollectAPIStats(api string, inner http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ww := &recordResponse{ResponseWriter: w}
 		inner.ServeHTTP(ww, r)
+		fmt.Printf(">>> CollectAPIStats(): api=%q\n", api)
 		HTTPIncomingRequestCounterVec.WithLabelValues(r.Method, ww.Code(), api).Inc()
-	}
+	})
 }
 
 type recordResponse struct {

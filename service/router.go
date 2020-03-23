@@ -24,6 +24,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/mux"
+
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/account"
 	"github.com/CanonicalLtd/serial-vault/service/app"
@@ -40,7 +42,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/testlog"
 	"github.com/CanonicalLtd/serial-vault/service/user"
 	"github.com/CanonicalLtd/serial-vault/usso"
-	"github.com/gorilla/mux"
 )
 
 // SigningRouter returns the application route handler for the signing service methods
@@ -51,7 +52,8 @@ func SigningRouter() *mux.Router {
 	// API routes
 	router.Handle("/v1/version", Middleware(http.HandlerFunc(core.Version))).Methods("GET")
 	router.Handle("/v1/health", Middleware(http.HandlerFunc(core.Health))).Methods("GET")
-	router.Handle("/v1/serial", Middleware(ErrorHandler(sign.Serial))).Methods("POST")
+
+	router.Handle("/v1/serial", metric.CollectAPIStats("signSerialAssertions", Middleware(ErrorHandler(sign.Serial)))).Methods("POST")
 	router.Handle("/v1/request-id", Middleware(ErrorHandler(sign.RequestID))).Methods("POST")
 	router.Handle("/v1/model", Middleware(ErrorHandler(assertion.ModelAssertion))).Methods("POST")
 	router.Handle("/v1/pivot", Middleware(ErrorHandler(pivot.Model))).Methods("POST")
@@ -84,15 +86,16 @@ func AdminRouter() *mux.Router {
 	router.Handle("/v1/authtoken", MiddlewareWithCSRF(http.HandlerFunc(core.Token))).Methods("GET")
 
 	// API routes: models admin
-	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(model.List))).Methods("GET")
-	router.Handle("/v1/models/assertion", MiddlewareWithCSRF(http.HandlerFunc(model.AssertionHeaders))).Methods("POST")
+	router.Handle("/v1/models", metric.CollectAPIStats("listModels", MiddlewareWithCSRF(http.HandlerFunc(model.List)))).Methods("GET")
+	router.Handle("/v1/models/assertion", metric.CollectAPIStats("postModelsAssertion", MiddlewareWithCSRF(http.HandlerFunc(model.AssertionHeaders)))).Methods("POST")
+
 	router.Handle("/v1/models", MiddlewareWithCSRF(http.HandlerFunc(model.Create))).Methods("POST")
 	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(model.Get))).Methods("GET")
 	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(model.Update))).Methods("PUT")
 	router.Handle("/v1/models/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(model.Delete))).Methods("DELETE")
 
 	// API routes: signing-keys
-	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.List))).Methods("GET")
+	router.Handle("/v1/keypairs", metric.CollectAPIStats("listKeypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.List)))).Methods("GET")
 	router.Handle("/v1/keypairs", MiddlewareWithCSRF(http.HandlerFunc(keypair.Create))).Methods("POST")
 	router.Handle("/v1/keypairs/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Get))).Methods("GET")
 	router.Handle("/v1/keypairs/{id:[0-9]+}", MiddlewareWithCSRF(http.HandlerFunc(keypair.Update))).Methods("PUT")
