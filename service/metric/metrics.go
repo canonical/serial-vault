@@ -7,7 +7,7 @@ var HTTPIncomingRequestCounterVec = prometheus.NewCounterVec(
 		Name: "http_in_requests",
 		Help: "metric for incoming http requests count",
 	},
-	[]string{"method", "status", "view"},
+	[]string{"method", "status", "api"},
 )
 
 func init() {
