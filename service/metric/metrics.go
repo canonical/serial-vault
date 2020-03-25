@@ -41,10 +41,6 @@ var HTTPIncomingTimeoutsCounterVec = prometheus.NewCounterVec(
 	[]string{"method", "view"},
 )
 
-func init() {
-	InitMetrics()
-}
-
 // InitMetrics register all the metrics
 func InitMetrics() {
 	prometheus.MustRegister(HTTPIncomingRequestCounterVec)

@@ -8,7 +8,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/check.v1"
 )
 
 var expectedPrometheusData = map[string]string{
@@ -18,13 +17,7 @@ var expectedPrometheusData = map[string]string{
 	"http_in_timeouts": `label:<name:"method" value:"GET" > label:<name:"view" value:"testTimeout" > counter:<value:1 > `,
 }
 
-type MiddlewareSuite struct{}
-
-func TestMiddlewareSuiteSuite(t *testing.T) { check.TestingT(t) }
-
-var _ = check.Suite(&MiddlewareSuite{})
-
-func (s *MiddlewareSuite) TestCollectAPIStats(c *check.C) {
+func TestCollectAPIStats(t *testing.T) {
 	// restore the default prometheus registerer when the unit test is complete.
 	snapshot := prometheus.DefaultRegisterer
 	defer func() {
@@ -61,22 +54,22 @@ func (s *MiddlewareSuite) TestCollectAPIStats(c *check.C) {
 
 	metrics, err := registry.Gather()
 	if err != nil {
-		c.Error(err)
+		t.Error(err)
 		return
 	}
 
 	if len(metrics) != len(expectedPrometheusData) {
-		c.Fatalf("expected %d metrics, got %d", len(expectedPrometheusData), len(metrics))
+		t.Fatalf("expected %d metrics, got %d", len(expectedPrometheusData), len(metrics))
 	}
 
 	for _, metric := range metrics {
 		expectedPrefix, ok := expectedPrometheusData[metric.GetName()]
 		if !ok {
-			c.Fatalf("metric %s not found", metric.GetName())
+			t.Fatalf("metric %s not found", metric.GetName())
 		}
 
 		if !strings.HasPrefix(metric.Metric[0].String(), expectedPrefix) {
-			c.Fatalf("\ngot metric: %s\n  expected: %s\n", metric.Metric[0].String(), expectedPrefix)
+			t.Fatalf("\ngot metric: %s\n  expected: %s\n", metric.Metric[0].String(), expectedPrefix)
 		}
 	}
 }
