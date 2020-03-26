@@ -25,9 +25,7 @@ func CollectAPIStats(view string, inner http.Handler) http.Handler {
 		if ww.status == 504 {
 			HTTPIncomingTimeoutsCounterVec.WithLabelValues(r.Method, view).Inc()
 		}
-		// record prometheus metric for latency in ms
-		latency := float64(time.Since(start).Nanoseconds()) / 1000000
-
+		latency := float64(time.Since(start).Milliseconds())
 		HTTPIncomingLatencyHistogramVec.WithLabelValues(r.Method, ww.Status(), view).Observe(latency)
 		HTTPIncomingRequestCounterVec.WithLabelValues(r.Method, ww.Status(), view).Inc()
 	})

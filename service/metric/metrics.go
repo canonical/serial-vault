@@ -27,7 +27,7 @@ var HTTPIncomingLatencyHistogramVec = prometheus.NewHistogramVec(
 var HTTPIncomingErrorsCounterVec = prometheus.NewCounterVec(
 	prometheus.CounterOpts{
 		Name: "http_in_errors",
-		Help: "fetric for HTTP errors",
+		Help: "metric for HTTP errors",
 	},
 	[]string{"method", "status", "view"},
 )
