@@ -2,6 +2,7 @@ package metric
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -11,8 +12,13 @@ type Server struct {
 	metrics http.Handler
 }
 
+var doOnce sync.Once
+
 // NewServer returns a new metrics server.
 func NewServer() *Server {
+	doOnce.Do(func() {
+		InitMetrics()
+	})
 	return &Server{
 		metrics: promhttp.Handler(),
 	}
