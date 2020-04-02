@@ -205,29 +205,29 @@ func AdminRouter() *mux.Router {
 		Methods("POST")
 
 	// API routes: users management
-	router.Handle("/v1/users", metric.CollectAPIStats("XXX",
+	router.Handle("/v1/users", metric.CollectAPIStats("userList",
 		MiddlewareWithCSRF(http.HandlerFunc(user.List)))).
 		Methods("GET")
-	router.Handle("/v1/users", metric.CollectAPIStats("XXX",
+	router.Handle("/v1/users", metric.CollectAPIStats("userCreate",
 		MiddlewareWithCSRF(http.HandlerFunc(user.Create)))).
 		Methods("POST")
-	router.Handle("/v1/users/{id:[0-9]+}", metric.CollectAPIStats("XXX",
+	router.Handle("/v1/users/{id:[0-9]+}", metric.CollectAPIStats("userGet",
 		MiddlewareWithCSRF(http.HandlerFunc(user.Get)))).
 		Methods("GET")
-	router.Handle("/v1/users/{id:[0-9]+}", metric.CollectAPIStats("XXX",
+	router.Handle("/v1/users/{id:[0-9]+}", metric.CollectAPIStats("userUpdate",
 		MiddlewareWithCSRF(http.HandlerFunc(user.Update)))).
 		Methods("PUT")
-	router.Handle("/v1/users/{id:[0-9]+}", metric.CollectAPIStats("XXX",
+	router.Handle("/v1/users/{id:[0-9]+}", metric.CollectAPIStats("userDelete",
 		MiddlewareWithCSRF(http.HandlerFunc(user.Delete)))).
 		Methods("DELETE")
-	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", metric.CollectAPIStats("XXX",
+	router.Handle("/v1/users/{id:[0-9]+}/otheraccounts", metric.CollectAPIStats("userGetOtherAccounts",
 		MiddlewareWithCSRF(http.HandlerFunc(user.GetOtherAccounts)))).
 		Methods("GET")
 
 	// OpenID routes: using Ubuntu SSO
-	router.Handle("/login", metric.CollectAPIStats("XXX",
+	router.Handle("/login", metric.CollectAPIStats("ussoLoginHandler",
 		MiddlewareWithCSRF(http.HandlerFunc(usso.LoginHandler))))
-	router.Handle("/logout", metric.CollectAPIStats("XXX",
+	router.Handle("/logout", metric.CollectAPIStats("ussoLogoutHandler",
 		MiddlewareWithCSRF(http.HandlerFunc(usso.LogoutHandler))))
 
 	// Web application routes
