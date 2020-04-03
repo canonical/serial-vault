@@ -34,13 +34,17 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/CanonicalLtd/serial-vault/service/assertion"
 	"github.com/CanonicalLtd/serial-vault/service/response"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/snapcore/snapd/asserts"
 	check "gopkg.in/check.v1"
 )
 
 func TestAssertionSuite(t *testing.T) { check.TestingT(t) }
 
-type AssertionSuite struct{}
+type AssertionSuite struct {
+	snapshot prometheus.Registerer
+	registry *prometheus.Registry
+}
 
 type AssertionTest struct {
 	Data   []byte
@@ -49,7 +53,55 @@ type AssertionTest struct {
 	APIKey string
 }
 
+var expectedPrometheusData = []string{
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionAPISystemUser" > counter:<value:2 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionAPIValidateSerial" > counter:<value:1 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionModelAssertion" > counter:<value:2 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionSystemUserAssertion" > counter:<value:2 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionAPISystemUser" > counter:<value:3 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionAPIValidateSerial" > counter:<value:8 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionModelAssertion" > counter:<value:8 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionSystemUserAssertion" > counter:<value:5 > `,
+}
+
 var _ = check.Suite(&AssertionSuite{})
+
+func (s *AssertionSuite) SetUpSuite(c *check.C) {
+	// restore the default prometheus registerer when the unit test is complete.
+	s.snapshot = prometheus.DefaultRegisterer
+
+	// creates a blank registry
+	s.registry = prometheus.NewRegistry()
+	prometheus.DefaultRegisterer = s.registry
+}
+
+func (s *AssertionSuite) TearDownSuite(c *check.C) {
+	s.testPrometheusMetrics(c)
+
+	prometheus.DefaultRegisterer = s.snapshot
+}
+
+func (s *AssertionSuite) testPrometheusMetrics(c *check.C) {
+	metrics, err := s.registry.Gather()
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	metricFound := false
+	for _, metric := range metrics {
+		if metric.GetName() == "http_in_requests" {
+			metricFound = true
+			for i, m := range metric.Metric {
+				c.Assert(m.String(), check.Equals, expectedPrometheusData[i])
+			}
+		}
+	}
+
+	if !metricFound {
+		c.Fail()
+	}
+}
 
 func (s *AssertionSuite) SetUpTest(c *check.C) {
 	// Mock the store
