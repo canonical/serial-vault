@@ -35,6 +35,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/service/pivot"
 	"github.com/CanonicalLtd/serial-vault/service/sign"
 	"github.com/CanonicalLtd/serial-vault/service/signinglog"
+	"github.com/CanonicalLtd/serial-vault/service/status"
 	"github.com/CanonicalLtd/serial-vault/service/store"
 	"github.com/CanonicalLtd/serial-vault/service/substore"
 	"github.com/CanonicalLtd/serial-vault/service/testlog"
@@ -80,8 +81,10 @@ func SigningRouter() *mux.Router {
 		router.Handle("/testlog", Middleware(http.HandlerFunc(testlog.Submit))).Methods("POST")
 	}
 
-	// prometheus metrics endpint
+	// prometheus metrics endpoint
 	router.Handle("/_status/metrics", metric.NewServer()).Methods("GET")
+	// status endpoints
+	status.AddStatusEndpoints("/_status", router)
 
 	return router
 }
@@ -312,8 +315,10 @@ func AdminRouter() *mux.Router {
 		Middleware(http.HandlerFunc(testlog.APISyncUpdateLog)))).
 		Methods("PUT")
 
-	// prometheus metrics endpint
+	// prometheus metrics endpoint
 	router.Handle("/_status/metrics", metric.NewServer()).Methods("GET")
+	// status endpoints
+	status.AddStatusEndpoints("/_status", router)
 
 	return router
 }
