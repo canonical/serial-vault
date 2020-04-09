@@ -12,7 +12,7 @@ Readiness probe is available at `/_status/check`.
 It will respond to the HTTP GET request with `200 OK`
 status and json string in the body: `{"database": "OK"}`. On each request, the database connection will be
 checked. 
-On any error the endpoint will respond with `500  Internal Server Error` status witht the 
+On any error the endpoint will respond with `500  Internal Server Error` status with the 
 json string in the body: `{"database": "database error string"}`
 
 
