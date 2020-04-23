@@ -1,4 +1,6 @@
 sudo: required
+services:
+  - docker
 language: go
 dist: xenial
 go_import_path: github.com/CanonicalLtd/serial-vault
@@ -25,10 +27,14 @@ install:
   - echo $GOPATH
   - echo "Remaining install is done by the test script."
   - true
+
 script: sh -v ./run-checks $TEST_SUITE
 
 jobs:
   include:
+    - language: go
+      script:
+        docker build .
     - language: node_js
       node_js:
         - lts/*
