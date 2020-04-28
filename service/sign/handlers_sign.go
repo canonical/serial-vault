@@ -255,7 +255,7 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	return response.ErrorResponse{Success: true}
 }
 
-// CleanHeader removes single quetes and leading and trailing white spaces from the header
+// CleanHeader removes single quotes and leading and trailing white spaces from the header
 func CleanHeader(header string) string {
 	header = strings.Replace(header, "'", "", -1)
 	header = strings.TrimSpace(header)
