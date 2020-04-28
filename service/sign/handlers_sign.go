@@ -264,8 +264,13 @@ func CleanHeader(header string) string {
 
 func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, serialAssert asserts.Assertion, apiKey string) response.ErrorResponse {
 	originalBrandID := CleanHeader(serialReq.HeaderString("original-brand-id"))
+	brandID := CleanHeader(serialAssert.HeaderString("brand-id"))
+
 	originalModel := CleanHeader(serialReq.HeaderString("original-model"))
+	modelHeader := CleanHeader(serialReq.HeaderString("model"))
+
 	originalSerial := CleanHeader(serialReq.HeaderString("original-serial"))
+	serialHeader := CleanHeader(serialAssert.HeaderString("serial"))
 
 	if modelAssert == nil {
 		const msg = "Model assertion can't be empty for a remodeling request"
@@ -301,18 +306,18 @@ func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, seria
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 	}
 
-	// Check original-* fields matchine old serial
-	if serialAssert.HeaderString("model") != originalModel {
+	// Check that original-* fields are matching old serial
+	if modelHeader != originalModel {
 		const msg = "Original model is invalid"
 		svlog.Message("SIGN", "invalid-assertion", msg)
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 	}
-	if serialAssert.HeaderString("serial") != originalSerial {
+	if serialHeader != originalSerial {
 		const msg = "Original serial number is invalid"
 		svlog.Message("SIGN", "invalid-assertion", msg)
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 	}
-	if serialAssert.HeaderString("brand-id") != originalBrandID {
+	if brandID != originalBrandID {
 		const msg = "Original brand-id is invalid"
 		svlog.Message("SIGN", "invalid-assertion", msg)
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
