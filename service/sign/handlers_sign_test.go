@@ -653,7 +653,6 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 		if t.MockError {
 			datastore.Environ.DB = &datastore.ErrorMockDB{}
 		}
-
 		w := sendRequest(t.Method, t.URL, bytes.NewReader(t.Data), t.APIKey, c)
 		c.Assert(w.Code, check.Equals, t.Code)
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
@@ -682,6 +681,11 @@ func (s *SignSuite) TestCleanHeader(c *check.C) {
 			name:   "case-3",
 			header: "abc123",
 			want:   "abc123",
+		},
+		{
+			name:   "case-4",
+			header: "",
+			want:   "",
 		},
 	}
 	for _, tt := range tests {

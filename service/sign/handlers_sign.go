@@ -265,12 +265,9 @@ func CleanHeader(header string) string {
 func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, serialAssert asserts.Assertion, apiKey string) response.ErrorResponse {
 	originalBrandID := serialReq.HeaderString("original-brand-id")
 	brandID := serialAssert.HeaderString("brand-id")
-
 	originalModel := serialReq.HeaderString("original-model")
-	modelHeader := serialReq.HeaderString("model")
-
 	originalSerial := CleanHeader(serialReq.HeaderString("original-serial"))
-	serialHeader := CleanHeader(serialAssert.HeaderString("serial"))
+	serial := CleanHeader(serialAssert.HeaderString("serial"))
 
 	if modelAssert == nil {
 		const msg = "Model assertion can't be empty for a remodeling request"
@@ -307,12 +304,12 @@ func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, seria
 	}
 
 	// Check that original-* fields are matching old serial
-	if modelHeader != originalModel {
+	if serialAssert.HeaderString("model") != originalModel {
 		const msg = "Original model is invalid"
 		svlog.Message("SIGN", "invalid-assertion", msg)
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 	}
-	if serialHeader != originalSerial {
+	if serial != originalSerial {
 		const msg = "Original serial number is invalid"
 		svlog.Message("SIGN", "invalid-assertion", msg)
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
