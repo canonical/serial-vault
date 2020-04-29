@@ -678,6 +678,11 @@ func (s *SignSuite) TestCleanHeader(c *check.C) {
 			header: `abc123 `,
 			want:   "abc123",
 		},
+		{
+			name:   "case-3",
+			header: "abc123",
+			want:   "abc123",
+		},
 	}
 	for _, tt := range tests {
 		got := sign.CleanHeader(tt.header)

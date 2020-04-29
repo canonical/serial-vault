@@ -263,11 +263,11 @@ func CleanHeader(header string) string {
 }
 
 func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, serialAssert asserts.Assertion, apiKey string) response.ErrorResponse {
-	originalBrandID := CleanHeader(serialReq.HeaderString("original-brand-id"))
-	brandID := CleanHeader(serialAssert.HeaderString("brand-id"))
+	originalBrandID := serialReq.HeaderString("original-brand-id")
+	brandID := serialAssert.HeaderString("brand-id")
 
-	originalModel := CleanHeader(serialReq.HeaderString("original-model"))
-	modelHeader := CleanHeader(serialReq.HeaderString("model"))
+	originalModel := serialReq.HeaderString("original-model")
+	modelHeader := serialReq.HeaderString("model")
 
 	originalSerial := CleanHeader(serialReq.HeaderString("original-serial"))
 	serialHeader := CleanHeader(serialAssert.HeaderString("serial"))
