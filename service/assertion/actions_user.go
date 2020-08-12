@@ -146,6 +146,7 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 		"sign-key-sha3-384": model.KeyIDUser,
 	}
 
+	log.Println("---", user.SSHKeys)
 	if len(user.SSHKeys) > 0 {
 		// Convert the keys to an interface slice
 		keys := make([]interface{}, len(user.SSHKeys))

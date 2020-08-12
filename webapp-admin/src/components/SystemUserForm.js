@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2018 Canonical Ltd
+ * Copyright (C) 2017-2020 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -36,6 +36,8 @@ class SystemUserForm extends Component {
             model: 0,
             since: moment.utc(),
             until: moment.utc().add(1, 'year'),
+            sshKeyList: [],
+            sshKeys: '',
             message: '',
             assertion: null,
         }
@@ -126,6 +128,15 @@ class SystemUserForm extends Component {
         this.setState({until: t});
     }
 
+    handleChangeSSHKeys = (e) => {
+        let keys = e.target.value.split('\n')
+        keys = keys.filter(k => {
+            return k !== ''
+        })
+
+        this.setState({sshKeyList: keys, sshKeys: e.target.value});
+    }
+
     onSubmit = (e) => {
         e.preventDefault()
 
@@ -137,6 +148,7 @@ class SystemUserForm extends Component {
             model:    this.state.model,
             since:    this.state.since.format('YYYY-MM-DDTHH:mm:ss') + 'Z',
             until:    this.state.until.format('YYYY-MM-DDTHH:mm:ss') + 'Z',
+            sshKeys:  this.state.sshKeyList,
         }
         if (this.validate(form)) {
             // this.props.onSubmit(form)
@@ -146,8 +158,13 @@ class SystemUserForm extends Component {
 
     validate(form) {
         // Check the mandatory fields
-        if ((!form.email) || (!form.username) || (!form.password) || (!form.name) || (!form.model) || (form.model === 0)) {
+        if ((!form.email) || (!form.username) || (!form.name) || (!form.model) || (form.model === 0)) {
             this.setState({message: 'All the fields must be entered'});
+            return false;
+        }
+
+        if ((!form.password) && (form.sshKeys.length===0)) {
+            this.setState({message: 'The password or ssh keys must be entered'});
             return false;
         }
 
@@ -162,7 +179,6 @@ class SystemUserForm extends Component {
     }
 
     render() {
-
         if (!isUserStandard(this.props.token)) {
             return (
                 <div className="row">
@@ -233,6 +249,10 @@ class SystemUserForm extends Component {
                                     <input type="time" name="until_time" title="the time the assertion is valid until (UTC)" onChange={this.handleChangeUntilTime} value={this.state.until.format('HH:mm')} />
                                 </div>
                             </div>
+                        </label>
+                        <label htmlFor="ssh-keys">{T('ssh-keys')}:
+                            <textarea onChange={this.handleChangeSSHKeys} defaultValue={this.state.sshKeys} id="ssh-keys"
+                                      placeholder={T('ssh-keys-description')} />
                         </label>
                     
                     </fieldset>

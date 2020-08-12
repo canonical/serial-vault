@@ -184,6 +184,8 @@ var intlData = {
       "signing-keys": "Signing Keys",
       "signinglog-description": "Log of the serial numbers and device-key fingerprints that have been used",
       "signinglog": "Signing Log",
+      "ssh-keys": "SSH Keys",
+      "ssh-keys-description": "(optional) List of ssh keys (one per line)",
       "store": "Store",
       "store-description": "ID of the brand store",
       "store-account-assertion": "Account Assertion from Store",
