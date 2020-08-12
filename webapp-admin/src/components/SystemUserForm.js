@@ -21,7 +21,7 @@ import Assertion from '../models/assertions'
 import {T, isUserStandard} from './Utils'
 
 import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker-cssmodules.css'
+import "react-datepicker/dist/react-datepicker.css";
 
 class SystemUserForm extends Component {
 
@@ -88,11 +88,12 @@ class SystemUserForm extends Component {
 
     handleChangeSinceDate = (date) => {
         // Get the time from the current setting
-        date.hours(this.state.since.hours())
-        date.minutes(this.state.since.minutes())
-        date.seconds(this.state.since.seconds())
+        let d = moment(date)
+        d.hours(this.state.since.hours())
+        d.minutes(this.state.since.minutes())
+        d.seconds(this.state.since.seconds())
 
-        this.setState({since: date});
+        this.setState({since: d});
     }
 
     handleChangeSinceTime = (e) => {
@@ -107,11 +108,12 @@ class SystemUserForm extends Component {
 
     handleChangeUntilDate = (date) => {
         // Get the time from the current setting
-        date.hours(this.state.until.hours())
-        date.minutes(this.state.until.minutes())
-        date.seconds(this.state.until.seconds())
+        let d = moment(date)
+        d.hours(this.state.until.hours())
+        d.minutes(this.state.until.minutes())
+        d.seconds(this.state.until.seconds())
 
-        this.setState({until: date});
+        this.setState({until: d});
     }
 
     handleChangeUntilTime = (e) => {
@@ -215,7 +217,7 @@ class SystemUserForm extends Component {
                         <label htmlFor="since">Since (UTC):
                             <div className="row">
                                 <div className="col-3">
-                                    <DatePicker selected={this.state.since} onChange={this.handleChangeSinceDate} />
+                                    <DatePicker selected={this.state.since.toDate()} onChange={this.handleChangeSinceDate} />
                                 </div>
                                 <div className="col-3">
                                     <input type="time" name="since_time" title="the time the assertion is valid from (UTC)" onChange={this.handleChangeSinceTime} value={this.state.since.format('HH:mm')} />
@@ -225,7 +227,7 @@ class SystemUserForm extends Component {
                         <label htmlFor="until">Until (UTC):
                             <div className="row">
                                 <div className="col-3">
-                                    <DatePicker selected={this.state.until} onChange={this.handleChangeUntilDate} />
+                                    <DatePicker selected={this.state.until.toDate()} onChange={this.handleChangeUntilDate} />
                                 </div>
                                 <div className="col-3">
                                     <input type="time" name="until_time" title="the time the assertion is valid until (UTC)" onChange={this.handleChangeUntilTime} value={this.state.until.format('HH:mm')} />
