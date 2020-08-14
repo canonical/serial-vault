@@ -43,7 +43,7 @@ describe('dialog box', function() {
   // Check all the expected elements are rendered
   var divs = ReactTestUtils.scryRenderedDOMComponentsWithTag(page, 'div');
   expect(divs.length).toBe(2);
-  var anchors = ReactTestUtils.scryRenderedDOMComponentsWithTag(page, 'a');
+  var anchors = ReactTestUtils.scryRenderedDOMComponentsWithTag(page, 'button');
   expect(anchors.length).toBe(2);
 
   expect(handleYesClick.mock.calls.length).toBe(0);

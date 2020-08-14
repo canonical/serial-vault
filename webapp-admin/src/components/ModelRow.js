@@ -37,8 +37,9 @@ class ModelRow extends Component {
                 <div>
                     <a href={'/models/'.concat(this.props.model.id, '/edit')} className="p-button--brand small" title={T('edit-model')}><i className="fa fa-pencil"></i></a>
                     &nbsp;
-                    <a href="" onClick={this.props.delete} data-key={this.props.model.id} className="p-button--neutral small" title={T('delete-model')}>
-                        <i className="fa fa-trash" data-key={this.props.model.id}></i></a>
+                    <button onClick={this.props.delete} data-key={this.props.model.id} className="p-button--neutral small" title={T('delete-model')}>
+                        <i className="fa fa-trash" data-key={this.props.model.id}></i>
+                    </button>
                 </div>
             );
         } else {
@@ -63,8 +64,9 @@ class ModelRow extends Component {
                     {this.renderActions()}
                 </td>
                 <td className="overflow" title={this.props.model.model}>
-                    <a href="" onClick={this.copyToClipboard} data-key={this.props.model['api-key']} className="p-button--neutral small" title={T('copy-api-key')}>
-                        <i className="fa fa-clipboard" data-key={this.props.model['api-key']} /></a>
+                    <button onClick={this.copyToClipboard} data-key={this.props.model['api-key']} className="p-button--neutral small" title={T('copy-api-key')}>
+                        <i className="fa fa-clipboard" data-key={this.props.model['api-key']} />
+                    </button>
                     &nbsp;
                     {this.props.model.model}
                 </td>
@@ -72,9 +74,9 @@ class ModelRow extends Component {
                 <td className="overflow" title={fingerprintUser} >{fingerprintUser}</td>
                 <td>{this.props.model['key-active'] && this.props.model['key-active-user'] ? <i className="fa fa-check"></i> :  <i className="fa fa-times"></i>}</td>
                 <td className="overflow" title={fingerprintModel} >
-                    <a href="" className="p-button--neutral small" title={T('assertion-settings')} data-key={this.props.model.id} onClick={this.props.showAssert}>
+                    <button className="p-button--neutral small" title={T('assertion-settings')} data-key={this.props.model.id} onClick={this.props.showAssert}>
                         <i className="fa fa-sliders" aria-hidden="true" data-key={this.props.model.id} />
-                    </a>                    
+                    </button>                    
                 </td>
             </tr>
         )
