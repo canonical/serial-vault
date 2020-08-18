@@ -23,7 +23,7 @@ import "testing"
 
 func TestReadConfig(t *testing.T) {
 	settings := Settings{}
-	err := ReadConfig(&settings, "../settings.yaml")
+	err := ReadConfig(&settings, "../settings.yaml.example")
 	if err != nil {
 		t.Errorf("Error reading config file: %v", err)
 	}

@@ -29,11 +29,15 @@ import (
 )
 
 // Set the application version from a constant
-const version = "2.5-1"
+var version = "unknown"
+
+// Set the application revision from a constant
+var revision = "unknown"
 
 // Settings defines the parsed config file settings.
 type Settings struct {
 	Version        string
+	Revision       string
 	Title          string `yaml:"title"`
 	Logo           string `yaml:"logo"`
 	DocRoot        string `yaml:"docRoot"`
@@ -80,8 +84,9 @@ func ReadConfig(settings *Settings, filePath string) error {
 		return err
 	}
 
-	// Set the application version from the constant
+	// Set the application version and revision from the constant
 	settings.Version = version
+	settings.Revision = revision
 
 	// Set the service mode from the config file if it is not set
 	if ServiceMode == "" {

@@ -136,7 +136,7 @@ if [ "$STATIC" = 1 ]; then
         go get -u github.com/client9/misspell/cmd/misspell
     fi
     for file in *; do
-        if [ "$file" = "vendor" ] || [ "$file" = "static" ] || [ "$file" = "webapp-admin" ] || [ "$file" = "webapp-user" ] || [ "$file" = "test" ]; then
+        if [ "$file" = "vendor" ] || [ "$file" = "static" ] || [ "$file" = "webapp-admin" ] || [ "$file" = "webapp-user" ] || [ "$file" = "test" ] || [ "$file" = "tmp" ]; then
             continue
         fi
         misspell -error -i auther,PROCES,PROCESSS,proces,processs,exportfs "$file"
