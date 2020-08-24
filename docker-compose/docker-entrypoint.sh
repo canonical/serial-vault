@@ -16,7 +16,7 @@ done
 
 set -e
 
-cd $GOPATH/src/github.com/CanonicalLtd/serial-vault
+cd /go/src/github.com/CanonicalLtd/serial-vault
 
 sed -i  \
   -e "s/API_KEY/$API_KEY/g" \

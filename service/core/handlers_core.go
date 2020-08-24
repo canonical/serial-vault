@@ -33,7 +33,8 @@ import (
 
 // VersionResponse is the JSON response from the API Version method
 type VersionResponse struct {
-	Version string `json:"version"`
+	Version  string `json:"version"`
+	Revision string `json:"revision"`
 }
 
 // HealthResponse is the JSON response from the health check method
@@ -50,7 +51,10 @@ type TokenResponse struct {
 func Version(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", response.JSONHeader)
 
-	response := VersionResponse{Version: datastore.Environ.Config.Version}
+	response := VersionResponse{
+		Version:  datastore.Environ.Config.Version,
+		Revision: datastore.Environ.Config.Revision,
+	}
 
 	// Encode the response as JSON
 	if err := json.NewEncoder(w).Encode(response); err != nil {

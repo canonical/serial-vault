@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+
+# Barf if not uid 0
+if [ $(id -u) -ne "0" ]; then
+   echo "Please run me with sudo"
+   exit
+fi
+
+if ! grep -qa container=lxc /proc/1/environ; then
+    echo "You're not in an LXC container, so I'm refusing to run."
+    exit
+fi
+
+# Disable debconf questions.
+export DEBIAN_FRONTEND=noninteractive
+
+# If your host system is not in English, need to fix the locale for
+# the lxc, as the project (and its tests) assume an English machine.
+sed -i 's/LANG=.*/LC_ALL="en_US.UTF-8"/' /etc/default/locale
+
+# Let's make sure your system is up to date
+apt-get update
+apt-get upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
+apt-get autoremove -y
+
+# Install project's OS dependencies.
+cat dependencies.txt dependencies-devel.txt | xargs apt install --no-install-recommends -y
+
+# we are done
+echo All done, now you can do
+echo make bootstrap
+

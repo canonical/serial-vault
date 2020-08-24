@@ -20,3 +20,8 @@ snap/.snapcraft
 .tests-extras
 __pycache__/
 files/
+/settings.yaml
+/vendor
+/bin
+/tmp
+/env
