@@ -75,14 +75,19 @@ run-sign: build
 	$(info # Running ${SERVICE_NAME} in sign/api mode)
 	${LOCAL_SERVICE_NAME} --mode=sign --config=settings.yaml
 
-# get the vendor code for internal build
-.PHONY: vendor
-vendor:
+# get the vendor code for internal CI build
+.PHONY: vendor-ci
+vendor-ci:
 	[ -d $(VENDOR) ] && (cd $(VENDOR) && git pull) || (git clone $(VENDOR_BRANCH_URL) $(VENDOR))
 
+# get the vendor code
+.PHONY: vendor
+vendor:
+	$(GO) mod vendor
+
 # if you need to add an additional external dependency, use this target
-.PHONY: mkdir-tmp
-vendoring: mkdir-tmp
+.PHONY: vendoring-ci
+vendoring-ci: mkdir-tmp
 	rm -rf ${VENDOR_TMP}
 	${GO} mod vendor
 	${GO} mod tidy
@@ -119,10 +124,22 @@ build-frontend:
 	cp -R build/static/css ../static && \
 	cp -R build/index.html ../static/app.html
 
+.PHONY: test-frontend
+test-frontend:
+	NODE_ENV=test cd webapp-admin && \
+	npm install && \
+	npm install -g codecov && \
+	npm run test:ci
+
 # run application/db in docker
 .PHONY: run-docker
 run-docker:
 	cd docker-compose && docker-compose up
+
+# stop and remove containers
+.PHONY:stop-docker
+stop-docker:
+	cd docker-compose && docker-compose kill && docker-compose rm
 
 .PHONY: clean
 clean:

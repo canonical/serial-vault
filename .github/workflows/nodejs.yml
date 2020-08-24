@@ -14,14 +14,7 @@ jobs:
         node-version: 12.x
     - name: Build frontend
       run: |
-        cd webapp-admin
-        npm install
-        npm run build
-        rm ../static/js/*
-        rm ../static/css/*
-        cp -R build/static/js ../static
-        cp -R build/static/css ../static
-        cp -R build/index.html ../static/app.html
+        make build-frontend
     - name: Create Pull Request
       id: cpr
       uses: peter-evans/create-pull-request@v2
