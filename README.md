@@ -29,20 +29,44 @@ in order to changes take effect. That could require a browser restart.
 NEVER set this configuration in production environments.
 
 ## Install from Source
-If you have a Go development environment set up, Go get it, we recommend at least Go v1.13 or higher.
+If you have a Go development environment set up, we recommend at least Go v1.13 or higher. This project is built
+and tested on Ubuntu 20.04.1 LTS` (Focal Fossa) with `go 1.13`. If you wish to build or run the service from source we
+recommend using LXD container for this purpose. To get started with LXD, please follow this 
+[wiki](https://wiki.canonical.com/UbuntuOne/Developer/LXC) (jump to the LXD section):
 
   ```bash
-  $ go get github.com/CanonicalLtd/serial-vault/...
+  lxc launch ubuntu:20.04 serial-vault-focal -p default -p $USER
+  lxc ls
+  ssh -A <container-ip>
+  serial-vault-focal:~$ git clone https://github.com/CanonicalLtd/serial-vault.git
+  serial-vault-focal:~$ cd serial-vault
+  serial-vault-focal:~/serial-vault$ sudo ./setup-container
+  serial-vault-focal:~/serial-vault$ make bootstrap
+  serial-vault-focal:~/serial-vault$ make install
   ```
 
-### Configure it:
+After this you will find all binaries in the `bin/` folder of the project.
+
+```bash
+@serial-vault-focal:~/serial-vault$ tree bin/
+bin/
+├── factory
+├── serial-vault
+├── serial-vault-admin
+```
+
+To run Serial Vault in admin/UI mode you will need a `static/` folder. Make sure to setup 
+correct path to this folder in the configuration file with `docRoot` variable.
+
+### Configuration
 - Install PostgreSQL and create a database.
-- Set up the config file, using ```settings.yaml``` as a guide.
+- Set up the config file, using `settings.yaml.example` as a guide.
 - Create the database tables:
+
   ```bash
   $ cd serial-vault
   $ go get ./...
-  $ go run cmd/serial-vault-admin/main.go database --config=/path/to/settings.yaml
+  $ make migrate
   ```
 
 Sample Serial Vault Configuration:
@@ -68,13 +92,14 @@ apiKeys:
 csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
 ```
 
-### Run it:
+### Run the service
   ```bash
   $ cd $GOPATH/src/github.com/CanonicalLtd/serial-vault
-  $ go run cmd/serial-vault/main.go -config=/path/to/settings.yaml -mode=signing
+  # run the service in sign/API mode
+  $ make run-sign
+  # run the serivce in admin/UI
+  $ make run-admin
   ```
-
-The application has an admin/UI service that can be run by using mode=admin.
 
 ## Deploy it with Juju
 Juju greatly simplifies the deployment of the Serial Vault. A charm bundle is available
@@ -86,10 +111,9 @@ everything apart from the Apache front-end units. There is an example of using J
 
   ```bash
   $ git clone https://github.com/CanonicalLtd/serial-vault
-  $ cd serial-vault/docker-compose
-  $ docker-compose up
+  $ make run-docker
   # remove containers after try
-  $ docker-compose kill && docker-compose rm
+  $ make stop-docker
   ```
 
 ## Development Environment
@@ -112,7 +136,7 @@ To remove a dependency
 - Run `go mod tidy` in the source folder to remove dependency from go.mod file.
 
 ### Install Go
-Follow the instructions to [install Go](https://golang.org/doc/install).
+Follow the instructions to [install Go](https://golang.org/doc/install). The current version of the service runs with `Go 1.13`.
 
 ### Install the React development environment
 #### Pre-requisites

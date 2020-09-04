@@ -13,11 +13,9 @@ set -eu
 if which goctest >/dev/null; then
     goctest="goctest"
 else
-    goctest="go test"
+    goctest="go test -mod=vendor"
 fi
 COVERMODE=${COVERMODE:-atomic}
-export GOPATH="${GOPATH:-$(realpath "$(dirname "$0")"/../../../../)}"
-export PATH="$PATH:${GOPATH%%:*}/bin"
 
 STATIC=
 UNIT=
@@ -166,13 +164,10 @@ if [ ! -z "$UNIT" ]; then
     mkdir .coverage
     echo "mode: $COVERMODE" > .coverage/coverage.out
 
-    echo Building
-    go build -v github.com/CanonicalLtd/serial-vault/...
-
     # tests
     echo Running tests from "$PWD"
     for pkg in $(go list ./... | grep -v '/vendor/' ); do
-        go test -i "$pkg"
+        go test -mod=vendor -i "$pkg"
         $goctest -v -coverprofile=.coverage/profile.out -covermode="$COVERMODE" "$pkg"
         append_coverage .coverage/profile.out
     done
