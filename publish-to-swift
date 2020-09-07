@@ -1,0 +1,133 @@
+#! /usr/bin/python3
+
+"""Publish a built tarball to Swift for deployment."""
+
+from argparse import ArgumentParser
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+
+def ensure_container_privs(container_name):
+    """Ensure that the container exists and is world-readable.
+
+    This allows us to give services suitable credentials for getting the
+    built code from a container.
+    """
+    subprocess.run(["swift", "post", container_name, "--read-acl", ".r:*"])
+
+
+def get_swift_storage_url():
+    # This is a bit cumbersome, but probably still easier than bothering
+    # with swiftclient.
+    auth = subprocess.run(
+        ["swift", "auth"],
+        stdout=subprocess.PIPE, check=True,
+        universal_newlines=True).stdout.splitlines()
+    return [
+        line.split("=", 1)[1] for line in auth
+        if line.startswith("export OS_STORAGE_URL=")][0]
+
+
+def publish_file_to_swift(container_name, object_path, local_path,
+                          overwrite=True):
+    """Publish a file to a Swift container."""
+    storage_url = get_swift_storage_url()
+
+    already_published = False
+    # Some swift versions unhelpfully exit 0 regardless of whether the
+    # object exists.
+    try:
+        stats = subprocess.run(
+            ["swift", "stat", container_name, object_path],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True,
+            universal_newlines=True).stdout
+        if re.search(
+                r"Object: %s$" % re.escape(object_path), stats, flags=re.M):
+            already_published = True
+    except subprocess.CalledProcessError:
+        pass
+
+    if already_published:
+        print("Object {} already published to {}.".format(
+            object_path, container_name))
+        if not overwrite:
+            return
+
+    print("Publishing {} to {} as {}.".format(
+        local_path, container_name, object_path))
+    try:
+        subprocess.run(
+            ["swift", "upload", "--object-name", object_path,
+             container_name, local_path])
+    except subprocess.CalledProcessError:
+        sys.exit("Failed to upload {} to {} as {}".format(
+            local_path, container_name, object_path))
+
+    print("Published file: {}/{}/{}".format(
+        storage_url, container_name, object_path))
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("--debug", action="store_true", default=False)
+    parser.add_argument("container_name")
+    parser.add_argument("swift_object_path")
+    parser.add_argument("local_path")
+    parser.add_argument("build_label")
+    args = parser.parse_args()
+
+    if args.debug:
+        # Print OpenStack-related environment variables for ease of
+        # debugging.  Only OS_AUTH_TOKEN and OS_PASSWORD currently seem to
+        # be secret, but for safety we only show unredacted contents of
+        # variables specifically known to be safe.  See "swift --os-help"
+        # for most of these.
+        safe_keys = {
+            "OS_AUTH_URL",
+            "OS_AUTH_VERSION",
+            "OS_CACERT",
+            "OS_CERT",
+            "OS_ENDPOINT_TYPE",
+            "OS_IDENTITY_API_VERSION",
+            "OS_INTERFACE",
+            "OS_KEY",
+            "OS_PROJECT_DOMAIN_ID",
+            "OS_PROJECT_DOMAIN_NAME",
+            "OS_PROJECT_ID",
+            "OS_PROJECT_NAME",
+            "OS_REGION_NAME",
+            "OS_SERVICE_TYPE",
+            "OS_STORAGE_URL",
+            "OS_TENANT_ID",
+            "OS_TENANT_NAME",
+            "OS_USERNAME",
+            "OS_USER_DOMAIN_ID",
+            "OS_USER_DOMAIN_NAME",
+            "OS_USER_ID",
+            }
+        for key, value in sorted(os.environ.items()):
+            if key.startswith("OS_"):
+                if key not in safe_keys:
+                    value = "<redacted>"
+                print("{}: {}".format(key, value))
+
+    overwrite = "FORCE_REBUILD" in os.environ
+    ensure_container_privs(args.container_name)
+    publish_file_to_swift(
+        args.container_name, args.swift_object_path, args.local_path,
+        overwrite=overwrite)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filename = "last-successful-build-label.txt"
+        with open(os.path.join(tmpdir, filename), "w") as f:
+            f.write(args.build_label)
+        publish_file_to_swift(
+            args.container_name, filename, os.path.join(tmpdir, filename),
+            overwrite=True)
+
+
+if __name__ == "__main__":
+    main()
