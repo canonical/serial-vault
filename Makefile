@@ -25,8 +25,7 @@ TAR_BASE_NAME = ${SERVICE_NAME}-v${VERSION}.tar
 TGZ_NAME = ${TMP}/${SERVICE_NAME}-payload-${VERSION}.tgz
 SWIFT_CONTAINER_NAME = ${SERVICE_NAME}.canonical.com
 
-# golang is installed from the snap
-GO ?= /snap/bin/go
+GO ?= go
 
 # this repo contains external dependencies for an internal build
 VENDOR_BRANCH_URL ?= lp:~ubuntuone-pqm-team/serial-vault/+git/dependencies
