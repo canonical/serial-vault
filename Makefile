@@ -21,6 +21,10 @@ GOTAGS=-tags netgo
 
 SERVICE_NAME=serial-vault
 LOCAL_SERVICE_NAME = ${GOBIN}/${SERVICE_NAME}
+TAR_BASE_NAME = ${SERVICE_NAME}-v${VERSION}.tar
+TGZ_NAME = ${TMP}/${SERVICE_NAME}-payload-${VERSION}.tgz
+SWIFT_CONTAINER_NAME = ${SERVICE_NAME}.canonical.com
+
 GO ?= go
 
 # this repo contains external dependencies for an internal build
@@ -110,6 +114,27 @@ static-test:
 
 .PHONY: test
 test: unit-test static-test
+
+.PHONY: build-tarball
+build-tarball: install
+	$(info # Creating tarball ${TGZ_NAME} with binaries and assets...)
+	# cd ${TMP}
+	# create tar file with  assets in 'static' folder
+	tar -cvf ${TAR_BASE_NAME} static
+	# update tar file with serial-vault and serial-vault-admin built binaries
+	tar -uvf ${TAR_BASE_NAME} -C ${GOBIN} serial-vault serial-vault-admin
+	# compress with gzip
+	gzip -9 ${TAR_BASE_NAME}
+	# rename tgz file including the release 
+	mv ${TAR_BASE_NAME}.gz ${TGZ_NAME}
+	# calculate md5sum and create file with its value
+	md5sum ${TGZ_NAME} > ${TGZ_NAME}.md5
+
+.PHONY: publish-tarball
+publish-tarball: build-tarball
+	[ ! -e ~/.config/swift/serial-vault ] || . ~/.config/swift/serial-vault; \
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME) $(TGZ_NAME) serial-vault=$(VERSION)
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME).md5 ${TGZ_NAME}.md5 serial-vault=$(VERSION)
 
 # only for dev/testing, don't commit output of this command by yourself
 # it will be done automatically by CI 

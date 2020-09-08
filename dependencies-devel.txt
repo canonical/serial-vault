@@ -1,3 +1,2 @@
 build-essential
 git
-golang-go
