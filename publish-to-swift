@@ -1,6 +1,8 @@
 #! /usr/bin/python3
 
-"""Publish a built tarball to Swift for deployment."""
+"""Publish a built tarball to Swift for deployment.
+Script from: https://git.launchpad.net/turnip/tree/publish-to-swift
+"""
 
 from argparse import ArgumentParser
 import os
