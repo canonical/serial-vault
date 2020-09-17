@@ -50,7 +50,7 @@ type Settings struct {
 	CSRFAuthKey    string `yaml:"csrfAuthKey"`
 	URLHost        string `yaml:"urlHost"`
 	PortAdmin      string `yaml:"portAdmin"`
-	PortSignin     string `yaml:"portSignin"`
+	PortSigning    string `yaml:"portSigning"`
 	URLScheme      string `yaml:"urlScheme"`
 	EnableUserAuth bool   `yaml:"enableUserAuth"`
 	JwtSecret      string `yaml:"jwtSecret"`

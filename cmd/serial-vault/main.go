@@ -66,7 +66,7 @@ func main() {
 	default:
 		// Create the user web service router
 		handler = service.SigningRouter()
-		port = datastore.Environ.Config.PortSignin
+		port = datastore.Environ.Config.PortSigning
 		if port == "" {
 			port = "8080"
 		}
