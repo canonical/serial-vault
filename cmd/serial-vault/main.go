@@ -59,13 +59,19 @@ func main() {
 	case "admin":
 		// Create the admin web service router
 		handler = service.AdminRouter()
-		address = ":8081"
+		address = datastore.Environ.Config.PortAdmin
+		if address == "" {
+			address = "8081"
+		}
 	default:
 		// Create the user web service router
 		handler = service.SigningRouter()
-		address = ":8080"
+		address = datastore.Environ.Config.PortSign
+		if address == "" {
+			address = "8080"
+		}
 	}
 
 	svlog.Infof("Starting service on port %s", address)
-	log.Fatal(http.ListenAndServe(address, handler))
+	log.Fatal(http.ListenAndServe(":"+address, handler))
 }

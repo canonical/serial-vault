@@ -2,7 +2,12 @@ title: "Serial Vault"
 logo: "/static/images/logo-ubuntu-white.svg"
 
 # Service mode: signing or admin
-mode: signing
+mode: sign
+
+# Http ports for api and admin mode: defaults are 8081 for admin mode and 8080 for sign mode
+# You need to set both only if you want to run both services at the same time on the same machine
+portAdmin: 8081
+portSign: 8080
 
 # Path to the assets (${docRoot}/static)
 docRoot: "."
