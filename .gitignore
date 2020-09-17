@@ -25,3 +25,5 @@ files/
 /bin
 /tmp
 /env
+/dist
+/tmp_charm

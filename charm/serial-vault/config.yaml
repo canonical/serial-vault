@@ -1,0 +1,73 @@
+options:
+    title:
+        description: "service display name"
+        type: string
+        default: "Serial Vault"
+    logo:
+        description: "path to the logo icon"
+        type: string
+        default: "/static/images/logo-ubuntu-white.svg"
+    docRoot:
+        description: "Path to the assets (${docRoot}/static)"
+        type: string
+        default: "."
+    mode:
+        description: "Service mode=signing for API or mode=admin for UI"
+        type: string
+        default: "admin"
+    portAdmin:    
+        description: "Port for the service mode=admin"
+        type: string
+        default: "8081"
+    portSigning:  
+        description: "Port for the service mode=signing"
+        type: string
+        default: "8080"
+    dbdriver:
+        description: "database driver"
+        type: string
+        default: "postgres"
+    keystore:
+        description: "Signing key store, can be: databse, filesystem, memory"
+        type: string
+        default: "database"
+    keystorePath:
+        description: "path to the keystore, if keystore=filesystem"
+        type: string
+        default: ""
+    keystoreSecret:
+        description: "signing key store secret"
+        type: string
+        default: ""
+    csrfAuthKey:
+        description: "32 bytes long key to protect server from cross site request forgery attacks"
+        type: string
+        default: ""
+    urlHost:
+        description: "Return URL of the service (needed for OpenID)"
+        type: string
+        default: "serial-vault:8081"
+    urlScheme:
+        description: "Return URL scheme of the service (needed for OpenID)"
+        type: string
+        default: "http"
+    enableUserAuth:
+        description: "Enable user authentication using Ubuntu SSO"
+        type: boolean
+        default: true
+    jwtSecret:
+        description: "Key needed for USSO"
+        type: string
+        default: ""
+    syncUrl:
+        description: "Factory sync only"
+        type: string
+        default: "https://serial-vault-partners.canonical.com/api/"
+    syncUser:  
+        description: "Factory sync only"
+        type: string
+        default: ""
+    syncAPIKey:
+        description: "Factory sync only"
+        type: string
+        default: ""

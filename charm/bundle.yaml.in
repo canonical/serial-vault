@@ -1,0 +1,45 @@
+series: focal
+description: Serial-Vault development bundle
+applications:
+    serial-vault-admin:
+        num_units: 1
+        charm: ../dist/focal/serial-vault
+        options:
+            # ols layer config
+            build_label: "%BUILD_LABEL%"
+            swift_username: "%SWIFT_USERNAME%"
+            swift_password: "%SWIFT_PASSWORD%"
+            swift_auth_url: "%SWIFT_AUTH_URL%"
+            swift_region_name: "%SWIFT_REGION_NAME%"
+            swift_tenant_name: "%SWIFT_TENANT_NAME%"
+            swift_container_name: "%SWIFT_CONTAINER_NAME%"
+            # service config
+            mode: admin
+            portAdmin: "8021"
+            keystoreSecret: "TEST_KEYSTORE_SECRET"
+            csrfAuthKey: "TEST_G5zRPZmeq3GhBGipRer1gtdC_32"
+            enableUserAuth: false
+    serial-vault-signing:
+        num_units: 1
+        charm: ../dist/focal/serial-vault
+        options:
+            # ols layer config
+            build_label: "%BUILD_LABEL%"
+            swift_username: "%SWIFT_USERNAME%"
+            swift_password: "%SWIFT_PASSWORD%"
+            swift_auth_url: "%SWIFT_AUTH_URL%"
+            swift_region_name: "%SWIFT_REGION_NAME%"
+            swift_tenant_name: "%SWIFT_TENANT_NAME%"
+            swift_container_name: "%SWIFT_CONTAINER_NAME%"
+            # service config
+            mode: signing
+            portSigning: "8021"
+            keystoreSecret: TEST_KEYSTORE_SECRET
+    postgresql:
+        charm: cs:postgresql
+        num_units: 1
+relations:
+    - ["postgresql:db", "serial-vault-admin:db"]
+    - ["postgresql:db-admin", "serial-vault-admin:db-admin"]    
+    - ["postgresql:db", "serial-vault-signing:db"]
+    - ["postgresql:db-admin", "serial-vault-signing:db-admin"]    

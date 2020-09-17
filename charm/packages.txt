@@ -1,0 +1,7 @@
+charm-tools
+python-psycopg2
+libpq-dev
+virtualenv
+language-pack-en-base
+bzr
+python3-swiftclient
