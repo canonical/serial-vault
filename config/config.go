@@ -49,6 +49,8 @@ type Settings struct {
 	Mode           string `yaml:"mode"`
 	CSRFAuthKey    string `yaml:"csrfAuthKey"`
 	URLHost        string `yaml:"urlHost"`
+	PortAdmin      string `yaml:"portAdmin"`
+	PortSigning    string `yaml:"portSigning"`
 	URLScheme      string `yaml:"urlScheme"`
 	EnableUserAuth bool   `yaml:"enableUserAuth"`
 	JwtSecret      string `yaml:"jwtSecret"`

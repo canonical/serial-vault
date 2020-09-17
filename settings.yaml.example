@@ -4,6 +4,11 @@ logo: "/static/images/logo-ubuntu-white.svg"
 # Service mode: signing or admin
 mode: signing
 
+# Http ports for api and admin mode: defaults are 8081 for admin mode and 8080 for signing mode
+# You need to set both only if you want to run both services using the same settings.yaml file
+portAdmin: 8081
+portSigning: 8080
+
 # Path to the assets (${docRoot}/static)
 docRoot: "."
 
