@@ -125,7 +125,7 @@ charm-private-publish:
 	$(MAKE) charm-publish CHARM_PUBLISH_REPO=$(PRIVATE_PUBLISH_REPO) CHARM_REPO_DIR=$(PRIVATE_CHARM_REPO_DIR)
 
 # get swift credentials
-include ~/.config/swift/serial-vault
+-include ~/.config/swift/serial-vault
 export ~/.config/swift/serial-vault
 
 bundle.yaml: ./charm/bundle.yaml.in
