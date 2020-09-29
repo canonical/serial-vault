@@ -1,0 +1,18 @@
+repo: https://github.com/CanonicalLtd/serial-vault
+includes:
+    - layer:ols-http
+    - layer:ols-pg
+options:
+    ols:
+        service_name: serial-vault
+        config_filename: settings.yaml
+        user: ols
+        tarball_payload: True
+    ols-http:
+        port: 8021
+        active_flag_enabled: True
+    ols-pg:
+        databases:
+            db:
+                name: serial-vault
+                roles: serial-vault

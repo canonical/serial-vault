@@ -1,2 +1,0 @@
-psycopg2==2.8.5
-lazr.postgresql==0.0.4

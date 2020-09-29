@@ -6,8 +6,8 @@ LOCAL_BIN:=${TMP}/bin
 GOBIN=${BASEDIR}/bin
 
 GIT_REVISION = $(shell git rev-parse --short HEAD)
-VERSION      ?= $(shell git describe --tags --abbrev=0)
-JOBDATE		 ?= $(shell date -u +%Y-%m-%dT%H%M%SZ)
+VERSION ?= $(shell git describe --tags --abbrev=0)
+JOBDATE ?= $(shell date -u +%Y-%m-%dT%H%M%SZ)
 
 # --ldflags sets the flags that are passed to 'go tool link'
 LDFLAGS += -X github.com/CanonicalLtd/serial-vault/config.version=$(VERSION)
@@ -21,8 +21,8 @@ GOTAGS=-tags netgo
 
 SERVICE_NAME=serial-vault
 LOCAL_SERVICE_NAME = ${GOBIN}/${SERVICE_NAME}
-TAR_BASE_NAME = ${SERVICE_NAME}-v${VERSION}.tar
-TGZ_NAME = ${TMP}/${SERVICE_NAME}-payload-${VERSION}.tgz
+TAR_BASE_NAME = ${SERVICE_NAME}-${VERSION}.tar
+TGZ_NAME = ${TMP}/${TAR_BASE_NAME}.gz
 SWIFT_CONTAINER_NAME = ${SERVICE_NAME}.canonical.com
 
 GO ?= go
@@ -130,11 +130,12 @@ build-tarball: install
 	# calculate md5sum and create file with its value
 	md5sum ${TGZ_NAME} > ${TGZ_NAME}.md5
 
+SWIFT_TARGET_NAME=serial-vault-builds/$(VERSION)/serial-vault.tar.gz
 .PHONY: publish-tarball
 publish-tarball: build-tarball
 	[ ! -e ~/.config/swift/serial-vault ] || . ~/.config/swift/serial-vault; \
-	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME) $(TGZ_NAME) serial-vault=$(VERSION)
-	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME).md5 ${TGZ_NAME}.md5 serial-vault=$(VERSION)
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME) $(SWIFT_TARGET_NAME) serial-vault=$(VERSION)
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME).md5 ${SWIFT_TARGET_NAME}.md5 serial-vault=$(VERSION)
 
 # only for dev/testing, don't commit output of this command by yourself
 # it will be done automatically by CI 
@@ -166,9 +167,19 @@ run-docker:
 stop-docker:
 	cd docker-compose && docker-compose kill && docker-compose rm
 
+# essential charm makefile config
+CHARM_NAME = ${SERVICE_NAME}
+CHARM_PUBLISH_REPO ?= lp:~ubuntuone-pqm-team/serial-vault/+git/charm-build
+
+# get charm build dependencies
+.PHONY: charm-bootstrap
+charm-bootstrap: $(CHARM_DEPS) vendor-ci
+
 .PHONY: clean
 clean:
 	rm -rf ${TMP}
 	rm -rf ${GOBIN}/factory
 	rm -rf ${GOBIN}/serial-vault
 	rm -rf ${GOBIN}/serial-vault-admin
+
+include charm/Makefile

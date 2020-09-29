@@ -1,0 +1,23 @@
+name: serial-vault
+display-name: serial-vault
+summary: Serial Vault Service
+maintainers:
+  - Online Services <online-services@lists.canonical.com>
+description: "A Go web service that digitally signs device assertion details."
+subordinate: false
+series:
+  - focal
+provides:
+  serial-vault:
+    interface: http
+  nrpe-external-master:
+    interface: nrpe-external-master
+    scope: container
+requires:
+  db:
+    interface: pgsql
+resources:
+  serial-vault:
+    type: file
+    filename: serial-vault.tar.gz
+    description: Serial Vault resources

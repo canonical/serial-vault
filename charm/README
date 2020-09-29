@@ -1,0 +1,44 @@
+This is the juju charm for this service
+
+Assuming your service is called myservice, the layer should look like this:
+
+charm
+├── config.yaml         # juju service config
+├── dependencies.txt    # source dependencies to build it
+├── deploy-dev.yaml     # juju deployer config for local test deployments
+├── layer.yaml          # charm layer configuration
+├── Makefile 
+├── metadata.yaml       # charm definition
+├── reactive
+│   └── myservice.py    # the meat of your charm
+└── templates
+    └── myservice.ext   # your service's configuration template
+
+
+There should be one main function in your myservice.py, that mainly just deals with your service.
+It should: 
+
+1. wait until all required relations/states have been reached (using @when and family)
+2. gather all needed data from config/relations/elsewhere
+3. render your config file template with this data
+4. communicate with any custom relations
+5. finally, set the service.configured state, to signal other layers to restart, etc.
+
+Most other common tasks (e.g. postrgres, logging, etc) are taked care of by
+various ols layers, and usually only need configuring in layer.yaml rather than
+any custom code.
+
+How to:
+
+ - expose new service config: 
+    - edit config.yaml
+    - use that config in your template or your charm code
+
+ - add a new relation or layer:
+    - add any relevant interfaces/layers to layer.yaml and dependencies.txt
+    - add code to handle relation.available in reactive/
+    - if needed, add relation to metadata.py
+ 
+ - add a custom action
+    - add an actions.yaml describing your action
+    - add an actions subdir, and implement you action in there
