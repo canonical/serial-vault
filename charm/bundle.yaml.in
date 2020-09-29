@@ -6,17 +6,17 @@ applications:
         charm: ../dist/focal/serial-vault
         options:
             # ols layer config
-            build_label: "%BUILD_LABEL%"
-            swift_username: "%SWIFT_USERNAME%"
-            swift_password: "%SWIFT_PASSWORD%"
-            swift_auth_url: "%SWIFT_AUTH_URL%"
-            swift_region_name: "%SWIFT_REGION_NAME%"
-            swift_tenant_name: "%SWIFT_TENANT_NAME%"
-            swift_container_name: "%SWIFT_CONTAINER_NAME%"
+            build_label: ${VERSION}
+            swift_username: ${OS_USERNAME}
+            swift_password: ${OS_PASSWORD}
+            swift_auth_url: ${OS_AUTH_URL}
+            swift_region_name: ${OS_REGION_NAME}
+            swift_tenant_name: ${OS_TENANT_NAME}
+            swift_container_name: ${SWIFT_CONTAINER_NAME}
             # service config
             mode: admin
             portAdmin: "8021"
-            keystoreSecret: "TEST_KEYSTORE_SECRET"
+            keystoreSecret: TEST_KEYSTORE_SECRET
             csrfAuthKey: "TEST_G5zRPZmeq3GhBGipRer1gtdC_32"
             enableUserAuth: false
     serial-vault-signing:
@@ -24,13 +24,13 @@ applications:
         charm: ../dist/focal/serial-vault
         options:
             # ols layer config
-            build_label: "%BUILD_LABEL%"
-            swift_username: "%SWIFT_USERNAME%"
-            swift_password: "%SWIFT_PASSWORD%"
-            swift_auth_url: "%SWIFT_AUTH_URL%"
-            swift_region_name: "%SWIFT_REGION_NAME%"
-            swift_tenant_name: "%SWIFT_TENANT_NAME%"
-            swift_container_name: "%SWIFT_CONTAINER_NAME%"
+            build_label: ${VERSION}
+            swift_username: ${OS_USERNAME}
+            swift_password: ${OS_PASSWORD}
+            swift_auth_url: ${OS_AUTH_URL}
+            swift_region_name: ${OS_REGION_NAME}
+            swift_tenant_name: ${OS_TENANT_NAME}
+            swift_container_name: ${SWIFT_CONTAINER_NAME}
             # service config
             mode: signing
             portSigning: "8021"

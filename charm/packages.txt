@@ -5,3 +5,4 @@ virtualenv
 language-pack-en-base
 bzr
 python3-swiftclient
+envsubst

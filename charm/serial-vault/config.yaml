@@ -28,7 +28,7 @@ options:
         type: string
         default: "postgres"
     keystore:
-        description: "Signing key store, can be: databse, filesystem, memory"
+        description: "Signing key store, can be: database, filesystem, memory"
         type: string
         default: "database"
     keystorePath:
