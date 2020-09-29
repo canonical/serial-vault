@@ -6,13 +6,13 @@ applications:
         charm: ../dist/focal/serial-vault
         options:
             # ols layer config
-            build_label: ${VERSION}
+            build_label: ${BUILD_LABEL}
             swift_username: ${OS_USERNAME}
             swift_password: ${OS_PASSWORD}
             swift_auth_url: ${OS_AUTH_URL}
             swift_region_name: ${OS_REGION_NAME}
             swift_tenant_name: ${OS_TENANT_NAME}
-            swift_container_name: ${SWIFT_CONTAINER_NAME}
+            swift_container_name: ${BUILD_CONTAINER_NAME}
             # service config
             mode: admin
             portAdmin: "8021"
@@ -24,13 +24,13 @@ applications:
         charm: ../dist/focal/serial-vault
         options:
             # ols layer config
-            build_label: ${VERSION}
+            build_label: ${BUILD_LABEL}
             swift_username: ${OS_USERNAME}
             swift_password: ${OS_PASSWORD}
             swift_auth_url: ${OS_AUTH_URL}
             swift_region_name: ${OS_REGION_NAME}
             swift_tenant_name: ${OS_TENANT_NAME}
-            swift_container_name: ${SWIFT_CONTAINER_NAME}
+            swift_container_name: ${BUILD_CONTAINER_NAME}
             # service config
             mode: signing
             portSigning: "8021"

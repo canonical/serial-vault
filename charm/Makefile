@@ -126,7 +126,9 @@ charm-private-publish:
 
 # get swift credentials
 -include ~/.config/swift/serial-vault
-export
+export $(shell sed 's/=.*//' ~/.config/swift/serial-vault)
+export BUILD_LABEL=${VERSION}
+export BUILD_CONTAINER_NAME=${SWIFT_CONTAINER_NAME}
 
 bundle.yaml: ./charm/bundle.yaml.in
 	envsubst < ./charm/bundle.yaml.in > ./charm/bundle.yaml
