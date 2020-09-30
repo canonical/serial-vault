@@ -132,7 +132,7 @@ build-tarball: install
 
 SWIFT_TARGET_NAME=serial-vault-builds/$(VERSION)/serial-vault.tar.gz
 .PHONY: publish-tarball
-publish-tarball: build-tarball
+publish-tarball: vendor-ci build-tarball
 	[ ! -e ~/.config/swift/serial-vault ] || . ~/.config/swift/serial-vault; \
 	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME) $(SWIFT_TARGET_NAME) serial-vault=$(VERSION)
 	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME).md5 ${SWIFT_TARGET_NAME}.md5 serial-vault=$(VERSION)
