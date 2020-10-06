@@ -44,6 +44,7 @@ type SystemUserRequest struct {
 	Since    string   `json:"since"`
 	Until    string   `json:"until"`
 	SSHKeys  []string `json:"sshKeys"`
+	Serials  []string `json:"serials"`
 }
 
 // PivotSystemUserRequest is the JSON version of the request to create a system-user assertion
