@@ -204,12 +204,15 @@ class SystemUserForm extends Component {
                             </select>
                         </label>
                         <label>Limit this system-user to a set of serial numbers:&nbsp;
-                            <button class="p-button--brand" title="Add serial number" onClick={this.handleAddEmptySerialField}>
-                                <i class="fa fa-plus"></i>
+                            <button className="p-button--brand" title="Add serial number" onClick={this.handleAddEmptySerialField}>
+                                <i className="fa fa-plus"></i>
                             </button>
                             {
                                 this.state.serials.map((serial, index) => (
-                                    <input type="text" name="serials" data-index={index} value={serial} placeholder="serial number" 
+                                    <input type="text" name="serials" placeholder="serial number" 
+                                        key="sn-{index}"
+                                        data-index={index} 
+                                        value={serial} 
                                         onChange={this.handleAddSerialNumber}/>
                                 ))
                             }
