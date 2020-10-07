@@ -101,15 +101,16 @@ class SystemUserForm extends Component {
         this.setState({until: date});
     }
 
-    handleAddSerialNumber = (e) => {
+    handleAddEmptySerialField = (e) => {
+        e.preventDefault()
         this.setState({serials: this.state.serials.concat([''])})
     }
 
-    handleChangeSerialNumber = (e) => {
-        const i = e.target.dataset["index"]
-        let tmpSerials = this.state.serials
-        tmpSerials[i] = e.target.value
-        this.setState({serials: tmpSerials})   
+    handleAddSerialNumber = (e) => {
+        const i = e.target.dataset["index"];
+        let tmpSerials = this.state.serials;
+        tmpSerials[i] = e.target.value;
+        this.setState({serials: tmpSerials});  
     }
 
     onSubmit = (e) => {
@@ -202,14 +203,14 @@ class SystemUserForm extends Component {
                             })}
                             </select>
                         </label>
-                        <label>Serial Numbers:&nbsp;
-                            <button class="p-button--brand" title="Add serial number" onClick={this.handleAddSerialNumber}>
+                        <label>Limit this system-user to a set of serial numbers:&nbsp;
+                            <button class="p-button--brand" title="Add serial number" onClick={this.handleAddEmptySerialField}>
                                 <i class="fa fa-plus"></i>
                             </button>
                             {
                                 this.state.serials.map((serial, index) => (
                                     <input type="text" name="serials" data-index={index} value={serial} placeholder="serial number" 
-                                        onChange={this.handleChangeSerialNumber}/>
+                                        onChange={this.handleAddSerialNumber}/>
                                 ))
                             }
                         </label>
