@@ -103,11 +103,13 @@ class SystemUserForm extends Component {
 
     handleAddEmptySerialField = (e) => {
         e.preventDefault()
-        this.setState({serials: this.state.serials.concat([''])})
+        let tmpSerials = this.state.serials;
+        tmpSerials.push('');
+        this.setState({serials: tmpSerials});
     }
 
     handleAddSerialNumber = (e) => {
-        const i = e.target.dataset["index"];
+        const i = e.target.dataset.index;
         let tmpSerials = this.state.serials;
         tmpSerials[i] = e.target.value;
         this.setState({serials: tmpSerials});  
@@ -202,9 +204,9 @@ class SystemUserForm extends Component {
                             })}
                             </select>
                         </label>
-                        <label>Limit this system-user to a set of serial numbers:&nbsp;
-                            <button className="p-button--brand" title="Add serial number" onClick={this.handleAddEmptySerialField}>
-                                <i className="fa fa-plus"></i>
+                        <label>Limit this system-user to a set of serial numbers:
+                            <button className="p-button--neutral is-dense is-inline" title="Add serial number" onClick={this.handleAddEmptySerialField}>
+                                <i className="p-icon--plus"></i>
                             </button>
                             {
                                 this.state.serials.map((serial, index) => (
