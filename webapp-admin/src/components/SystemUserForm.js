@@ -124,7 +124,6 @@ class SystemUserForm extends Component {
             model:    this.state.model,
             since:    this.state.since.toISOString(),
             until:    this.state.until.toISOString(),
-            // There is a new field on the system-user assertion to limit it to a set of serial-numbers:
             serials:  this.state.serials,
         }
         if (this.validate(form)) {

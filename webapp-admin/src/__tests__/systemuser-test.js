@@ -20,7 +20,6 @@ import React from "react";
 import ReactTestUtils from "react-dom/test-utils";
 import Adapter from "enzyme-adapter-react-16";
 import { configure } from "enzyme";
-import { act } from 'react-dom/test-utils';
 import SystemUserForm from "../components/SystemUserForm";
 
 jest.dontMock("../components/SystemUserForm");

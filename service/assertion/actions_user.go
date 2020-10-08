@@ -51,7 +51,7 @@ func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, a
 	// Get the model:
 	model, err := datastore.Environ.DB.GetAllowedModel(user.ModelID, datastore.User{})
 	if err != nil {
-		log.Printf("error from GetAllowedModel(): %v", err)
+		log.Println(err)
 		log.Message("USER", response.ErrorInvalidModelID.Code, response.ErrorInvalidModelID.Message)
 		response.FormatStandardResponse(false, response.ErrorInvalidModelID.Code, "", response.ErrorInvalidModelID.Message, w)
 		return
@@ -66,6 +66,7 @@ func systemUserAssertionAction(w http.ResponseWriter, authUser datastore.User, a
 		log.Message("USER", response.ErrorCreateSystemUserAssertion.Code, err.Error())
 		response.FormatStandardResponse(false, response.ErrorCreateSystemUserAssertion.Code, "", err.Error(), w)
 	}
+
 }
 
 // GenerateSystemUserAssertion creates a system-user assertion from the model and user details
@@ -89,7 +90,6 @@ func GenerateSystemUserAssertion(user SystemUserRequest, model datastore.Model) 
 	// Sign the system-user assertion using the system-user key
 	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.SystemUserType, assertionHeaders, nil, model.AuthorityIDUser, model.KeyIDUser, model.SealedKeyUser)
 	if err != nil {
-		fmt.Printf(">>> assertionHeaders=%#v\n", assertionHeaders)
 		log.Message("USER", response.ErrorSignAssertion.Code, err.Error())
 		return SystemUserResponse{ErrorCode: response.ErrorSignAssertion.Code, ErrorMessage: err.Error()}
 	}
