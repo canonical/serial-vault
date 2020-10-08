@@ -147,9 +147,11 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 	}
 
 	if len(user.Serials) > 0 {
-		serials := make([]interface{}, len(user.Serials))
-		for i, serial := range user.Serials {
-			serials[i] = serial
+		serials := []interface{}{}
+		for _, serial := range user.Serials {
+			if serial != "" {
+				serials = append(serials, serial)
+			}
 		}
 		headers["serials"] = serials
 	}
