@@ -57,7 +57,7 @@ var expectedPrometheusData = []string{
 	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionAPISystemUser" > counter:<value:2 > `,
 	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionAPIValidateSerial" > counter:<value:1 > `,
 	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionModelAssertion" > counter:<value:2 > `,
-	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionSystemUserAssertion" > counter:<value:3 > `,
+	`label:<name:"method" value:"POST" > label:<name:"status" value:"200" > label:<name:"view" value:"assertionSystemUserAssertion" > counter:<value:4 > `,
 	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionAPISystemUser" > counter:<value:3 > `,
 	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionAPIValidateSerial" > counter:<value:8 > `,
 	`label:<name:"method" value:"POST" > label:<name:"status" value:"400" > label:<name:"view" value:"assertionModelAssertion" > counter:<value:8 > `,

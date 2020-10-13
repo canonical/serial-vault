@@ -146,6 +146,16 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 		"sign-key-sha3-384": model.KeyIDUser,
 	}
 
+	if len(user.Serials) > 0 {
+		serials := []interface{}{}
+		for _, serial := range user.Serials {
+			if serial != "" {
+				serials = append(serials, serial)
+			}
+		}
+		headers["serials"] = serials
+	}
+
 	if len(user.SSHKeys) > 0 {
 		// Convert the keys to an interface slice
 		keys := make([]interface{}, len(user.SSHKeys))

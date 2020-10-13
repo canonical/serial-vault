@@ -42,6 +42,7 @@ class SystemUserForm extends Component {
             until: endDate,
             message: '',
             assertion: null,
+            serials: [],
         }
     }
 
@@ -100,17 +101,32 @@ class SystemUserForm extends Component {
         this.setState({until: date});
     }
 
+    handleAddEmptySerialField = (e) => {
+        e.preventDefault()
+        let tmpSerials = this.state.serials;
+        tmpSerials.push('');
+        this.setState({serials: tmpSerials});
+    }
+
+    handleAddSerialNumber = (e) => {
+        const i = e.target.dataset.index;
+        let tmpSerials = this.state.serials;
+        tmpSerials[i] = e.target.value;
+        this.setState({serials: tmpSerials});  
+    }
+
     onSubmit = (e) => {
         e.preventDefault()
 
         var form = {
-            email: this.state.email,
+            email:    this.state.email,
             username: this.state.username,
             password: this.state.password,
             name:     this.state.name,
             model:    this.state.model,
             since:    this.state.since.toISOString(),
             until:    this.state.until.toISOString(),
+            serials:  this.state.serials,
         }
         if (this.validate(form)) {
             // this.props.onSubmit(form)
@@ -187,6 +203,20 @@ class SystemUserForm extends Component {
                                 )
                             })}
                             </select>
+                        </label>
+                        <label>Limit this system-user to a set of serial numbers:
+                            <button className="p-button--neutral is-dense is-inline" title="Add serial number" onClick={this.handleAddEmptySerialField}>
+                                <i className="p-icon--plus"></i>
+                            </button>
+                            {
+                                this.state.serials.map((serial, index) => (
+                                    <input type="text" name="serials" placeholder="serial number" 
+                                        key="sn-{index}"
+                                        data-index={index} 
+                                        value={serial} 
+                                        onChange={this.handleAddSerialNumber}/>
+                                ))
+                            }
                         </label>
                         <label htmlFor="since">Since (UTC):
                             <div className="row">
