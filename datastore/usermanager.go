@@ -53,8 +53,6 @@ const createUserSQL = "insert into userinfo (username, name, email, userrole, ap
 const updateUserSQL = "update userinfo set username=$1, name=$2, email=$3, userrole=$4, api_key=$6 where id=$5"
 const deleteUserSQL = "delete from userinfo where id=$1"
 
-// insert into userinfo (username, name, email, userrole, api_key) values ('glower', 'Igor Komlew', 'igor.komlew@gmail.com', 400, '');
-
 const listAccountUsersSQL = `
 	select id, username, name, email, userrole, api_key
 	from userinfo u
