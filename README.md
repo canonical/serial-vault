@@ -90,6 +90,9 @@ apiKeys:
 
 # 32 bytes long key to protect server from cross site request forgery attacks
 csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
+
+ssoBaseURL: "https://login.ubuntu.com/api/v2/"
+storeBaseURL: "https://dashboard.snapcraft.io/dev/api/"
 ```
 
 ### Run the service

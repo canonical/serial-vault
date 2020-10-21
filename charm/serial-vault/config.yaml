@@ -71,3 +71,11 @@ options:
         description: "Factory sync only"
         type: string
         default: ""
+    ssoBaseURL:
+        description: "SSO URL"
+        type: string
+        default: "https://login.ubuntu.com/api/v2/"
+    storeBaseURL:
+        description: "store base URL"
+        type: string
+        default: "https://dashboard.snapcraft.io/dev/api/"

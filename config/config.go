@@ -34,6 +34,11 @@ var version = "unknown"
 // Set the application revision from a constant
 var revision = "unknown"
 
+const (
+	ssoDefaultBaseURL   = "https://login.ubuntu.com/api/v2/"
+	storeDefaultBaseURL = "https://dashboard.snapcraft.io/dev/api/"
+)
+
 // Settings defines the parsed config file settings.
 type Settings struct {
 	Version        string
@@ -57,6 +62,8 @@ type Settings struct {
 	SyncURL        string `yaml:"syncUrl"`
 	SyncUser       string `yaml:"syncUser"`
 	SyncAPIKey     string `yaml:"syncAPIKey"`
+	SSOBaseURL     string `yaml:"ssoBaseURL"`
+	StoreBaseURL   string `yaml:"storeBaseURL"`
 }
 
 // SettingsFile is the path to the YAML configuration file
@@ -93,6 +100,13 @@ func ReadConfig(settings *Settings, filePath string) error {
 	// Set the service mode from the config file if it is not set
 	if ServiceMode == "" {
 		ServiceMode = settings.Mode
+	}
+
+	if settings.SSOBaseURL == "" {
+		settings.SSOBaseURL = ssoDefaultBaseURL
+	}
+	if settings.StoreBaseURL == "" {
+		settings.StoreBaseURL = storeDefaultBaseURL
 	}
 
 	return nil

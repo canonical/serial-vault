@@ -25,6 +25,11 @@ def configure(pgsql):
     if standbys:
         config['standbys_urls'] = standbys
 
+    env = ols.base.env_vars()
+    if env['SERVICE_ENVIRONMENT'] == 'staging':
+        config['ssoBaseURL'] = 'https://login.staging.ubuntu.com/api/v2/'
+        config['storeBaseURL'] = 'https://dashboard.staging.snapcraft.io/dev/api'
+
     name = ols.base.service_name()
     working_dir = ols.base.code_dir()
     config_path = ols.base.service_config_path()

@@ -49,3 +49,6 @@ jwtSecret: "regoo7Koh7Jeij2hig0Kaeg1ait0eeghaew7Ogheey4pheejohyaongoh6thoBeech6a
 syncUrl: "https://serial-vault-partners.canonical.com/api/"
 syncUser: "lpuser"
 syncAPIKey: "user-apikey"
+
+ssoBaseURL: "https://login.ubuntu.com/api/v2/"
+storeBaseURL: "https://dashboard.snapcraft.io/dev/api/"
