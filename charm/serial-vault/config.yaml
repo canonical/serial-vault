@@ -71,3 +71,7 @@ options:
         description: "Factory sync only"
         type: string
         default: ""
+    sentryDSN:
+        description: "Sentry data source name"
+        type: string
+        default: ""

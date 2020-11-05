@@ -27,3 +27,4 @@ files/
 /env
 /dist
 /tmp_charm
+.vscode/

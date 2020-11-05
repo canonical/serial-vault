@@ -22,6 +22,7 @@ package config
 import (
 	"flag"
 	"io/ioutil"
+	"os"
 
 	"github.com/CanonicalLtd/serial-vault/service/log"
 
@@ -57,6 +58,7 @@ type Settings struct {
 	SyncURL        string `yaml:"syncUrl"`
 	SyncUser       string `yaml:"syncUser"`
 	SyncAPIKey     string `yaml:"syncAPIKey"`
+	SentryDSN      string `yaml:"sentryDSN"`
 }
 
 // SettingsFile is the path to the YAML configuration file
@@ -93,6 +95,10 @@ func ReadConfig(settings *Settings, filePath string) error {
 	// Set the service mode from the config file if it is not set
 	if ServiceMode == "" {
 		ServiceMode = settings.Mode
+	}
+
+	if settings.SentryDSN == "" {
+		settings.SentryDSN = os.Getenv("SENTRY_DSN")
 	}
 
 	return nil
