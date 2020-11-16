@@ -155,7 +155,19 @@ test-frontend:
 	NODE_ENV=test cd webapp-admin && \
 	npm install && \
 	npm install -g codecov && \
+	npm run test
+
+IS_WEB_BUILD=$(shell ./web-build.sh)
+.PHONY: test-frontend-ci
+test-frontend-ci:
+ifneq (, $(IS_WEB_BUILD))
+	@echo "run frontend tests"
+	@echo $(IS_WEB_BUILD)
+	NODE_ENV=test cd webapp-admin && \
+	npm install && \
+	npm install -g codecov && \
 	npm run test:ci
+endif
 
 # run application/db in docker
 .PHONY: run-docker
