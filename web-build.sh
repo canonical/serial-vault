@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# This script is used from the Makefile/TravisCI in order to find out if
+# some changes where done in webapp-admin/ directory or not. 
+# In the positive case Makefile will run frontend tests from webapp-admin/ directory.
 
 set -e
 
