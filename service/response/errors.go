@@ -65,4 +65,5 @@ var (
 	ErrorAccountAssertion          = ErrorResponse{false, "account-assertion", "", "Error retrieving the account assertion from the database", http.StatusBadRequest}
 	ErrorSignAssertion             = ErrorResponse{false, "signing-assertion", "", "Error signing the assertion", http.StatusBadRequest}
 	ErrorGenerateNonce             = ErrorResponse{false, "generate-nonce", "", "Error generating a nonce. Please try again later", http.StatusBadRequest}
+	ErrorInternal                  = ErrorResponse{false, "server-error", "", "Internal Server Error", http.StatusInternalServerError}
 )

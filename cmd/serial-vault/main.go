@@ -27,10 +27,17 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	svlog "github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/CanonicalLtd/serial-vault/service/sentry"
 	logging "github.com/op/go-logging"
 )
 
-func init() {
+const appName = "serialvault"
+
+func initLogger() {
+	err := sentry.Init(datastore.Environ.Config.SentryDSN, appName, datastore.Environ.Config.Version)
+	if err != nil {
+		svlog.Errorf("sentry init error: %v", err)
+	}
 	svlog.InitLogger(logging.INFO)
 }
 
@@ -42,6 +49,7 @@ func main() {
 	if err != nil {
 		svlog.Fatalf("Error parsing the config file: %v", err)
 	}
+	initLogger()
 
 	// Open the connection to the local database
 	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
