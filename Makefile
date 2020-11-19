@@ -54,8 +54,10 @@ install-static:
 .PHONY: install
 install:
 	$(info # Installing binaries into $(GOBIN))
-	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v ./...
-
+	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault
+	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault-admin
+	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/factory
+	
 .PHONY: build-static
 build-static:
 	$(info # Building ${SERVICE_NAME} binaries)
