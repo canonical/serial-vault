@@ -13,6 +13,7 @@ jobs:
         - go mod vendor
       script: 
         - make build
+        - make install
         - make test
     
     - stage: test
