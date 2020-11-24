@@ -1,0 +1,16 @@
+name: Javascript
+on:
+    pull_request:
+        paths: 'webapp-admin/**'
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: Test frontend
+      run: make test-frontend-ci

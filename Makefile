@@ -113,7 +113,10 @@ unit-test:
 .PHONY: static-test
 static-test:
 	$(info # Running static checks for ${SERVICE_NAME})
-	@go get -u golang.org/x/lint/golint
+	GOBIN=$(GOBIN) ${GO} get -u golang.org/x/lint/golint
+	GOBIN=$(GOBIN) ${GO} get -u github.com/client9/misspell/cmd/misspell
+	GOBIN=$(GOBIN) ${GO} get -u github.com/gordonklaus/ineffassign
+	GOBIN=$(GOBIN) ${GO} get -u github.com/alexkohler/nakedret
 	./run-checks --static
 
 .PHONY: test
