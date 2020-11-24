@@ -40,7 +40,6 @@ migrate:
 
 .PHONY: bootstrap
 bootstrap: vendor mkdir-tmp
-	$(GO) clean -cache -modcache
 
 .PHONY: mkdir-tmp
 mkdir-tmp:
@@ -55,6 +54,8 @@ install-static:
 .PHONY: install
 install:
 	$(info # Installing binaries into $(GOBIN))
+	# remove the entire module download and build cache
+	$(GO) clean -cache -modcache
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault-admin
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/factory
