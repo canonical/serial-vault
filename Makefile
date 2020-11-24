@@ -128,10 +128,8 @@ build-tarball: install
 	tar -cvf ${TAR_BASE_NAME} static
 	# update tar file with serial-vault and serial-vault-admin built binaries
 	tar -uvf ${TAR_BASE_NAME} -C ${GOBIN} serial-vault serial-vault-admin
-	# compress with gzip
-	gzip -9 ${TAR_BASE_NAME}
-	# rename tgz file including the release 
-	mv ${TAR_BASE_NAME}.gz ${TGZ_NAME}
+	# compress with gzip and send directly to .tgz file including the release
+	gzip -9 -c ${TAR_BASE_NAME} > ${TGZ_NAME}
 	# calculate md5sum and create file with its value
 	md5sum ${TGZ_NAME} > ${TGZ_NAME}.md5
 
@@ -139,8 +137,8 @@ SWIFT_TARGET_NAME=serial-vault-builds/$(VERSION)/serial-vault.tar.gz
 .PHONY: publish-tarball
 publish-tarball: vendor-ci mkdir-tmp build-tarball
 	[ ! -e ~/.config/swift/serial-vault ] || . ~/.config/swift/serial-vault; \
-	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME) $(SWIFT_TARGET_NAME) serial-vault=$(VERSION)
-	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(TAR_BASE_NAME).md5 ${SWIFT_TARGET_NAME}.md5 serial-vault=$(VERSION)
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(SWIFT_TARGET_NAME) $(TGZ_NAME) serial-vault=$(VERSION)
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) ${SWIFT_TARGET_NAME}.md5 $(TGZ_NAME).md5 serial-vault=$(VERSION)
 
 # only for dev/testing, don't commit output of this command by yourself
 # it will be done automatically by CI 
