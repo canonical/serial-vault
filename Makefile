@@ -40,6 +40,7 @@ migrate:
 
 .PHONY: bootstrap
 bootstrap: vendor mkdir-tmp
+	$(GO) clean -cache -modcache
 
 .PHONY: mkdir-tmp
 mkdir-tmp:
@@ -120,7 +121,6 @@ test: unit-test static-test
 .PHONY: build-tarball
 build-tarball: install
 	$(info # Creating tarball ${TGZ_NAME} with binaries and assets...)
-	# cd ${TMP}
 	# create tar file with  assets in 'static' folder
 	tar -cvf ${TAR_BASE_NAME} static
 	# update tar file with serial-vault and serial-vault-admin built binaries
