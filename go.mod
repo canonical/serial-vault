@@ -28,7 +28,7 @@ require (
 	github.com/snapcore/go-gettext v0.0.0-20191107141714-82bbea49e785 // indirect
 	github.com/snapcore/snapd v0.0.0-20200317200833-16631e228c07
 	github.com/yohcop/openid-go v0.0.0-20170901155220-cfc72ed89575 // indirect
-	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
+	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	gopkg.in/check.v1 v1.0.0-20161208181325-20d25e280405
 	gopkg.in/errgo.v1 v1.0.0-20161222125816-442357a80af5
 	gopkg.in/macaroon.v1 v1.0.0-20170816141150-ab101776739e
