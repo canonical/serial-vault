@@ -3,7 +3,7 @@ on: [pull_request]
 jobs:
   build:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     steps:
     - name: Set up Go
       uses: actions/setup-go@v1

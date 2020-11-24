@@ -98,7 +98,6 @@ vendor:
 vendoring-ci: mkdir-tmp
 	rm -rf ${VENDOR_TMP}
 	${GO} mod vendor
-	${GO} mod tidy
 	mv ${VENDOR} ${VENDOR_TMP}
 	git clone $(VENDOR_BRANCH_URL) $(VENDOR)
 	cp -r ${VENDOR_TMP} .
