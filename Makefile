@@ -21,6 +21,9 @@ GOTAGS=-tags netgo
 
 SERVICE_NAME=serial-vault
 LOCAL_SERVICE_NAME = ${GOBIN}/${SERVICE_NAME}
+LOCAL_SERVICE_NAME_ADMIN = ${GOBIN}/${SERVICE_NAME}-admin
+LOCAL_SERVICE_NAME_FACTORY = ${GOBIN}/factory
+
 TAR_BASE_NAME = ${SERVICE_NAME}-${VERSION}.tar
 TGZ_NAME = ${TMP}/${TAR_BASE_NAME}.gz
 SWIFT_CONTAINER_NAME = ${SERVICE_NAME}.canonical.com
@@ -59,7 +62,17 @@ install:
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault-admin
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/factory
-	
+
+build-all:
+	$(info # Building ${SERVICE_NAME} binaries)
+	# remove the entire module download and build cache
+	$(GO) clean -cache -modcache
+	cd cmd/serial-vault && $(GO) build -a $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -o $(LOCAL_SERVICE_NAME) && cd ..
+	$(GO) clean -cache -modcache
+	cd cmd/serial-vault-admin && $(GO) build -a $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -o $(LOCAL_SERVICE_NAME_ADMIN) && cd ..
+	$(GO) clean -cache -modcache
+	cd cmd/factory && $(GO) build -a $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -o $(LOCAL_SERVICE_NAME_FACTORY) && cd ..
+
 .PHONY: build-static
 build-static:
 	$(info # Building ${SERVICE_NAME} binaries)
@@ -120,7 +133,7 @@ static-test:
 test: unit-test static-test
 
 .PHONY: build-tarball
-build-tarball: install
+build-tarball: build-all
 	$(info # Creating tarball ${TGZ_NAME} with binaries and assets...)
 	# create tar file with  assets in 'static' folder
 	tar -cvf ${TAR_BASE_NAME} static
