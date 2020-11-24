@@ -18,3 +18,5 @@ jobs:
       run: make install
     - name: Run tests
       run: make test
+    - name: Run the service
+      run: make run
