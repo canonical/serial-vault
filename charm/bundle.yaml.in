@@ -1,4 +1,4 @@
-series: focal
+series: xenial
 description: Serial-Vault development bundle
 applications:
     serial-vault-admin:
