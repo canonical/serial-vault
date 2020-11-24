@@ -113,7 +113,10 @@ unit-test:
 .PHONY: static-test
 static-test:
 	$(info # Running static checks for ${SERVICE_NAME})
-	@go get -u golang.org/x/lint/golint
+	GOBIN=$(GOBIN) ${GO} get -u golang.org/x/lint/golint
+	GOBIN=$(GOBIN) ${GO} get -u github.com/client9/misspell/cmd/misspell
+	GOBIN=$(GOBIN) ${GO} get -u github.com/gordonklaus/ineffassign
+	GOBIN=$(GOBIN) ${GO} get -u github.com/alexkohler/nakedret
 	./run-checks --static
 
 .PHONY: test
@@ -160,17 +163,13 @@ test-frontend:
 	npm install -g codecov && \
 	npm run test
 
-IS_WEB_BUILD=$(shell ./web-build.sh)
 .PHONY: test-frontend-ci
 test-frontend-ci:
-ifneq (, $(IS_WEB_BUILD))
 	@echo "run frontend tests"
-	@echo $(IS_WEB_BUILD)
 	NODE_ENV=test cd webapp-admin && \
 	npm install && \
 	npm install -g codecov && \
 	npm run test:ci
-endif
 
 # run application/db in docker
 .PHONY: run-docker

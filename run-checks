@@ -94,16 +94,10 @@ if [ "$STATIC" = 1 ]; then
     # go vet
     echo Running vet
     go list ./... | grep -v '/vendor/' | xargs go vet
-
-    # golint
-    echo Install golint
-    if ! which golint >/dev/null; then
-        go get github.com/golang/lint/golint
-    fi
     
     echo Running lint
     for dir in $(go list -f '{{.Dir}}' ./... | grep -v '/vendor/' ); do
-        lint="$(golint "$dir")"
+        lint="$(./bin/golint "$dir")"
         if [ -n "$lint" ]; then
             echo "Lint complains:"
             echo "$lint"
@@ -130,28 +124,19 @@ if [ "$STATIC" = 1 ]; then
     # fi
 
     echo Checking spelling errors
-    if ! which misspell >/dev/null; then
-        go get -u github.com/client9/misspell/cmd/misspell
-    fi
     for file in *; do
         if [ "$file" = "vendor" ] || [ "$file" = "static" ] || [ "$file" = "webapp-admin" ] || [ "$file" = "webapp-user" ] || [ "$file" = "test" ] || [ "$file" = "tmp" ]; then
             continue
         fi
-        misspell -error -i auther,PROCES,PROCESSS,proces,processs,exportfs "$file"
+        ./bin/misspell -error -i auther,PROCES,PROCESSS,proces,processs,exportfs "$file"
     done
 
     echo Checking for ineffective assignments
-    if ! which ineffassign >/dev/null; then
-        go get -u github.com/gordonklaus/ineffassign
-    fi
     # ineffassign knows about ignoring vendor/ \o/
-    ineffassign .
+    ./bin/ineffassign .
 
     echo Checking for naked returns
-    if ! which nakedret >/dev/null; then
-        go get -u github.com/alexkohler/nakedret
-    fi
-    got=$(nakedret ./... 2>&1)
+    got=$(./bin/nakedret ./... 2>&1)
     if [ -n "$got" ]; then
         echo "$got"
         exit 1

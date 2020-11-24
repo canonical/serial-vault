@@ -31,15 +31,13 @@ npm install
 ## Testing
 To run the tests for an app:
 ```bash
-cd webapp-admin # Make sure you are in the webapp directory
-npm test
+make test-frontend
 ```
 
 ## Building
 To run a full build:
 ```bash
-cd webapp-admin  # Make sure you are in the webapp directory
-./build.sh
+build-frontend
 ```
 
 This runs the build, which creates the files in the ./build directory and then copies the
