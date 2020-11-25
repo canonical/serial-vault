@@ -30,25 +30,25 @@ NEVER set this configuration in production environments.
 
 ## Install from Source
 If you have a Go development environment set up, we recommend at least Go v1.13 or higher. This project is built
-and tested on Ubuntu 20.04.1 LTS` (Focal Fossa) with `go 1.13`. If you wish to build or run the service from source we
+and tested on `Ubuntu 16.04.7 LTS (Xenial Xerus)` with `go 1.13`. If you wish to build or run the service from source we
 recommend using LXD container for this purpose. To get started with LXD, please follow this 
 [wiki](https://wiki.canonical.com/UbuntuOne/Developer/LXC) (jump to the LXD section):
 
   ```bash
-  lxc launch ubuntu:20.04 serial-vault-focal -p default -p $USER
+  lxc launch ubuntu:16.04 serial-vault -p default -p $USER
   lxc ls
   ssh -A <container-ip>
-  serial-vault-focal:~$ git clone https://github.com/CanonicalLtd/serial-vault.git
-  serial-vault-focal:~$ cd serial-vault
-  serial-vault-focal:~/serial-vault$ sudo ./setup-container
-  serial-vault-focal:~/serial-vault$ make bootstrap
-  serial-vault-focal:~/serial-vault$ make install
+  serial-vault:~$ git clone https://github.com/CanonicalLtd/serial-vault.git
+  serial-vault:~$ cd serial-vault
+  serial-vault:~/serial-vault$ sudo ./setup-container
+  serial-vault:~/serial-vault$ make bootstrap
+  serial-vault:~/serial-vault$ make install
   ```
 
 After this you will find all binaries in the `bin/` folder of the project.
 
 ```bash
-@serial-vault-focal:~/serial-vault$ tree bin/
+@serial-vault:~/serial-vault$ tree bin/
 bin/
 ├── factory
 ├── serial-vault

@@ -20,6 +20,8 @@ export DEBIAN_FRONTEND=noninteractive
 # the lxc, as the project (and its tests) assume an English machine.
 sed -i 's/LANG=.*/LC_ALL="en_US.UTF-8"/' /etc/default/locale
 
+snap install go --channel 1.13 --classic
+
 # Let's make sure your system is up to date
 apt-get update
 apt-get upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
