@@ -21,7 +21,7 @@ applications:
             enableUserAuth: false
     serial-vault-signing:
         num_units: 1
-        charm: ../dist/focal/serial-vault
+        charm: ../dist/xenial/serial-vault
         options:
             # ols layer config
             build_label: ${BUILD_LABEL}
