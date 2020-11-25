@@ -1,2 +1,2 @@
-postgresql-12
+postgresql
 language-pack-en

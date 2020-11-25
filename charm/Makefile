@@ -10,7 +10,7 @@ endif
 
 TMPDIR ?= $(CURDIR)/tmp_charm
 CHARM_SRC ?= $(CURDIR)/charm
-CHARM_SERIES ?= focal
+CHARM_SERIES ?= xenial
 CHARM_EXCLUDE_FILE ?= build-exclude.txt
 PROJECT_WHEEL_DIR ?= $(TMPDIR)/dependencies
 
