@@ -106,4 +106,22 @@ describe('user list', function() {
       expect(component.find('AlertBox')).toHaveLength(1)
   })
 
+  it('filter user by username or email', function() {
+    // Set up a fixture for the user data
+    var users = [
+      {ID: 1, Username: 'user1', Name: 'User One', Email: "user1@domain.dom", Role: 100},
+      {ID: 2, Username: 'user.foo', Name: 'User Two', Email: "user2@domain.dom", Role: 200},
+      {ID: 3, Username: 'user3', Name: 'User Three', Email: "user.foo@domain.dom", Role: 100},
+      {ID: 4, Username: 'user4', Name: 'User Test', Email: "test@domain.dom", Role: 100},
+      {ID: 5, Username: 'user5', Name: 'User Number 5', Email: "test.user5@domain.dom", Role: 100},
+    ];
+
+    // Render the component
+    const usersPage = shallow(
+      <UserList token={token} users={users} query="foo" />
+    );
+
+    expect(usersPage.find('UserRow')).toHaveLength(2)
+  })
+
 });

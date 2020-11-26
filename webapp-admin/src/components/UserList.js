@@ -31,6 +31,7 @@ class UserList extends Component {
       users: this.props.users || [],
       confirmDelete: null,
       message: null,
+      query: this.props.query || '',
     }
   }
 
@@ -108,6 +109,11 @@ class UserList extends Component {
           </thead>
           <tbody>
             {this.state.users.map((user) => {
+              if (this.state.query) {
+                if (!user.Username.includes(this.state.query) && !user.Email.includes(this.state.query)){
+                  return
+                }
+              }
               return (
                 <UserRow key={user.ID} user={user} delete={this.handleDelete} confirmDelete={this.state.confirmDelete}
                   deleteUser={this.handleDeleteUser} cancelDelete={this.handleDeleteUserCancel} />

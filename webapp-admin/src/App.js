@@ -211,7 +211,9 @@ class App extends Component {
       case 'new':
         return <UserEdit token={this.props.token} />
       case '':
-        return <UserList token={this.props.token} />
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('query');
+        return <UserList token={this.props.token} query={query} />
       default:
         return <UserEdit token={this.props.token} id={id} />
     }
