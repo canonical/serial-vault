@@ -111,7 +111,7 @@ class UserList extends Component {
             {this.state.users.map((user) => {
               if (this.state.query) {
                 if (!user.Username.includes(this.state.query) && !user.Email.includes(this.state.query)){
-                  return
+                  return nill
                 }
               }
               return (
