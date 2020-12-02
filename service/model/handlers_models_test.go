@@ -62,6 +62,7 @@ func (s *ModelsSuite) SetUpTest(c *check.C) {
 	// Mock the database
 	config := config.Settings{EnableUserAuth: true, JwtSecret: "SomeTestSecretValue"}
 	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+	datastore.Environ.KeypairDB, _ = datastore.GetErrorMockKeyStore(config)
 
 	// Disable CSRF for tests as we do not have a secure connection
 	service.MiddlewareWithCSRF = service.Middleware
@@ -357,7 +358,12 @@ func (s *ModelsSuite) TestAssertionHandler(c *check.C) {
 		{true, "POST", "/api/models/assertion", []byte(data), 400, "application/json; charset=UTF-8", 0, false, false, 0},
 	}
 
+	// Mock the database and the keystore
+	config := config.Settings{KeyStoreType: "memory", JwtSecret: "SomeTestSecretValue"}
+	datastore.Environ = &datastore.Env{DB: &datastore.MockDB{}, Config: config}
+
 	for _, t := range tests {
+		datastore.Environ.KeypairDB, _ = datastore.TestMemoryKeyStore(config)
 		datastore.Environ.Config.EnableUserAuth = t.EnableAuth
 		if t.MockError {
 			datastore.Environ.DB = &datastore.ErrorMockDB{}

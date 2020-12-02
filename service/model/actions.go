@@ -23,10 +23,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/CanonicalLtd/serial-vault/service/log"
+	"github.com/snapcore/snapd/asserts"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
+	"github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/response"
 )
 
@@ -171,7 +172,7 @@ func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, 
 	}
 
 	// Check that the user has permissions to access the model
-	_, err = datastore.Environ.DB.GetAllowedModel(assert.ModelID, user)
+	model, err := datastore.Environ.DB.GetAllowedModel(assert.ModelID, user)
 	if err != nil {
 		log.Println(err)
 		response.FormatStandardResponse(false, "error-get-model", "", err.Error(), w)
@@ -182,6 +183,34 @@ func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, 
 	if err != nil {
 		log.Println(err)
 		response.FormatStandardResponse(false, "create-assertion", "", err.Error(), w)
+		return
+	}
+
+	// create a signed model assertion
+	assertionHeaders, keypair, err := datastore.CreateModelAssertionHeaders(model)
+	if err != nil {
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-signing-assertions", "", err.Error(), w)
+		return
+	}
+
+	signedAssertion, err := datastore.Environ.KeypairDB.SignAssertion(asserts.ModelType,
+		assertionHeaders,
+		[]byte(""),
+		model.BrandID,
+		keypair.KeyID,
+		keypair.SealedKey)
+	if err != nil {
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-signing-assertions", "", err.Error(), w)
+		return
+	}
+
+	// store a signed model assertion in the database
+	err = datastore.Environ.DB.UpsertSignedModelAssert(model.ID, signedAssertion)
+	if err != nil {
+		log.Println(err)
+		response.FormatStandardResponse(false, "error-signing-assertions", "", err.Error(), w)
 		return
 	}
 
