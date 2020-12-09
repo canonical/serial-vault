@@ -284,7 +284,7 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 
 // UpdateModelAssert updates the model assertion details
 // revision of the model assertion will be incremented each time
-// this funtion is called
+// this function is called
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	var err error
 
