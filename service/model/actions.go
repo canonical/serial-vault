@@ -187,7 +187,7 @@ func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, 
 	}
 
 	// create a signed model assertion
-	assertionHeaders, keypair, err := datastore.CreateModelAssertionHeaders(model)
+	assertionHeaders, keypair, err := datastore.ModelAssertionHeadersForModel(model)
 	if err != nil {
 		log.Println(err)
 		response.FormatStandardResponse(false, "error-signing-assertions", "", err.Error(), w)

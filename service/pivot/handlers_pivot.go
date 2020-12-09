@@ -86,7 +86,7 @@ func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorRespon
 	assertions := []asserts.Assertion{}
 
 	// Build the model assertion headers for the original model
-	assertionHeaders, keypair, err := datastore.CreateModelAssertionHeaders(substore.FromModel)
+	assertionHeaders, keypair, err := datastore.ModelAssertionHeadersForModel(substore.FromModel)
 	if err != nil {
 		svlog.Message("PIVOT", "create-assertion", err.Error())
 		return response.ErrorCreateModelAssertion

@@ -127,8 +127,10 @@ type ModelAssertion struct {
 	Modified      time.Time `json:"modified"`
 }
 
-// CreateModelAssertionHeaders returns the model assertion headers for a model
-func CreateModelAssertionHeaders(m Model) (map[string]interface{}, Keypair, error) {
+// ModelAssertionHeadersForModel returns the model assertion headers for a model
+// if the assertion part of the model is empty, the function will return the
+// model assertion from the database
+func ModelAssertionHeadersForModel(m Model) (map[string]interface{}, Keypair, error) {
 	// Get the assertion headers for the model
 	var err error
 	assert := m.ModelAssertion
@@ -158,21 +160,21 @@ func CreateModelAssertionHeaders(m Model) (map[string]interface{}, Keypair, erro
 
 	// Add the optional fields as needed
 	assert.Classic = formatClassic(assert.Classic)
-	if len(assert.Classic) != 0 {
+	if assert.Classic != "" {
 		headers["classic"] = assert.Classic
 	}
 
-	if len(assert.DisplayName) != 0 {
+	if assert.DisplayName != "" {
 		headers["display-name"] = assert.DisplayName
 	}
 
 	// Some headers are required for Ubuntu Core, whilst optional or invalid for Classic
 	if headers["classic"] == "true" {
 		// Classic
-		if len(assert.Architecture) != 0 {
+		if assert.Architecture != "" {
 			headers["architecture"] = assert.Architecture
 		}
-		if len(assert.Gadget) != 0 {
+		if assert.Gadget != "" {
 			headers["gadget"] = assert.Gadget
 		}
 	} else {
@@ -187,7 +189,7 @@ func CreateModelAssertionHeaders(m Model) (map[string]interface{}, Keypair, erro
 	}
 
 	// Check if the optional fields as needed
-	if len(assert.RequiredSnaps) == 0 {
+	if assert.RequiredSnaps == "" {
 		return headers, keypair, nil
 	}
 
@@ -223,7 +225,7 @@ func (db *DB) runSignedModelAssertTableMigration() error {
 		if model.ModelAssertion.ID == 0 {
 			continue
 		}
-		assertionHeaders, keypair, err := CreateModelAssertionHeaders(model)
+		assertionHeaders, keypair, err := ModelAssertionHeadersForModel(model)
 		if err != nil {
 			return err
 		}
@@ -281,8 +283,17 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 }
 
 // UpdateModelAssert updates the model assertion details
+// revision of the model assertion will be incremented each time
+// this funtion is called
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	var err error
+
+	// get the corresponding model assertion from the database
+	modelAssert, err := db.GetModelAssert(m.ID)
+	if err != nil {
+		return err
+	}
+	m.Revision = modelAssert.Revision + 1
 
 	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps, m.Base, m.Classic, m.DisplayName)
 
