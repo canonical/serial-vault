@@ -309,10 +309,6 @@ func (db *DB) UpsertSignedModelAssert(modelID int, revision int, assertion asser
 	return err
 }
 
-/*
-INSERT INTO signed_modelassertion (model_id, revision, body, headers, content, signature) VALUES ('2', '1', '', '{}', '', '')
-ON CONFLICT (model_id) DO UPDATE SET revision='1', body='', headers='{}', content='', signature='';
-*/
 type dbHeaders map[string]interface{}
 
 func (h *dbHeaders) Scan(src interface{}) error {

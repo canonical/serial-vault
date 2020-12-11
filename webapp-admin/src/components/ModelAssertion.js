@@ -157,7 +157,6 @@ class ModelAssertion extends Component {
     render() {
 
       var ma = this.state.assertion
-      console.log(ma)
       return (
         <tr>
             <td colSpan="7">
@@ -197,7 +196,7 @@ class ModelAssertion extends Component {
                             <input type="text" id="architecture" placeholder={T('architecture-description')}
                                 value={ma['architecture']} onChange={this.handleChangeArchitecture} />
                         </label>
-                        <label htmlFor="revision">{T('revision')}: (edit is deprecated, will be automatically incremented in the backend)
+                        <label htmlFor="revision">{T('revision')}: (editing is deprecated, will be automatically incremented in the backend)
                             <input type="number" id="revision" value={ma['revision']} disabled/>
                         </label>
                         <label htmlFor="gadget">{T('gadget')}:
