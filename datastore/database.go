@@ -58,7 +58,7 @@ type Datastore interface {
 	UpsertModelAssert(m ModelAssertion) error
 
 	CreateSignedModelAssertTable() error
-	UpsertSignedModelAssert(modelID int, assertion asserts.Assertion) error
+	UpsertSignedModelAssert(modelID int, revision int, assertion asserts.Assertion) error
 	GetSignedModelAssert(modelID int) (asserts.Assertion, error)
 
 	ListAllowedKeypairs(authorization User) ([]Keypair, error)

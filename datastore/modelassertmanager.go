@@ -32,7 +32,8 @@ import (
 // So it's enough to store in signed_modelassertion table only the latest signed assertion
 const createSignedModelAssertTableSQL = `
 	CREATE TABLE IF NOT EXISTS signed_modelassertion (
-		model_id INT references modelassertion NOT NULL,
+		model_id INT references model NOT NULL,
+		revision INT NOT NULL,
 		body BYTEA NOT NULL,
 		headers JSONB NOT NULL,
 	    content BYTEA NOT NULL,
@@ -44,10 +45,10 @@ const createSignedModelAssertTableSQL = `
 
 // Insert or overwrite signed assertion for a given model_id
 const upsertSignedModelAssertSQL = `
-INSERT INTO signed_modelassertion (model_id, body, headers, content, signature) 
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO signed_modelassertion (model_id, revision, body, headers, content, signature) 
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (model_id) DO UPDATE 
-SET body=$2, headers=$3, content=$4, signature=$5
+SET revision=$2, body=$3, headers=$4, content=$5, signature=$6
 `
 const deleteSignedModelAssertSQL = `
 DELETE FROM signed_modelassertion
@@ -227,7 +228,7 @@ func (db *DB) runSignedModelAssertTableMigration() error {
 		}
 		assertionHeaders, keypair, err := ModelAssertionHeadersForModel(model)
 		if err != nil {
-			return err
+			return fmt.Errorf("runSignedModelAssertTableMigration(): %v", err)
 		}
 		signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.ModelType,
 			assertionHeaders,
@@ -236,12 +237,12 @@ func (db *DB) runSignedModelAssertTableMigration() error {
 			keypair.KeyID,
 			keypair.SealedKey)
 		if err != nil {
-			return err
+			return fmt.Errorf("runSignedModelAssertTableMigration(): %v", err)
 		}
 
-		err = db.UpsertSignedModelAssert(model.ID, signedAssertion)
+		err = db.UpsertSignedModelAssert(model.ID, model.ModelAssertion.Revision, signedAssertion)
 		if err != nil {
-			return err
+			return fmt.Errorf("runSignedModelAssertTableMigration(): modelID=%d, revision=%d: err=%v", model.ID, model.ModelAssertion.Revision, err)
 		}
 	}
 	return nil
@@ -282,18 +283,9 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 	return createdID, nil
 }
 
-// UpdateModelAssert updates the model assertion details
-// revision of the model assertion will be incremented each time
-// this function is called
+// UpdateModelAssert updates the model assertion details of the model assertion
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	var err error
-
-	// get the corresponding model assertion from the database
-	modelAssert, err := db.GetModelAssert(m.ID)
-	if err != nil {
-		return err
-	}
-	m.Revision = modelAssert.Revision + 1
 
 	_, err = db.Exec(updateModelAssertSQL, m.ID, m.ModelID, m.KeypairID, m.Series, m.Architecture, m.Revision, m.Gadget, m.Kernel, m.Store, time.Now().UTC(), m.RequiredSnaps, m.Base, m.Classic, m.DisplayName)
 
@@ -305,7 +297,7 @@ func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 }
 
 // UpsertSignedModelAssert creates or updates signed model assertion
-func (db *DB) UpsertSignedModelAssert(modelID int, assertion asserts.Assertion) error {
+func (db *DB) UpsertSignedModelAssert(modelID int, revision int, assertion asserts.Assertion) error {
 	var err error
 	headers, err := json.Marshal(assertion.Headers())
 	if err != nil {
@@ -313,10 +305,14 @@ func (db *DB) UpsertSignedModelAssert(modelID int, assertion asserts.Assertion) 
 	}
 
 	content, signature := assertion.Signature()
-	_, err = db.Exec(upsertSignedModelAssertSQL, modelID, assertion.Body(), headers, content, signature)
+	_, err = db.Exec(upsertSignedModelAssertSQL, modelID, revision, assertion.Body(), headers, content, signature)
 	return err
 }
 
+/*
+INSERT INTO signed_modelassertion (model_id, revision, body, headers, content, signature) VALUES ('2', '1', '', '{}', '', '')
+ON CONFLICT (model_id) DO UPDATE SET revision='1', body='', headers='{}', content='', signature='';
+*/
 type dbHeaders map[string]interface{}
 
 func (h *dbHeaders) Scan(src interface{}) error {

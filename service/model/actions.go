@@ -178,6 +178,10 @@ func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, 
 		response.FormatStandardResponse(false, "error-get-model", "", err.Error(), w)
 		return
 	}
+	// Increment the revision before it is stored in the database
+	newRevision := assert.Revision + 1
+	assert.Revision = newRevision
+	model.ModelAssertion.Revision = newRevision
 
 	err = datastore.Environ.DB.UpsertModelAssert(assert)
 	if err != nil {
@@ -207,7 +211,7 @@ func assertionHeaders(w http.ResponseWriter, user datastore.User, apiCall bool, 
 	}
 
 	// store a signed model assertion in the database
-	err = datastore.Environ.DB.UpsertSignedModelAssert(model.ID, signedAssertion)
+	err = datastore.Environ.DB.UpsertSignedModelAssert(model.ID, newRevision, signedAssertion)
 	if err != nil {
 		log.Println(err)
 		response.FormatStandardResponse(false, "error-signing-assertions", "", err.Error(), w)

@@ -731,7 +731,7 @@ func (mdb *MockDB) UpdateModelAssert(m ModelAssertion) error {
 }
 
 // UpsertSignedModelAssert mock for updating signe model assertion record
-func (mdb *MockDB) UpsertSignedModelAssert(modelID int, assertion asserts.Assertion) error {
+func (mdb *MockDB) UpsertSignedModelAssert(modelID int, revision int, assertion asserts.Assertion) error {
 	return nil
 }
 
@@ -929,7 +929,7 @@ func (mdb *MockDB) HealthCheck() error {
 type ErrorMockDB struct{}
 
 // UpsertSignedModelAssert mock an error
-func (mdb *ErrorMockDB) UpsertSignedModelAssert(modelID int, assertion asserts.Assertion) error {
+func (mdb *ErrorMockDB) UpsertSignedModelAssert(modelID int, revision int, assertion asserts.Assertion) error {
 	return errors.New("error")
 }
 
