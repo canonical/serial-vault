@@ -46,7 +46,16 @@ func (s *AccountSuite) TestAccount(c *check.C) {
 			ErrorMessage: "Unknown command `invalid'. You should use the cache command"},
 		{
 			Args:         []string{"serial-vault-admin", "account", "cache"},
-			ErrorMessage: ""},
+			ErrorMessage: "",
+		},
+		{
+			Args:         []string{"serial-vault-admin", "account", "add", "acc123"},
+			ErrorMessage: "",
+		},
+		{
+			Args:         []string{"serial-vault-admin", "account", "add", "acc123", "-r"},
+			ErrorMessage: "",
+		},
 	}
 
 	for _, t := range tests {
