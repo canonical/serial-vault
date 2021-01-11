@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/CanonicalLtd/serial-vault/service/log"
@@ -255,17 +254,10 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 	return response.ErrorResponse{Success: true}
 }
 
-// CleanHeader removes single quotes and leading and trailing white spaces from the header
-func CleanHeader(header string) string {
-	header = strings.Replace(header, "'", "", -1)
-	header = strings.TrimSpace(header)
-	return header
-}
-
 func checkRemodelingRequest(serialReq *asserts.SerialRequest, modelAssert, serialAssert asserts.Assertion, apiKey string) response.ErrorResponse {
 	originalBrandID := serialReq.HeaderString("original-brand-id")
 	originalModel := serialReq.HeaderString("original-model")
-	originalSerial := CleanHeader(serialReq.HeaderString("original-serial"))
+	originalSerial := serialReq.HeaderString("original-serial")
 
 	if modelAssert == nil {
 		const msg = "Model assertion can't be empty for a remodeling request"
