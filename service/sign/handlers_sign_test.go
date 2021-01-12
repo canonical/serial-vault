@@ -34,7 +34,6 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service"
 	"github.com/CanonicalLtd/serial-vault/service/response"
-	"github.com/CanonicalLtd/serial-vault/service/sign"
 	"github.com/snapcore/snapd/asserts"
 	check "gopkg.in/check.v1"
 )
@@ -659,38 +658,5 @@ func (s *SignSuite) TestRemodeling(c *check.C) {
 		c.Assert(w.Header().Get("Content-Type"), check.Equals, t.Type)
 
 		datastore.Environ.DB = &datastore.MockDB{}
-	}
-}
-
-func (s *SignSuite) TestCleanHeader(c *check.C) {
-	tests := []struct {
-		name   string
-		header string
-		want   string
-	}{
-		{
-			name:   "case-1",
-			header: `'abc123'`,
-			want:   "abc123",
-		},
-		{
-			name:   "case-2",
-			header: `abc123 `,
-			want:   "abc123",
-		},
-		{
-			name:   "case-3",
-			header: "abc123",
-			want:   "abc123",
-		},
-		{
-			name:   "case-4",
-			header: "",
-			want:   "",
-		},
-	}
-	for _, tt := range tests {
-		got := sign.CleanHeader(tt.header)
-		c.Assert(got, check.Equals, tt.want)
 	}
 }
