@@ -133,7 +133,7 @@ if [ "$STATIC" = 1 ]; then
 
     echo Checking for ineffective assignments
     # ineffassign knows about ignoring vendor/ \o/
-    ./bin/ineffassign .
+    ./bin/ineffassign ./...
 
     echo Checking for naked returns
     got=$(./bin/nakedret ./... 2>&1)
