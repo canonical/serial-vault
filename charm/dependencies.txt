@@ -1,3 +1,2 @@
-ols-layers    git+ssh://git.launchpad.net/~ubuntuone-pqm-team/ols-charm-deps/+git/ols-layers;revno=123deb23
-charm-wheels  git+ssh://git.launchpad.net/~ubuntuone-hackers/ols-charm-deps/+git/wheels;revno=555749f1
-
+ols-layers      git+ssh://git.launchpad.net/~ubuntuone-pqm-team/ols-charm-deps/+git/ols-layers;revno=f148ad6d7684c963de86cae2b9ad701a13b509f4
+charm-wheels    git+ssh://git.launchpad.net/~ubuntuone-hackers/ols-charm-deps/+git/wheels;revno=HEAD

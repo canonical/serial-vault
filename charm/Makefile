@@ -10,7 +10,6 @@ endif
 
 TMPDIR ?= $(CURDIR)/tmp_charm
 CHARM_SRC ?= $(CURDIR)/charm
-CHARM_SERIES ?= xenial
 CHARM_EXCLUDE_FILE ?= build-exclude.txt
 PROJECT_WHEEL_DIR ?= $(TMPDIR)/dependencies
 
@@ -25,7 +24,7 @@ PRIVATE_CHARM_REPO_DIR = $(BUILDDIR)/build-$(LP_USER)
 PRIVATE_PUBLISH_REPO = $(shell echo "$(CHARM_PUBLISH_REPO)" | sed -e 's/~[^/]*\//~$(LP_USER)\//')
 
 JUJU_REPOSITORY = $(BUILDDIR)
-CHARM_BUILD_DIR = $(BUILDDIR)/$(CHARM_SERIES)/$(CHARM_NAME)
+CHARM_BUILD_DIR = $(BUILDDIR)/$(CHARM_NAME)
 
 
 LAYER_PATH = $(TMPDIR)/ols-layers/layer
@@ -73,7 +72,7 @@ $(CHARM_DEPS): $(CHARM_SRC)/dependencies.txt $(CODETREE) | $(BASENODE_CACHE) $(T
 .PHONY: $(CHARM_BUILD_DIR)
 $(CHARM_BUILD_DIR): $(CHARM_DEPS) | $(BUILDDIR)
 	rm -rf $(CHARM_BUILD_DIR)
-	PIP_NO_INDEX=true PIP_FIND_LINKS=$(CHARM_WHEELS_DIR) charm build -o $(BUILDDIR) -s $(CHARM_SERIES) -n $(CHARM_NAME) ./charm/serial-vault
+	PIP_NO_INDEX=true PIP_FIND_LINKS=$(CHARM_WHEELS_DIR) charm build -o $(BUILDDIR) -n $(CHARM_NAME) ./charm/serial-vault
 
 /snap/bin/charm:
 	sudo snap install charm --classic
