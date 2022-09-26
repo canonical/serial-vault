@@ -18,7 +18,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/juju/ratelimit v1.0.1 // indirect
 	github.com/juju/usso v0.0.0-20160418121039-5b79b358f4bb
-	github.com/lib/pq v0.0.0-20180327071824-d34b9ff171c2
+	github.com/lib/pq v1.10.7
 	github.com/mattn/go-sqlite3 v1.6.0
 	github.com/mediocregopher/mediocre-go-lib v0.0.0-20181029021733-cb65787f37ed // indirect
 	github.com/ojii/gettext.go v0.0.0-20170120061437-b6dae1d7af8a // indirect
