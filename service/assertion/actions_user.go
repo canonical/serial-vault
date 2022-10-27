@@ -154,6 +154,8 @@ func userRequestToAssertion(user SystemUserRequest, model datastore.Model) map[s
 			}
 		}
 		headers["serials"] = serials
+		// "serials" is only supported for format 1 or greater.
+		headers["format"] = "1"
 	}
 
 	if len(user.SSHKeys) > 0 {
