@@ -101,7 +101,7 @@ vendoring-ci: mkdir-tmp
 	${GO} mod tidy
 	mv ${VENDOR} ${VENDOR_TMP}
 	git clone $(VENDOR_BRANCH_URL) $(VENDOR)
-	cp -r ${VENDOR_TMP} .
+	@rsync -a -m --ignore-times --exclude /README --exclude /.git --delete "${VENDOR_TMP}/" "${VENDOR}/"
 	cd ${VENDOR} && git add . && git checkout -b vendoring-$(JOBDATE)
 	@echo "\n!!! Please go to $(VENDOR) folder check the changes and create a MP !!!\n"
 
