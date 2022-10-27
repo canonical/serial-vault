@@ -59,7 +59,7 @@ install:
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/serial-vault-admin
 	GOBIN=$(GOBIN) $(GO) install $(GOFLAGS) -ldflags "$(LDFLAGS) -w" -v github.com/CanonicalLtd/serial-vault/cmd/factory
-	
+
 .PHONY: build-static
 build-static:
 	$(info # Building ${SERVICE_NAME} binaries)
@@ -98,6 +98,7 @@ vendor:
 vendoring-ci: mkdir-tmp
 	rm -rf ${VENDOR_TMP}
 	${GO} mod vendor
+	${GO} mod tidy
 	mv ${VENDOR} ${VENDOR_TMP}
 	git clone $(VENDOR_BRANCH_URL) $(VENDOR)
 	cp -r ${VENDOR_TMP} .
