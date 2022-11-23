@@ -93,7 +93,7 @@ if [ "$STATIC" = 1 ]; then
 
     # go vet
     echo Running vet
-    go list ./... | grep -v '/vendor/' | xargs go vet
+    go vet -mod=vendor ./...
     
     echo Running lint
     for dir in $(go list -f '{{.Dir}}' ./... | grep -v '/vendor/' ); do

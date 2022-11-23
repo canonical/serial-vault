@@ -45,6 +45,10 @@ func (emkdb *errorMockKeypairManager) Put(privKey asserts.PrivateKey) error {
 	return errors.New("MOCK error saving the private key")
 }
 
+func (emkdb *errorMockKeypairManager) Delete(keyID string) error {
+	return errors.New("MOCK error deleting the private key")
+}
+
 // GetErrorMockKeyStore creates a mocked keystore
 func GetErrorMockKeyStore(config config.Settings) (*KeypairDatabase, error) {
 	mockStore := new(errorMockKeypairManager)
