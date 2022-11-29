@@ -6,6 +6,8 @@ maintainers:
 description: "A Go web service that digitally signs device assertion details."
 subordinate: false
 series:
+  - focal
+  - bionic
   - xenial
 provides:
   serial-vault:
