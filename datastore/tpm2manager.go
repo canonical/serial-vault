@@ -29,8 +29,8 @@ import (
 // and generating the key for sealing and unsealing signing keys. The context values provide
 // the TPM 2.0 authentication and these are stored in the database.
 // Main TPM 2.0 operations:
-//  * takeownership
-//  * createprimary
+//   - takeownership
+//   - createprimary
 func TPM2InitializeKeystore(command TPM20Command) error {
 	log.Println("Initialize the TPM Keystore...")
 
