@@ -37,6 +37,7 @@ var (
 	FilesystemStore = KeypairStoreType{"filesystem"}
 	DatabaseStore   = KeypairStoreType{"database"}
 	TPM20Store      = KeypairStoreType{"tpm2.0"}
+	ExtKeyMgrStore  = KeypairStoreType{"extkeymgr"}
 )
 
 // Common error messages.
@@ -106,6 +107,18 @@ func getKeyStore(config config.Settings) (*KeypairDatabase, error) {
 
 	case FilesystemStore.Name:
 		fsStore, err := asserts.OpenFSKeypairManager(config.KeyStorePath)
+		if err != nil {
+			return nil, err
+		}
+		db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
+			KeypairManager: fsStore,
+		})
+
+		keypairDB = KeypairDatabase{FilesystemStore, db, nil}
+		return &keypairDB, err
+
+	case ExtKeyMgrStore.Name:
+		fsStore, err := asserts.NewExternalKeypairManager(config.ExtKeyMgrPath)
 		if err != nil {
 			return nil, err
 		}
