@@ -18,7 +18,7 @@ require (
 	github.com/lib/pq v0.0.0-20180327071824-d34b9ff171c2
 	github.com/mattn/go-sqlite3 v1.6.0
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
-	github.com/prometheus/client_golang v1.1.0
+	github.com/prometheus/client_golang v1.11.1
 	github.com/snapcore/snapd v0.0.0-20221025171519-3c05e535e5cf
 	github.com/yohcop/openid-go v0.0.0-20170901155220-cfc72ed89575 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
