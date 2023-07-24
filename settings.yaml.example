@@ -30,6 +30,10 @@ keystoreSecret: "secret code to encrypt the auth-key hash"
 #keystorePath: "./keystore"
 #keystoreSecret: "this needs to be 32 bytes long!!"
 
+# for ext key mgr
+keystore: extkeymgr
+extKeyMGR: ./bin/script
+
 # 32 bytes long key to protect server from cross site request forgery attacks
 # CHANGEME: This csrfAuthKey value is only a sample. Please provide another custom generated one
 csrfAuthKey: "2E6ZYnVYUfDLRLV/ne8M6v1jyB/376BL9ORnN3Kgb04uSFalr2ygReVsOt0PaGEIRuID10TePBje5xdjIOEjQQ=="

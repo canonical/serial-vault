@@ -59,6 +59,7 @@ type Settings struct {
 	SyncUser       string `yaml:"syncUser"`
 	SyncAPIKey     string `yaml:"syncAPIKey"`
 	SentryDSN      string `yaml:"sentryDSN"`
+	ExtKeyMgrPath  string `yaml:"extKeyMGR"`
 }
 
 // SettingsFile is the path to the YAML configuration file
