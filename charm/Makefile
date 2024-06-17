@@ -117,7 +117,7 @@ charm-publish: charm-build charm-build-repo
 	# Need to force username and email because git can't autodetect this
 	# on jenkaas slaves.
 	cd $(CHARM_REPO_DIR) && git -c user.name="$(GIT_USERNAME)" -c user.email="$(GIT_EMAIL)"  commit -am "Build of $(CHARM_NAME) from $(TRUNK_REVNO)"
-	cd $(CHARM_REPO_DIR) && git tag "$(shell git rev-parse --short HEAD)"
+	cd $(CHARM_REPO_DIR) && git tag --force "$(shell git rev-parse --short HEAD)"
 	cd $(CHARM_REPO_DIR) && git push origin master --tags
 
 charm-private-publish:
