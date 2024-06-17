@@ -49,11 +49,11 @@ type TPM20KeypairOperator struct {
 
 // ImportKeypair adds a new signing-key to the TPM2.0 store.
 // The main TPM2.0 operations:
-//  * Use the auth/key-id as the key
-//  * Create an KeyedHash key for context
-//  * Use TPM to HMAC the auth-key (using KeyedHash context)
-//  * Use AES symmetric encryption to encrypt the signing-key file (using Go)
-//  * Encrypt the auth-key and store in the database (using Go)
+//   - Use the auth/key-id as the key
+//   - Create an KeyedHash key for context
+//   - Use TPM to HMAC the auth-key (using KeyedHash context)
+//   - Use AES symmetric encryption to encrypt the signing-key file (using Go)
+//   - Encrypt the auth-key and store in the database (using Go)
 func (tpmStore *TPM20KeypairOperator) ImportKeypair(authorityID, keyID, base64PrivateKey string) (string, error) {
 
 	// Get the parent context from the database settings table
@@ -84,9 +84,9 @@ func (tpmStore *TPM20KeypairOperator) ImportKeypair(authorityID, keyID, base64Pr
 }
 
 // UnsealKeypair unseals a TPM-sealed signing-key and stores it in the memory store
-//  * Decrypt the auth-key
-//  * Decrypt the signing key
-//  * Load into memory store
+//   - Decrypt the auth-key
+//   - Decrypt the signing key
+//   - Load into memory store
 func (tpmStore *TPM20KeypairOperator) UnsealKeypair(authorityID string, keyID string, base64SealedSigningKey string) error {
 
 	return unsealKeypair(authorityID, keyID, base64SealedSigningKey)

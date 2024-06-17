@@ -35,10 +35,10 @@ type DatabaseKeypairOperator struct{}
 
 // ImportKeypair adds a new signing-key to the database key store.
 // The main operations:
-//  * Use the auth/key-id as the key
-//  * Use HMAC the auth-key
-//  * Use AES symmetric encryption to encrypt the signing-key file
-//  * Encrypt the auth-key and store in the database
+//   - Use the auth/key-id as the key
+//   - Use HMAC the auth-key
+//   - Use AES symmetric encryption to encrypt the signing-key file
+//   - Encrypt the auth-key and store in the database
 func (dbStore *DatabaseKeypairOperator) ImportKeypair(authorityID, keyID, base64PrivateKey string) (string, error) {
 	// Generate an HMAC hash of the auth-key
 	authKeyHash, err := dbStore.generateEncryptionKey(authorityID, keyID)
@@ -75,9 +75,9 @@ func (dbStore *DatabaseKeypairOperator) generateEncryptionKey(authorityID, keyID
 }
 
 // UnsealKeypair unseals a database-stored signing-key and stores it in the memory store
-//  * Decrypt the auth-key
-//  * Decrypt the signing key
-//  * Load into memory store
+//   - Decrypt the auth-key
+//   - Decrypt the signing key
+//   - Load into memory store
 func (dbStore *DatabaseKeypairOperator) UnsealKeypair(authorityID string, keyID string, base64SealedSigningKey string) error {
 	return unsealKeypair(authorityID, keyID, base64SealedSigningKey)
 }
