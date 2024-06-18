@@ -38,7 +38,7 @@ recommend using LXD container for this purpose. To get started with LXD, please 
   lxc launch ubuntu:16.04 serial-vault -p default -p $USER
   lxc ls
   ssh -A <container-ip>
-  serial-vault:~$ git clone https://github.com/CanonicalLtd/serial-vault.git
+  serial-vault:~$ git clone https://github.com/canonical/serial-vault.git
   serial-vault:~$ cd serial-vault
   serial-vault:~/serial-vault$ sudo ./setup-container
   serial-vault:~/serial-vault$ make bootstrap
@@ -94,7 +94,7 @@ csrfAuthKey: "32_BYTES_LONG_CSRF_AUTH_KEY"
 
 ### Run the service
   ```bash
-  $ cd $GOPATH/src/github.com/CanonicalLtd/serial-vault
+  $ cd $GOPATH/src/github.com/canonical/serial-vault
   # run the service in sign/API mode
   $ make run-sign
   # run the serivce in admin/UI
@@ -110,7 +110,7 @@ everything apart from the Apache front-end units. There is an example of using J
 ## Try with docker
 
   ```bash
-  $ git clone https://github.com/CanonicalLtd/serial-vault
+  $ git clone https://github.com/canonical/serial-vault
   $ make run-docker
   # remove containers after try
   $ make stop-docker
@@ -191,7 +191,7 @@ Production build for the frontend part (javascript and css) is semi-automated an
 You can find the configuration for this process in `.github/workflows/nodejs.yml`. The build process starts automatically after the PR is approved 
 and pushed to `master`. 
 
-You can see the build process in [actions](https://github.com/CanonicalLtd/serial-vault/actions) tab of this project.
+You can see the build process in [actions](https://github.com/canonical/serial-vault/actions) tab of this project.
 After the successful build the automation bot will create a PR with the generated build artifact (minified javascript code) in the `static/` 
 directory of this project. These PRs can be merged manually.
 
@@ -300,6 +300,6 @@ The serial assertion of the manufacturer's device.
 #### Output message
 The method returns details of the serial assertion of the pivoted model, to convert the device to a reseller model.
 
-[travis-image]: https://travis-ci.org/CanonicalLtd/serial-vault.svg?branch=master
-[travis-url]: https://travis-ci.org/CanonicalLtd/serial-vault
-[actions]: https://github.com/CanonicalLtd/serial-vault/actions
+[travis-image]: https://travis-ci.org/canonical/serial-vault.svg?branch=master
+[travis-url]: https://travis-ci.org/canonical/serial-vault
+[actions]: https://github.com/canonical/serial-vault/actions
