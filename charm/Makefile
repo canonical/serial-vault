@@ -110,15 +110,17 @@ charm-check:
 	curl http://$(PROXY)/_status/check
 
 
-charm-publish: TRUNK_REVNO=$(shell bzr revision-info)
+charm-publish: GITREF ?= $(shell git symbolic-ref HEAD)
+charm-publish: GITHASH := $(shell git rev-parse $(or $(TAG),$(GITREF)))
+charm-publish: GITHASH_SHORT := $(shell git rev-parse --short $(or $(TAG),$(GITREF)))
 charm-publish: charm-build charm-build-repo
 	rsync -a -m --ignore-times --exclude .git --delete $(CHARM_BUILD_DIR)/ $(CHARM_REPO_DIR)/
 	cd $(CHARM_REPO_DIR) && git add --no-ignore-removal .
 	# Need to force username and email because git can't autodetect this
 	# on jenkaas slaves.
-	cd $(CHARM_REPO_DIR) && git -c user.name="$(GIT_USERNAME)" -c user.email="$(GIT_EMAIL)"  commit -am "Build of $(CHARM_NAME) from $(TRUNK_REVNO)"
-	cd $(CHARM_REPO_DIR) && git tag "$(shell git rev-parse --short HEAD)"
-	cd $(CHARM_REPO_DIR) && git push origin master --tags
+	cd $(CHARM_REPO_DIR) && git tag --list | grep "$(GITHASH_SHORT)" 2>&1 >/dev/null && echo "Tag $(GITHASH_SHORT) already exists, skipping" || \
+	    (git -c user.name="$(GIT_USERNAME)" -c user.email="$(GIT_EMAIL)" commit -am "Build of $(CHARM_NAME) from $(GITHASH_SHORT)" && \
+		git tag $(GITHASH_SHORT) && git push origin master --tags)
 
 charm-private-publish:
 	git ls-remote -q $(PRIVATE_PUBLISH_REPO) || ( cd $$(mktemp -d); git init; git commit --allow-empty -m 'init'; git push $(PRIVATE_PUBLISH_REPO) master)
