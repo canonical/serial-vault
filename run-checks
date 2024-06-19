@@ -91,12 +91,11 @@ if [ "$STATIC" = 1 ]; then
         exit 1
     fi
 
-    # TODO: disable go vet until go version upgrade
     # go vet
     echo Running vet
     go vet -mod=vendor ./...
     
-    # TODO: disable go vet until go version upgrade
+    # TODO: disable lint until go version upgrade
     #echo Running lint
     #for dir in $(go list -f '{{.Dir}}' ./... | grep -v '/vendor/' ); do
     #    lint="$(./bin/golint "$dir")"
@@ -133,7 +132,7 @@ if [ "$STATIC" = 1 ]; then
         ./bin/misspell -error -i auther,PROCES,PROCESSS,proces,processs,exportfs "$file"
     done
 
-    # TODO: disable go vet until go version upgrade
+    # TODO: disable ineffassign until go version upgrade
     #echo Checking for ineffective assignments
     # ineffassign knows about ignoring vendor/ \o/
     #./bin/ineffassign ./...
