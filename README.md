@@ -300,6 +300,4 @@ The serial assertion of the manufacturer's device.
 #### Output message
 The method returns details of the serial assertion of the pivoted model, to convert the device to a reseller model.
 
-[travis-image]: https://travis-ci.org/canonical/serial-vault.svg?branch=master
-[travis-url]: https://travis-ci.org/canonical/serial-vault
 [actions]: https://github.com/canonical/serial-vault/actions
