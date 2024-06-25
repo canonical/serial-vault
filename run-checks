@@ -126,7 +126,7 @@ if [ "$STATIC" = 1 ]; then
 
     echo Checking spelling errors
     for file in *; do
-        if [ "$file" = "vendor" ] || [ "$file" = "static" ] || [ "$file" = "webapp-admin" ] || [ "$file" = "webapp-user" ] || [ "$file" = "test" ] || [ "$file" = "tmp" ] || [ "$file" = "tmp_charm" ] ; then
+        if [ "$file" = "vendor" ] || [ "$file" = "static" ] || [ "$file" = "webapp-admin" ] || [ "$file" = "webapp-user" ] || [ "$file" = "test" ] || [ "$file" = "tmp" ] || [ "$file" = "tmp_charm" ] || [ "$file" = "dist" ]; then
             continue
         fi
         ./bin/misspell -error -i auther,PROCES,PROCESSS,proces,processs,exportfs "$file"

@@ -4,6 +4,8 @@ go 1.13
 
 require (
 	github.com/Masterminds/squirrel v1.2.0
+	github.com/alexkohler/nakedret v1.0.1 // indirect
+	github.com/client9/misspell v0.3.4 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/getsentry/sentry-go v0.8.0
 	github.com/godbus/dbus v4.1.0+incompatible // indirect
@@ -15,7 +17,7 @@ require (
 	github.com/juju/loggo v0.0.0-20180524022052-584905176618 // indirect
 	github.com/juju/testing v0.0.0-20180920084828-472a3e8b2073 // indirect
 	github.com/juju/usso v0.0.0-20160418121039-5b79b358f4bb
-	github.com/lib/pq v0.0.0-20180327071824-d34b9ff171c2
+	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.6.0
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/prometheus/client_golang v1.1.0
