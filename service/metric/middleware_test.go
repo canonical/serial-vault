@@ -11,10 +11,10 @@ import (
 )
 
 var expectedPrometheusData = map[string]string{
-	"http_in_errors":   `label:<name:"method" value:"GET" > label:<name:"status" value:"500" > label:<name:"view" value:"testError" > counter:<value:1 >`,
-	"http_in_latency":  `label:<name:"method" value:"GET" > label:<name:"status" value:"200" > label:<name:"view" value:"testOK" > histogram:<sample_count:1`,
-	"http_in_requests": `label:<name:"method" value:"GET" > label:<name:"status" value:"200" > label:<name:"view" value:"testOK" > counter:<value:1 >`,
-	"http_in_timeouts": `label:<name:"method" value:"GET" > label:<name:"view" value:"testTimeout" > counter:<value:1 > `,
+	"http_in_errors":   `label:{name:"method" value:"GET"} label:{name:"status" value:"500"} label:{name:"view" value:"testError"} counter:{value:1`,
+	"http_in_latency":  `label:{name:"method" value:"GET"} label:{name:"status" value:"200"} label:{name:"view" value:"testOK"} histogram:{sample_count:1`,
+	"http_in_requests": `label:{name:"method" value:"GET"} label:{name:"status" value:"200"} label:{name:"view" value:"testOK"} counter:{value:1`,
+	"http_in_timeouts": `label:{name:"method" value:"GET"} label:{name:"view" value:"testTimeout"} counter:{value:1`,
 }
 
 func TestCollectAPIStats(t *testing.T) {

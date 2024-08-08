@@ -29,7 +29,7 @@ import (
 	"net/http"
 
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/juju/usso/openid"
 )
 
