@@ -68,8 +68,10 @@ func TestCollectAPIStats(t *testing.T) {
 			t.Fatalf("metric %s not found", metric.GetName())
 		}
 
-		if !strings.HasPrefix(metric.Metric[0].String(), expectedPrefix) {
-			t.Fatalf("\ngot metric: %s\n  expected: %s\n", metric.Metric[0].String(), expectedPrefix)
+		// convert any amount of spaces to 1
+		actual_metric := strings.Join(strings.Fields(metric.Metric[0].String()), " ")
+		if !strings.HasPrefix(actual_metric, expectedPrefix) {
+			t.Fatalf("\ngot metric: %s\n  expected: %s\n", actual_metric, expectedPrefix)
 		}
 	}
 }
