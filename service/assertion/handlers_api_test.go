@@ -56,12 +56,12 @@ type AssertionTest struct {
 var expectedPrometheusData = []string{
 	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"200"}\s+label:{name:"view"\s+value:"assertionAPISystemUser"}\s+counter:{value:2.*`,
 	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"200"}\s+label:{name:"view"\s+value:"assertionAPIValidateSerial"}\s+counter:{value:1.*`,
-	`label:{name:"method"\s+value:"POST"} label:{name:"status"\s+value:"200"} label:{name:"view"\s+value:"assertionModelAssertion"} counter:{value:2.*`,
-	`label:{name:"method"\s+value:"POST"} label:{name:"status"\s+value:"200"} label:{name:"view"\s+value:"assertionSystemUserAssertion"} counter:{value:4.*`,
-	`label:{name:"method"\s+value:"POST"} label:{name:"status"\s+value:"400"} label:{name:"view"\s+value:"assertionAPISystemUser"} counter:{value:3.*`,
-	`label:{name:"method"\s+value:"POST"} label:{name:"status"\s+value:"400"} label:{name:"view"\s+value:"assertionAPIValidateSerial"} counter:{value:8.*`,
-	`label:{name:"method"\s+value:"POST"} label:{name:"status"\s+value:"400"} label:{name:"view"\s+value:"assertionModelAssertion"} counter:{value:8.*`,
-	`label:{name:"method"\s+value:"POST"} label:{name:"status"\s+value:"400"} label:{name:"view"\s+value:"assertionSystemUserAssertion"} counter:{value:5.*`,
+	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"200"}\s+label:{name:"view"\s+value:"assertionModelAssertion"}\s+counter:{value:2.*`,
+	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"200"}\s+label:{name:"view"\s+value:"assertionSystemUserAssertion"}\s+counter:{value:4.*`,
+	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"400"}\s+label:{name:"view"\s+value:"assertionAPISystemUser"}\s+counter:{value:3.*`,
+	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"400"}\s+label:{name:"view"\s+value:"assertionAPIValidateSerial"}\s+counter:{value:8.*`,
+	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"400"}\s+label:{name:"view"\s+value:"assertionModelAssertion"}\s+counter:{value:8.*`,
+	`label:{name:"method"\s+value:"POST"}\s+label:{name:"status"\s+value:"400"}\s+label:{name:"view"\s+value:"assertionSystemUserAssertion"}\s+counter:{value:5.*`,
 }
 
 var _ = check.Suite(&AssertionSuite{})
