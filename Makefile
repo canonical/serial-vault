@@ -113,8 +113,8 @@ unit-test:
 .PHONY: static-test
 static-test:
 	$(info # Running static checks for ${SERVICE_NAME})
-	GOBIN=$(GOBIN) ${GO} get github.com/client9/misspell/cmd/misspell@v0.3.4
-	GOBIN=$(GOBIN) ${GO} get github.com/alexkohler/nakedret@v1.0.1
+	GOBIN=$(GOBIN) ${GO} install github.com/client9/misspell/cmd/misspell@v0.3.4
+	GOBIN=$(GOBIN) ${GO} install github.com/alexkohler/nakedret@v1.0.1
 	./run-checks --static
 
 .PHONY: test

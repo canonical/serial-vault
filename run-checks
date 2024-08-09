@@ -154,7 +154,6 @@ if [ ! -z "$UNIT" ]; then
     # tests
     echo Running tests from "$PWD"
     for pkg in $(go list ./... | grep -v '/vendor/' ); do
-        go test -mod=vendor -i "$pkg"
         $goctest -v -coverprofile=.coverage/profile.out -covermode="$COVERMODE" "$pkg"
         append_coverage .coverage/profile.out
     done

@@ -11,10 +11,10 @@ import (
 )
 
 var expectedPrometheusData = map[string]string{
-	"http_in_errors":   `label:<name:"method" value:"GET" > label:<name:"status" value:"500" > label:<name:"view" value:"testError" > counter:<value:1 >`,
-	"http_in_latency":  `label:<name:"method" value:"GET" > label:<name:"status" value:"200" > label:<name:"view" value:"testOK" > histogram:<sample_count:1`,
-	"http_in_requests": `label:<name:"method" value:"GET" > label:<name:"status" value:"200" > label:<name:"view" value:"testOK" > counter:<value:1 >`,
-	"http_in_timeouts": `label:<name:"method" value:"GET" > label:<name:"view" value:"testTimeout" > counter:<value:1 > `,
+	"http_in_errors":   `label:{name:"method" value:"GET"} label:{name:"status" value:"500"} label:{name:"view" value:"testError"} counter:{value:1`,
+	"http_in_latency":  `label:{name:"method" value:"GET"} label:{name:"status" value:"200"} label:{name:"view" value:"testOK"} histogram:{sample_count:1`,
+	"http_in_requests": `label:{name:"method" value:"GET"} label:{name:"status" value:"200"} label:{name:"view" value:"testOK"} counter:{value:1`,
+	"http_in_timeouts": `label:{name:"method" value:"GET"} label:{name:"view" value:"testTimeout"} counter:{value:1`,
 }
 
 func TestCollectAPIStats(t *testing.T) {
@@ -68,8 +68,10 @@ func TestCollectAPIStats(t *testing.T) {
 			t.Fatalf("metric %s not found", metric.GetName())
 		}
 
-		if !strings.HasPrefix(metric.Metric[0].String(), expectedPrefix) {
-			t.Fatalf("\ngot metric: %s\n  expected: %s\n", metric.Metric[0].String(), expectedPrefix)
+		// convert any amount of spaces to 1
+		actual_metric := strings.Join(strings.Fields(metric.Metric[0].String()), " ")
+		if !strings.HasPrefix(actual_metric, expectedPrefix) {
+			t.Fatalf("\ngot metric: %s\n  expected: %s\n", actual_metric, expectedPrefix)
 		}
 	}
 }
