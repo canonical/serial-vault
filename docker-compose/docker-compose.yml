@@ -1,7 +1,7 @@
 version: '2'
 services:
   db:
-    image: postgres
+    image: postgres:9
     env_file:
       - ./env
   web:
