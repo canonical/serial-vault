@@ -7,7 +7,7 @@ import (
 	"github.com/CanonicalLtd/serial-vault/datastore"
 	"github.com/CanonicalLtd/serial-vault/service/auth"
 	"github.com/CanonicalLtd/serial-vault/usso"
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 )
 
 func getUserFromJWT(w http.ResponseWriter, r *http.Request) (datastore.User, error) {
