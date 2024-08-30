@@ -20,7 +20,15 @@ export DEBIAN_FRONTEND=noninteractive
 # the lxc, as the project (and its tests) assume an English machine.
 sed -i 's/LANG=.*/LC_ALL="en_US.UTF-8"/' /etc/default/locale
 
-snap install go --channel 1.22.5 --classic
+# install classic snaps, use ols-vms.conf as the source
+for snap_ in $( grep sideload.classic_snaps ols-vms.conf  | cut -d '=' -f 2 | xargs | tr " " "\n" | cut -d_ -f1 ) ; do
+    snap install ${snap_} --classic
+done
+
+# install strictly confined snaps
+for snap_ in $(grep 'sideload.snaps\s*=' ols-vms.conf | cut -d '=' -f 2 | xargs | tr " " "\n" | cut -d_ -f1) ; do
+    snap install ${snap_}
+done
 
 # Let's make sure your system is up to date
 apt-get update

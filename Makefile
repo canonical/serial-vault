@@ -6,7 +6,8 @@ LOCAL_BIN:=${TMP}/bin
 GOBIN=${BASEDIR}/bin
 
 GIT_REVISION = $(shell git rev-parse --short HEAD)
-VERSION ?= $(shell git describe --tags --abbrev=0)
+# get the exact tag if we are on "release mode" or append git-HASH if not yet on release
+VERSION ?= $(shell git describe --exact-match --tags 2>/dev/null || git describe --tags)
 JOBDATE ?= $(shell date -u +%Y-%m-%dT%H%M%SZ)
 
 # --ldflags sets the flags that are passed to 'go tool link'
