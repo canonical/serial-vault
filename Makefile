@@ -137,7 +137,7 @@ SWIFT_TARGET_NAME=serial-vault-builds/$(VERSION)/serial-vault.tar.gz
 .PHONY: publish-tarball
 publish-tarball: vendor-ci mkdir-tmp build-tarball
 	[ ! -e ~/.config/swift/serial-vault ] || . ~/.config/swift/serial-vault; \
-	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(SWIFT_TARGET_NAME) $(TGZ_NAME) serial-vault=$(VERSION)
+	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) $(SWIFT_TARGET_NAME) $(TGZ_NAME) serial-vault=$(VERSION); \
 	./publish-to-swift --debug $(SWIFT_CONTAINER_NAME) ${SWIFT_TARGET_NAME}.md5 $(TGZ_NAME).md5 serial-vault=$(VERSION)
 
 # only for dev/testing, don't commit output of this command by yourself
