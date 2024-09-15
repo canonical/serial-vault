@@ -61,6 +61,7 @@ class App extends Component {
     }
 
     history.listen(this.handleNavigation.bind(this))
+    this.signinglog = React.createRef();
     this.getAccounts()
   }
 
@@ -150,7 +151,9 @@ class App extends Component {
 
   updateDataForRoute(selectedAccount) {
     var currentSection = sectionFromPath(window.location.pathname);
-
+    if (currentSection === 'signinglog') {
+      this.signinglog.current.handleAccountChange(selectedAccount.AuthorityID);
+    }
     if(currentSection==='accounts') {this.getKeypairs(selectedAccount.AuthorityID)}
     if(currentSection==='signing-keys') {this.getKeypairs(selectedAccount.AuthorityID)}
     if(currentSection==='models') {
@@ -262,7 +265,9 @@ class App extends Component {
 
           {currentSection==='accounts'? this.renderAccounts() : ''}
           {currentSection==='signinglog'? <SigningLog 
+              ref={this.signinglog}
               token={this.props.token} 
+              onAccountChange={this.handleAccountChange}
               selectedAccount={this.state.selectedAccount} /> : ''}
 
           {currentSection==='substores'? <SubstoreList token={this.props.token}

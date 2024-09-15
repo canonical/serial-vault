@@ -42,13 +42,20 @@ class SigningLog extends Component {
         authorityID: this.props.selectedAccount.AuthorityID,
     };
     this.getSigningLogs(0, '', '')
-    this.getSigningLogFilters(this.state.authorityID)
+    this.getSigningLogFilters()
   }
 
   handleExpansionClick = (value) => {
     var expanded = this.state.expanded;
     expanded[value] = !expanded[value]
     this.setState({expanded: expanded})
+  }
+
+  handleAccountChange = (authorityID) => {
+    this.setState({authorityID: authorityID}, () => {
+      this.getSigningLogs(0, '', '')
+      this.getSigningLogFilters()  
+    });
   }
 
   handleItemClick = (index, key) => {
