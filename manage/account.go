@@ -22,4 +22,5 @@ package manage
 // AccountCommand is the main command for account management
 type AccountCommand struct {
 	Cache AccountCacheCommand `command:"cache" alias:"c" description:"Cache the account assertions from the store in the database"`
+	Add   AccountAddCommand   `command:"add" alias:"a" description:"Add a new account"`
 }

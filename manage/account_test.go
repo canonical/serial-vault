@@ -40,13 +40,22 @@ func (s *AccountSuite) TestAccount(c *check.C) {
 	tests := []manTest{
 		{
 			Args:         []string{"serial-vault-admin", "account"},
-			ErrorMessage: "Please specify the cache command"},
+			ErrorMessage: "Please specify one command of: add or cache"},
 		{
 			Args:         []string{"serial-vault-admin", "account", "invalid"},
-			ErrorMessage: "Unknown command `invalid'. You should use the cache command"},
+			ErrorMessage: "Unknown command `invalid'. Please specify one command of: add or cache"},
 		{
 			Args:         []string{"serial-vault-admin", "account", "cache"},
-			ErrorMessage: ""},
+			ErrorMessage: "",
+		},
+		{
+			Args:         []string{"serial-vault-admin", "account", "add", "acc123"},
+			ErrorMessage: "",
+		},
+		{
+			Args:         []string{"serial-vault-admin", "account", "add", "acc123", "-r"},
+			ErrorMessage: "",
+		},
 	}
 
 	for _, t := range tests {
