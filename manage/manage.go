@@ -20,6 +20,8 @@
 package manage
 
 import (
+	"log"
+
 	"github.com/CanonicalLtd/serial-vault/config"
 	"github.com/CanonicalLtd/serial-vault/datastore"
 )
@@ -47,4 +49,10 @@ func openDatabase() {
 
 	// Open the connection to the database
 	datastore.OpenSysDatabase(datastore.Environ.Config.Driver, datastore.Environ.Config.DataSource)
+
+	// Opening the keypair manager to create the signing database
+	err := datastore.OpenKeyStore(datastore.Environ.Config)
+	if err != nil {
+		log.Panicf("Error initializing the signing-key database: %v", err)
+	}
 }

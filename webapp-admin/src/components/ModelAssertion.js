@@ -78,12 +78,6 @@ class ModelAssertion extends Component {
         this.setState({assertion: assertion});
     }
 
-    handleChangeRevision = (e) => {
-        var assertion = this.state.assertion;
-        assertion['revision'] = parseInt(e.target.value, 10);
-        this.setState({assertion: assertion});
-    }
-
     handleChangeBase = (e) => {
         var assertion = this.state.assertion;
         assertion['base'] = e.target.value;
@@ -163,7 +157,6 @@ class ModelAssertion extends Component {
     render() {
 
       var ma = this.state.assertion
-
       return (
         <tr>
             <td colSpan="7">
@@ -203,9 +196,8 @@ class ModelAssertion extends Component {
                             <input type="text" id="architecture" placeholder={T('architecture-description')}
                                 value={ma['architecture']} onChange={this.handleChangeArchitecture} />
                         </label>
-                        <label htmlFor="revision">{T('revision')}:
-                            <input type="number" id="revision" placeholder={T('revision-description')}
-                                value={ma['revision']} onChange={this.handleChangeRevision} />
+                        <label htmlFor="revision">{T('revision')}: (editing is deprecated, will be automatically incremented in the backend)
+                            <input type="number" id="revision" value={ma['revision']} disabled/>
                         </label>
                         <label htmlFor="gadget">{T('gadget')}:
                             <input type="text" id="gadget" placeholder={T('gadget-description')}

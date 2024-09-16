@@ -405,8 +405,10 @@ func (db *DB) deleteModel(model Model) (string, error) {
 func (db *DB) deleteModelFilteredByUser(model Model, username string) (string, error) {
 	var err error
 	err = db.transaction(func(tx *sql.Tx) error {
-
-		// Delete the model assertion - log but ignore error as the assertion may not exist
+		// Delete the model assertion and signed assertion - log but ignore error as the assertion may not exist
+		if err := db.deletSignedModelAssert(model.ID); err != nil {
+			log.Println(err)
+		}
 		if err := db.deleteModelAssert(model.ID); err != nil {
 			log.Println(err)
 		}

@@ -20,13 +20,17 @@
 package datastore
 
 import (
+	"encoding/base64"
 	"errors"
+	"io/ioutil"
 
 	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/CanonicalLtd/serial-vault/crypt"
 	"github.com/snapcore/snapd/asserts"
 )
 
 type errorMockKeypairManager struct{}
+type okMockKeypairManager struct{}
 
 // GetMemoryKeyStore creates a mocked keystore
 func GetMemoryKeyStore(config config.Settings) (*KeypairDatabase, error) {
@@ -58,4 +62,28 @@ func GetErrorMockKeyStore(config config.Settings) (*KeypairDatabase, error) {
 	})
 	kdb := KeypairDatabase{FilesystemStore, db, nil}
 	return &kdb, err
+}
+
+// TestMemoryKeyStore creates a mocked keystore
+func TestMemoryKeyStore(config config.Settings) (*KeypairDatabase, error) {
+	mockStore := new(okMockKeypairManager)
+	db, err := asserts.OpenDatabase(&asserts.DatabaseConfig{
+		KeypairManager: mockStore,
+	})
+	kdb := KeypairDatabase{FilesystemStore, db, nil}
+	return &kdb, err
+}
+
+func (m *okMockKeypairManager) Get(keyID string) (asserts.PrivateKey, error) {
+	signingKey, err := ioutil.ReadFile("../../keystore/TestDeviceKey.asc")
+	if err != nil {
+		return nil, err
+	}
+	encodedSigningKey := base64.StdEncoding.EncodeToString(signingKey)
+	privateKey, _, err := crypt.DeserializePrivateKey(encodedSigningKey)
+	return privateKey, err
+}
+
+func (m *okMockKeypairManager) Put(privKey asserts.PrivateKey) error {
+	return nil
 }

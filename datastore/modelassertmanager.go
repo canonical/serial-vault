@@ -20,9 +20,45 @@
 package datastore
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/snapcore/snapd/asserts"
 )
+
+// In the modelassertion table we store only the latest assertion.
+// So it's enough to store in signed_modelassertion table only the latest signed assertion
+const createSignedModelAssertTableSQL = `
+	CREATE TABLE IF NOT EXISTS signed_modelassertion (
+		model_id INT references model NOT NULL,
+		revision INT NOT NULL,
+		body BYTEA NOT NULL,
+		headers JSONB NOT NULL,
+	    content BYTEA NOT NULL,
+	    signature BYTEA NOT NULL,
+		ts TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+		UNIQUE (model_id)
+	);
+`
+
+// Insert or overwrite signed assertion for a given model_id
+const upsertSignedModelAssertSQL = `
+INSERT INTO signed_modelassertion (model_id, revision, body, headers, content, signature) 
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (model_id) DO UPDATE 
+SET revision=$2, body=$3, headers=$4, content=$5, signature=$6
+`
+const deleteSignedModelAssertSQL = `
+DELETE FROM signed_modelassertion
+WHERE model_id=$1
+`
+
+const getSignedModelAssertSQL = `
+SELECT body, headers, content, signature 
+FROM signed_modelassertion
+WHERE model_id=$1`
 
 const createModelAssertTableSQL = `
 	CREATE TABLE IF NOT EXISTS modelassertion (
@@ -92,6 +128,136 @@ type ModelAssertion struct {
 	Modified      time.Time `json:"modified"`
 }
 
+// ModelAssertionHeadersForModel returns the model assertion headers for a model
+// if the assertion part of the model is empty, the function will return the
+// model assertion from the database
+func ModelAssertionHeadersForModel(m Model) (map[string]interface{}, Keypair, error) {
+	// Get the assertion headers for the model
+	var err error
+	assert := m.ModelAssertion
+	if assert.ID == 0 {
+		assert, err = Environ.DB.GetModelAssert(m.ID)
+		if err != nil {
+			return nil, Keypair{}, err
+		}
+	}
+	// Get the keypair for the model assertion
+	keypair, err := Environ.DB.GetKeypair(assert.KeypairID)
+	if err != nil {
+		return nil, keypair, err
+	}
+
+	// Create the model assertion header
+	headers := map[string]interface{}{
+		"type":              asserts.ModelType.Name,
+		"authority-id":      m.BrandID,
+		"brand-id":          m.BrandID,
+		"series":            fmt.Sprintf("%d", assert.Series),
+		"model":             m.Name,
+		"store":             assert.Store,
+		"sign-key-sha3-384": keypair.KeyID,
+		"timestamp":         time.Now().Format(time.RFC3339),
+	}
+
+	// Add the optional fields as needed
+	assert.Classic = formatClassic(assert.Classic)
+	if assert.Classic != "" {
+		headers["classic"] = assert.Classic
+	}
+
+	if assert.DisplayName != "" {
+		headers["display-name"] = assert.DisplayName
+	}
+
+	// Some headers are required for Ubuntu Core, whilst optional or invalid for Classic
+	if headers["classic"] == "true" {
+		// Classic
+		if assert.Architecture != "" {
+			headers["architecture"] = assert.Architecture
+		}
+		if assert.Gadget != "" {
+			headers["gadget"] = assert.Gadget
+		}
+	} else {
+		// Core
+		headers["kernel"] = assert.Kernel
+		headers["architecture"] = assert.Architecture
+		headers["gadget"] = assert.Gadget
+
+		if len(assert.Base) != 0 {
+			headers["base"] = assert.Base
+		}
+	}
+
+	// Check if the optional fields as needed
+	if assert.RequiredSnaps == "" {
+		return headers, keypair, nil
+	}
+
+	snapList := strings.Split(assert.RequiredSnaps, ",")
+	reqdSnaps := []interface{}{}
+	for _, s := range snapList {
+		reqdSnaps = append(reqdSnaps, strings.TrimSpace(s))
+	}
+	headers["required-snaps"] = reqdSnaps
+	return headers, keypair, nil
+}
+
+func formatClassic(value string) string {
+	classic := strings.ToLower(value)
+	if classic != "true" && classic != "false" {
+		classic = ""
+	}
+	return classic
+}
+
+// TODO: remove me after migration is done
+// run over all models with assertion and store a
+// signed model assertion in the new table
+func (db *DB) runSignedModelAssertTableMigration() error {
+	// fetch the full catalogue of models from the database
+	// together with linked model assertion headers
+	models, err := db.listModelsFilteredByUser("")
+	if err != nil {
+		return err
+	}
+
+	for _, model := range models {
+		if model.ModelAssertion.ID == 0 {
+			continue
+		}
+		assertionHeaders, keypair, err := ModelAssertionHeadersForModel(model)
+		if err != nil {
+			return fmt.Errorf("runSignedModelAssertTableMigration(): %v", err)
+		}
+		signedAssertion, err := Environ.KeypairDB.SignAssertion(asserts.ModelType,
+			assertionHeaders,
+			[]byte(""),
+			model.BrandID,
+			keypair.KeyID,
+			keypair.SealedKey)
+		if err != nil {
+			return fmt.Errorf("runSignedModelAssertTableMigration(): %v", err)
+		}
+
+		err = db.UpsertSignedModelAssert(model.ID, model.ModelAssertion.Revision, signedAssertion)
+		if err != nil {
+			return fmt.Errorf("runSignedModelAssertTableMigration(): modelID=%d, revision=%d: err=%v", model.ID, model.ModelAssertion.Revision, err)
+		}
+	}
+	return nil
+}
+
+// CreateSignedModelAssertTable creates the database table for a signed model assertion
+func (db *DB) CreateSignedModelAssertTable() error {
+	_, err := db.Exec(createSignedModelAssertTableSQL)
+	if err == nil {
+		// TODO: this on time migration and should be removed after release
+		return db.runSignedModelAssertTableMigration()
+	}
+	return err
+}
+
 // CreateModelAssertTable creates the database table for a model assertion
 func (db *DB) CreateModelAssertTable() error {
 	_, err := db.Exec(createModelAssertTableSQL)
@@ -117,7 +283,7 @@ func (db *DB) CreateModelAssert(m ModelAssertion) (int, error) {
 	return createdID, nil
 }
 
-// UpdateModelAssert updates the model assertion details
+// UpdateModelAssert updates the model assertion details of the model assertion
 func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	var err error
 
@@ -128,6 +294,43 @@ func (db *DB) UpdateModelAssert(m ModelAssertion) error {
 	}
 
 	return nil
+}
+
+// UpsertSignedModelAssert creates or updates signed model assertion
+func (db *DB) UpsertSignedModelAssert(modelID int, revision int, assertion asserts.Assertion) error {
+	var err error
+	headers, err := json.Marshal(assertion.Headers())
+	if err != nil {
+		return err
+	}
+
+	content, signature := assertion.Signature()
+	_, err = db.Exec(upsertSignedModelAssertSQL, modelID, revision, assertion.Body(), headers, content, signature)
+	return err
+}
+
+type dbHeaders map[string]interface{}
+
+func (h *dbHeaders) Scan(src interface{}) error {
+	switch v := src.(type) {
+	case []byte:
+		return json.Unmarshal(v, h)
+	default:
+		return fmt.Errorf("unexpected type %T", src)
+	}
+}
+
+// GetSignedModelAssert returns signed model assertion
+func (db *DB) GetSignedModelAssert(modelID int) (asserts.Assertion, error) {
+	var headers dbHeaders
+	var body, content, signature []byte
+
+	err := db.QueryRow(getSignedModelAssertSQL, modelID).Scan(&body, &headers, &content, &signature)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching the model assertion for modelID=%d: %v", modelID, err)
+	}
+
+	return asserts.Assemble(headers, body, content, signature)
 }
 
 // UpsertModelAssert creates or updates the model assertion headers
@@ -145,6 +348,16 @@ func (db *DB) UpsertModelAssert(m ModelAssertion) error {
 	}
 
 	return err
+}
+
+// deleteModelAssert deletes the signed model assertion details
+func (db *DB) deletSignedModelAssert(modelID int) error {
+	var err error
+	_, err = db.Exec(deleteSignedModelAssertSQL, modelID)
+	if err != nil {
+		return fmt.Errorf("error deleting the signed model assertion: %v", err)
+	}
+	return nil
 }
 
 // deleteModelAssert deletes the model assertion details

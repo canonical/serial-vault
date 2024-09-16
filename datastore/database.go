@@ -24,6 +24,7 @@ import (
 	"database/sql"
 
 	"github.com/CanonicalLtd/serial-vault/config"
+	"github.com/snapcore/snapd/asserts"
 )
 
 const anyUserFilter = ""
@@ -55,6 +56,10 @@ type Datastore interface {
 	UpdateModelAssert(m ModelAssertion) error
 	GetModelAssert(modelID int) (ModelAssertion, error)
 	UpsertModelAssert(m ModelAssertion) error
+
+	CreateSignedModelAssertTable() error
+	UpsertSignedModelAssert(modelID int, revision int, assertion asserts.Assertion) error
+	GetSignedModelAssert(modelID int) (asserts.Assertion, error)
 
 	ListAllowedKeypairs(authorization User) ([]Keypair, error)
 	GetKeypair(keypairID int) (Keypair, error)

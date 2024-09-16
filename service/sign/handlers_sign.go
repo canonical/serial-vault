@@ -151,7 +151,6 @@ func isRemodelingSerialRequest(assertion *asserts.SerialRequest) bool {
 
 // Serial is the API method to sign serial assertions from the device
 func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
-
 	// Check that we have an authorised API key header
 	apiKey, err := request.CheckModelAPI(r)
 	if err != nil {
@@ -177,7 +176,6 @@ func Serial(w http.ResponseWriter, r *http.Request) response.ErrorResponse {
 		svlog.Message("SIGN", response.ErrorInvalidAssertion.Code, msg)
 		return response.ErrorResponse{Success: false, Code: response.ErrorInvalidAssertion.Code, Message: msg, StatusCode: http.StatusBadRequest}
 	}
-
 	// Double check the model assertion if present
 	modelAssert, ok := assertions["model"]
 	if ok {

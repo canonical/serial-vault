@@ -30,7 +30,6 @@ import (
 
 	"github.com/CanonicalLtd/serial-vault/account"
 	"github.com/CanonicalLtd/serial-vault/datastore"
-	assert "github.com/CanonicalLtd/serial-vault/service/assertion"
 	svlog "github.com/CanonicalLtd/serial-vault/service/log"
 	"github.com/CanonicalLtd/serial-vault/service/request"
 	"github.com/CanonicalLtd/serial-vault/service/response"
@@ -87,7 +86,7 @@ func ModelAssertion(w http.ResponseWriter, r *http.Request) response.ErrorRespon
 	assertions := []asserts.Assertion{}
 
 	// Build the model assertion headers for the original model
-	assertionHeaders, keypair, err := assert.CreateModelAssertionHeaders(substore.FromModel)
+	assertionHeaders, keypair, err := datastore.ModelAssertionHeadersForModel(substore.FromModel)
 	if err != nil {
 		svlog.Message("PIVOT", "create-assertion", err.Error())
 		return response.ErrorCreateModelAssertion
