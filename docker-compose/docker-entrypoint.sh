@@ -28,5 +28,5 @@ sed -i  \
   -e "s/KEYSTORE_SECRET/$KEYSTORE_SECRET/g" \
   settings.yaml
 
-go run cmd/serial-vault/main.go -mode=admin &
-go run cmd/serial-vault/main.go -mode=signing
+/usr/lib/go-1.13/bin/go run cmd/serial-vault/main.go -mode=admin &
+/usr/lib/go-1.13/bin/go run cmd/serial-vault/main.go -mode=signing
