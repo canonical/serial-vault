@@ -89,6 +89,11 @@ func (db *DB) CreateAllowedSubstore(store Substore, authorization User) (Substor
 		return store, errors.New("You do not have permissions to this account")
 	}
 
+	fromModel, err := db.getModel(store.FromModelID)
+	if err != nil || fromModel.BrandID != acc.AuthorityID {
+		return store, errors.New("The source model does not exist or does not belong to this account's brand")
+	}
+
 	switch authorization.Role {
 	case Invalid: // Authentication is disabled
 		fallthrough
